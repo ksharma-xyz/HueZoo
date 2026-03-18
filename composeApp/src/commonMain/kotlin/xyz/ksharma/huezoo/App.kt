@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.Home
@@ -23,42 +24,51 @@ import xyz.ksharma.huezoo.ui.theme.HuezooTheme
 fun App() {
     HuezooTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
-            val backstack = remember { mutableStateListOf<Any>(Home) }
+            val backStack = remember { mutableStateListOf<Any>(Home) }
 
             NavDisplay(
-                backstack = backstack,
-                onBack = { if (backstack.size > 1) backstack.removeLast() },
-            ) { entry ->
-                when (val destination = entry.key) {
-                    is Home -> HomeScreen(
-                        onNavigate = { backstack.add(it) },
-                    )
+                backStack = backStack,
+                onBack = { if (backStack.size > 1) backStack.removeLast() },
+                entryProvider = { destination ->
+                    when (destination) {
+                        is Home -> NavEntry(destination) {
+                            HomeScreen(onNavigate = { backStack.add(it) })
+                        }
 
-                    is ThresholdGame -> ThresholdScreen(
-                        onResult = { backstack.add(it) },
-                        onBack = { backstack.removeLast() },
-                    )
+                        is ThresholdGame -> NavEntry(destination) {
+                            ThresholdScreen(
+                                onResult = { backStack.add(it) },
+                                onBack = { backStack.removeLast() },
+                            )
+                        }
 
-                    is DailyGame -> DailyScreen(
-                        onResult = { backstack.add(it) },
-                        onBack = { backstack.removeLast() },
-                    )
+                        is DailyGame -> NavEntry(destination) {
+                            DailyScreen(
+                                onResult = { backStack.add(it) },
+                                onBack = { backStack.removeLast() },
+                            )
+                        }
 
-                    is Result -> ResultScreen(
-                        result = destination,
-                        onLeaderboard = { backstack.add(Leaderboard) },
-                        onPlayAgain = {
-                            backstack.removeAll { it is Result }
-                            backstack.add(ThresholdGame)
-                        },
-                        onBack = { backstack.removeLast() },
-                    )
+                        is Result -> NavEntry(destination) {
+                            ResultScreen(
+                                result = destination,
+                                onLeaderboard = { backStack.add(Leaderboard) },
+                                onPlayAgain = {
+                                    backStack.removeAll { it is Result }
+                                    backStack.add(ThresholdGame)
+                                },
+                                onBack = { backStack.removeLast() },
+                            )
+                        }
 
-                    is Leaderboard -> LeaderboardScreen(
-                        onBack = { backstack.removeLast() },
-                    )
-                }
-            }
+                        is Leaderboard -> NavEntry(destination) {
+                            LeaderboardScreen(onBack = { backStack.removeLast() })
+                        }
+
+                        else -> NavEntry(destination) {}
+                    }
+                },
+            )
         }
     }
 }
