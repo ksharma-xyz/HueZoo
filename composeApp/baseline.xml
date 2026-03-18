@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>Filename:Color.kt$xyz.ksharma.huezoo.ui.theme.Color.kt</ID>
+    <ID>FunctionNaming:MainViewController.kt$fun MainViewController()</ID>
+    <ID>MatchingDeclarationName:Color.kt$HuezooColors</ID>
+    <ID>MatchingDeclarationName:HuezooButton.kt$HuezooButtonVariant</ID>
+    <ID>ModifierMissing:App.kt$App</ID>
+    <ID>NoSemicolons:GameCard.kt$;</ID>
+    <ID>UnusedParameter:DailyScreen.kt$onBack: () -&gt; Unit</ID>
+    <ID>UnusedParameter:DailyScreen.kt$onResult: (Result) -&gt; Unit</ID>
+    <ID>UnusedParameter:HomeScreen.kt$onNavigate: (Any) -&gt; Unit</ID>
+    <ID>UnusedParameter:LeaderboardScreen.kt$onBack: () -&gt; Unit</ID>
+    <ID>UnusedParameter:PaywallSheet.kt$onDismiss: () -&gt; Unit</ID>
+    <ID>UnusedParameter:PaywallSheet.kt$onUnlock: () -&gt; Unit</ID>
+    <ID>UnusedParameter:PaywallSheet.kt$onWatchAd: () -&gt; Unit</ID>
+    <ID>UnusedParameter:ResultScreen.kt$onBack: () -&gt; Unit</ID>
+    <ID>UnusedParameter:ResultScreen.kt$onLeaderboard: () -&gt; Unit</ID>
+    <ID>UnusedParameter:ResultScreen.kt$onPlayAgain: () -&gt; Unit</ID>
+    <ID>UnusedParameter:ThresholdScreen.kt$onBack: () -&gt; Unit</ID>
+    <ID>UnusedParameter:ThresholdScreen.kt$onResult: (Result) -&gt; Unit</ID>
+  </CurrentIssues>
+</SmellBaseline>
