@@ -1,4 +1,4 @@
-package xyz.ksharma.funwithcolors.gradle
+package xyz.ksharma.huezoo.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog

@@ -8,7 +8,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "xyz.ksharma.funwithcolors.composeapp"
+        namespace = "xyz.ksharma.huezoo.composeapp"
         compileSdk = 36
         minSdk = 28
 

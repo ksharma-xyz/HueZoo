@@ -1,4 +1,4 @@
-package xyz.ksharma.funwithcolors
+package xyz.ksharma.huezoo
 
 import androidx.compose.ui.window.ComposeUIViewController
 

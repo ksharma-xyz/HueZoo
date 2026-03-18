@@ -5,7 +5,7 @@ plugins {
     `kotlin-dsl`
 }
 
-group = "xyz.ksharma.funwithcolors.gradle"
+group = "xyz.ksharma.huezoo.gradle"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -33,19 +33,19 @@ gradlePlugin {
     plugins {
         register("composeMultiplatform") {
             id = "funwithcolors.compose.multiplatform"
-            implementationClass = "xyz.ksharma.funwithcolors.gradle.ComposeMultiplatformConventionPlugin"
+            implementationClass = "xyz.ksharma.huezoo.gradle.ComposeMultiplatformConventionPlugin"
         }
         register("androidApplication") {
             id = "funwithcolors.android.application"
-            implementationClass = "xyz.ksharma.funwithcolors.gradle.AndroidApplicationConventionPlugin"
+            implementationClass = "xyz.ksharma.huezoo.gradle.AndroidApplicationConventionPlugin"
         }
         register("androidKmpLibrary") {
             id = "funwithcolors.android.kmp.library"
-            implementationClass = "xyz.ksharma.funwithcolors.gradle.AndroidKmpLibraryConventionPlugin"
+            implementationClass = "xyz.ksharma.huezoo.gradle.AndroidKmpLibraryConventionPlugin"
         }
         register("kotlinMultiplatform") {
             id = "funwithcolors.kotlin.multiplatform"
-            implementationClass = "xyz.ksharma.funwithcolors.gradle.KotlinMultiplatformConventionPlugin"
+            implementationClass = "xyz.ksharma.huezoo.gradle.KotlinMultiplatformConventionPlugin"
         }
     }
 }

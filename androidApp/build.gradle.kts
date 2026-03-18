@@ -4,10 +4,10 @@ plugins {
 }
 
 android {
-    namespace = "xyz.ksharma.funwithcolors"
+    namespace = "xyz.ksharma.huezoo"
 
     defaultConfig {
-        applicationId = "xyz.ksharma.funwithcolors"
+        applicationId = "xyz.ksharma.huezoo"
         minSdk = 28
         versionCode = 1
         versionName = "1.0"

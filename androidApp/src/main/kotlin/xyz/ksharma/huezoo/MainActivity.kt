@@ -1,4 +1,4 @@
-package xyz.ksharma.funwithcolors
+package xyz.ksharma.huezoo
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

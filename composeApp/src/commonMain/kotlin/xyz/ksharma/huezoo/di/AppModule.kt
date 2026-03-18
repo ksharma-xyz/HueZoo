@@ -1,4 +1,4 @@
-package xyz.ksharma.funwithcolors.di
+package xyz.ksharma.huezoo.di
 
 import org.koin.dsl.module
 

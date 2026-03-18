@@ -1,4 +1,4 @@
-package xyz.ksharma.funwithcolors.ui.theme
+package xyz.ksharma.huezoo.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme

@@ -1,4 +1,4 @@
-package xyz.ksharma.funwithcolors.gradle
+package xyz.ksharma.huezoo.gradle
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.CommonExtension

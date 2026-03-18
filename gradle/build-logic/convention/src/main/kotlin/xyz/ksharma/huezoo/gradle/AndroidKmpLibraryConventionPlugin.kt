@@ -1,4 +1,4 @@
-package xyz.ksharma.funwithcolors.gradle
+package xyz.ksharma.huezoo.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -12,7 +12,7 @@ import org.gradle.api.Project
  * plugins { alias(libs.plugins.funwithcolors.android.kmp.library) }
  * kotlin {
  *     android {
- *         namespace = "xyz.ksharma.funwithcolors.module"
+ *         namespace = "xyz.ksharma.huezoo.module"
  *         compileSdk = 36
  *         minSdk = 28
  *     }
