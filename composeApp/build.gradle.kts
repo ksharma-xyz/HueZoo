@@ -34,6 +34,7 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
+            implementation(libs.compose.ui.tooling)           // ComposeViewAdapter — required for AS preview rendering
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.sqldelight.android.driver)
         }
