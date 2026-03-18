@@ -1,0 +1,54 @@
+CREATE TABLE daily_challenge (
+    date TEXT NOT NULL PRIMARY KEY,
+    score REAL NOT NULL,
+    completed INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE threshold_session (
+    window_id TEXT NOT NULL PRIMARY KEY,  -- ISO timestamp of window start (8-hour windows)
+    attempts_used INTEGER NOT NULL DEFAULT 0,
+    next_reset_at TEXT NOT NULL           -- ISO timestamp when this window expires
+);
+
+CREATE TABLE personal_best (
+    game_id TEXT NOT NULL PRIMARY KEY,
+    best_delta_e REAL,
+    best_score INTEGER,
+    rank INTEGER
+);
+
+CREATE TABLE user_settings (
+    key TEXT NOT NULL PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+-- Daily Challenge queries
+getDailyChallenge:
+SELECT * FROM daily_challenge WHERE date = ?;
+
+upsertDailyChallenge:
+INSERT OR REPLACE INTO daily_challenge(date, score, completed) VALUES (?, ?, ?);
+
+-- Threshold session queries (8-hour rolling window)
+getActiveThresholdSession:
+SELECT * FROM threshold_session WHERE next_reset_at > ? LIMIT 1;
+
+upsertThresholdSession:
+INSERT OR REPLACE INTO threshold_session(window_id, attempts_used, next_reset_at) VALUES (?, ?, ?);
+
+deleteExpiredSessions:
+DELETE FROM threshold_session WHERE next_reset_at <= ?;
+
+-- Personal best queries
+getPersonalBest:
+SELECT * FROM personal_best WHERE game_id = ?;
+
+upsertPersonalBest:
+INSERT OR REPLACE INTO personal_best(game_id, best_delta_e, best_score, rank) VALUES (?, ?, ?, ?);
+
+-- Settings queries
+getSetting:
+SELECT value FROM user_settings WHERE key = ?;
+
+setSetting:
+INSERT OR REPLACE INTO user_settings(key, value) VALUES (?, ?);

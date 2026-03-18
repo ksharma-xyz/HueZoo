@@ -1,7 +1,8 @@
 package xyz.ksharma.huezoo.di
 
 import org.koin.dsl.module
+import xyz.ksharma.huezoo.data.db.di.databaseModule
 
 val appModule = module {
-    // Shared Koin bindings — repositories, ViewModels, etc.
+    includes(databaseModule)
 }
