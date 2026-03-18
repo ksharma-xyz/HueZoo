@@ -91,7 +91,7 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 
 # Convention plugins (defined in gradle/build-logic)
-funwithcolors-android-application = { id = "funwithcolors.android.application", version = "unspecified" }
-funwithcolors-compose-multiplatform = { id = "funwithcolors.compose.multiplatform", version = "unspecified" }
-funwithcolors-android-kmp-library = { id = "funwithcolors.android.kmp.library", version = "unspecified" }
-funwithcolors-kotlin-multiplatform = { id = "funwithcolors.kotlin.multiplatform", version = "unspecified" }
+huezoo-android-application = { id = "huezoo.android.application", version = "unspecified" }
+huezoo-compose-multiplatform = { id = "huezoo.compose.multiplatform", version = "unspecified" }
+huezoo-android-kmp-library = { id = "huezoo.android.kmp.library", version = "unspecified" }
+huezoo-kotlin-multiplatform = { id = "huezoo.kotlin.multiplatform", version = "unspecified" }

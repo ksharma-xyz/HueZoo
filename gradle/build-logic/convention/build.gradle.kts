@@ -32,19 +32,19 @@ dependencies {
 gradlePlugin {
     plugins {
         register("composeMultiplatform") {
-            id = "funwithcolors.compose.multiplatform"
+            id = "huezoo.compose.multiplatform"
             implementationClass = "xyz.ksharma.huezoo.gradle.ComposeMultiplatformConventionPlugin"
         }
         register("androidApplication") {
-            id = "funwithcolors.android.application"
+            id = "huezoo.android.application"
             implementationClass = "xyz.ksharma.huezoo.gradle.AndroidApplicationConventionPlugin"
         }
         register("androidKmpLibrary") {
-            id = "funwithcolors.android.kmp.library"
+            id = "huezoo.android.kmp.library"
             implementationClass = "xyz.ksharma.huezoo.gradle.AndroidKmpLibraryConventionPlugin"
         }
         register("kotlinMultiplatform") {
-            id = "funwithcolors.kotlin.multiplatform"
+            id = "huezoo.kotlin.multiplatform"
             implementationClass = "xyz.ksharma.huezoo.gradle.KotlinMultiplatformConventionPlugin"
         }
     }

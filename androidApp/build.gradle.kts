@@ -1,8 +1,7 @@
 plugins {
-    alias(libs.plugins.funwithcolors.android.application)
+    alias(libs.plugins.huezoo.android.application)
     alias(libs.plugins.composeCompiler)
 }
-
 android {
     namespace = "xyz.ksharma.huezoo"
 

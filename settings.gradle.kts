@@ -1,4 +1,4 @@
-rootProject.name = "FunWithColors"
+rootProject.name = "Huezoo"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

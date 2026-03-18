@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.funwithcolors.kotlin.multiplatform)
-    alias(libs.plugins.funwithcolors.compose.multiplatform)
-    alias(libs.plugins.funwithcolors.android.kmp.library)
+    alias(libs.plugins.huezoo.kotlin.multiplatform)
+    alias(libs.plugins.huezoo.compose.multiplatform)
+    alias(libs.plugins.huezoo.android.kmp.library)
 }
 
 kotlin {

@@ -9,7 +9,7 @@ import org.gradle.api.Project
  *
  * Module usage:
  * ```
- * plugins { alias(libs.plugins.funwithcolors.android.kmp.library) }
+ * plugins { alias(libs.plugins.huezoo.android.kmp.library) }
  * kotlin {
  *     android {
  *         namespace = "xyz.ksharma.huezoo.module"
