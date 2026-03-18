@@ -11,6 +11,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,7 +37,8 @@ import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
-import xyz.ksharma.huezoo.ui.theme.SquircleCard
+
+private val CardShape = RoundedCornerShape(24.dp)
 
 /**
  * Tappable card representing a game mode on the Home screen.
@@ -82,8 +85,8 @@ fun GameCard(
                 scaleX = scale
                 scaleY = scale
             }
-            .clip(SquircleCard)
-            .background(HuezooColors.SurfaceL2, SquircleCard)
+            .clip(CardShape)
+            .background(HuezooColors.SurfaceL2, CardShape)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -109,38 +112,45 @@ fun GameCard(
 
         Column(modifier = Modifier.padding(20.dp)) {
             // ── Header row ────────────────────────────────────────────────────
+            // FlowRow: badge wraps below title when font scale is large (DS.5 a11y).
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                // Identity accent dot
+                // Identity accent bar
                 Box(
                     modifier = Modifier
                         .width(4.dp)
                         .height(20.dp)
-                        .background(identityColor, SquircleCard),
+                        .background(identityColor, CardShape),
                 )
                 Spacer(Modifier.width(10.dp))
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = HuezooColors.TextPrimary,
-                    fontWeight = FontWeight.Bold,
+                FlowRow(
                     modifier = Modifier.weight(1f),
-                )
-                if (badgeText != null) {
-                    Spacer(Modifier.width(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .background(identityColor.copy(alpha = 0.2f), SquircleCard)
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
-                    ) {
-                        Text(
-                            text = badgeText,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = identityColor,
-                            fontWeight = FontWeight.Medium,
-                        )
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = HuezooColors.TextPrimary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (badgeText != null) {
+                        Box(
+                            modifier = Modifier
+                                .background(identityColor.copy(alpha = 0.2f), CardShape)
+                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                        ) {
+                            Text(
+                                text = badgeText,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = identityColor,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
                     }
                 }
             }

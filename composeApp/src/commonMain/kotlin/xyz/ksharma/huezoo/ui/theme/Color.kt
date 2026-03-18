@@ -28,8 +28,8 @@ object HuezooColors {
     val GlowPurple = Color(0x409B5DE5)
     val GlowGreen = Color(0x4000F5A0)
 
-    // Game identity colors
-    val GameThreshold = AccentPurple
-    val GameDaily = AccentYellow
-    val GameMemory = Color(0xFFFF9500)
+    // Game identity colors — richer, less neon for dark UI
+    val GameThreshold = Color(0xFF7B6FF0) // Soft indigo-violet
+    val GameDaily = Color(0xFFFF8A50) // Warm coral-orange
+    val GameMemory = Color(0xFF00C9A7) // Teal
 }
