@@ -2,19 +2,34 @@ package xyz.ksharma.huezoo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Dark theme palette
-val DarkBackground = Color(0xFF0D0D0D)
-val DarkSurface = Color(0xFF1A1A1A)
-val DarkOnSurface = Color(0xFFE0E0E0)
-val DarkPrimary = Color(0xFF00E5CC)
-val DarkOnPrimary = Color(0xFF001A17)
-val DarkPrimaryContainer = Color(0xFF00453D)
-val DarkOnPrimaryContainer = Color(0xFF6FF7E8)
+object HuezooColors {
+    // Backgrounds
+    val Background = Color(0xFF080810)
+    val SurfaceL1 = Color(0xFF12121E)
+    val SurfaceL2 = Color(0xFF1C1C2E)
+    val SurfaceL3 = Color(0xFF26263A)
 
-// Light theme palette
-val LightBackground = Color(0xFFF8F9FA)
-val LightSurface = Color(0xFFFFFFFF)
-val LightPrimary = Color(0xFF00796B)
-val LightOnPrimary = Color(0xFFFFFFFF)
-val LightPrimaryContainer = Color(0xFFB2DFDB)
-val LightOnPrimaryContainer = Color(0xFF00332D)
+    // Accents
+    val AccentCyan = Color(0xFF00E5FF)
+    val AccentMagenta = Color(0xFFFF2D78)
+    val AccentYellow = Color(0xFFFFE600)
+    val AccentPurple = Color(0xFF9B5DE5)
+    val AccentGreen = Color(0xFF00F5A0)
+
+    // Text
+    val TextPrimary = Color(0xFFFFFFFF)
+    val TextSecondary = Color(0xFF8888AA)
+    val TextDisabled = Color(0xFF44445A)
+
+    // Glows (40% alpha of accent)
+    val GlowCyan = Color(0x4000E5FF)
+    val GlowMagenta = Color(0x40FF2D78)
+    val GlowYellow = Color(0x40FFE600)
+    val GlowPurple = Color(0x409B5DE5)
+    val GlowGreen = Color(0x4000F5A0)
+
+    // Game identity colors
+    val GameThreshold = AccentPurple
+    val GameDaily = AccentYellow
+    val GameMemory = Color(0xFFFF9500)
+}
