@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import huezoo.composeapp.generated.resources.Res
 import huezoo.composeapp.generated.resources.ic_gem
@@ -50,8 +51,10 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val gemIcon = painterResource(Res.drawable.ic_gem)
 
-    LaunchedEffect(Unit) {
+    // Re-load every time HomeScreen becomes the active top entry (e.g. returning from a game).
+    LifecycleResumeEffect(Unit) {
         viewModel.onUiEvent(HomeUiEvent.ScreenResumed)
+        onPauseOrDispose { }
     }
 
     AmbientGlowBackground(modifier = modifier) {
