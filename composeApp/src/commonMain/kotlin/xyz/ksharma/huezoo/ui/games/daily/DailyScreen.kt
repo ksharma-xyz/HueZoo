@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +22,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
-import xyz.ksharma.huezoo.ui.components.RoundIndicator
+import xyz.ksharma.huezoo.ui.components.SkewedStatChip
 import xyz.ksharma.huezoo.ui.components.SwatchBlock
 import xyz.ksharma.huezoo.ui.components.SwatchBlockSize
 import xyz.ksharma.huezoo.ui.components.SwatchBlockState
@@ -90,15 +89,12 @@ private fun DailyPlayingContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
         ) {
-            RoundIndicator(
-                totalRounds = state.totalRounds,
-                currentRound = state.round,
-                activeColor = HuezooColors.GameDaily,
-                completedColor = HuezooColors.GameDaily,
+            SkewedStatChip(
+                label = "ROUND",
+                value = "${state.round}/${state.totalRounds}",
+                accentColor = HuezooColors.GameDaily,
             )
         }
 

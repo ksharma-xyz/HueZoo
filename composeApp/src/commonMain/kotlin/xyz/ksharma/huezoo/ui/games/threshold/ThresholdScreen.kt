@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -15,7 +14,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import huezoo.composeapp.generated.resources.Res
 import huezoo.composeapp.generated.resources.ic_gem
@@ -25,6 +23,7 @@ import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
+import xyz.ksharma.huezoo.ui.components.SkewedStatChip
 import xyz.ksharma.huezoo.ui.components.SwatchBlock
 import xyz.ksharma.huezoo.ui.components.SwatchBlockSize
 import xyz.ksharma.huezoo.ui.components.SwatchBlockState
@@ -93,15 +92,17 @@ private fun PlayingContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
         ) {
-            Text(
-                text = "${state.attemptsRemaining} tries left",
-                style = MaterialTheme.typography.labelMedium,
-                color = HuezooColors.TextSecondary,
-                fontWeight = FontWeight.SemiBold,
+            SkewedStatChip(
+                label = "ROUND",
+                value = state.round.toString(),
+                accentColor = HuezooColors.GameThreshold,
+            )
+            SkewedStatChip(
+                label = "TRIES",
+                value = state.attemptsRemaining.toString(),
+                accentColor = HuezooColors.AccentMagenta,
             )
         }
 

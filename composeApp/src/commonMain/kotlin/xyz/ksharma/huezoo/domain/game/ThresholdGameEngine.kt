@@ -23,6 +23,8 @@ interface ThresholdGameEngine {
         const val STARTING_DELTA_E = 5.0f
         const val DELTA_E_STEP = 0.3f
         const val MIN_DELTA_E = 0.1f
-        const val MAX_ATTEMPTS = 5
+        // TODO(debug): bump to 50 for dev/testing; wire to BuildConfig.DEBUG or a DebugConfig object
+        //  so release builds use the real limit (5) without manual edits.
+        const val MAX_ATTEMPTS = 50
     }
 }
