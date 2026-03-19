@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -16,8 +17,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -28,27 +29,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 
-private val CardShape = RoundedCornerShape(24.dp)
+private val CardShape = RoundedCornerShape(20.dp)
+private val BadgeShape = RoundedCornerShape(6.dp)
+private val CardShadowOffset: Dp = 6.dp
 
 /**
- * Tappable card representing a game mode on the Home screen.
+ * Neo-brutalist game card for the Home screen.
  *
- * - [identityColor] paints a 4-dp accent bar at the top and a subtle gradient tint.
- * - [badgeText] appears top-right (e.g. "5 tries left", "Done ✓").
- * - [triesText] shown below the subtitle — highlights low attempt count.
- * - [personalBest] shown bottom-left in muted text.
- *
- * Press animation: scale 1.0 → 0.97 instantly, spring back (DS.5 baked in).
+ * - Hard [identityColor] shadow at [CardShadowOffset] offset (no blur).
+ * - On press the card sinks INTO the shadow and springs back on release.
+ * - [visualContent] slot at the top — pass a Canvas illustration or colored swatch area
+ *   to give the card a strong visual identity. Defaults to a simple colored band.
+ * - [badgeText] shown top-right (e.g. "5 tries left", "Done").
+ * - [triesText] shown below the subtitle for remaining-try highlights.
+ * - [personalBest] shown in muted text at the bottom.
  */
 @Composable
 fun GameCard(
@@ -61,12 +65,13 @@ fun GameCard(
     triesText: String? = null,
     personalBest: String? = null,
     enabled: Boolean = true,
+    visualContent: (@Composable () -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed && enabled) 0.97f else 1f,
+    val pressProgress by animateFloatAsState(
+        targetValue = if (isPressed && enabled) 1f else 0f,
         animationSpec = if (isPressed) {
             tween(durationMillis = 80)
         } else {
@@ -75,112 +80,129 @@ fun GameCard(
                 stiffness = Spring.StiffnessMediumLow,
             )
         },
-        label = "cardScale",
+        label = "cardPress",
     )
 
+    val shadowOffsetPx = with(LocalDensity.current) { CardShadowOffset.toPx() }
+    val shadowColor = identityColor.copy(alpha = if (enabled) 1f else 0.3f)
+
+    // Outer box reserves space for the shadow
     Box(
         modifier = modifier
             .widthIn(min = 280.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .clip(CardShape)
-            .background(HuezooColors.SurfaceL2, CardShape)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                onClick = onClick,
-            ),
+            .padding(end = CardShadowOffset, bottom = CardShadowOffset),
     ) {
-        // Subtle identity-color gradient tint
+        // Hard shadow layer — stays fixed
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .background(
-                    Brush.linearGradient(
-                        colorStops = arrayOf(
-                            0.0f to identityColor.copy(alpha = 0.10f),
-                            0.6f to Color.Transparent,
-                        ),
-                        start = Offset(0f, 0f),
-                        end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
-                    ),
-                ),
+                .offset(x = CardShadowOffset, y = CardShadowOffset)
+                .background(shadowColor, CardShape),
         )
 
-        Column(modifier = Modifier.padding(20.dp)) {
-            // ── Header row ────────────────────────────────────────────────────
-            // FlowRow: badge wraps below title when font scale is large (DS.5 a11y).
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                // Identity accent bar
-                Box(
-                    modifier = Modifier
-                        .width(4.dp)
-                        .height(20.dp)
-                        .background(identityColor, CardShape),
-                )
-                Spacer(Modifier.width(10.dp))
-                FlowRow(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    itemVerticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = HuezooColors.TextPrimary,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f),
+        // Card layer — sinks into shadow on press
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    translationX = pressProgress * shadowOffsetPx
+                    translationY = pressProgress * shadowOffsetPx
+                }
+                .border(2.dp, identityColor.copy(alpha = if (enabled) 0.6f else 0.2f), CardShape)
+                .background(HuezooColors.SurfaceL2, CardShape)
+                .clip(CardShape)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    enabled = enabled,
+                    onClick = onClick,
+                ),
+        ) {
+            Column {
+                // ── Visual area ────────────────────────────────────────────────
+                if (visualContent != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .background(identityColor.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        visualContent()
+                    }
+                } else {
+                    // Default: identity color band with a subtle pattern hint
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .background(identityColor),
                     )
-                    if (badgeText != null) {
-                        Box(
-                            modifier = Modifier
-                                .background(identityColor.copy(alpha = 0.2f), CardShape)
-                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                }
+
+                // ── Content ────────────────────────────────────────────────────
+                Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+                    // Header row: title + badge (wraps at large font scale)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        FlowRow(
+                            modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            itemVerticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = badgeText,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = identityColor,
-                                fontWeight = FontWeight.Medium,
+                                text = title,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = HuezooColors.TextPrimary,
+                                fontWeight = FontWeight.ExtraBold,
+                                modifier = Modifier.weight(1f),
                             )
+                            if (badgeText != null) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(identityColor, BadgeShape)
+                                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                                ) {
+                                    Text(
+                                        text = badgeText,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = HuezooColors.Background,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            }
                         }
                     }
+
+                    Spacer(Modifier.height(6.dp))
+
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = HuezooColors.TextSecondary,
+                    )
+
+                    if (triesText != null) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = triesText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = identityColor,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+
+                    if (personalBest != null) {
+                        Spacer(Modifier.height(14.dp))
+                        Text(
+                            text = personalBest,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = HuezooColors.TextDisabled,
+                        )
+                    }
                 }
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            // ── Subtitle ──────────────────────────────────────────────────────
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = HuezooColors.TextSecondary,
-            )
-
-            if (triesText != null) {
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = triesText,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = identityColor,
-                )
-            }
-
-            // ── Personal best ─────────────────────────────────────────────────
-            if (personalBest != null) {
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = personalBest,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = HuezooColors.TextDisabled,
-                )
             }
         }
     }
@@ -192,22 +214,29 @@ fun GameCard(
 @Composable
 private fun GameCardPreview() {
     HuezooPreviewTheme {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
             GameCard(
                 title = "The Threshold",
                 subtitle = "How sharp are your eyes?",
                 identityColor = HuezooColors.GameThreshold,
                 onClick = {},
-                badgeText = "3 tries left",
-                personalBest = "Personal best: ΔE 1.2",
+                badgeText = "3 tries",
+                personalBest = "Best: \u0394E 1.2",
             )
             GameCard(
                 title = "Daily Challenge",
-                subtitle = "Today's puzzle — same for everyone",
+                subtitle = "Same puzzle for everyone today",
                 identityColor = HuezooColors.GameDaily,
                 onClick = {},
-                badgeText = "Done ✓",
+                badgeText = "Done",
                 personalBest = "Score: 840",
+            )
+            GameCard(
+                title = "Color Memory",
+                subtitle = "Remember the sequence",
+                identityColor = HuezooColors.GameMemory,
+                onClick = {},
+                triesText = "2 tries remaining",
             )
         }
     }
