@@ -62,7 +62,7 @@ object HuezooSize {
     val CardVisualArea = 100.dp
 
     /** Inner horizontal padding for pill badges. */
-    val BadgeHorizontalPad = 10.dp
+    val BadgeHorizontalPad = 14.dp
 
     /** Inner vertical padding for pill badges. */
     val BadgeVerticalPad = 4.dp

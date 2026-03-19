@@ -103,11 +103,11 @@ fun DeltaEBadge(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            HuezooDisplaySmall(
+            HuezooDisplayMedium(
                 text = formatted,
                 color = badgeColor,
             )
-            HuezooLabelSmall(
+            HuezooLabelLarge(
                 text = label,
                 color = badgeColor.copy(alpha = 0.8f),
             )
