@@ -1,8 +1,6 @@
 package xyz.ksharma.huezoo.ui.games.daily
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,12 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import huezoo.composeapp.generated.resources.Res
-import huezoo.composeapp.generated.resources.ic_left
+import huezoo.composeapp.generated.resources.ic_gem
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
-import xyz.ksharma.huezoo.ui.components.HuezooIconButton
-import xyz.ksharma.huezoo.ui.components.HuezooIconButtonVariant
+import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
+import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.RoundIndicator
 import xyz.ksharma.huezoo.ui.components.SwatchBlock
 import xyz.ksharma.huezoo.ui.components.SwatchBlockSize
@@ -45,6 +42,7 @@ fun DailyScreen(
     viewModel: DailyViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val gemIcon = painterResource(Res.drawable.ic_gem)
 
     LaunchedEffect(Unit) {
         viewModel.navEvent.collect { event ->
@@ -55,19 +53,26 @@ fun DailyScreen(
         }
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(HuezooColors.Background),
+    AmbientGlowBackground(
+        modifier = modifier,
+        primaryColor = HuezooColors.GameDaily,
+        secondaryColor = HuezooColors.AccentCyan,
     ) {
-        when (val state = uiState) {
-            DailyUiState.Loading -> Unit
-            is DailyUiState.AlreadyPlayed -> AlreadyPlayedContent(state = state, onBack = onBack)
-            is DailyUiState.Playing -> DailyPlayingContent(
-                state = state,
-                onSwatchTap = { index -> viewModel.onUiEvent(DailyUiEvent.SwatchTapped(index)) },
-                onBack = onBack,
+        Column(modifier = Modifier.fillMaxSize()) {
+            HuezooTopBar(
+                onBackClick = onBack,
+                currencyAmount = 0,
+                gemIcon = gemIcon,
             )
+
+            when (val state = uiState) {
+                DailyUiState.Loading -> Unit
+                is DailyUiState.AlreadyPlayed -> AlreadyPlayedContent(state = state)
+                is DailyUiState.Playing -> DailyPlayingContent(
+                    state = state,
+                    onSwatchTap = { index -> viewModel.onUiEvent(DailyUiEvent.SwatchTapped(index)) },
+                )
+            }
         }
     }
 }
@@ -76,27 +81,19 @@ fun DailyScreen(
 private fun DailyPlayingContent(
     state: DailyUiState.Playing,
     onSwatchTap: (Int) -> Unit,
-    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .padding(HuezooSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            HuezooIconButton(
-                variant = HuezooIconButtonVariant.Back,
-                icon = painterResource(Res.drawable.ic_left),
-                contentDescription = "Back",
-                onClick = onBack,
-            )
             RoundIndicator(
                 totalRounds = state.totalRounds,
                 currentRound = state.round,
@@ -139,13 +136,11 @@ private fun DailyPlayingContent(
 @Composable
 private fun AlreadyPlayedContent(
     state: DailyUiState.AlreadyPlayed,
-    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .padding(HuezooSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -160,13 +155,6 @@ private fun AlreadyPlayedContent(
             text = "Score: ${state.score.toInt()}",
             style = MaterialTheme.typography.bodyLarge,
             color = HuezooColors.TextSecondary,
-        )
-        Spacer(Modifier.height(HuezooSpacing.lg))
-        HuezooIconButton(
-            variant = HuezooIconButtonVariant.Back,
-            icon = painterResource(Res.drawable.ic_left),
-            contentDescription = "Back",
-            onClick = onBack,
         )
     }
 }

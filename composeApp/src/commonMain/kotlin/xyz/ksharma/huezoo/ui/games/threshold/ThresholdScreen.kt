@@ -1,8 +1,6 @@
 package xyz.ksharma.huezoo.ui.games.threshold
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,13 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import huezoo.composeapp.generated.resources.Res
-import huezoo.composeapp.generated.resources.ic_left
+import huezoo.composeapp.generated.resources.ic_gem
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
+import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
-import xyz.ksharma.huezoo.ui.components.HuezooIconButton
-import xyz.ksharma.huezoo.ui.components.HuezooIconButtonVariant
+import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.SwatchBlock
 import xyz.ksharma.huezoo.ui.components.SwatchBlockSize
 import xyz.ksharma.huezoo.ui.components.SwatchBlockState
@@ -46,6 +43,7 @@ fun ThresholdScreen(
     viewModel: ThresholdViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val gemIcon = painterResource(Res.drawable.ic_gem)
 
     LaunchedEffect(Unit) {
         viewModel.navEvent.collect { event ->
@@ -56,19 +54,28 @@ fun ThresholdScreen(
         }
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(HuezooColors.Background),
+    AmbientGlowBackground(
+        modifier = modifier,
+        primaryColor = HuezooColors.GameThreshold,
+        secondaryColor = HuezooColors.AccentPurple,
     ) {
-        when (val state = uiState) {
-            ThresholdUiState.Loading -> Unit
-            is ThresholdUiState.Blocked -> BlockedContent(state = state, onBack = onBack)
-            is ThresholdUiState.Playing -> PlayingContent(
-                state = state,
-                onSwatchTap = { index -> viewModel.onUiEvent(ThresholdUiEvent.SwatchTapped(index)) },
-                onBack = onBack,
+        Column(modifier = Modifier.fillMaxSize()) {
+            HuezooTopBar(
+                onBackClick = onBack,
+                currencyAmount = 0,
+                gemIcon = gemIcon,
             )
+
+            when (val state = uiState) {
+                ThresholdUiState.Loading -> Unit
+                is ThresholdUiState.Blocked -> BlockedContent(state = state)
+                is ThresholdUiState.Playing -> PlayingContent(
+                    state = state,
+                    onSwatchTap = { index ->
+                        viewModel.onUiEvent(ThresholdUiEvent.SwatchTapped(index))
+                    },
+                )
+            }
         }
     }
 }
@@ -77,27 +84,19 @@ fun ThresholdScreen(
 private fun PlayingContent(
     state: ThresholdUiState.Playing,
     onSwatchTap: (Int) -> Unit,
-    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .padding(HuezooSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            HuezooIconButton(
-                variant = HuezooIconButtonVariant.Back,
-                icon = painterResource(Res.drawable.ic_left),
-                contentDescription = "Back",
-                onClick = onBack,
-            )
             Text(
                 text = "${state.attemptsRemaining} tries left",
                 style = MaterialTheme.typography.labelMedium,
@@ -136,24 +135,15 @@ private fun PlayingContent(
 @Composable
 private fun BlockedContent(
     state: ThresholdUiState.Blocked,
-    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .padding(HuezooSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        HuezooIconButton(
-            variant = HuezooIconButtonVariant.Back,
-            icon = painterResource(Res.drawable.ic_left),
-            contentDescription = "Back",
-            onClick = onBack,
-        )
-        Spacer(Modifier.height(HuezooSpacing.xl))
         Text(
             text = "No tries left",
             style = MaterialTheme.typography.headlineMedium,

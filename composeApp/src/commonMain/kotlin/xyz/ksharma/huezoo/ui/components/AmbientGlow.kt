@@ -1,5 +1,6 @@
 package xyz.ksharma.huezoo.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,6 +55,7 @@ fun AmbientGlowBackground(
     Box(
         modifier = modifier
             .fillMaxSize()
+            .background(HuezooColors.Background)
             .drawBehind {
                 val radius = size.minDimension * GLOW_RADIUS_FRACTION
 
