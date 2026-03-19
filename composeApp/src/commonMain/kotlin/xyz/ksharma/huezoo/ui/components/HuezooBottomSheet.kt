@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -89,7 +88,9 @@ private fun HuezooBottomSheetPreview() {
         ) {
             HuezooSheetHandle()
             Column(modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = 32.dp)) {
-                Text("Unlock Forever — \$2", color = HuezooColors.TextPrimary)
+                HuezooTitleMedium(
+                    text = "Unlock Forever — \$2",
+                )
                 Spacer(Modifier.height(12.dp))
                 HuezooButton(text = "Unlock Forever — \$2", onClick = {
                 }, variant = HuezooButtonVariant.Primary, modifier = Modifier.fillMaxWidth())

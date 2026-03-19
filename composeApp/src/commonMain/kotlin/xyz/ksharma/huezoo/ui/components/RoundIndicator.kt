@@ -1,13 +1,10 @@
 package xyz.ksharma.huezoo.ui.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +24,6 @@ import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
-import xyz.ksharma.huezoo.ui.theme.colorGlow
 
 /**
  * A row of dots showing game round progress.
@@ -49,17 +45,6 @@ fun RoundIndicator(
     activeColor: Color = HuezooColors.AccentCyan,
     completedColor: Color = HuezooColors.AccentGreen,
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "roundPulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.85f,
-        targetValue = 1.25f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 600, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "activeDotPulse",
-    )
-
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(spacing),
@@ -72,7 +57,7 @@ fun RoundIndicator(
 
             val dotColor by animateColorAsState(
                 targetValue = when {
-                    isCompleted -> completedColor.copy(alpha = 0.6f)
+                    isCompleted -> completedColor.copy(alpha = 0.7f)
                     isActive -> activeColor
                     else -> HuezooColors.SurfaceL3
                 },
@@ -80,17 +65,21 @@ fun RoundIndicator(
                 label = "dotColor_$index",
             )
 
+            // Active dot is slightly larger; completed/inactive stay at base size
+            val scale by animateFloatAsState(
+                targetValue = if (isActive) 1.2f else 1f,
+                animationSpec = tween(250),
+                label = "dotScale_$index",
+            )
+
             Box(
                 modifier = Modifier
+                    .scale(scale)
                     .size(dotSize)
-                    .then(if (isActive) Modifier.scale(pulseScale) else Modifier)
                     .then(
+                        // Active: solid white ring border — crisp, no blur
                         if (isActive) {
-                            Modifier.colorGlow(
-                                color = activeColor,
-                                glowRadius = 8.dp,
-                                cornerRadius = dotSize / 2,
-                            )
+                            Modifier.border(2.dp, Color.White.copy(alpha = 0.9f), CircleShape)
                         } else {
                             Modifier
                         },

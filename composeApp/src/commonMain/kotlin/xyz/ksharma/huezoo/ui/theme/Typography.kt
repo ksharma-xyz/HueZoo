@@ -61,12 +61,19 @@ fun huezooTypography(): Typography {
             fontSize = 56.sp,
             lineHeight = 60.sp,
         ),
-        // Medium display numbers
+        // Medium display numbers — SCORE / ROUNDS stats on ResultCard
         displayMedium = TextStyle(
             fontFamily = antonio,
             fontWeight = FontWeight.Bold,
             fontSize = 40.sp,
             lineHeight = 44.sp,
+        ),
+        // Small display numbers — DeltaEBadge, compact numeric readouts
+        displaySmall = TextStyle(
+            fontFamily = antonio,
+            fontWeight = FontWeight.Bold,
+            fontSize = 28.sp,
+            lineHeight = 32.sp,
         ),
 
         // ── Section headers — Antonio ──────────────────────────────────────────
@@ -83,6 +90,13 @@ fun huezooTypography(): Typography {
             fontWeight = FontWeight.SemiBold,
             fontSize = 28.sp,
             lineHeight = 32.sp,
+        ),
+        // Compact Antonio — currency pill, inline numeric labels
+        headlineSmall = TextStyle(
+            fontFamily = antonio,
+            fontWeight = FontWeight.Medium,
+            fontSize = 20.sp,
+            lineHeight = 24.sp,
         ),
 
         // ── Card titles — Fredoka ─────────────────────────────────────────────

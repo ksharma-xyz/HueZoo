@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
@@ -106,15 +103,12 @@ fun DeltaEBadge(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
+            HuezooDisplaySmall(
                 text = formatted,
-                style = MaterialTheme.typography.titleMedium,
                 color = badgeColor,
-                fontWeight = FontWeight.Bold,
             )
-            Text(
+            HuezooLabelSmall(
                 text = label,
-                style = MaterialTheme.typography.labelSmall,
                 color = badgeColor.copy(alpha = 0.8f),
             )
         }

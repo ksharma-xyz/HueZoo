@@ -131,17 +131,41 @@ Glow Yellow:      #FFE60040
 
 ### Typography
 
-Use **Space Grotesk** (free, Google Fonts) — rounded, technical, game-feel.
-Fallback: system default rounded sans.
+Huezoo uses a **three-font system** — each font has a deliberate role. Never pick fonts ad-hoc.
+
+| Font | Role | Used for |
+|---|---|---|
+| **Antonio** | Bold, condensed display | Numbers, scores, ΔE values, hero text, app name |
+| **Fredoka** | Round, friendly | Card titles, section headings, playful labels |
+| **Space Grotesk** | Geometric sans | Body copy, button labels, metadata, badges |
+
+> Full scale, composables, color defaults, and rules: see **`docs/TYPOGRAPHY.md`**
+
+#### Quick scale reference
 
 ```
-Display:    Space Grotesk Bold,    48sp  — score numbers, ΔE values
-Headline:   Space Grotesk SemiBold, 28sp  — game titles
-Title:      Space Grotesk SemiBold, 20sp  — card titles
-Body:       Space Grotesk Regular,  16sp  — descriptions
-Label:      Space Grotesk Medium,   13sp  — badges, tags
-Mono:       monospace (system),     14sp  — ΔE decimal values
+displayLarge   Antonio Bold    56sp   ΔE hero (ResultCard), big score reveals
+displayMedium  Antonio Bold    40sp   SCORE / ROUNDS stats (ResultCard)
+displaySmall   Antonio Bold    28sp   DeltaEBadge number, compact numeric readout
+headlineLarge  Antonio Bold    40sp   App name "Hue Zoo", screen hero title
+headlineSmall  Antonio Medium  20sp   Currency pill amount, inline numeric labels
+headlineMedium Fredoka SemiBold 28sp  Section headings, dialog titles
+titleLarge     Fredoka Bold    22sp   Card headers, sheet titles
+titleMedium    Fredoka SemiBold 20sp  GameCard title, bottom sheet heading
+titleSmall     Fredoka Regular 16sp   Secondary titles, list item sub-headers
+bodyLarge      Space Grotesk   18sp   Long-form description text
+bodyMedium     Space Grotesk   16sp   GameCard subtitle, description
+bodySmall      Space Grotesk   14sp   Captions, helper text
+labelLarge     Space Grotesk Bold 16sp   Button labels, prominent chips
+labelMedium    Space Grotesk Medium 13sp  Secondary labels
+labelSmall     Space Grotesk Medium 12sp  Badges, tries text, personal best, stat headers
 ```
+
+#### The one rule
+
+**Never use bare `Text()` composable anywhere in the app.**
+Always use the typed `HuezooText` variants from `HuezooText.kt`.
+The variants handle font family, weight, size, and dark/light color automatically.
 
 ---
 

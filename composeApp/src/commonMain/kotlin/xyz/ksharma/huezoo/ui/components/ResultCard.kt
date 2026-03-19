@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -24,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
@@ -165,28 +162,18 @@ fun ResultCard(
                                 .background(identityColor.copy(alpha = 0.15f), PillShape)
                                 .padding(horizontal = HuezooSpacing.md, vertical = 4.dp),
                         ) {
-                            Text(
+                            HuezooLabelSmall(
                                 text = gameTitle.uppercase(),
-                                style = MaterialTheme.typography.labelSmall,
                                 color = identityColor,
-                                fontWeight = FontWeight.ExtraBold,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                             )
                         }
 
                         Spacer(Modifier.height(HuezooSpacing.lg))
 
                         // ── ΔE hero number ────────────────────────────────────
-                        Text(
-                            text = "COLOR DELTA",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = HuezooColors.TextSecondary,
-                        )
-                        Text(
-                            text = formattedDeltaE,
-                            style = MaterialTheme.typography.displayLarge,
-                            color = HuezooColors.TextPrimary,
-                            fontWeight = FontWeight.ExtraBold,
-                        )
+                        HuezooLabelSmall(text = "COLOR DELTA")
+                        HuezooDisplayLarge(text = formattedDeltaE)
 
                         Spacer(Modifier.height(HuezooSpacing.lg))
 
@@ -216,11 +203,7 @@ fun ResultCard(
                         // ── Percentile ────────────────────────────────────────
                         if (percentileText != null) {
                             Spacer(Modifier.height(HuezooSpacing.md))
-                            Text(
-                                text = percentileText,
-                                style = MaterialTheme.typography.labelMedium,
-                                color = HuezooColors.TextSecondary,
-                            )
+                            HuezooLabelMedium(text = percentileText)
                         }
                     }
                 }
@@ -237,17 +220,8 @@ private fun ResultStatColumn(
     alignment: Alignment.Horizontal = Alignment.Start,
 ) {
     Column(modifier = modifier, horizontalAlignment = alignment) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = HuezooColors.TextSecondary,
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.headlineMedium,
-            color = HuezooColors.TextPrimary,
-            fontWeight = FontWeight.ExtraBold,
-        )
+        HuezooLabelSmall(text = label)
+        HuezooDisplayMedium(text = value)
     }
 }
 

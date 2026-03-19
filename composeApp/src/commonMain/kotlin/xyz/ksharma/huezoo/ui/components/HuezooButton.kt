@@ -4,7 +4,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,16 +17,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -39,14 +34,9 @@ import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.PillShape
+import xyz.ksharma.huezoo.ui.theme.onColor
 
 private val ShelfHeight = 5.dp
-
-private const val GLOSS_ALPHA = 0.14f
-private const val GLOSS_WIDTH_FRACTION = 0.35f
-private const val GLOSS_HEIGHT_FRACTION = 0.30f
-private const val GLOSS_CENTER_X_FRACTION = 0.25f
-private const val GLOSS_CENTER_Y_FRACTION = 0.28f
 
 enum class HuezooButtonVariant { Primary, Confirm, Danger, Score, Try, Ghost }
 
@@ -60,32 +50,32 @@ private data class ButtonColors(
 private fun buttonColors(variant: HuezooButtonVariant): ButtonColors = when (variant) {
     HuezooButtonVariant.Primary -> ButtonColors(
         bg = HuezooColors.AccentCyan,
-        content = HuezooColors.Background,
+        content = HuezooColors.AccentCyan.onColor,   // dark — cyan is bright (contrast ~13:1)
         shelf = HuezooColors.ShelfCyan,
     )
     HuezooButtonVariant.Confirm -> ButtonColors(
         bg = HuezooColors.ActionConfirm,
-        content = HuezooColors.TextPrimary,
+        content = HuezooColors.ActionConfirm.onColor, // dark — green is bright (contrast ~8.8:1)
         shelf = HuezooColors.ShelfConfirm,
     )
     HuezooButtonVariant.Danger -> ButtonColors(
         bg = HuezooColors.AccentMagenta,
-        content = HuezooColors.TextPrimary,
+        content = HuezooColors.AccentMagenta.onColor, // dark — magenta medium-bright (contrast ~5.6:1)
         shelf = HuezooColors.ShelfMagenta,
     )
     HuezooButtonVariant.Score -> ButtonColors(
         bg = HuezooColors.AccentYellow,
-        content = HuezooColors.Background,
+        content = HuezooColors.AccentYellow.onColor,  // dark — yellow is very bright (contrast ~14:1)
         shelf = HuezooColors.ShelfYellow,
     )
     HuezooButtonVariant.Try -> ButtonColors(
         bg = HuezooColors.ActionTry,
-        content = HuezooColors.TextPrimary,
+        content = HuezooColors.ActionTry.onColor,     // dark — blue passes with dark text (~5.4:1)
         shelf = HuezooColors.ShelfTry,
     )
     HuezooButtonVariant.Ghost -> ButtonColors(
         bg = Color.Transparent,
-        content = HuezooColors.AccentCyan,
+        content = HuezooColors.AccentCyan,            // transparent bg — fixed accent on dark surface
         shelf = HuezooColors.SurfaceL1,
         border = HuezooColors.AccentCyan,
     )
@@ -95,8 +85,7 @@ private fun buttonColors(variant: HuezooButtonVariant): ButtonColors = when (var
  * Candy-style game button for the Huezoo design system.
  *
  * Hard bottom shelf (no diagonal offset) gives a physical "press down" feel.
- * A subtle gloss oval sits at the top-left of the face. On press the face
- * translates DOWN into the shelf and springs back on release.
+ * On press the face translates DOWN into the shelf and springs back on release.
  *
  * Variants:
  * - [HuezooButtonVariant.Primary] — cyan (main CTA)
@@ -174,28 +163,15 @@ fun HuezooButton(
                 .padding(horizontal = HuezooSpacing.lg, vertical = 14.dp),
             contentAlignment = Alignment.Center,
         ) {
-            // Gloss overlay — top-left white oval
-            Canvas(modifier = Modifier.matchParentSize()) {
-                val w = size.width * GLOSS_WIDTH_FRACTION
-                val h = size.height * GLOSS_HEIGHT_FRACTION
-                val cx = size.width * GLOSS_CENTER_X_FRACTION
-                val cy = size.height * GLOSS_CENTER_Y_FRACTION
-                drawOval(
-                    color = Color.White.copy(alpha = GLOSS_ALPHA),
-                    topLeft = Offset(cx - w / 2f, cy - h / 2f),
-                    size = Size(w, h),
-                )
-            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (leadingIcon != null) {
                     leadingIcon()
                     Spacer(modifier = Modifier.width(HuezooSpacing.sm))
                 }
-                Text(
+                HuezooLabelLarge(
                     text = text,
                     color = resolvedContent,
                     fontWeight = FontWeight.ExtraBold,
-                    style = MaterialTheme.typography.labelLarge,
                 )
             }
         }

@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -37,13 +35,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
+import androidx.compose.foundation.shape.RoundedCornerShape
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.PillShape
-import xyz.ksharma.huezoo.ui.theme.SquircleLarge
 import xyz.ksharma.huezoo.ui.theme.darken
+import xyz.ksharma.huezoo.ui.theme.onColor
 
+private val CardShape = RoundedCornerShape(20.dp)
 private val CardShelf = 8.dp
 private val FrameInset = 5.dp
 private val IllustrationSize = 72.dp
@@ -53,7 +53,7 @@ private val IllustrationAreaHeight = 90.dp
  * Candy-style game card for the Home screen.
  *
  * Layout:
- * - Outer frame filled with [identityColor] (SquircleLarge)
+ * - Outer frame filled with [identityColor] (CardShape)
  * - Inner panel (SurfaceL1) inset by [FrameInset] on all sides
  * - Illustration area at top (90dp): [badgeText] overlaid top-right
  * - Content area: title, subtitle, [triesText], [personalBest]
@@ -106,7 +106,7 @@ fun GameCard(
             modifier = Modifier
                 .matchParentSize()
                 .offset(x = 0.dp, y = CardShelf)
-                .background(shelfColor, SquircleLarge),
+                .background(shelfColor, CardShape),
         )
 
         // Card face — slides down into shelf on press
@@ -116,8 +116,8 @@ fun GameCard(
                     translationX = 0f
                     translationY = pressProgress * shelfPx
                 }
-                .background(frameColor, SquircleLarge)
-                .clip(SquircleLarge)
+                .background(frameColor, CardShape)
+                .clip(CardShape)
                 .clickable(
                     interactionSource = interactionSource,
                     indication = null,
@@ -129,8 +129,8 @@ fun GameCard(
             Box(
                 modifier = Modifier
                     .padding(FrameInset)
-                    .background(HuezooColors.SurfaceL1, SquircleLarge)
-                    .clip(SquircleLarge),
+                    .background(HuezooColors.SurfaceL2, CardShape)
+                    .clip(CardShape),
             ) {
                 Column {
                     // ── Illustration area ───────────────────────────────────
@@ -165,10 +165,9 @@ fun GameCard(
                                             vertical = HuezooSize.BadgeVerticalPad,
                                         ),
                                 ) {
-                                    Text(
+                                    HuezooLabelSmall(
                                         text = badgeText,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = HuezooColors.Background,
+                                        color = identityColor.onColor, // WCAG-safe on any identity color
                                         fontWeight = FontWeight.ExtraBold,
                                     )
                                 }
@@ -193,11 +192,8 @@ fun GameCard(
                                 verticalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
                                 itemVerticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text(
+                                HuezooTitleMedium(
                                     text = title,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = HuezooColors.TextPrimary,
-                                    fontWeight = FontWeight.ExtraBold,
                                     modifier = Modifier.weight(1f),
                                 )
                             }
@@ -205,17 +201,12 @@ fun GameCard(
 
                         Spacer(Modifier.height(4.dp))
 
-                        Text(
-                            text = subtitle,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = HuezooColors.TextSecondary,
-                        )
+                        HuezooBodyMedium(text = subtitle)
 
                         if (triesText != null) {
                             Spacer(Modifier.height(HuezooSpacing.xs))
-                            Text(
+                            HuezooLabelSmall(
                                 text = triesText,
-                                style = MaterialTheme.typography.labelSmall,
                                 color = identityColor,
                                 fontWeight = FontWeight.SemiBold,
                             )
@@ -223,9 +214,8 @@ fun GameCard(
 
                         if (personalBest != null) {
                             Spacer(Modifier.height(HuezooSpacing.sm))
-                            Text(
+                            HuezooLabelSmall(
                                 text = personalBest,
-                                style = MaterialTheme.typography.labelSmall,
                                 color = HuezooColors.TextDisabled,
                             )
                         }

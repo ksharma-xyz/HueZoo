@@ -4,7 +4,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,8 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
@@ -37,12 +34,6 @@ import xyz.ksharma.huezoo.ui.theme.SquircleMedium
 private val IconButtonSize = 48.dp
 private val IconButtonShelf = 4.dp
 private val IconSize = 22.dp
-
-private const val GLOSS_ALPHA = 0.14f
-private const val GLOSS_WIDTH_FRACTION = 0.45f
-private const val GLOSS_HEIGHT_FRACTION = 0.30f
-private const val GLOSS_CENTER_X_FRACTION = 0.30f
-private const val GLOSS_CENTER_Y_FRACTION = 0.26f
 
 enum class HuezooIconButtonVariant {
     /** Red — close / cancel / dismiss */
@@ -149,18 +140,6 @@ fun HuezooIconButton(
                 ),
             contentAlignment = Alignment.Center,
         ) {
-            // Gloss
-            Canvas(modifier = Modifier.matchParentSize()) {
-                val w = size.width * GLOSS_WIDTH_FRACTION
-                val h = size.height * GLOSS_HEIGHT_FRACTION
-                val cx = size.width * GLOSS_CENTER_X_FRACTION
-                val cy = size.height * GLOSS_CENTER_Y_FRACTION
-                drawOval(
-                    color = Color.White.copy(alpha = GLOSS_ALPHA),
-                    topLeft = Offset(cx - w / 2f, cy - h / 2f),
-                    size = Size(w, h),
-                )
-            }
             androidx.compose.foundation.Image(
                 painter = icon,
                 contentDescription = contentDescription,
