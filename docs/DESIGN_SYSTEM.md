@@ -11,7 +11,6 @@
 
 The UI is dark, vibrant, tactile. Buttons have depth. Colors glow.
 Swatches feel physical — like chips you can pick up.
-Sound and haptics are baked in from day one, not bolted on.
 
 ---
 
@@ -61,9 +60,7 @@ Then immediately tap Play Again.
 
 ### Example Wrong Answer Copy Pool
 
-Rotate these so players don't see the same message twice in a row.
-
-**Early miss (ΔE was easy, ~3.0+):**
+**Early miss (ΔE ~3.0+):**
 - "That one wasn't even close."
 - "ΔE 3.1. Your eyes were off today."
 - "Warmer. Not warm enough."
@@ -86,15 +83,12 @@ Rotate these so players don't see the same message twice in a row.
 - "ΔE {X}. You moved the line. Now move it again."
 - "Closer. Not there yet."
 
-### Example Game Start / Home Copy
+### Home Screen Copy
 
 - App tagline: **"How sharp are your eyes?"**
 - The Threshold subtitle: **"One miss. That's all it takes."**
 - Daily Challenge subtitle: **"Everyone gets the same puzzle. Not everyone survives it."**
 - Leaderboard header: **"The sharpest eyes in the room."**
-- Empty leaderboard: **"No one's submitted yet. Could be you at #1."**
-
----
 
 ---
 
@@ -119,11 +113,11 @@ Label font:              Space Grotesk Medium, 13sp minimum, UPPERCASE where pos
 
 ### Visual Language
 
-**Backgrounds:** Not flat. The app background should have depth — a radial gradient from the center outward, identity color at ~8% opacity bleeding into the dark base. On game screens, keep it neutral dark so color accuracy isn't compromised. On the home and result screens, let the identity color breathe.
+**Backgrounds:** Dark, deep. The app background is `#080810`. On home and result screens, let the identity color breathe at low opacity (~8-12%) as a radial gradient from center. On game screens, keep it neutral dark so color accuracy isn't compromised.
 
-**Cards:** Solid dark panel (`SurfaceL2`) floating on the background with a colored frame (identity color, 5dp inset). The shelf below the card is the shelf color — darker version of the identity color. The card feels physical, like a trading card you could pick up.
+**Cards:** Solid dark panel (`SurfaceL2`) floating inside a colored frame (identity color, 5dp inset). The shelf below the card is the shelf color — darker version of the identity color. The card feels physical, like a trading card you could pick up.
 
-**Buttons:** Chunky and confident. The face color is a solid saturated accent, the text is always `.onColor` computed (never hardcoded white or black). The shelf is the same color darkened. On press, the face slides 5dp into the shelf — immediate, spring-back on release.
+**Buttons:** Chunky and confident. The face color is a solid saturated accent, the text is always `.onColor` computed (never hardcoded white or black). The shelf is the same color darkened. On press, the face slides into the shelf — immediate, spring-back on release.
 
 **Numbers:** Antonio Bold, always. Numbers in a game app are the scoreboard. They should be the most visible thing on the screen. Never let them compete with the label text — the number wins.
 
@@ -136,8 +130,14 @@ bold clean outlines, 3D render feel, [game-specific theme], no background,
 transparent PNG, hero pose
 ```
 Each game mode gets its own character in the GameCard illustration slot (90dp height area).
+Replace `[game-specific theme]` per game:
+- The Threshold → `color scientist with magnifying glass examining swatches`
+- Daily Challenge → `calendar knight with colorful shield`
+- Color Memory → `wizard with glowing color orbs`
 
-### Color Palette
+---
+
+## Color Palette
 
 ```
 ── Surfaces (always dark — static, do not change with system theme) ──────────
@@ -152,7 +152,7 @@ Accent Magenta:   #FF2D78   wrong answer, danger, dismiss
 Accent Yellow:    #FFE600   score display, Daily Challenge identity
 Accent Purple:    #9B5DE5   The Threshold game identity
 Accent Green:     #00F5A0   success, streak complete, ActionConfirm
-Warm Orange:      #FF8A50   Daily Challenge, secondary warm accent (use for warmth)
+Warm Orange:      #FF8A50   Daily Challenge, secondary warm accent
 
 ── Text (always on dark surfaces — use these, not MaterialTheme.colorScheme) ─
 Text Primary:     #FFFFFF   all primary text on dark cards/panels
@@ -180,9 +180,9 @@ HuezooTitleMedium(text = title)  // defaults to MaterialTheme.colorScheme.onBack
 
 For text on **colored backgrounds** (button face, badge, identity-color chip): use `.onColor` from `ColorExt.kt`.
 
-For text on **app page background** (screens, not components): theme-based defaults are fine.
+---
 
-### Typography
+## Typography
 
 Huezoo uses a **three-font system** — each font has a deliberate role. Never pick fonts ad-hoc.
 
@@ -197,272 +197,81 @@ Huezoo uses a **three-font system** — each font has a deliberate role. Never p
 #### Quick scale reference
 
 ```
-displayLarge   Antonio Bold    56sp   ΔE hero (ResultCard), big score reveals
-displayMedium  Antonio Bold    40sp   SCORE / ROUNDS stats (ResultCard)
-displaySmall   Antonio Bold    28sp   DeltaEBadge number, compact numeric readout
-headlineLarge  Antonio Bold    40sp   App name "Hue Zoo", screen hero title
-headlineSmall  Antonio Medium  20sp   Currency pill amount, inline numeric labels
-headlineMedium Fredoka SemiBold 28sp  Section headings, dialog titles
-titleLarge     Fredoka Bold    22sp   Card headers, sheet titles
-titleMedium    Fredoka SemiBold 20sp  GameCard title, bottom sheet heading
-titleSmall     Fredoka Regular 16sp   Secondary titles, list item sub-headers
-bodyLarge      Space Grotesk   18sp   Long-form description text
-bodyMedium     Space Grotesk   16sp   GameCard subtitle, description
-bodySmall      Space Grotesk   14sp   Captions, helper text
-labelLarge     Space Grotesk Bold 16sp   Button labels, prominent chips
-labelMedium    Space Grotesk Medium 13sp  Secondary labels
-labelSmall     Space Grotesk Medium 12sp  Badges, tries text, personal best, stat headers
+displayLarge   Antonio Bold      56sp   ΔE hero (ResultCard), big score reveals
+displayMedium  Antonio Bold      40sp   SCORE / ROUNDS stats (ResultCard)
+displaySmall   Antonio Bold      28sp   DeltaEBadge number, compact numeric readout
+headlineLarge  Antonio Bold      40sp   App name "Hue Zoo", screen hero title
+headlineSmall  Antonio Medium    20sp   Currency pill amount, inline numeric labels
+headlineMedium Fredoka SemiBold  28sp   Section headings, dialog titles
+titleLarge     Fredoka Bold      22sp   Card headers, sheet titles
+titleMedium    Fredoka SemiBold  20sp   GameCard title, bottom sheet heading
+titleSmall     Fredoka Regular   16sp   Secondary titles, list item sub-headers
+bodyLarge      Space Grotesk     18sp   Long-form description text
+bodyMedium     Space Grotesk     16sp   GameCard subtitle, description
+bodySmall      Space Grotesk     14sp   Captions, helper text
+labelLarge     Space Grotesk Bold   16sp   Button labels, prominent chips
+labelMedium    Space Grotesk Medium 13sp   Secondary labels
+labelSmall     Space Grotesk Medium 12sp   Badges, tries text, personal best, stat headers
 ```
-
-#### The one rule
 
 **Never use bare `Text()` composable anywhere in the app.**
 Always use the typed `HuezooText` variants from `HuezooText.kt`.
-The variants handle font family, weight, size, and dark/light color automatically.
 
 ---
 
 ## Shapes
 
-### Squircle (superellipse)
-All cards, buttons, swatches use squircle corners — softer than rounded rect,
-more distinctive than a circle. Achieved via `GenericShape` in Compose with
-a superellipse path formula.
-
-```kotlin
-// Corner radius as % of size — not fixed dp
-Small swatch:   24% radius  (feels like a soft tile)
-Medium swatch:  22% radius
-Large swatch:   20% radius
-Game cards:     28dp corner radius (squircle path)
-Buttons:        Full squircle (pill-ish but squarish)
-Bottom sheets:  32dp top corners only
-Result card:    40dp all corners
+```
+PillShape          RoundedCornerShape(50)   text buttons, price button
+SquircleSmall      exponent 3.5f            chips, badges
+SquircleMedium     exponent 4.0f            icon buttons, tiles
+SquircleLarge      exponent 5.0f            result card (40dp equivalent)
+CardShape          RoundedCornerShape(20dp) game cards
 ```
 
-### Swatch Shape Variants
-- **Tile** — equal width/height, squircle. Used in grids.
-- **Pill** — wide, short. Used for color comparison strips.
-- **Dot** — small circle. Used in round indicators.
+**Shape usage:**
+- `PillShape` → HuezooButton, PriceButton
+- `SquircleMedium` → HuezooIconButton (X, ✓, info, back — 48×48dp)
+- `SquircleLarge` → ResultCard outer frame
+- `CardShape` → GameCard
+- `SquircleSmall` → Badges, currency pill, small tags
 
 ---
 
 ## Components
 
-### `ChromaButton` — Primary Game Button
-NOT a Material Button. Custom drawn.
+### HuezooButton
+Candy-style pill button. Two-layer Box: shelf fixed at `offset(x=0, y=shelfHeight)`, face translates Y on press. Spring release. No X offset — bottom-only shelf is what makes it feel like a game button, not a brutalist one.
 
-**Visual anatomy:**
-- Background: gradient fill (angle 135°, accent color → slightly darker)
-- Top edge: 1dp lighter highlight line (feels 3D)
-- Bottom edge: 3dp darker shadow band (gives depth/lift)
-- Label: bold, white, center
-- Outer glow: blurred shadow in accent color
+Variants: Primary (Cyan), Confirm (Green), Danger (Magenta), Score (Yellow), Try (Blue), Ghost (transparent).
+Text: always `HuezooLabelLarge`, color computed via `.onColor`.
 
-**States:**
-```
-Default:   full gradient + bottom shadow (lifted)
-Pressed:   scale 0.94, shadow disappears (pushed down), haptic: light
-Disabled:  Surface L2 fill, text dimmed, no glow
-Loading:   shimmer overlay on gradient
-```
+### HuezooIconButton
+Square squircle (48×48dp) with 4dp bottom shelf. Same press animation. Four variants: Dismiss (red), Confirm (green), Back (dark), Info (cyan). **Use instead of any TopAppBar back arrow in game screens.**
 
-**Variants:**
-```
-Primary    — accent cyan gradient, used for main CTA
-Danger     — magenta gradient, used for destructive actions
-Ghost      — transparent fill, accent-colored border + text
-Score      — yellow gradient, used for "Submit Score" only
-```
+### PriceButton
+Wide pill (56dp tall, full width) with 6dp bottom shelf. Bright green face. Price text as `HuezooHeadlineMedium`, ExtraBold. Used only for purchase CTAs.
 
----
+### GameCard
+Layered candy card. Outer frame: identity color fill, CardShape. Inner panel: SurfaceL2, inset 5dp. Illustration area: 90dp, identity color at 12% opacity. Badge overlaid top-right of illustration area. 8dp bottom shelf in darkened identity color. Press translates Y only — no X.
 
-### `SwatchBlock` — The Core Game Element
-The colored tile players tap. Must feel tactile and physical.
+### ResultCard
+Share-ready end-of-game card. Inner panel on Background color. 8dp bottom shelf. Spring entrance (slide up 60dp + scale 0.9→1.0 + fade). Count-up animation for score and ΔE values.
 
-**Visual anatomy:**
-- Fill: the game color
-- Border: 2dp inner highlight (lighter tint of fill color) on top-left
-- Border: 2dp shadow (darker tint of fill color) on bottom-right
-- Subtle gradient overlay: linear, light-to-transparent (top-left → bottom-right)
-- This combo makes it look like a physical color chip under studio lighting
+### DeltaEBadge
+Shows ΔE value after each round. Color reflects difficulty: Cyan (easy, >3.0), Yellow (medium, 1.5–3.0), Magenta (hard, <1.5). Antonio Bold display size for the number.
 
-**States:**
-```
-Default:    resting, slight scale spring on appear (0.85 → 1.0)
-Hover:      scale 1.04 (pointer devices)
-Pressed:    scale 0.92 instantly, haptic: light
-Correct:    green border pulse, scale 1.08 → 1.0, haptic: success
-Wrong:      shake X ±10dp 3 cycles, magenta border flash, haptic: error
-Revealed:   scale 1.0, glowing border in accent green
-```
+### RoundIndicator
+Row of dots for game progress. Active dot: animated scale to 1.2f + white border. Inactive: smaller, SurfaceL3. Completed: accent green fill.
 
----
-
-### `TimerBar`
-Animated progress bar showing time remaining.
-
-- Shape: pill, full width, 8dp tall
-- Fill: gradient shifts as time runs out:
-  ```
-  100% → 60%:  Cyan    (#00E5FF)
-   60% → 30%:  Yellow  (#FFE600)
-   30% →  0%:  Magenta (#FF2D78)
-  ```
-- Background track: Surface L2
-- When below 30%: subtle pulse animation (opacity 1.0 ↔ 0.7, 500ms)
-- When below 10%: haptic tick every second
-
----
-
-### `DeltaEBadge`
-Shows the ΔE value after each round.
-
-- Shape: squircle pill
-- Background: Surface L2 with accent glow
-- Text: monospace, Display size, color reflects difficulty:
-  ```
-  ΔE > 3.0:   Cyan   (easy)
-  ΔE 1.5–3.0: Yellow (medium)
-  ΔE < 1.5:   Magenta (hard)
-  ```
-- Appears with: scale 0.6 → 1.0 + fade in, spring 400ms
-
----
-
-### `GameCard` — Home Screen Card
-The entry point to each game.
-
-- Background: Surface L1 with subtle gradient from game's identity color (10% opacity)
-- Left accent bar: 4dp wide, game identity color, full height
-- Title: Headline type, white
-- Description: Body type, Text Secondary
-- Personal best: Label type + ΔE badge or score chip
-- Identity colors per game:
-  ```
-  The Threshold:       Purple  (#9B5DE5)
-  Daily Challenge:     Yellow  (#FFE600)
-  What's My Delta E?:  Cyan    (#00E5FF)
-  Odd Swatch Out:      Green   (#00F5A0)
-  Mix to Match:        Magenta (#FF2D78)
-  Color Memory:        Orange  (#FF9500)
-  ```
-- Press: scale 0.97, shadow reduces, haptic: light
-- Identity color glow on card edge when pressed
-
----
-
-### `ResultCard`
-The end-of-game score card. Also what gets screenshotted for sharing.
-
-- Background: radial gradient — game identity color at 15% opacity from center
-- Large ΔE or score number: Display type, glowing in identity color
-- Subtitle: "Better than X% of players" — Title type
-- Stat rows: Label type, divider lines in Surface L3
-- Confetti: 50 particles, mix of identity color + white + accent
-- Card border: 1.5dp, identity color at 40% opacity
-- Share image: 1:1 ratio, 800×800px render
-
----
-
-### `RoundIndicator`
-Row of dots showing game progress.
-
-- Inactive dot: 8dp circle, Surface L3
-- Active dot: 14dp squircle, accent color, glow
-- Completed dot: 8dp circle, accent green, filled
-- Transition: spring scale animation between states
-
----
-
-### `BottomSheet` — Paywall / Name Entry
-- Top handle bar: pill, Surface L3
-- Background: Surface L2, top corners 32dp squircle
-- Title: Headline, center
-- Content: flexible slot
-- Action buttons: ChromaButton variants, full width
-
----
-
-## Haptics
-
-Platform-specific via `expect`/`actual` in KMP.
-
-```kotlin
-expect fun haptic(type: HapticType)
-
-enum class HapticType {
-    Light,       // tap, navigation, swatch appear
-    Medium,      // round transition, submit
-    Heavy,       // game start, game over
-    Success,     // correct answer — double light pulse pattern
-    Error,       // wrong answer — short heavy buzz
-    Warning,     // timer low (below 10%)
-    Selection,   // slider drag tick
-}
-```
-
-**Android:** `VibrationEffect` via `Vibrator` / `VibratorManager`
-**iOS:** `UIImpactFeedbackGenerator` / `UINotificationFeedbackGenerator`
-
----
-
-## Sound
-
-Short, non-intrusive. All sounds < 200ms except level-up chime.
-Volume respects system silent mode — sound is OFF by default, user opt-in.
-
-```
-correct.wav      — soft ascending two-tone (C → E), 120ms
-wrong.wav        — descending tone, slightly dissonant, 180ms
-levelup.wav      — ascending chime (3 notes), 400ms
-gameover.wav     — descending minor chord, 350ms
-tick.wav         — single soft click, 30ms (timer warning)
-confetti.wav     — sparkle shimmer sound, 600ms (result screen)
-button_tap.wav   — subtle soft click, 40ms
-swatch_tap.wav   — soft thud, 50ms
-```
-
-**KMP approach:**
-```kotlin
-expect fun playSound(sound: SoundEffect)
-
-enum class SoundEffect {
-    Correct, Wrong, LevelUp, GameOver,
-    Tick, Confetti, ButtonTap, SwatchTap
-}
-```
-
-**Android:** `SoundPool` (low latency, pre-loaded)
-**iOS:** `AVAudioPlayer` or `SystemSoundID` for shortest sounds
-
----
-
-## Animation Spec
-
-| Trigger | Animation | Easing | Duration |
-|---|---|---|---|
-| Screen enter | Fade + slide up 24dp | Spring (stiffness 300) | 350ms |
-| Home cards load | Stagger fade-up, 80ms delay per card | EaseOutCubic | 300ms each |
-| Swatch appear | Scale 0.8 → 1.0 | Spring (stiffness 400, damp 0.7) | 250ms |
-| Swatch correct | Scale 1.0 → 1.1 → 1.0 + green border flash | Spring | 300ms |
-| Swatch wrong | ShakeX ±10dp × 3 | Linear | 300ms total |
-| Timer bar drain | Width lerp | Linear | duration of round |
-| Timer pulse (30%) | Opacity 1.0 ↔ 0.65 | EaseInOut | 500ms loop |
-| ΔE badge appear | Scale 0.5 → 1.0 + fade | Spring (stiffness 500) | 400ms |
-| Score count-up | Int lerp 0 → final | Spring (stiffness 200) | 800ms |
-| Result card in | Slide up 60dp + scale 0.9 → 1.0 | Spring (stiffness 280) | 450ms |
-| Confetti | 50 particles, gravity 0.4, spin random | Physics | 2000ms |
-| Button press | Scale 1.0 → 0.94 | Snap | 80ms |
-| Button release | Scale 0.94 → 1.0 | Spring (stiffness 600) | 200ms |
-| Game card press | Scale 1.0 → 0.97 | Snap | 80ms |
+### CurrencyPill
+Display-only pill showing gem icon + amount. SurfaceL2 background, 1.5dp GemGreen border. No shelf, no press animation.
 
 ---
 
 ## Game Identity Colors
 
-Each game has an identity color used as: card accent bar, card background tint,
-ΔE badge color, confetti color, glow color on result card.
+Each game has an identity color used as: card frame, card background tint, ΔE badge color, result card glow.
 
 | Game | Identity Color | Hex |
 |---|---|---|
@@ -475,90 +284,56 @@ Each game has an identity color used as: card accent bar, card background tint,
 
 ---
 
-## Implementation Notes
+## What NOT to Do
 
-### Glow Effect (Compose)
-```kotlin
-// Apply to any Modifier
-fun Modifier.colorGlow(color: Color, radius: Dp = 16.dp) = this.then(
-    Modifier.drawBehind {
-        drawIntoCanvas { canvas ->
-            val paint = Paint().apply {
-                asFrameworkPaint().apply {
-                    isAntiAlias = true
-                    this.color = Color.Transparent.toArgb()
-                    setShadowLayer(radius.toPx(), 0f, 0f, color.copy(alpha = 0.6f).toArgb())
-                }
-            }
-            canvas.drawRoundRect(
-                0f, 0f, size.width, size.height,
-                16.dp.toPx(), 16.dp.toPx(), paint
-            )
-        }
-    }
-)
 ```
+❌ NEVER use TopAppBar with back arrow in game screens
+✅ Use HuezooIconButton(variant = Back / Dismiss) instead
 
-### 3D Button Depth Effect
-Achieved via layered `Box`:
-1. Bottom layer: darker color, offset 3dp down — the "shadow band"
-2. Top layer: gradient fill — the button surface
-3. Top edge overlay: 1dp lighter line — the highlight
+❌ NEVER use diagonal shadow (x+y offset)
+✅ Use bottom shelf only (x=0, y=shelfHeight)
 
-### Squircle Shape
-```kotlin
-val SquircleShape = GenericShape { size, _ ->
-    val n = 4f  // superellipse exponent
-    val w = size.width
-    val h = size.height
-    // approximate with bezier curves for performance
-    // or use RoundedCornerShape(28%) as close approximation
-}
+❌ NEVER use emoji as UI elements
+✅ Use Res.drawable.* vector composables
+
+❌ NEVER use bare Text() composable
+✅ Use the typed HuezooText variants from HuezooText.kt
+
+❌ NEVER use MaterialTheme.colorScheme.onBackground on card/button surfaces
+✅ Use HuezooColors.TextPrimary / TextSecondary / TextDisabled explicitly
+
+❌ NEVER hardcode Color.White or Color.Black for text on colored backgrounds
+✅ Use .onColor from ColorExt.kt
+
+❌ NEVER use light theme — Huezoo is dark only
 ```
 
 ---
 
-## Task List: Design System
+## File Reference
 
-### Phase DS.0 — Foundation
-- [ ] DS.0.1 Define `ChromaColors.kt` — all color tokens as `Color` constants
-- [ ] DS.0.2 Define `ChromaTypography.kt` — Space Grotesk font loading (expect/actual for each platform), all text styles
-- [ ] DS.0.3 Define `ChromaTheme.kt` — `MaterialTheme` wrapper with custom colors + typography
-- [ ] DS.0.4 Add Space Grotesk font files to Android assets + iOS bundle
-
-### Phase DS.1 — Shapes & Effects
-- [ ] DS.1.1 `SquircleShape` — GenericShape implementation
-- [ ] DS.1.2 `Modifier.colorGlow()` — BlurMaskFilter glow extension
-- [ ] DS.1.3 `Modifier.depthShadow()` — layered shadow for 3D card feel
-- [ ] DS.1.4 `SwatchGradientOverlay` — highlight + shadow overlay for physical chip look
-
-### Phase DS.2 — Core Components
-- [ ] DS.2.1 `ChromaButton` — primary, danger, ghost, score variants with 3D press
-- [ ] DS.2.2 `SwatchBlock` — sizes sm/md/lg, all states (default, pressed, correct, wrong)
-- [ ] DS.2.3 `GameCard` — identity color, personal best, press animation
-- [ ] DS.2.4 `TimerBar` — color-shifting animated countdown
-- [ ] DS.2.5 `DeltaEBadge` — difficulty-colored ΔE label
-- [ ] DS.2.6 `RoundIndicator` — dot row, animated state transitions
-- [ ] DS.2.7 `ResultCard` — radial gradient, glow border, share-ready layout
-- [ ] DS.2.8 `ChromaBottomSheet` — game-styled sheet
-
-### Phase DS.3 — Haptics
-- [ ] DS.3.1 `HapticType` enum in commonMain
-- [ ] DS.3.2 `expect fun haptic(type: HapticType)` declaration
-- [ ] DS.3.3 Android `actual` — VibrationEffect patterns per type
-- [ ] DS.3.4 iOS `actual` — UIImpactFeedbackGenerator / UINotificationFeedbackGenerator
-
-### Phase DS.4 — Sound
-- [ ] DS.4.1 Source/create 8 sound files (correct, wrong, levelup, gameover, tick, confetti, button_tap, swatch_tap)
-- [ ] DS.4.2 `SoundEffect` enum in commonMain
-- [ ] DS.4.3 `expect fun playSound(sound: SoundEffect)` declaration
-- [ ] DS.4.4 Android `actual` — SoundPool, pre-load all sounds on init
-- [ ] DS.4.5 iOS `actual` — AVAudioPlayer
-- [ ] DS.4.6 User setting: sound on/off (default off, stored in SQLDelight)
-- [ ] DS.4.7 Respect system silent mode on both platforms
-
-### Phase DS.5 — Animation Utilities
-- [ ] DS.5.1 `shakeAnimation()` — reusable shake modifier
-- [ ] DS.5.2 `confettiEffect()` — particle system composable
-- [ ] DS.5.3 `countUpAnimation()` — animates Int/Float from 0 to target
-- [ ] DS.5.4 `staggeredEntrance()` — list entrance with configurable delay
+```
+composeApp/src/commonMain/
+├── composeResources/
+│   ├── drawable/          ← all vectors (ic_close, ic_check, game art, etc.)
+│   └── font/              ← Antonio, Fredoka, Space Grotesk TTF files
+└── kotlin/xyz/ksharma/huezoo/
+    ├── ui/theme/
+    │   ├── Color.kt         ← all color tokens + darken() extension
+    │   ├── ColorExt.kt      ← contrastRatio(), foregroundColor(), onColor
+    │   ├── Shape.kt         ← SquircleShape presets + PillShape
+    │   ├── Typography.kt    ← three-font system wired into huezooTypography()
+    │   └── Theme.kt         ← HuezooTheme (dark-only)
+    └── ui/components/
+        ├── HuezooText.kt        ← ALL typed text composables — only file using Text()
+        ├── HuezooButton.kt      ← pill + shelf + spring press
+        ├── HuezooIconButton.kt  ← squircle icon buttons (X, ✓, back, info)
+        ├── PriceButton.kt       ← purchase CTA
+        ├── GameCard.kt          ← frame + inner panel + shelf
+        ├── ResultCard.kt        ← end-of-game share card
+        ├── SwatchBlock.kt       ← color swatch with states
+        ├── DeltaEBadge.kt       ← animated ΔE display
+        ├── RoundIndicator.kt    ← round progress dots
+        ├── CurrencyPill.kt      ← gem + amount display
+        └── HuezooBottomSheet.kt ← paywall / name entry sheet
+```

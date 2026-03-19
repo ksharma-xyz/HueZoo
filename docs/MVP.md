@@ -14,7 +14,7 @@
 | DS.0.5 | HuezooSpacing + HuezooSize dimension tokens | ✅ Done |
 | DS.1 | SquircleShape, colorGlow modifier, depthShadow | ✅ Done |
 | DS.2 | HuezooButton, SwatchBlock, GameCard, DeltaEBadge, RoundIndicator, ResultCard, BottomSheet | ✅ Done |
-| DS.Font | Custom fonts loaded from composeResources (Space Grotesk + JetBrains Mono) | ⬜ |
+| DS.Font | Custom fonts: Bebas Neue + Clash Display + Space Grotesk (all loaded via composeResources/font/) | ✅ Done |
 | DS.3 | Haptics — HapticEngine expect/actual (Android + iOS) | ⬜ |
 | DS.4 | Sound — SoundEffect expect/actual, SoundPool / AVAudioPlayer | ⬜ |
 | DS.5 | Animations — baked into each component as it's built | ⬜ |
@@ -138,18 +138,15 @@ Paywall Sheet
 - [x] DS.0.2 `HuezooTypography` — Space Grotesk type scale (fonts: drop TTF files into `composeResources/font/` to activate)
 - [x] DS.0.3 `HuezooTheme` — `MaterialTheme` wrapper with dark color scheme + typography
 
-### Phase DS.Font — Custom Typography (separate track)
-- [ ] DS.Font.1 Download **Space Grotesk** (4 weights: Regular, Medium, SemiBold, Bold) from fonts.google.com/specimen/Space+Grotesk
-- [ ] DS.Font.2 Download **JetBrains Mono** (Regular, Medium) from fonts.google.com/specimen/JetBrains+Mono — used for ΔE badge and numeric readouts
-- [ ] DS.Font.3 Place all `.ttf` files in `composeApp/src/commonMain/composeResources/font/` (snake_case filenames)
-- [ ] DS.Font.4 Run `./gradlew generateCommonMainResourceAccessors` to generate `Res.font.*` accessors
-- [ ] DS.Font.5 Update `Typography.kt` — replace `FontFamily.SansSerif` with `spaceGroteskFamily()` and `FontFamily.Monospace` with `jetBrainsMonoFamily()` loaded via `Font(Res.font.X, weight)`
-- [ ] DS.Font.6 Update `DeltaEBadge` — `labelSmall` (JetBrains Mono) for the ΔE number display
-- [ ] DS.Font.7 Verify previews render with correct fonts in Android Studio
-- [ ] DS.Font.8 Verify on-device on Android + iOS simulator
-
-> **How to use:** Run `/kmp-typography` skill when activating fonts — it has the full setup guide
-> including FontFamily construction, Typography.kt structure, and troubleshooting.
+### Phase DS.Font — Custom Typography ✅
+- [x] DS.Font.1 **Bebas Neue** (Regular) — display/numbers font. SIL OFL. Replaces Antonio.
+- [x] DS.Font.2 **Clash Display** (Regular, Medium, SemiBold, Bold) — title/heading font. Fontshare FF EULA. Replaces Fredoka.
+- [x] DS.Font.3 **Space Grotesk** (Regular, Medium, SemiBold, Bold) — body/label font. SIL OFL.
+- [x] DS.Font.4 All `.ttf` files placed in `composeApp/src/commonMain/composeResources/font/` (snake_case)
+- [x] DS.Font.5 `Typography.kt` updated — BebasNeue / ClashDisplay / SpaceGrotesk `FontFamily` objects wired to full type scale
+- [ ] DS.Font.6 Verify previews render with correct fonts in Android Studio
+- [ ] DS.Font.7 Verify on-device on Android + iOS simulator
+- [ ] DS.Font.8 **License review** (see Phase L below before App Store submission)
 
 ### Phase DS.1 — Shapes & Effects
 - [ ] DS.1.1 `SquircleShape` — `GenericShape` superellipse, variants: small/medium/large/card/button
@@ -261,11 +258,18 @@ Paywall Sheet
 ### Phase 9 — Polish & Ship
 - [ ] 9.1 App icon (all sizes) + splash screen
 - [ ] 9.2 System dark mode — already dark-only; verify on light-mode devices
-- [ ] 9.3 Space Grotesk fonts loaded via `composeResources/font/`
-- [ ] 9.4 Haptic + sound tuning pass on real device
-- [ ] 9.5 Test on real Android device + iOS device/simulator
-- [ ] 9.6 Play Store listing — screenshots, description, content rating
-- [ ] 9.7 App Store listing — screenshots, description, review submission
+- [ ] 9.3 Haptic + sound tuning pass on real device
+- [ ] 9.4 Test on real Android device + iOS device/simulator
+- [ ] 9.5 Play Store listing — screenshots, description, content rating
+- [ ] 9.6 App Store listing — screenshots, description, review submission
+
+### Phase L — Font Licenses (before App Store submission)
+- [ ] L.1 **Clash Display (Fontshare FF EULA)** — review full license at `Downloads/ClashDisplay_Complete/License/FFL.txt`. License explicitly permits "Mobile, Digital, Apps" commercial use. Verify bundling fonts inside an APK/IPA is acceptable under clause 01. If any concern: replace Clash Display with **DM Serif Display** or **Syne** (both SIL OFL, no restrictions).
+- [ ] L.2 **Bebas Neue (SIL OFL 1.1)** — no action needed. OFL permits bundling in any software including commercial apps.
+- [ ] L.3 **Space Grotesk (SIL OFL 1.1)** — no action needed.
+- [ ] L.4 **Antonio (SIL OFL 1.1)** — no action needed (kept in font folder but no longer used in Typography.kt — can be removed).
+- [ ] L.5 **Fredoka (SIL OFL 1.1)** — no action needed (same as above — kept but replaced by Clash Display).
+- [ ] L.6 Add font attribution to app's "About" or Settings screen if required (Clash Display: "Designed by Indian Type Foundry").
 
 ---
 

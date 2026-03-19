@@ -7,12 +7,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import huezoo.composeapp.generated.resources.Res
-import huezoo.composeapp.generated.resources.antonio_bold
-import huezoo.composeapp.generated.resources.antonio_medium
-import huezoo.composeapp.generated.resources.antonio_regular
-import huezoo.composeapp.generated.resources.fredoka_bold
-import huezoo.composeapp.generated.resources.fredoka_regular
-import huezoo.composeapp.generated.resources.fredoka_semibold
+import huezoo.composeapp.generated.resources.bebas_neue_regular
+import huezoo.composeapp.generated.resources.clash_display_bold
+import huezoo.composeapp.generated.resources.clash_display_medium
+import huezoo.composeapp.generated.resources.clash_display_regular
+import huezoo.composeapp.generated.resources.clash_display_semibold
 import huezoo.composeapp.generated.resources.space_grotesk_bold
 import huezoo.composeapp.generated.resources.space_grotesk_medium
 import huezoo.composeapp.generated.resources.space_grotesk_regular
@@ -22,27 +21,37 @@ import org.jetbrains.compose.resources.Font
 /**
  * Hue Zoo uses three complementary typefaces:
  *
- * - **Antonio** — bold, condensed display font for hero numbers and the app name.
- *   Used for: ΔE scores, big statistics, game headings.
+ * - **Bebas Neue** — ultra-bold, tall, condensed display font for hero numbers and the app name.
+ *   Used for: ΔE scores, big statistics, game headings. Single weight — inherently bold.
+ *   License: SIL Open Font License 1.1 (free for all uses including commercial bundling).
  *
- * - **Fredoka** — rounded, friendly font that gives the game a warm, playful feel.
+ * - **Clash Display** — geometric, premium display font. Distinct alternates at large sizes.
  *   Used for: card titles, section headings, medium-level hierarchy.
+ *   License: Fontshare FF EULA — free for commercial use in apps.
+ *   ⚠️  See MVP.md for license review TODO before App Store submission.
  *
  * - **Space Grotesk** — geometric sans-serif for all body and UI text.
  *   Used for: body copy, button labels, badges, secondary labels.
+ *   License: SIL Open Font License 1.1 (free for all uses including commercial bundling).
  */
 @Composable
 fun huezooTypography(): Typography {
-    val antonio = FontFamily(
-        Font(Res.font.antonio_regular, FontWeight.Normal),
-        Font(Res.font.antonio_medium, FontWeight.Medium),
-        Font(Res.font.antonio_bold, FontWeight.Bold),
+    // Bebas Neue has only one weight — it is inherently heavy/condensed.
+    // Register it under all weights so Compose picks it up regardless of what weight is requested.
+    val bebasNeue = FontFamily(
+        Font(Res.font.bebas_neue_regular, FontWeight.Normal),
+        Font(Res.font.bebas_neue_regular, FontWeight.Medium),
+        Font(Res.font.bebas_neue_regular, FontWeight.SemiBold),
+        Font(Res.font.bebas_neue_regular, FontWeight.Bold),
+        Font(Res.font.bebas_neue_regular, FontWeight.ExtraBold),
     )
 
-    val fredoka = FontFamily(
-        Font(Res.font.fredoka_regular, FontWeight.Normal),
-        Font(Res.font.fredoka_semibold, FontWeight.SemiBold),
-        Font(Res.font.fredoka_bold, FontWeight.Bold),
+    val clashDisplay = FontFamily(
+        Font(Res.font.clash_display_regular, FontWeight.Normal),
+        Font(Res.font.clash_display_medium, FontWeight.Medium),
+        Font(Res.font.clash_display_semibold, FontWeight.SemiBold),
+        Font(Res.font.clash_display_bold, FontWeight.Bold),
+        Font(Res.font.clash_display_bold, FontWeight.ExtraBold),
     )
 
     val spaceGrotesk = FontFamily(
@@ -50,72 +59,73 @@ fun huezooTypography(): Typography {
         Font(Res.font.space_grotesk_medium, FontWeight.Medium),
         Font(Res.font.space_grotesk_semibold, FontWeight.SemiBold),
         Font(Res.font.space_grotesk_bold, FontWeight.Bold),
+        Font(Res.font.space_grotesk_bold, FontWeight.ExtraBold),
     )
 
     return Typography(
-        // ── Hero display — Antonio ─────────────────────────────────────────────
+        // ── Hero display — Bebas Neue ─────────────────────────────────────────
         // ΔE scores, big count-up numbers on ResultCard
         displayLarge = TextStyle(
-            fontFamily = antonio,
-            fontWeight = FontWeight.Bold,
+            fontFamily = bebasNeue,
+            fontWeight = FontWeight.Normal,
             fontSize = 56.sp,
             lineHeight = 60.sp,
         ),
         // Medium display numbers — SCORE / ROUNDS stats on ResultCard
         displayMedium = TextStyle(
-            fontFamily = antonio,
-            fontWeight = FontWeight.Bold,
+            fontFamily = bebasNeue,
+            fontWeight = FontWeight.Normal,
             fontSize = 40.sp,
             lineHeight = 44.sp,
         ),
         // Small display numbers — DeltaEBadge, compact numeric readouts
         displaySmall = TextStyle(
-            fontFamily = antonio,
-            fontWeight = FontWeight.Bold,
+            fontFamily = bebasNeue,
+            fontWeight = FontWeight.Normal,
             fontSize = 28.sp,
             lineHeight = 32.sp,
         ),
 
-        // ── Section headers — Antonio ──────────────────────────────────────────
+        // ── Section headers — Bebas Neue / Clash Display ──────────────────────
         // App name "Hue Zoo", screen titles
         headlineLarge = TextStyle(
-            fontFamily = antonio,
-            fontWeight = FontWeight.Bold,
+            fontFamily = bebasNeue,
+            fontWeight = FontWeight.Normal,
             fontSize = 40.sp,
             lineHeight = 44.sp,
         ),
-        // Sub-screen headings, large stats (SCORE, ROUNDS on ResultCard)
+        // Sub-screen headings, dialog titles
         headlineMedium = TextStyle(
-            fontFamily = fredoka,
+            fontFamily = clashDisplay,
             fontWeight = FontWeight.SemiBold,
             fontSize = 28.sp,
             lineHeight = 32.sp,
         ),
-        // Compact Antonio — currency pill, inline numeric labels
+        // Compact Bebas — currency pill, inline numeric labels
         headlineSmall = TextStyle(
-            fontFamily = antonio,
-            fontWeight = FontWeight.Medium,
+            fontFamily = bebasNeue,
+            fontWeight = FontWeight.Normal,
             fontSize = 20.sp,
             lineHeight = 24.sp,
         ),
 
-        // ── Card titles — Fredoka ─────────────────────────────────────────────
+        // ── Card titles — Clash Display ───────────────────────────────────────
         // GameCard titles, paywall section headings
         titleLarge = TextStyle(
-            fontFamily = fredoka,
+            fontFamily = clashDisplay,
             fontWeight = FontWeight.Bold,
             fontSize = 22.sp,
             lineHeight = 26.sp,
         ),
         titleMedium = TextStyle(
-            fontFamily = fredoka,
+            fontFamily = clashDisplay,
             fontWeight = FontWeight.SemiBold,
             fontSize = 20.sp,
             lineHeight = 24.sp,
         ),
         titleSmall = TextStyle(
-            fontFamily = fredoka,
-            fontWeight = FontWeight.Normal,
+            fontFamily = clashDisplay,
+            fontWeight = FontWeight.Medium,
             fontSize = 16.sp,
             lineHeight = 20.sp,
         ),
