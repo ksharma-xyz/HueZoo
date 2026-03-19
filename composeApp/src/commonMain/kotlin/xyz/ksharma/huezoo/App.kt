@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import xyz.ksharma.huezoo.navigation.DailyGame
+import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Home
 import xyz.ksharma.huezoo.navigation.Leaderboard
 import xyz.ksharma.huezoo.navigation.Result
@@ -37,14 +38,24 @@ fun App() {
 
                         is ThresholdGame -> NavEntry(destination) {
                             ThresholdScreen(
-                                onResult = { backStack.add(it) },
+                                // Remove the game screen before pushing Result so the
+                                // backstack becomes [Home, Result] — not [Home, Game, Result].
+                                // This prevents the stuck ViewModel from being resurfaced
+                                // when the user presses Back from the Result screen.
+                                onResult = { result ->
+                                    backStack.removeLast()
+                                    backStack.add(result)
+                                },
                                 onBack = { backStack.removeLast() },
                             )
                         }
 
                         is DailyGame -> NavEntry(destination) {
                             DailyScreen(
-                                onResult = { backStack.add(it) },
+                                onResult = { result ->
+                                    backStack.removeLast()
+                                    backStack.add(result)
+                                },
                                 onBack = { backStack.removeLast() },
                             )
                         }
@@ -54,8 +65,11 @@ fun App() {
                                 result = destination,
                                 onLeaderboard = { backStack.add(Leaderboard) },
                                 onPlayAgain = {
-                                    backStack.removeAll { it is Result }
-                                    backStack.add(ThresholdGame)
+                                    backStack.removeLast() // remove Result
+                                    // Daily is once-per-day — go Home instead of replaying.
+                                    if (destination.gameId == GameId.THRESHOLD) {
+                                        backStack.add(ThresholdGame)
+                                    }
                                 },
                                 onBack = { backStack.removeLast() },
                             )
