@@ -21,8 +21,8 @@ import androidx.compose.ui.text.style.TextOverflow
  *  - Exposes [fontWeight] as nullable — `null` means "use the weight defined in the TextStyle"
  *
  * Typography → Font family mapping (defined in Typography.kt):
- *  Display / Headline Large  → Antonio Bold
- *  Headline Medium / Title   → Fredoka SemiBold / Bold
+ *  Display / Headline Large  → Bebas Neue
+ *  Headline Medium / Title   → Clash Display SemiBold / Bold
  *  Body / Label              → Space Grotesk
  */
 
