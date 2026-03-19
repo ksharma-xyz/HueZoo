@@ -17,7 +17,7 @@ import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
-private val ChipPaddingH = 16.dp
+private val ChipPaddingH = 24.dp
 private val ChipPaddingV = 8.dp
 private const val CHIP_SHADOW_ALPHA = 0.30f
 
@@ -61,7 +61,7 @@ fun SkewedStatChip(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            HuezooLabelSmall(
+            HuezooLabelLarge(
                 text = label,
                 color = HuezooColors.TextSecondary,
             )
