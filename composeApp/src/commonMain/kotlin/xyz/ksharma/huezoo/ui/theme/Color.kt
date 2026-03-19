@@ -3,11 +3,13 @@ package xyz.ksharma.huezoo.ui.theme
 import androidx.compose.ui.graphics.Color
 
 object HuezooColors {
-    // Backgrounds
-    val Background = Color(0xFF080810)
-    val SurfaceL1 = Color(0xFF12121E)
-    val SurfaceL2 = Color(0xFF1C1C2E)
-    val SurfaceL3 = Color(0xFF26263A)
+    // Backgrounds — 5-tier stack from void to highest surface
+    val Background = Color(0xFF0D0D16) // App canvas — neon reads as emitted light
+    val SurfaceL0 = Color(0xFF000000) // Deepest wells — track bg, recessed slots
+    val SurfaceL1 = Color(0xFF13121C) // Low surface — section backgrounds
+    val SurfaceL2 = Color(0xFF191923) // Mid surface — card bodies, sheet interior
+    val SurfaceL3 = Color(0xFF1F1F2A) // High surface — active cards, interactive slots
+    val SurfaceL4 = Color(0xFF252531) // Highest surface — focused/selected state, popovers
 
     // Accents
     val AccentCyan = Color(0xFF00E5FF)
