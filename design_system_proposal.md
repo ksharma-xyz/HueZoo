@@ -343,4 +343,48 @@ DS.10     Result screen sequential animation reveal
 
 ---
 
+---
+
+## 9. Pending Tasks
+
+Legend: ✅ Done · 🔧 In progress · ⬜ Not started
+
+### DS build phases
+| # | Task | Status |
+|---|---|---|
+| DS.3 | Color tokens (5-tier surface stack, Background #0d0d16, M3 slot mapping) | ✅ |
+| DS.2 | Modifiers: `neonStrike`, `rimLight`, `depthShadow` | ✅ |
+| DS.4 | `HuezooTopBar`, `ParallelogramShape`, `shapedShadow` modifier | ✅ |
+| DS.5 | `AmbientGlowBackground` composable | ✅ |
+| DS.7 | `SkewedStatChip` composable | ✅ |
+| DS.6 | `kineticGrid` modifier (gameplay background texture) | ⬜ |
+| DS.8 | Haptics | ⬜ |
+| DS.9 | `neonStrike` on revealed `SwatchBlock` | ⬜ |
+| DS.10 | Result screen sequential animation reveal | ⬜ |
+
+### DS integration into existing screens
+| # | Task | Status |
+|---|---|---|
+| I.1 | Wire `HuezooTopBar` into HomeScreen, ThresholdScreen, DailyScreen, ResultScreen | ⬜ |
+| I.2 | Wrap all screens with `AmbientGlowBackground` (per-screen identity colors) | ⬜ |
+| I.3 | Replace game HUD text with `SkewedStatChip` (round, tries, ΔE) | ⬜ |
+| I.4 | Update `HuezooButton` to use `shapedShadow(PillShape, shelfColor)` | ⬜ |
+| I.5 | Update `GameCard` to use `shapedShadow` + `rimLight` on inner panel | ⬜ |
+
+### UX / bug fixes
+| # | Task | Status |
+|---|---|---|
+| U.1 | HomeScreen stale data on return — fire `ScreenResumed` on lifecycle RESUME not just init | ⬜ |
+| U.2 | Result screen Daily button label — show "Back to Home" instead of "Play Again" for Daily | ⬜ |
+| U.3 | Nav bug: game screen stays on backstack below Result → stuck ViewModel, taps ignored | ✅ fixed in App.kt |
+
+### Future (post-launch)
+| # | Task | Status |
+|---|---|---|
+| F.1 | Leaderboard screen (currently stub) | ⬜ |
+| F.2 | Paywall sheet + trigger after 5 attempts | ⬜ |
+| F.3 | Ad reward (+1 try) | ⬜ |
+
+---
+
 *Stitch reference at `/Users/ksharma/Downloads/stitch/stitch/`. Screens: `screen.png` per folder.*
