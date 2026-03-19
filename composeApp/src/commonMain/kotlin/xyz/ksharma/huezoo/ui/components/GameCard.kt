@@ -4,8 +4,8 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -19,8 +19,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,20 +40,27 @@ import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.PillShape
+import xyz.ksharma.huezoo.ui.theme.SquircleLarge
+import xyz.ksharma.huezoo.ui.theme.darken
 
-private val CardShape = RoundedCornerShape(HuezooSize.CornerCard)
-private val BadgeShape = RoundedCornerShape(HuezooSize.CornerSmall)
+private val CardShelf = 8.dp
+private val FrameInset = 5.dp
+private val IllustrationSize = 72.dp
+private val IllustrationAreaHeight = 90.dp
 
 /**
- * Neo-brutalist game card for the Home screen.
+ * Candy-style game card for the Home screen.
  *
- * - Hard [identityColor] shadow at [CardShadowOffset] offset (no blur).
- * - On press the card sinks INTO the shadow and springs back on release.
- * - [visualContent] slot at the top — pass a Canvas illustration or colored swatch area
- *   to give the card a strong visual identity. Defaults to a simple colored band.
- * - [badgeText] shown top-right (e.g. "5 tries left", "Done").
- * - [triesText] shown below the subtitle for remaining-try highlights.
- * - [personalBest] shown in muted text at the bottom.
+ * Layout:
+ * - Outer frame filled with [identityColor] (SquircleLarge)
+ * - Inner panel (SurfaceL1) inset by [FrameInset] on all sides
+ * - Illustration area at top (90dp): [badgeText] overlaid top-right
+ * - Content area: title, subtitle, [triesText], [personalBest]
+ * - Hard [identityColor] shelf (8dp, bottom only) — face presses down on tap
+ *
+ * Pass [illustrationPainter] to show a game illustration, or [visualContent] for
+ * a fully custom composable in the illustration slot.
  */
 @Composable
 fun GameCard(
@@ -65,6 +73,7 @@ fun GameCard(
     triesText: String? = null,
     personalBest: String? = null,
     enabled: Boolean = true,
+    illustrationPainter: Painter? = null,
     visualContent: (@Composable () -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -83,33 +92,32 @@ fun GameCard(
         label = "cardPress",
     )
 
-    val shadowOffsetPx = with(LocalDensity.current) { HuezooSize.ShadowCard.toPx() }
-    val shadowColor = identityColor.copy(alpha = if (enabled) 1f else 0.3f)
+    val shelfPx = with(LocalDensity.current) { CardShelf.toPx() }
+    val frameColor = if (enabled) identityColor else identityColor.copy(alpha = 0.4f)
+    val shelfColor = (if (enabled) identityColor else identityColor.copy(alpha = 0.4f)).darken(0.55f)
 
-    // Outer box reserves space for the shadow
     Box(
         modifier = modifier
             .widthIn(min = 280.dp)
-            .padding(end = HuezooSize.ShadowCard, bottom = HuezooSize.ShadowCard),
+            .padding(bottom = CardShelf),
     ) {
-        // Hard shadow layer — stays fixed
+        // Shelf — fixed, bottom only
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .offset(x = HuezooSize.ShadowCard, y = HuezooSize.ShadowCard)
-                .background(shadowColor, CardShape),
+                .offset(x = 0.dp, y = CardShelf)
+                .background(shelfColor, SquircleLarge),
         )
 
-        // Card layer — sinks into shadow on press
+        // Card face — slides down into shelf on press
         Box(
             modifier = Modifier
                 .graphicsLayer {
-                    translationX = pressProgress * shadowOffsetPx
-                    translationY = pressProgress * shadowOffsetPx
+                    translationX = 0f
+                    translationY = pressProgress * shelfPx
                 }
-                .border(HuezooSize.BorderMedium, identityColor.copy(alpha = if (enabled) 0.6f else 0.2f), CardShape)
-                .background(HuezooColors.SurfaceL2, CardShape)
-                .clip(CardShape)
+                .background(frameColor, SquircleLarge)
+                .clip(SquircleLarge)
                 .clickable(
                     interactionSource = interactionSource,
                     indication = null,
@@ -117,52 +125,41 @@ fun GameCard(
                     onClick = onClick,
                 ),
         ) {
-            Column {
-                // ── Visual area ────────────────────────────────────────────────
-                if (visualContent != null) {
+            // Inner panel (SurfaceL1, inset from outer frame)
+            Box(
+                modifier = Modifier
+                    .padding(FrameInset)
+                    .background(HuezooColors.SurfaceL1, SquircleLarge)
+                    .clip(SquircleLarge),
+            ) {
+                Column {
+                    // ── Illustration area ───────────────────────────────────
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(HuezooSize.CardVisualArea)
-                            .background(identityColor.copy(alpha = 0.15f)),
+                            .height(IllustrationAreaHeight)
+                            .background(identityColor.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        visualContent()
-                    }
-                } else {
-                    // Default: identity color top band
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(HuezooSpacing.sm)
-                            .background(identityColor),
-                    )
-                }
-
-                // ── Content ────────────────────────────────────────────────────
-                Column(modifier = Modifier.padding(horizontal = HuezooSpacing.lg, vertical = HuezooSpacing.md)) {
-                    // Header row: title + badge (wraps at large font scale)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        FlowRow(
-                            modifier = Modifier.weight(1f),
-                            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-                            verticalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
-                            itemVerticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = title,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = HuezooColors.TextPrimary,
-                                fontWeight = FontWeight.ExtraBold,
-                                modifier = Modifier.weight(1f),
+                        when {
+                            visualContent != null -> visualContent()
+                            illustrationPainter != null -> Image(
+                                painter = illustrationPainter,
+                                contentDescription = title,
+                                modifier = Modifier.size(IllustrationSize),
                             )
-                            if (badgeText != null) {
+                        }
+
+                        // Badge overlaid top-right of illustration area
+                        if (badgeText != null) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(HuezooSpacing.sm),
+                            ) {
                                 Box(
                                     modifier = Modifier
-                                        .background(identityColor, BadgeShape)
+                                        .background(identityColor, PillShape)
                                         .padding(
                                             horizontal = HuezooSize.BadgeHorizontalPad,
                                             vertical = HuezooSize.BadgeVerticalPad,
@@ -172,38 +169,66 @@ fun GameCard(
                                         text = badgeText,
                                         style = MaterialTheme.typography.labelSmall,
                                         color = HuezooColors.Background,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.ExtraBold,
                                     )
                                 }
                             }
                         }
                     }
 
-                    Spacer(Modifier.height(6.dp))
+                    // ── Text content ────────────────────────────────────────
+                    Column(
+                        modifier = Modifier.padding(
+                            horizontal = HuezooSpacing.md,
+                            vertical = HuezooSpacing.sm + 4.dp,
+                        ),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            FlowRow(
+                                modifier = Modifier.weight(1f),
+                                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                                verticalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
+                                itemVerticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = HuezooColors.TextPrimary,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                        }
 
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = HuezooColors.TextSecondary,
-                    )
+                        Spacer(Modifier.height(4.dp))
 
-                    if (triesText != null) {
-                        Spacer(Modifier.height(HuezooSpacing.xs))
                         Text(
-                            text = triesText,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = identityColor,
-                            fontWeight = FontWeight.SemiBold,
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = HuezooColors.TextSecondary,
                         )
-                    }
 
-                    if (personalBest != null) {
-                        Spacer(Modifier.height(14.dp))
-                        Text(
-                            text = personalBest,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = HuezooColors.TextDisabled,
-                        )
+                        if (triesText != null) {
+                            Spacer(Modifier.height(HuezooSpacing.xs))
+                            Text(
+                                text = triesText,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = identityColor,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+
+                        if (personalBest != null) {
+                            Spacer(Modifier.height(HuezooSpacing.sm))
+                            Text(
+                                text = personalBest,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = HuezooColors.TextDisabled,
+                            )
+                        }
                     }
                 }
             }

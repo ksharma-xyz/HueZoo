@@ -27,6 +27,7 @@ import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.colorGlow
 
 /**
  * A row of dots showing game round progress.
@@ -83,6 +84,17 @@ fun RoundIndicator(
                 modifier = Modifier
                     .size(dotSize)
                     .then(if (isActive) Modifier.scale(pulseScale) else Modifier)
+                    .then(
+                        if (isActive) {
+                            Modifier.colorGlow(
+                                color = activeColor,
+                                glowRadius = 8.dp,
+                                cornerRadius = dotSize / 2,
+                            )
+                        } else {
+                            Modifier
+                        },
+                    )
                     .background(dotColor, CircleShape),
             )
         }

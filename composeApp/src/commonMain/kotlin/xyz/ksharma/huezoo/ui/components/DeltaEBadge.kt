@@ -46,6 +46,7 @@ private const val DECIMAL_SCALE = 10
  * - Count-up from 0 to [deltaE] via spring
  * - Color crossfade as difficulty changes
  */
+// typography and background and shadows can be better
 @Composable
 fun DeltaEBadge(
     deltaE: Float,

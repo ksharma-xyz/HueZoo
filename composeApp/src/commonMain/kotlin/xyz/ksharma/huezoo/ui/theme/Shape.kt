@@ -64,3 +64,6 @@ val SquircleCard = SquircleShape(exponent = 4f)
 
 /** Buttons */
 val SquircleButton = SquircleShape(exponent = 4f)
+
+/** Full pill — text buttons, price CTAs, currency pills */
+val PillShape = androidx.compose.foundation.shape.RoundedCornerShape(50)

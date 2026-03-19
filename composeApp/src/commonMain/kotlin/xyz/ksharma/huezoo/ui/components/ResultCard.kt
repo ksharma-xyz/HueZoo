@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
@@ -32,25 +31,31 @@ import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
-import xyz.ksharma.huezoo.ui.theme.SquircleCard
-import xyz.ksharma.huezoo.ui.theme.colorGlow
+import xyz.ksharma.huezoo.ui.theme.PillShape
+import xyz.ksharma.huezoo.ui.theme.SquircleLarge
+import xyz.ksharma.huezoo.ui.theme.darken
 
 private const val DECIMAL_SCALE = 10
 private const val ENTRANCE_OFFSET_DP = 60f
 private const val ENTRANCE_SCALE_START = 0.9f
-private const val GRADIENT_RADIUS = 600f
 private const val ENTRANCE_DAMPING = 0.7f
 private const val ENTRANCE_STIFFNESS = 200f
 private const val COUNTUP_STIFFNESS = 80f
 
+private val ResultShelf = 8.dp
+private val FrameInset = 5.dp
+
 /**
- * Share-ready 1:1 result card shown at end of a game.
+ * Share-ready result card shown at end of a game.
+ *
+ * Layout: outer frame (identityColor) + inner panel (Background) with a
+ * thick bottom shelf — same candy-style layered approach as GameCard.
  *
  * Animations (baked in):
- * - Slide up [ENTRANCE_OFFSET_DP]dp + scale 0.9 → 1.0 spring entrance
+ * - Slide up 60dp + scale 0.9 → 1.0 spring entrance
  * - Count-up for [score] and [deltaE] via spring
  *
- * [identityColor] paints the radial gradient and glow border.
+ * [identityColor] fills the outer frame and tints the top accent band.
  * [percentileText] e.g. "Better than 94% of players" — pass null to hide.
  */
 @Composable
@@ -117,77 +122,115 @@ fun ResultCard(
                 this.alpha = alpha.value
             }
             .fillMaxWidth()
-            .aspectRatio(1f)
-            .colorGlow(color = identityColor, glowRadius = 20.dp, cornerRadius = 24.dp)
-            .clip(SquircleCard)
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        identityColor.copy(alpha = 0.25f),
-                        HuezooColors.SurfaceL2,
-                        HuezooColors.SurfaceL1,
-                    ),
-                    radius = GRADIENT_RADIUS,
-                ),
-            ),
+            .padding(bottom = ResultShelf),
     ) {
-        Column(
+        // Shelf
+        Box(
             modifier = Modifier
-                .padding(HuezooSpacing.lg)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.SpaceBetween,
+                .matchParentSize()
+                .offset(x = 0.dp, y = ResultShelf)
+                .background(identityColor.darken(0.5f), SquircleLarge),
+        )
+
+        // Outer frame (identityColor)
+        Box(
+            modifier = Modifier
+                .background(identityColor, SquircleLarge)
+                .clip(SquircleLarge),
         ) {
-            // ── Game label ────────────────────────────────────────────────────
-            Text(
-                text = gameTitle.uppercase(),
-                style = MaterialTheme.typography.labelMedium,
-                color = identityColor,
-                fontWeight = FontWeight.Bold,
-            )
-
-            Spacer(Modifier.height(HuezooSpacing.lg))
-
-            // ── ΔE hero number ────────────────────────────────────────────────
-            Column {
-                Text(
-                    text = "COLOR DELTA",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = HuezooColors.TextSecondary,
-                )
-                Text(
-                    text = formattedDeltaE,
-                    style = MaterialTheme.typography.displayLarge,
-                    color = HuezooColors.TextPrimary,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-
-            Spacer(Modifier.height(HuezooSpacing.md))
-
-            // ── Stats row ─────────────────────────────────────────────────────
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+            // Inner dark panel
+            Box(
+                modifier = Modifier
+                    .padding(FrameInset)
+                    .background(HuezooColors.Background, SquircleLarge)
+                    .clip(SquircleLarge),
             ) {
-                StatColumn(label = "SCORE", value = "$scoreInt")
-                StatColumn(label = "ROUNDS", value = "$roundsSurvived", alignment = Alignment.End)
-            }
+                Column {
+                    // ── Identity accent band ──────────────────────────────────
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(HuezooSpacing.sm)
+                            .background(identityColor),
+                    )
 
-            // ── Percentile ────────────────────────────────────────────────────
-            if (percentileText != null) {
-                Spacer(Modifier.height(HuezooSpacing.md))
-                Text(
-                    text = percentileText,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = HuezooColors.TextSecondary,
-                )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(HuezooSpacing.lg),
+                    ) {
+                        // ── Game label ────────────────────────────────────────
+                        Box(
+                            modifier = Modifier
+                                .background(identityColor.copy(alpha = 0.15f), PillShape)
+                                .padding(horizontal = HuezooSpacing.md, vertical = 4.dp),
+                        ) {
+                            Text(
+                                text = gameTitle.uppercase(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = identityColor,
+                                fontWeight = FontWeight.ExtraBold,
+                            )
+                        }
+
+                        Spacer(Modifier.height(HuezooSpacing.lg))
+
+                        // ── ΔE hero number ────────────────────────────────────
+                        Text(
+                            text = "COLOR DELTA",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = HuezooColors.TextSecondary,
+                        )
+                        Text(
+                            text = formattedDeltaE,
+                            style = MaterialTheme.typography.displayLarge,
+                            color = HuezooColors.TextPrimary,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+
+                        Spacer(Modifier.height(HuezooSpacing.lg))
+
+                        // ── Divider ───────────────────────────────────────────
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(HuezooColors.SurfaceL3),
+                        )
+
+                        Spacer(Modifier.height(HuezooSpacing.md))
+
+                        // ── Stats row ─────────────────────────────────────────
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            ResultStatColumn(label = "SCORE", value = "$scoreInt")
+                            ResultStatColumn(
+                                label = "ROUNDS",
+                                value = "$roundsSurvived",
+                                alignment = Alignment.End,
+                            )
+                        }
+
+                        // ── Percentile ────────────────────────────────────────
+                        if (percentileText != null) {
+                            Spacer(Modifier.height(HuezooSpacing.md))
+                            Text(
+                                text = percentileText,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = HuezooColors.TextSecondary,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun StatColumn(
+private fun ResultStatColumn(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
@@ -203,7 +246,7 @@ private fun StatColumn(
             text = value,
             style = MaterialTheme.typography.headlineMedium,
             color = HuezooColors.TextPrimary,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.ExtraBold,
         )
     }
 }

@@ -32,4 +32,39 @@ object HuezooColors {
     val GameThreshold = Color(0xFF7B6FF0) // Soft indigo-violet
     val GameDaily = Color(0xFFFF8A50) // Warm coral-orange
     val GameMemory = Color(0xFF00C9A7) // Teal
+
+    // ── Shelf colors (bottom-only shadow — darker version of each accent) ──────
+    val ShelfCyan = Color(0xFF009DB3)
+    val ShelfMagenta = Color(0xFFB3004E)
+    val ShelfYellow = Color(0xFFB8A000)
+    val ShelfGreen = Color(0xFF00A86A)
+    val ShelfPurple = Color(0xFF6B3DAD)
+
+    // ── Game-action button colors ─────────────────────────────────────────────
+    val ActionConfirm = Color(0xFF22C55E) // green — confirm / correct
+    val ShelfConfirm = Color(0xFF15803D)
+    val ActionDismiss = Color(0xFFEF4444) // red — dismiss / wrong
+    val ShelfDismiss = Color(0xFFB91C1C)
+    val ActionTry = Color(0xFF3B82F6) // blue — secondary / try
+    val ShelfTry = Color(0xFF1D4ED8)
+
+    // ── Purchase CTA ──────────────────────────────────────────────────────────
+    val PriceGreen = Color(0xFF4ADE80) // bright green for price button
+    val ShelfPrice = Color(0xFF16A34A)
+
+    // ── Reward tile (Brawl Stars style) ──────────────────────────────────────
+    val TileBorder = Color(0xFFE2E8F0) // near-white border on tiles
+    val TileSurface = Color(0xFF1E3A5F) // deep blue tile background
+    val TileShelf = Color(0xFF0F2040) // darker blue shelf below tile
+
+    // ── Currency ──────────────────────────────────────────────────────────────
+    val GemGreen = Color(0xFF00E676) // gem/currency icon tint
 }
+
+/** Returns a darkened version of this color by multiplying RGB channels by [factor]. */
+fun Color.darken(factor: Float = 0.6f): Color = Color(
+    red = red * factor,
+    green = green * factor,
+    blue = blue * factor,
+    alpha = alpha,
+)
