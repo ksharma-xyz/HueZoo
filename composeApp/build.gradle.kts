@@ -15,6 +15,11 @@ kotlin {
         compileSdk = 36
         minSdk = 28
 
+        // MANDATORY for AGP 9 to include assets
+        androidResources {
+            enable = true
+        }
+
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
             freeCompilerArgs.add("-Xannotation-default-target=param-property")

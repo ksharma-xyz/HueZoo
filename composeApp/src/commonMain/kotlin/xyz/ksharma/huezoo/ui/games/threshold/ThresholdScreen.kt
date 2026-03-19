@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import huezoo.composeapp.generated.resources.Res
-import huezoo.composeapp.generated.resources.ic_chevron_left
+import huezoo.composeapp.generated.resources.ic_left
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
@@ -94,7 +94,7 @@ private fun PlayingContent(
         ) {
             HuezooIconButton(
                 variant = HuezooIconButtonVariant.Back,
-                icon = painterResource(Res.drawable.ic_chevron_left),
+                icon = painterResource(Res.drawable.ic_left),
                 contentDescription = "Back",
                 onClick = onBack,
             )
@@ -149,7 +149,7 @@ private fun BlockedContent(
     ) {
         HuezooIconButton(
             variant = HuezooIconButtonVariant.Back,
-            icon = painterResource(Res.drawable.ic_chevron_left),
+            icon = painterResource(Res.drawable.ic_left),
             contentDescription = "Back",
             onClick = onBack,
         )

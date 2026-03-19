@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import huezoo.composeapp.generated.resources.Res
-import huezoo.composeapp.generated.resources.ic_chevron_left
+import huezoo.composeapp.generated.resources.ic_left
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
@@ -93,7 +93,7 @@ private fun DailyPlayingContent(
         ) {
             HuezooIconButton(
                 variant = HuezooIconButtonVariant.Back,
-                icon = painterResource(Res.drawable.ic_chevron_left),
+                icon = painterResource(Res.drawable.ic_left),
                 contentDescription = "Back",
                 onClick = onBack,
             )
@@ -164,7 +164,7 @@ private fun AlreadyPlayedContent(
         Spacer(Modifier.height(HuezooSpacing.lg))
         HuezooIconButton(
             variant = HuezooIconButtonVariant.Back,
-            icon = painterResource(Res.drawable.ic_chevron_left),
+            icon = painterResource(Res.drawable.ic_left),
             contentDescription = "Back",
             onClick = onBack,
         )

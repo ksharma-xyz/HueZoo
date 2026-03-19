@@ -150,7 +150,7 @@ fun HuezooIconButton(
 }
 
 // ── Previews ─────────────────────────────────────────────────────────────────
-// Note: use painterResource(Res.drawable.ic_close / ic_check / ic_chevron_left / ic_info)
+// Note: use painterResource(Res.drawable.ic_close / ic_check / ic_left / ic_info)
 // when the vector drawables are wired up in composeResources/drawable/.
 
 @PreviewComponent
