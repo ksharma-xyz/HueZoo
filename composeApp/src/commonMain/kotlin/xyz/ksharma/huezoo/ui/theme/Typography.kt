@@ -105,8 +105,8 @@ fun huezooTypography(): Typography {
         headlineSmall = TextStyle(
             fontFamily = bebasNeue,
             fontWeight = FontWeight.Normal,
-            fontSize = 20.sp,
-            lineHeight = 24.sp,
+            fontSize = 26.sp,
+            lineHeight = 30.sp,
         ),
 
         // ── Card titles — Clash Display ───────────────────────────────────────

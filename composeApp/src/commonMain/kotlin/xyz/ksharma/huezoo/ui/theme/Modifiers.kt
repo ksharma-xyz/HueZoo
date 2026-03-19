@@ -6,6 +6,9 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -121,6 +124,50 @@ fun Modifier.rimLight(
         end = Offset(half, size.height - cr),
         strokeWidth = stroke,
     )
+}
+
+/**
+ * Draws a hard directional shadow that exactly follows [shape], offset to the bottom-right.
+ *
+ * Unlike [depthShadow] (which is a soft multi-layer blur approximation), this draws a single
+ * opaque/translucent copy of the composable's own shape at (+[offsetX], +[offsetY]) — the
+ * neo-brutalist press-depth effect. Shadow is visible only on the right and bottom edges
+ * because it is fully covered by the composable face on the top and left.
+ *
+ * Works with ANY [Shape]: [ParallelogramShape], [SquircleShape], `RoundedCornerShape`, `PillShape`.
+ * The shadow is drawn via [drawBehind] so it is NOT clipped by a [Modifier.clip] applied after
+ * this modifier — the shadow correctly overhangs the composable bounds.
+ *
+ * Consistent usage rules (keep these everywhere in the DS):
+ * - [offsetX] / [offsetY] = **4 dp** for interactive buttons and chips
+ * - [color] = `AccentCyan.copy(alpha = 0.30f)` for cyan-themed components
+ * - Always pair with a matching [Modifier.clip] + [Modifier.background] on the same composable
+ *   so the face shape matches the shadow shape
+ *
+ * Used by: [TopBarBackButton], DS.7 SkewedStatChip (and any future shaped button)
+ */
+fun Modifier.shapedShadow(
+    shape: Shape,
+    color: Color,
+    offsetX: Dp = 4.dp,
+    offsetY: Dp = 4.dp,
+): Modifier = drawBehind {
+    val ox = offsetX.toPx()
+    val oy = offsetY.toPx()
+    translate(left = ox, top = oy) {
+        when (val outline = shape.createOutline(size, layoutDirection, this@drawBehind)) {
+            is Outline.Generic -> drawPath(outline.path, color = color)
+            is Outline.Rectangle -> drawRect(
+                color = color,
+                topLeft = outline.rect.topLeft,
+                size = outline.rect.size,
+            )
+            is Outline.Rounded -> drawRoundRect(
+                color = color,
+                cornerRadius = outline.roundRect.topLeftCornerRadius,
+            )
+        }
+    }
 }
 
 /**

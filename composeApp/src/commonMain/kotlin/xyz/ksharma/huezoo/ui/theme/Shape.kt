@@ -67,3 +67,37 @@ val SquircleButton = SquircleShape(exponent = 4f)
 
 /** Full pill — text buttons, price CTAs, currency pills */
 val PillShape = androidx.compose.foundation.shape.RoundedCornerShape(50)
+
+/**
+ * Parallelogram (italic rectangle) shape.
+ * [skewFraction] is the horizontal offset applied to the top edge as a fraction of the component
+ * height — 0.25f gives a ~14° lean, matching the italic feel of Bebas Neue headings.
+ *
+ * Used by:
+ * - [TopBarBackButton] (back navigation in HuezooTopBar)
+ * - DS.7 SkewedStatChip (time/score readouts on gameplay screens)
+ *
+ * Layout for RTL/LTR: always leans right (top-right over bottom-left).
+ */
+class ParallelogramShape(private val skewFraction: Float = 0.25f) : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(parallelogramPath(size))
+
+    private fun parallelogramPath(size: Size): Path {
+        val skew = size.height * skewFraction
+        return Path().apply {
+            moveTo(skew, 0f)
+            lineTo(size.width, 0f)
+            lineTo(size.width - skew, size.height)
+            lineTo(0f, size.height)
+            close()
+        }
+    }
+}
+
+/** Back button / kinetic chip — 25% height skew */
+val ParallelogramBack = ParallelogramShape(skewFraction = 0.25f)
