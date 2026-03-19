@@ -195,13 +195,18 @@ fun GameCard(
                                 HuezooTitleMedium(
                                     text = title,
                                     modifier = Modifier.weight(1f),
+                                    // SurfaceL2 is always dark — use static token, not theme-based
+                                    color = HuezooColors.TextPrimary,
                                 )
                             }
                         }
 
                         Spacer(Modifier.height(4.dp))
 
-                        HuezooBodyMedium(text = subtitle)
+                        HuezooBodyMedium(
+                            text = subtitle,
+                            color = HuezooColors.TextSecondary,
+                        )
 
                         if (triesText != null) {
                             Spacer(Modifier.height(HuezooSpacing.xs))

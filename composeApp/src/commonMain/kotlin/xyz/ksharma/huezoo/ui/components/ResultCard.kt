@@ -172,8 +172,9 @@ fun ResultCard(
                         Spacer(Modifier.height(HuezooSpacing.lg))
 
                         // ── ΔE hero number ────────────────────────────────────
-                        HuezooLabelSmall(text = "COLOR DELTA")
-                        HuezooDisplayLarge(text = formattedDeltaE)
+                        // Background is always HuezooColors.Background (static dark) — use static tokens
+                        HuezooLabelSmall(text = "COLOR DELTA", color = HuezooColors.TextSecondary)
+                        HuezooDisplayLarge(text = formattedDeltaE, color = HuezooColors.TextPrimary)
 
                         Spacer(Modifier.height(HuezooSpacing.lg))
 
@@ -203,7 +204,7 @@ fun ResultCard(
                         // ── Percentile ────────────────────────────────────────
                         if (percentileText != null) {
                             Spacer(Modifier.height(HuezooSpacing.md))
-                            HuezooLabelMedium(text = percentileText)
+                            HuezooLabelMedium(text = percentileText, color = HuezooColors.TextSecondary)
                         }
                     }
                 }
@@ -220,8 +221,8 @@ private fun ResultStatColumn(
     alignment: Alignment.Horizontal = Alignment.Start,
 ) {
     Column(modifier = modifier, horizontalAlignment = alignment) {
-        HuezooLabelSmall(text = label)
-        HuezooDisplayMedium(text = value)
+        HuezooLabelSmall(text = label, color = HuezooColors.TextSecondary)
+        HuezooDisplayMedium(text = value, color = HuezooColors.TextPrimary)
     }
 }
 

@@ -4,6 +4,32 @@
 
 ---
 
+## The Two-Surface Problem — Read This First
+
+Huezoo has two kinds of surfaces with different color behaviours:
+
+| Surface type | Examples | Background color | Text tokens to use |
+|---|---|---|---|
+| **Static dark surfaces** | Cards, buttons, bottom sheets, game panels | `HuezooColors.SurfaceL1/L2/Background` — NEVER changes with system theme | `HuezooColors.TextPrimary / TextSecondary / TextDisabled` — always pass explicitly |
+| **App page background** | Screen root, safe areas | `MaterialTheme.colorScheme.background` — changes with light/dark theme | `MaterialTheme.colorScheme.onBackground / onSurfaceVariant` — composable defaults are fine |
+
+**Why this matters:** `MaterialTheme.colorScheme.onBackground` is near-black (`#0D0D1A`) in light mode. `HuezooColors.SurfaceL2` is `#1C1C2E` — always dark. Near-black text on dark card = invisible. Static `HuezooColors.TextPrimary` (white) on dark card = always correct.
+
+```kotlin
+// ✅ Inside a GameCard / ResultCard / any component on a static dark surface:
+HuezooTitleMedium(text = title, color = HuezooColors.TextPrimary)
+HuezooBodyMedium(text = subtitle, color = HuezooColors.TextSecondary)
+HuezooLabelSmall(text = caption, color = HuezooColors.TextDisabled)
+
+// ✅ Inside a Screen composable (on app background — theme responds correctly):
+HuezooTitleMedium(text = "Settings")  // default onBackground is fine here
+
+// ❌ Inside a card/button — theme default is wrong when surface is static dark:
+HuezooTitleMedium(text = title)  // → near-black in light mode on a dark card = invisible
+```
+
+---
+
 ## Core Rule
 
 **Never use `androidx.compose.material3.Text` directly in any screen or component.**

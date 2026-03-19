@@ -98,36 +98,89 @@ Rotate these so players don't see the same message twice in a row.
 
 ---
 
-## Visual Language
+## Game Aesthetic Reference
 
-### Dark Game Aesthetic
-- Near-black background with a subtle cool tint — feels like a studio, not a form
-- Cards float above the background with layered elevation shadows
-- Accent colors are electric, not pastel
-- Everything rounded — squircle shapes (superellipse), never hard corners
+> The target feel: **premium mobile game — bold, physical, alive.**
+> Reference: hero-card screens from games like Brawl Stars, Hero Hunters, Overdrive City.
+> Every screen should feel like something a player is proud to screenshot.
+
+### The Core Principle — Everything Bigger
+
+In mobile games, UI elements are always slightly larger than you think is right. If a font size feels "a little too big" it's probably correct. If a button looks "a little chunky" it's right. Players tap fast, glance at numbers while playing, read stat labels in a second. Everything must be readable at a glance.
+
+```
+Minimum touch target:    48dp × 48dp  (never smaller)
+Primary button height:   56dp  (pill shape, full width CTAs)
+Card minimum height:     160dp
+Card title font:         Fredoka Bold, 22sp minimum — not 16sp like a settings screen
+Number/stat font:        Antonio Bold — oversized, it's the hero of every readout
+Label font:              Space Grotesk Medium, 13sp minimum, UPPERCASE where possible
+```
+
+### Visual Language
+
+**Backgrounds:** Not flat. The app background should have depth — a radial gradient from the center outward, identity color at ~8% opacity bleeding into the dark base. On game screens, keep it neutral dark so color accuracy isn't compromised. On the home and result screens, let the identity color breathe.
+
+**Cards:** Solid dark panel (`SurfaceL2`) floating on the background with a colored frame (identity color, 5dp inset). The shelf below the card is the shelf color — darker version of the identity color. The card feels physical, like a trading card you could pick up.
+
+**Buttons:** Chunky and confident. The face color is a solid saturated accent, the text is always `.onColor` computed (never hardcoded white or black). The shelf is the same color darkened. On press, the face slides 5dp into the shelf — immediate, spring-back on release.
+
+**Numbers:** Antonio Bold, always. Numbers in a game app are the scoreboard. They should be the most visible thing on the screen. Never let them compete with the label text — the number wins.
+
+**Icons:** Vector only — no emoji. Icons on buttons use the button's `.onColor` as their tint. Icons in the UI (gem, back arrow, info) are white on dark surfaces, always.
+
+**Character illustrations:** AI-generated per game mode. Style prompt for Gemini / Midjourney:
+```
+cartoon game character, vibrant saturated colors, mobile game art style,
+bold clean outlines, 3D render feel, [game-specific theme], no background,
+transparent PNG, hero pose
+```
+Each game mode gets its own character in the GameCard illustration slot (90dp height area).
 
 ### Color Palette
 
 ```
-Background:       #080810   (deep space black, slight blue)
-Surface L1:       #12121E   (cards, game areas)
-Surface L2:       #1C1C2E   (elevated elements, sheets)
-Surface L3:       #26263A   (pressed states, selected)
+── Surfaces (always dark — static, do not change with system theme) ──────────
+Background:       #080810   deep space — used as inner panel of result/game cards
+Surface L1:       #12121E   card face, game board
+Surface L2:       #1C1C2E   elevated panels, sheets, inner card panels
+Surface L3:       #26263A   pressed states, separators
 
-Accent Cyan:      #00E5FF   (primary interactive, correct)
-Accent Magenta:   #FF2D78   (wrong, danger, streak)
-Accent Yellow:    #FFE600   (score, highlight, Daily)
-Accent Purple:    #9B5DE5   (Threshold game identity)
-Accent Green:     #00F5A0   (success, streak complete)
+── Accents (electric — for interactive elements, identity colors, glows) ─────
+Accent Cyan:      #00E5FF   primary CTA, "correct", The Threshold active
+Accent Magenta:   #FF2D78   wrong answer, danger, dismiss
+Accent Yellow:    #FFE600   score display, Daily Challenge identity
+Accent Purple:    #9B5DE5   The Threshold game identity
+Accent Green:     #00F5A0   success, streak complete, ActionConfirm
+Warm Orange:      #FF8A50   Daily Challenge, secondary warm accent (use for warmth)
 
-Text Primary:     #FFFFFF
-Text Secondary:   #8888AA
-Text Disabled:    #44445A
+── Text (always on dark surfaces — use these, not MaterialTheme.colorScheme) ─
+Text Primary:     #FFFFFF   all primary text on dark cards/panels
+Text Secondary:   #9898BB   subtitles, metadata, secondary labels (~5.5:1 on L1)
+Text Disabled:    #777799   personal best, helper labels, faded states (~4.5:1 on L1)
 
-Glow Cyan:        #00E5FF40  (use as shadow color for glow effect)
+── Glows (40% alpha of accent — shadows, borders, indicator rings) ───────────
+Glow Cyan:        #00E5FF40
 Glow Magenta:     #FF2D7840
 Glow Yellow:      #FFE60040
+Glow Purple:      #9B5DE540
 ```
+
+**Critical rule for text color on component surfaces:**
+`HuezooColors.SurfaceL1/L2/Background` are static dark tokens — they do NOT respond to the system light/dark theme. Always use `HuezooColors.TextPrimary / TextSecondary / TextDisabled` explicitly for text on these surfaces. Never use `MaterialTheme.colorScheme.onBackground` for text inside cards or buttons — that value goes near-black in light mode and becomes invisible on the dark static surface.
+
+```kotlin
+// ✅ Correct — explicit static token, always right on SurfaceL2
+HuezooTitleMedium(text = title, color = HuezooColors.TextPrimary)
+HuezooBodyMedium(text = subtitle, color = HuezooColors.TextSecondary)
+
+// ❌ Wrong — theme-aware, breaks on light mode when card surface stays dark
+HuezooTitleMedium(text = title)  // defaults to MaterialTheme.colorScheme.onBackground
+```
+
+For text on **colored backgrounds** (button face, badge, identity-color chip): use `.onColor` from `ColorExt.kt`.
+
+For text on **app page background** (screens, not components): theme-based defaults are fine.
 
 ### Typography
 
