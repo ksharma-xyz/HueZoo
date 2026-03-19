@@ -81,9 +81,9 @@ class DefaultColorEngine(private val random: Random = Random.Default) : ColorEng
     companion object {
         // Vivid color generation bounds
         internal const val VIVID_SAT_MIN = 0.65f
-        internal const val VIVID_SAT_RANGE = 0.35f   // → 1.0
+        internal const val VIVID_SAT_RANGE = 0.35f // → 1.0
         internal const val VIVID_LIG_MIN = 0.30f
-        internal const val VIVID_LIG_RANGE = 0.40f   // → 0.70
+        internal const val VIVID_LIG_RANGE = 0.40f // → 0.70
 
         // Binary search for odd swatch — Lab a*/b* range is ±127; 160 gives headroom
         internal const val ODD_SWATCH_SEARCH_HIGH = 160f
@@ -102,9 +102,9 @@ class DefaultColorEngine(private val random: Random = Random.Default) : ColorEng
 
         // Daily vivid bounds (slightly tighter than random, for visual consistency)
         internal const val DAILY_SAT_MIN = 0.70f
-        internal const val DAILY_SAT_RANGE = 0.30f   // → 1.0
+        internal const val DAILY_SAT_RANGE = 0.30f // → 1.0
         internal const val DAILY_LIG_MIN = 0.35f
-        internal const val DAILY_LIG_RANGE = 0.30f   // → 0.65
+        internal const val DAILY_LIG_RANGE = 0.30f // → 0.65
 
         // Score formula
         internal const val SCORE_BASE = 1000f

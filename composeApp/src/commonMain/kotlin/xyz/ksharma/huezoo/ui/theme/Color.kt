@@ -18,8 +18,8 @@ object HuezooColors {
 
     // Text
     val TextPrimary = Color(0xFFFFFFFF)
-    val TextSecondary = Color(0xFF9898BB)  // ~5.5:1 on SurfaceL1
-    val TextDisabled = Color(0xFF777799)   // ~3.5:1 on SurfaceL1
+    val TextSecondary = Color(0xFF9898BB) // ~5.5:1 on SurfaceL1
+    val TextDisabled = Color(0xFF777799) // ~3.5:1 on SurfaceL1
 
     // Glows (40% alpha of accent)
     val GlowCyan = Color(0x4000E5FF)

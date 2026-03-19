@@ -50,7 +50,7 @@ private data class ButtonColors(
 private fun buttonColors(variant: HuezooButtonVariant): ButtonColors = when (variant) {
     HuezooButtonVariant.Primary -> ButtonColors(
         bg = HuezooColors.AccentCyan,
-        content = HuezooColors.AccentCyan.onColor,   // dark — cyan is bright (contrast ~13:1)
+        content = HuezooColors.AccentCyan.onColor, // dark — cyan is bright (contrast ~13:1)
         shelf = HuezooColors.ShelfCyan,
     )
     HuezooButtonVariant.Confirm -> ButtonColors(
@@ -65,17 +65,17 @@ private fun buttonColors(variant: HuezooButtonVariant): ButtonColors = when (var
     )
     HuezooButtonVariant.Score -> ButtonColors(
         bg = HuezooColors.AccentYellow,
-        content = HuezooColors.AccentYellow.onColor,  // dark — yellow is very bright (contrast ~14:1)
+        content = HuezooColors.AccentYellow.onColor, // dark — yellow is very bright (contrast ~14:1)
         shelf = HuezooColors.ShelfYellow,
     )
     HuezooButtonVariant.Try -> ButtonColors(
         bg = HuezooColors.ActionTry,
-        content = HuezooColors.ActionTry.onColor,     // dark — blue passes with dark text (~5.4:1)
+        content = HuezooColors.ActionTry.onColor, // dark — blue passes with dark text (~5.4:1)
         shelf = HuezooColors.ShelfTry,
     )
     HuezooButtonVariant.Ghost -> ButtonColors(
         bg = Color.Transparent,
-        content = HuezooColors.AccentCyan,            // transparent bg — fixed accent on dark surface
+        content = HuezooColors.AccentCyan, // transparent bg — fixed accent on dark surface
         shelf = HuezooColors.SurfaceL1,
         border = HuezooColors.AccentCyan,
     )

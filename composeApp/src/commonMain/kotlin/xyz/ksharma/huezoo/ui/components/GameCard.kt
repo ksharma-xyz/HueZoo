@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -35,7 +36,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
-import androidx.compose.foundation.shape.RoundedCornerShape
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing

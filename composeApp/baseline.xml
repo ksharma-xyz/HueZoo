@@ -2,23 +2,58 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>Filename:Color.kt$xyz.ksharma.huezoo.ui.theme.Color.kt</ID>
+    <ID>CommentOverPrivateProperty:ColorExt.kt$/** Near-black foreground used on bright/light backgrounds. */ private val TEXT_ON_LIGHT = Color(0xFF0D0D1A)</ID>
+    <ID>CommentOverPrivateProperty:ColorExt.kt$/** White foreground used on dark backgrounds. */ private val TEXT_ON_DARK = Color(0xFFFFFFFF)</ID>
     <ID>FunctionNaming:MainViewController.kt$fun MainViewController()</ID>
+    <ID>LambdaParameterInRestartableEffect:DailyScreen.kt$onBack</ID>
+    <ID>LambdaParameterInRestartableEffect:DailyScreen.kt$onResult</ID>
+    <ID>LambdaParameterInRestartableEffect:ThresholdScreen.kt$onBack</ID>
+    <ID>LambdaParameterInRestartableEffect:ThresholdScreen.kt$onResult</ID>
+    <ID>MagicNumber:ColorExt.kt$0.05f</ID>
+    <ID>MagicNumber:ColorMath.kt$0.0031308</ID>
+    <ID>MagicNumber:ColorMath.kt$0.0193339</ID>
+    <ID>MagicNumber:ColorMath.kt$0.0415560</ID>
+    <ID>MagicNumber:ColorMath.kt$0.0556434</ID>
+    <ID>MagicNumber:ColorMath.kt$0.0721750</ID>
+    <ID>MagicNumber:ColorMath.kt$0.1191920</ID>
+    <ID>MagicNumber:ColorMath.kt$0.1804375</ID>
+    <ID>MagicNumber:ColorMath.kt$0.2040259</ID>
+    <ID>MagicNumber:ColorMath.kt$0.2126729</ID>
+    <ID>MagicNumber:ColorMath.kt$0.3575761</ID>
+    <ID>MagicNumber:ColorMath.kt$0.4124564</ID>
+    <ID>MagicNumber:ColorMath.kt$0.4985314</ID>
+    <ID>MagicNumber:ColorMath.kt$0.5</ID>
+    <ID>MagicNumber:ColorMath.kt$0.7151522</ID>
+    <ID>MagicNumber:ColorMath.kt$0.9503041</ID>
+    <ID>MagicNumber:ColorMath.kt$0.9692660</ID>
+    <ID>MagicNumber:ColorMath.kt$1.0572252</ID>
+    <ID>MagicNumber:ColorMath.kt$1.5371385</ID>
+    <ID>MagicNumber:ColorMath.kt$1.8760108</ID>
+    <ID>MagicNumber:ColorMath.kt$180.0</ID>
+    <ID>MagicNumber:ColorMath.kt$2.0</ID>
+    <ID>MagicNumber:ColorMath.kt$20.0</ID>
+    <ID>MagicNumber:ColorMath.kt$3.0</ID>
+    <ID>MagicNumber:ColorMath.kt$3.2404542</ID>
+    <ID>MagicNumber:ColorMath.kt$30.0</ID>
+    <ID>MagicNumber:ColorMath.kt$360.0</ID>
+    <ID>MagicNumber:ColorMath.kt$4.0</ID>
+    <ID>MagicNumber:ColorMath.kt$50.0</ID>
+    <ID>MagicNumber:ColorMath.kt$6.0</ID>
+    <ID>MagicNumber:ColorMath.kt$63.0</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$3</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$4</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$5</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$60f</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$10_000L</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$360f</ID>
     <ID>MatchingDeclarationName:Color.kt$HuezooColors</ID>
-    <ID>MatchingDeclarationName:HuezooButton.kt$HuezooButtonVariant</ID>
     <ID>ModifierMissing:App.kt$App</ID>
-    <ID>NoSemicolons:GameCard.kt$;</ID>
-    <ID>UnusedParameter:DailyScreen.kt$onBack: () -&gt; Unit</ID>
-    <ID>UnusedParameter:DailyScreen.kt$onResult: (Result) -&gt; Unit</ID>
-    <ID>UnusedParameter:HomeScreen.kt$onNavigate: (Any) -&gt; Unit</ID>
+    <ID>TooManyFunctions:ColorMath.kt$xyz.ksharma.huezoo.domain.color.ColorMath.kt</ID>
+    <ID>TooManyFunctions:HuezooText.kt$xyz.ksharma.huezoo.ui.components.HuezooText.kt</ID>
     <ID>UnusedParameter:LeaderboardScreen.kt$onBack: () -&gt; Unit</ID>
     <ID>UnusedParameter:PaywallSheet.kt$onDismiss: () -&gt; Unit</ID>
     <ID>UnusedParameter:PaywallSheet.kt$onUnlock: () -&gt; Unit</ID>
     <ID>UnusedParameter:PaywallSheet.kt$onWatchAd: () -&gt; Unit</ID>
     <ID>UnusedParameter:ResultScreen.kt$onBack: () -&gt; Unit</ID>
-    <ID>UnusedParameter:ResultScreen.kt$onLeaderboard: () -&gt; Unit</ID>
-    <ID>UnusedParameter:ResultScreen.kt$onPlayAgain: () -&gt; Unit</ID>
-    <ID>UnusedParameter:ThresholdScreen.kt$onBack: () -&gt; Unit</ID>
-    <ID>UnusedParameter:ThresholdScreen.kt$onResult: (Result) -&gt; Unit</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -38,7 +38,7 @@ private const val LAB_B_SCALE = 200.0
 
 // CIEDE2000 constants
 private const val CIEDE_G_POWER = 7.0
-private const val CIEDE_25_POW7 = 6103515625.0    // 25^7
+private const val CIEDE_25_POW7 = 6103515625.0 // 25^7
 private const val CIEDE_SL_WEIGHT = 0.015
 private const val CIEDE_SC_WEIGHT = 0.045
 private const val CIEDE_SH_WEIGHT = 0.015
@@ -115,9 +115,9 @@ fun Lab.toColor(): Color {
     val z = labFInverse(fz) * REF_Z
 
     // XYZ → linear RGB (inverse D65 matrix)
-    val rl =  x *  3.2404542 + y * -1.5371385 + z * -0.4985314
-    val gl =  x * -0.9692660 + y *  1.8760108 + z *  0.0415560
-    val bl =  x *  0.0556434 + y * -0.2040259 + z *  1.0572252
+    val rl = x * 3.2404542 + y * -1.5371385 + z * -0.4985314
+    val gl = x * -0.9692660 + y * 1.8760108 + z * 0.0415560
+    val bl = x * 0.0556434 + y * -0.2040259 + z * 1.0572252
 
     // Linear → sRGB gamma encode, clamp to [0,1]
     val r = srgbDelinearize(rl).coerceIn(0.0, 1.0).toFloat()

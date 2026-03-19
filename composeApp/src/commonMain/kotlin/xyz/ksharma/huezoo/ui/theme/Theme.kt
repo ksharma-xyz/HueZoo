@@ -11,14 +11,13 @@ private val huezooDarkColorScheme = darkColorScheme(
     surface = HuezooColors.SurfaceL1,
     surfaceVariant = HuezooColors.SurfaceL2,
     onPrimary = HuezooColors.Background,
-    onBackground = HuezooColors.TextPrimary,       // white
+    onBackground = HuezooColors.TextPrimary, // white
     onSurface = HuezooColors.TextPrimary,
     onSurfaceVariant = HuezooColors.TextSecondary, // muted purple-grey
     error = HuezooColors.AccentMagenta,
     secondaryContainer = HuezooColors.SurfaceL3,
     onSecondaryContainer = HuezooColors.TextPrimary,
 )
-
 
 @Composable
 fun HuezooTheme(
