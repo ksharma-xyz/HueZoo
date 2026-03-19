@@ -45,6 +45,7 @@ fun ThresholdScreen(
     val gemIcon = painterResource(Res.drawable.ic_gem)
 
     LaunchedEffect(Unit) {
+        viewModel.onStart()
         viewModel.navEvent.collect { event ->
             when (event) {
                 is ThresholdNavEvent.NavigateToResult -> onResult(event.result)

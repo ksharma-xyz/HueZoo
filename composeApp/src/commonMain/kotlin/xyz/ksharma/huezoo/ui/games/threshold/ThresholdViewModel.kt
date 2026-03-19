@@ -49,6 +49,18 @@ class ThresholdViewModel(
         loadGame()
     }
 
+    /**
+     * Call when the screen enters composition (LaunchedEffect(Unit)).
+     * If the ViewModel is being reused after a completed game (roundPhase != Idle),
+     * start a fresh game rather than leaving the UI stuck on the end state.
+     */
+    fun onStart() {
+        val current = _uiState.value
+        if (current is ThresholdUiState.Playing && current.roundPhase != RoundPhase.Idle) {
+            loadGame()
+        }
+    }
+
     fun onUiEvent(event: ThresholdUiEvent) {
         when (event) {
             is ThresholdUiEvent.SwatchTapped -> handleSwatchTap(event.index)
