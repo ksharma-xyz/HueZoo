@@ -18,7 +18,7 @@
 | DS.3 | Haptics — HapticEngine expect/actual (Android + iOS) | ⬜ |
 | DS.4 | Sound — SoundEffect expect/actual, SoundPool / AVAudioPlayer | ⬜ |
 | DS.5 | Animations — baked into each component as it's built | ⬜ |
-| 1 | Color Math — rgbToLab, CIEDE2000, randomVividColor, seededColor | ⬜ |
+| 1 | Color Math — rgbToLab, CIEDE2000, randomVividColor, seededColor | ✅ Done |
 | 2 | Core UI components wired to color math | ⬜ |
 | 3 | Home Screen | ⬜ |
 | 4 | The Threshold — game loop | ⬜ |
@@ -187,13 +187,16 @@ Paywall Sheet
 - [ ] DS.5.6 Correct answer pulse (1.0 → 1.08 → 1.0 + green border flash)
 - [ ] DS.5.7 ResultCard slide-up entrance (offset 60dp + scale 0.9 → 1.0, spring)
 
-### Phase 1 — Color Math
-- [ ] 1.1 `rgbToLab(r, g, b)` — sRGB → CIELAB conversion
-- [ ] 1.2 `deltaE(lab1, lab2): Float` — CIEDE2000 formula
-- [ ] 1.3 `randomVividColor(): Color` — avoid near-black/white/grey, vivid gamut only
-- [ ] 1.4 `generateOddSwatch(base, targetDeltaE): Pair<Color, Color>` — base + odd at exact ΔE
-- [ ] 1.5 `scoreFromDeltaE(de: Float): Int` — shared scoring formula
-- [ ] 1.6 `seededColorForDate(date: LocalDate): Color` — deterministic daily color from date hash
+### Phase 1 — Color Math ✅
+- [x] 1.1 `rgbToLab(r, g, b)` + `Color.toLab()` — sRGB → CIELAB (D65), in `ColorMath.kt`
+- [x] 1.2 `deltaE(lab1, lab2): Float` — full CIEDE2000 (Sharma 2005), in `ColorMath.kt`
+- [x] 1.3 `randomVividColor(random)` — vivid gamut only (sat 65–100%, lig 30–70%), in `ColorEngine.kt`
+- [x] 1.4 `generateOddSwatch(base, targetDeltaE, random): Color` — binary search in Lab a*/b* space, 22 iterations, in `ColorEngine.kt`
+- [x] 1.5 `scoreFromDeltaE(de: Float): Int` — 1000/ΔE formula, floored at ΔE 0.3, in `ColorEngine.kt`
+- [x] 1.6 `seededColorForDate(date: LocalDate): Color` — LCG hash of date, deterministic, in `ColorEngine.kt`
+- [x] 1.7 `Lab.toColor()` — CIELAB → sRGB (inverse pipeline), sRGB gamut clamped, in `ColorMath.kt`
+
+Files: `domain/color/Lab.kt`, `domain/color/ColorMath.kt`, `domain/color/ColorEngine.kt`
 
 ### Phase 2 — Core UI Components wired to game logic
 - [ ] 2.1 `SwatchBlock` wired to tap events and game state
