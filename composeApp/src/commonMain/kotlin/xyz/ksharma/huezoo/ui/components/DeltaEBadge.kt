@@ -6,8 +6,10 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,23 +21,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.HuezooSize
+import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.SquircleSmall
+
+private const val DELTA_E_EASY_THRESHOLD = 3f
+private const val DELTA_E_MEDIUM_THRESHOLD = 1f
+private const val DECIMAL_SCALE = 10
 
 /**
  * Badge showing the current ΔE (color difference) value.
  *
  * Color encodes difficulty:
- * - ΔE > 3  → Cyan   (easy)
+ * - ΔE > 3  → Cyan   (easy — large difference, easy to spot)
  * - 1 ≤ ΔE ≤ 3 → Yellow (medium)
- * - ΔE < 1  → Magenta (hard)
+ * - ΔE < 1  → Magenta (hard — tiny difference)
  *
  * Animations (baked in):
- * - Spring-scale + fade appear on composition (DS.5)
+ * - Spring scale + fade appear on composition
  * - Count-up from 0 to [deltaE] via spring
  * - Color crossfade as difficulty changes
  */
@@ -74,8 +81,8 @@ fun DeltaEBadge(
     // ── Color by difficulty ───────────────────────────────────────────────────
     val badgeColor by animateColorAsState(
         targetValue = when {
-            deltaE > 3f -> HuezooColors.AccentCyan
-            deltaE > 1f -> HuezooColors.AccentYellow
+            deltaE > DELTA_E_EASY_THRESHOLD -> HuezooColors.AccentCyan
+            deltaE > DELTA_E_MEDIUM_THRESHOLD -> HuezooColors.AccentYellow
             else -> HuezooColors.AccentMagenta
         },
         animationSpec = tween(400),
@@ -83,7 +90,7 @@ fun DeltaEBadge(
     )
 
     val intPart = displayValue.value.toInt()
-    val decPart = ((displayValue.value - intPart.toFloat()) * 10).toInt()
+    val decPart = ((displayValue.value - intPart.toFloat()) * DECIMAL_SCALE).toInt()
     val formatted = "$intPart.$decPart"
 
     Box(
@@ -94,7 +101,7 @@ fun DeltaEBadge(
                 alpha = badgeAlpha.value
             }
             .background(badgeColor.copy(alpha = 0.15f), SquircleSmall)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = HuezooSize.BadgeHorizontalPad, vertical = HuezooSpacing.sm),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -119,9 +126,7 @@ fun DeltaEBadge(
 @Composable
 private fun DeltaEBadgePreview() {
     HuezooPreviewTheme {
-        androidx.compose.foundation.layout.Row(
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
-        ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
             DeltaEBadge(deltaE = 4.2f)
             DeltaEBadge(deltaE = 2.1f)
             DeltaEBadge(deltaE = 0.8f)

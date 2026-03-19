@@ -25,13 +25,15 @@ import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.HuezooSize
+import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 
 /**
  * A row of dots showing game round progress.
  *
  * - Inactive: subtle [HuezooColors.SurfaceL3] dot
  * - Active: [activeColor] dot with pulse animation
- * - Completed: [completedColor] dot
+ * - Completed: [completedColor] dot (dimmed)
  *
  * [currentRound] is 1-based (1 = first round active).
  * Pass the game's identity color as [activeColor] to match the game theme.
@@ -41,8 +43,8 @@ fun RoundIndicator(
     totalRounds: Int,
     currentRound: Int,
     modifier: Modifier = Modifier,
-    dotSize: Dp = 8.dp,
-    spacing: Dp = 8.dp,
+    dotSize: Dp = HuezooSize.DotIndicator,
+    spacing: Dp = HuezooSpacing.sm,
     activeColor: Color = HuezooColors.AccentCyan,
     completedColor: Color = HuezooColors.AccentGreen,
 ) {
@@ -69,7 +71,7 @@ fun RoundIndicator(
 
             val dotColor by animateColorAsState(
                 targetValue = when {
-                    isCompleted -> completedColor
+                    isCompleted -> completedColor.copy(alpha = 0.6f)
                     isActive -> activeColor
                     else -> HuezooColors.SurfaceL3
                 },
@@ -94,22 +96,25 @@ fun RoundIndicator(
 private fun RoundIndicatorPreview() {
     HuezooPreviewTheme {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            // Threshold game (indigo active, cyan completed)
             RoundIndicator(
                 totalRounds = 6,
                 currentRound = 3,
                 activeColor = HuezooColors.GameThreshold,
-                completedColor = HuezooColors.GameThreshold.copy(alpha = 0.5f),
+                completedColor = HuezooColors.GameThreshold,
             )
-            // Daily game (coral active, coral completed)
             RoundIndicator(
                 totalRounds = 6,
                 currentRound = 5,
                 activeColor = HuezooColors.GameDaily,
-                completedColor = HuezooColors.GameDaily.copy(alpha = 0.5f),
+                completedColor = HuezooColors.GameDaily,
             )
-            // All completed (defaults)
-            RoundIndicator(totalRounds = 6, currentRound = 7)
+            // All completed
+            RoundIndicator(
+                totalRounds = 6,
+                currentRound = 7,
+                activeColor = HuezooColors.GameMemory,
+                completedColor = HuezooColors.GameMemory,
+            )
         }
     }
 }

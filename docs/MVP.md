@@ -11,8 +11,10 @@
 | 0 | Gradle, SQLDelight, DI, nav structure, package layout | ✅ Done |
 | Detekt | Code quality + Compose lint rules | ✅ Done |
 | DS.0 | HuezooColors, HuezooTypography, HuezooTheme | ✅ Done |
-| DS.1 | SquircleShape, colorGlow modifier, depthShadow | ⬜ |
-| DS.2 | HuezooButton, SwatchBlock, GameCard, DeltaEBadge, RoundIndicator, ResultCard, BottomSheet | ⬜ |
+| DS.0.5 | HuezooSpacing + HuezooSize dimension tokens | ✅ Done |
+| DS.1 | SquircleShape, colorGlow modifier, depthShadow | ✅ Done |
+| DS.2 | HuezooButton, SwatchBlock, GameCard, DeltaEBadge, RoundIndicator, ResultCard, BottomSheet | ✅ Done |
+| DS.Font | Custom fonts loaded from composeResources (Space Grotesk + JetBrains Mono) | ⬜ |
 | DS.3 | Haptics — HapticEngine expect/actual (Android + iOS) | ⬜ |
 | DS.4 | Sound — SoundEffect expect/actual, SoundPool / AVAudioPlayer | ⬜ |
 | DS.5 | Animations — baked into each component as it's built | ⬜ |
@@ -136,8 +138,18 @@ Paywall Sheet
 - [x] DS.0.2 `HuezooTypography` — Space Grotesk type scale (fonts: drop TTF files into `composeResources/font/` to activate)
 - [x] DS.0.3 `HuezooTheme` — `MaterialTheme` wrapper with dark color scheme + typography
 
-> **Font TODO:** Download Space Grotesk from fonts.google.com → place 4 TTF files in
-> `composeApp/src/commonMain/composeResources/font/` → update `Typography.kt` to load via `Res.font.*`
+### Phase DS.Font — Custom Typography (separate track)
+- [ ] DS.Font.1 Download **Space Grotesk** (4 weights: Regular, Medium, SemiBold, Bold) from fonts.google.com/specimen/Space+Grotesk
+- [ ] DS.Font.2 Download **JetBrains Mono** (Regular, Medium) from fonts.google.com/specimen/JetBrains+Mono — used for ΔE badge and numeric readouts
+- [ ] DS.Font.3 Place all `.ttf` files in `composeApp/src/commonMain/composeResources/font/` (snake_case filenames)
+- [ ] DS.Font.4 Run `./gradlew generateCommonMainResourceAccessors` to generate `Res.font.*` accessors
+- [ ] DS.Font.5 Update `Typography.kt` — replace `FontFamily.SansSerif` with `spaceGroteskFamily()` and `FontFamily.Monospace` with `jetBrainsMonoFamily()` loaded via `Font(Res.font.X, weight)`
+- [ ] DS.Font.6 Update `DeltaEBadge` — `labelSmall` (JetBrains Mono) for the ΔE number display
+- [ ] DS.Font.7 Verify previews render with correct fonts in Android Studio
+- [ ] DS.Font.8 Verify on-device on Android + iOS simulator
+
+> **How to use:** Run `/kmp-typography` skill when activating fonts — it has the full setup guide
+> including FontFamily construction, Typography.kt structure, and troubleshooting.
 
 ### Phase DS.1 — Shapes & Effects
 - [ ] DS.1.1 `SquircleShape` — `GenericShape` superellipse, variants: small/medium/large/card/button

@@ -34,9 +34,10 @@ import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.HuezooSize
+import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 
-private val ButtonShape = RoundedCornerShape(12.dp)
-private val ShadowOffset = 4.dp
+private val ButtonShape = RoundedCornerShape(HuezooSize.CornerButton)
 
 // Shadow colors — darker versions of each variant's accent
 private val ShadowColorPrimary = Color(0xFF00A3B8)
@@ -124,15 +125,15 @@ fun HuezooButton(
     val resolvedShadowColor = if (enabled) colors.shadow else HuezooColors.SurfaceL2
     val resolvedBorderColor = if (enabled) colors.border else Color.Transparent
 
-    val shadowOffsetPx = with(LocalDensity.current) { ShadowOffset.toPx() }
+    val shadowOffsetPx = with(LocalDensity.current) { HuezooSize.ShadowButton.toPx() }
 
     // Outer box reserves space for the shadow so layout doesn't shift
-    Box(modifier = modifier.padding(end = ShadowOffset, bottom = ShadowOffset)) {
+    Box(modifier = modifier.padding(end = HuezooSize.ShadowButton, bottom = HuezooSize.ShadowButton)) {
         // Hard shadow layer — stays fixed while button layer moves
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .offset(x = ShadowOffset, y = ShadowOffset)
+                .offset(x = HuezooSize.ShadowButton, y = HuezooSize.ShadowButton)
                 .background(resolvedShadowColor, ButtonShape),
         )
 
@@ -145,7 +146,7 @@ fun HuezooButton(
                 }
                 .then(
                     if (resolvedBorderColor != Color.Transparent) {
-                        Modifier.border(1.5.dp, resolvedBorderColor, ButtonShape)
+                        Modifier.border(HuezooSize.BorderThin, resolvedBorderColor, ButtonShape)
                     } else {
                         Modifier
                     },
@@ -158,7 +159,7 @@ fun HuezooButton(
                     enabled = enabled,
                     onClick = onClick,
                 )
-                .padding(horizontal = 24.dp, vertical = 14.dp),
+                .padding(horizontal = HuezooSpacing.lg, vertical = 14.dp),
             contentAlignment = Alignment.Center,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {

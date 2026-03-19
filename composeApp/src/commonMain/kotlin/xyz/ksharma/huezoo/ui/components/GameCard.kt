@@ -33,15 +33,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.HuezooSize
+import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 
-private val CardShape = RoundedCornerShape(20.dp)
-private val BadgeShape = RoundedCornerShape(6.dp)
-private val CardShadowOffset: Dp = 6.dp
+private val CardShape = RoundedCornerShape(HuezooSize.CornerCard)
+private val BadgeShape = RoundedCornerShape(HuezooSize.CornerSmall)
 
 /**
  * Neo-brutalist game card for the Home screen.
@@ -83,20 +83,20 @@ fun GameCard(
         label = "cardPress",
     )
 
-    val shadowOffsetPx = with(LocalDensity.current) { CardShadowOffset.toPx() }
+    val shadowOffsetPx = with(LocalDensity.current) { HuezooSize.ShadowCard.toPx() }
     val shadowColor = identityColor.copy(alpha = if (enabled) 1f else 0.3f)
 
     // Outer box reserves space for the shadow
     Box(
         modifier = modifier
             .widthIn(min = 280.dp)
-            .padding(end = CardShadowOffset, bottom = CardShadowOffset),
+            .padding(end = HuezooSize.ShadowCard, bottom = HuezooSize.ShadowCard),
     ) {
         // Hard shadow layer — stays fixed
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .offset(x = CardShadowOffset, y = CardShadowOffset)
+                .offset(x = HuezooSize.ShadowCard, y = HuezooSize.ShadowCard)
                 .background(shadowColor, CardShape),
         )
 
@@ -107,7 +107,7 @@ fun GameCard(
                     translationX = pressProgress * shadowOffsetPx
                     translationY = pressProgress * shadowOffsetPx
                 }
-                .border(2.dp, identityColor.copy(alpha = if (enabled) 0.6f else 0.2f), CardShape)
+                .border(HuezooSize.BorderMedium, identityColor.copy(alpha = if (enabled) 0.6f else 0.2f), CardShape)
                 .background(HuezooColors.SurfaceL2, CardShape)
                 .clip(CardShape)
                 .clickable(
@@ -123,24 +123,24 @@ fun GameCard(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(100.dp)
+                            .height(HuezooSize.CardVisualArea)
                             .background(identityColor.copy(alpha = 0.15f)),
                         contentAlignment = Alignment.Center,
                     ) {
                         visualContent()
                     }
                 } else {
-                    // Default: identity color band with a subtle pattern hint
+                    // Default: identity color top band
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(8.dp)
+                            .height(HuezooSpacing.sm)
                             .background(identityColor),
                     )
                 }
 
                 // ── Content ────────────────────────────────────────────────────
-                Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+                Column(modifier = Modifier.padding(horizontal = HuezooSpacing.lg, vertical = HuezooSpacing.md)) {
                     // Header row: title + badge (wraps at large font scale)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -148,8 +148,8 @@ fun GameCard(
                     ) {
                         FlowRow(
                             modifier = Modifier.weight(1f),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                            verticalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
                             itemVerticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
@@ -163,7 +163,10 @@ fun GameCard(
                                 Box(
                                     modifier = Modifier
                                         .background(identityColor, BadgeShape)
-                                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                                        .padding(
+                                            horizontal = HuezooSize.BadgeHorizontalPad,
+                                            vertical = HuezooSize.BadgeVerticalPad,
+                                        ),
                                 ) {
                                     Text(
                                         text = badgeText,
@@ -185,7 +188,7 @@ fun GameCard(
                     )
 
                     if (triesText != null) {
-                        Spacer(Modifier.height(4.dp))
+                        Spacer(Modifier.height(HuezooSpacing.xs))
                         Text(
                             text = triesText,
                             style = MaterialTheme.typography.labelSmall,

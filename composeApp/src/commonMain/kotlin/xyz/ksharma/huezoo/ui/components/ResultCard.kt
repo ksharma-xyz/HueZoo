@@ -31,15 +31,24 @@ import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.SquircleCard
 import xyz.ksharma.huezoo.ui.theme.colorGlow
+
+private const val DECIMAL_SCALE = 10
+private const val ENTRANCE_OFFSET_DP = 60f
+private const val ENTRANCE_SCALE_START = 0.9f
+private const val GRADIENT_RADIUS = 600f
+private const val ENTRANCE_DAMPING = 0.7f
+private const val ENTRANCE_STIFFNESS = 200f
+private const val COUNTUP_STIFFNESS = 80f
 
 /**
  * Share-ready 1:1 result card shown at end of a game.
  *
  * Animations (baked in):
- * - Slide up 60 dp + scale 0.9 → 1.0 entrance on composition (DS.5.7)
- * - Count-up for [score] and [deltaE] via spring (DS.5.3)
+ * - Slide up [ENTRANCE_OFFSET_DP]dp + scale 0.9 → 1.0 spring entrance
+ * - Count-up for [score] and [deltaE] via spring
  *
  * [identityColor] paints the radial gradient and glow border.
  * [percentileText] e.g. "Better than 94% of players" — pass null to hide.
@@ -55,21 +64,21 @@ fun ResultCard(
     percentileText: String? = null,
 ) {
     // ── Entrance animation ────────────────────────────────────────────────────
-    val offsetY = remember { Animatable(60f) }
-    val cardScale = remember { Animatable(0.9f) }
+    val offsetY = remember { Animatable(ENTRANCE_OFFSET_DP) }
+    val cardScale = remember { Animatable(ENTRANCE_SCALE_START) }
     val alpha = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
         launch {
             offsetY.animateTo(
                 targetValue = 0f,
-                animationSpec = spring(dampingRatio = 0.7f, stiffness = 200f),
+                animationSpec = spring(dampingRatio = ENTRANCE_DAMPING, stiffness = ENTRANCE_STIFFNESS),
             )
         }
         launch {
             cardScale.animateTo(
                 targetValue = 1f,
-                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = 200f),
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = ENTRANCE_STIFFNESS),
             )
         }
         launch { alpha.animateTo(1f, tween(300)) }
@@ -83,16 +92,20 @@ fun ResultCard(
         launch {
             displayScore.animateTo(
                 score.toFloat(),
-                spring(stiffness = 80f, dampingRatio = Spring.DampingRatioNoBouncy),
+                spring(stiffness = COUNTUP_STIFFNESS, dampingRatio = Spring.DampingRatioNoBouncy),
             )
         }
-        launch { displayDeltaE.animateTo(deltaE, spring(stiffness = 80f, dampingRatio = Spring.DampingRatioNoBouncy)) }
+        launch {
+            displayDeltaE.animateTo(
+                deltaE,
+                spring(stiffness = COUNTUP_STIFFNESS, dampingRatio = Spring.DampingRatioNoBouncy),
+            )
+        }
     }
 
     val scoreInt = displayScore.value.toInt()
-
     val deInt = displayDeltaE.value.toInt()
-    val deDec = ((displayDeltaE.value - deInt.toFloat()) * 10).toInt()
+    val deDec = ((displayDeltaE.value - deInt.toFloat()) * DECIMAL_SCALE).toInt()
     val formattedDeltaE = "$deInt.$deDec"
 
     Box(
@@ -114,31 +127,31 @@ fun ResultCard(
                         HuezooColors.SurfaceL2,
                         HuezooColors.SurfaceL1,
                     ),
-                    radius = 600f,
+                    radius = GRADIENT_RADIUS,
                 ),
             ),
     ) {
         Column(
             modifier = Modifier
-                .padding(28.dp)
+                .padding(HuezooSpacing.lg)
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            // ── Title ─────────────────────────────────────────────────────────
+            // ── Game label ────────────────────────────────────────────────────
             Text(
-                text = gameTitle,
+                text = gameTitle.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
                 color = identityColor,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Bold,
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(HuezooSpacing.lg))
 
-            // ── ΔE big number ────────────────────────────────────────────────
+            // ── ΔE hero number ────────────────────────────────────────────────
             Column {
                 Text(
-                    text = "ΔE",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "COLOR DELTA",
+                    style = MaterialTheme.typography.labelSmall,
                     color = HuezooColors.TextSecondary,
                 )
                 Text(
@@ -149,44 +162,20 @@ fun ResultCard(
                 )
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(HuezooSpacing.md))
 
-            // ── Stats row ────────────────────────────────────────────────────
+            // ── Stats row ─────────────────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Column {
-                    Text(
-                        text = "Score",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = HuezooColors.TextSecondary,
-                    )
-                    Text(
-                        text = "$scoreInt",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = HuezooColors.TextPrimary,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "Rounds",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = HuezooColors.TextSecondary,
-                    )
-                    Text(
-                        text = "$roundsSurvived",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = HuezooColors.TextPrimary,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
+                StatColumn(label = "SCORE", value = "$scoreInt")
+                StatColumn(label = "ROUNDS", value = "$roundsSurvived", alignment = Alignment.End)
             }
 
-            // ── Percentile ───────────────────────────────────────────────────
+            // ── Percentile ────────────────────────────────────────────────────
             if (percentileText != null) {
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(HuezooSpacing.md))
                 Text(
                     text = percentileText,
                     style = MaterialTheme.typography.labelMedium,
@@ -194,6 +183,28 @@ fun ResultCard(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun StatColumn(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    alignment: Alignment.Horizontal = Alignment.Start,
+) {
+    Column(modifier = modifier, horizontalAlignment = alignment) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = HuezooColors.TextSecondary,
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.headlineMedium,
+            color = HuezooColors.TextPrimary,
+            fontWeight = FontWeight.Bold,
+        )
     }
 }
 
