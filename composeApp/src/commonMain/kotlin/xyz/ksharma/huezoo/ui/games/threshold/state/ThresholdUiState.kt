@@ -21,8 +21,8 @@ sealed interface ThresholdUiState {
     data class Playing(
         val swatches: List<SwatchUiModel>,
         val deltaE: Float,
-        /** 1-based round counter — increments on each *correct* tap only. Shown in HUD. */
-        val round: Int,
+        /** 1-based correct-tap counter within the current try. Shown in HUD as "TAP X". */
+        val tap: Int,
         val attemptsRemaining: Int,
         val roundPhase: RoundPhase,
         /** Ego-sting shown during Wrong phase; null otherwise. */

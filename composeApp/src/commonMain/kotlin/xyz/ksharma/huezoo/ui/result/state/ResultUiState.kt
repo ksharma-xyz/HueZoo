@@ -11,6 +11,8 @@ sealed interface ResultUiState {
         val score: Int,
         val isNewPersonalBest: Boolean,
         val personalBestDeltaE: Float?,
+        /** Gems earned in this session — shown as "+N gems" on the result screen. */
+        val gemsEarned: Int = 0,
         /**
          * For Threshold: true when at least one attempt remains in the current window.
          * For Daily: always false — once per day is the rule.

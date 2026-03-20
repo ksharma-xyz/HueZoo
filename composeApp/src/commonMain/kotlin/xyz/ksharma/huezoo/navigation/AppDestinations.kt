@@ -17,6 +17,7 @@ data class Result(
     val deltaE: Float,
     val roundsSurvived: Int,
     val score: Int = 0,
+    val gemsEarned: Int = 0,
 )
 
 @Serializable

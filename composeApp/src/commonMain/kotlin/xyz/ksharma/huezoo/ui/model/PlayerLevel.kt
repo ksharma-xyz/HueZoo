@@ -4,15 +4,17 @@ import androidx.compose.ui.graphics.Color
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 
 /**
- * Three-tier player level system based on lifetime gems earned
- * (1 gem ≈ 1 correct answer, as per the economy spec).
+ * Five-tier player level system based on lifetime gems earned.
  *
- * Thresholds proxy the correct-answer counts from the spec:
- *   Rookie: 0–199 correct  → 0–399 gems
- *   Skilled: 200–49,999    → 400–99,999 gems
- *   Master: 50,000+        → 100,000+ gems
+ * Gem earn rates (see GameRewardRates):
+ *   Threshold correct tap : +2 gems
+ *   Threshold ΔE milestones: +5 / +10 / +25 bonus
+ *   Daily correct round   : +5 gems
+ *   Daily participation   : +3 gems (any completion)
+ *   Daily perfect (6/6)   : +20 bonus gems
  *
- * Colors: Cyan (L1) / Magenta (L2) / Gold (L3) — per IMPLEMENTATION_PLAN_LEVELS_ECONOMY_UX.md
+ * Approximate sessions to tier-up at ~15 gems/session avg:
+ *   Trained ≈ 10 sessions | Sharp ≈ 50 | Elite ≈ 333 | Master ≈ 3 333
  */
 enum class PlayerLevel(
     val displayName: String,
@@ -20,14 +22,18 @@ enum class PlayerLevel(
     val levelColor: Color,
 ) {
     Rookie(displayName = "ROOKIE", minGems = 0, levelColor = HuezooColors.AccentCyan),
-    Skilled(displayName = "SKILLED", minGems = 400, levelColor = HuezooColors.AccentMagenta),
-    Master(displayName = "MASTER", minGems = 100_000, levelColor = HuezooColors.AccentYellow),
+    Trained(displayName = "TRAINED", minGems = 150, levelColor = HuezooColors.AccentGreen),
+    Sharp(displayName = "SHARP", minGems = 750, levelColor = HuezooColors.AccentMagenta),
+    Elite(displayName = "ELITE", minGems = 5_000, levelColor = HuezooColors.AccentYellow),
+    Master(displayName = "MASTER", minGems = 50_000, levelColor = Color(0xFFFFB800)),
     ;
 
     companion object {
         fun fromGems(gems: Int): PlayerLevel = when {
-            gems >= 100_000 -> Master
-            gems >= 400 -> Skilled
+            gems >= 50_000 -> Master
+            gems >= 5_000 -> Elite
+            gems >= 750 -> Sharp
+            gems >= 150 -> Trained
             else -> Rookie
         }
     }
