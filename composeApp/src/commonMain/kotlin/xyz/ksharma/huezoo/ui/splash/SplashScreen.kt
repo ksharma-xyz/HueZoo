@@ -77,29 +77,29 @@ fun SplashScreen(
         // Wordmark is static — no entrance animation, just wait for eye to register
         delay(500)
 
-        // Tube-light flicker on ZOO, each lit step gets the next level colour
+        // Tube-light flicker on ZOO, each lit step gets the next level colour.
+        // Tagline starts fading in midway through the flicker so it's already visible when ZOO settles.
         var litStep = 0
         listOf(
             true  to 80L,
             false to 55L,
             true  to 50L,
-            false to 75L,
+            false to 75L,   // tagline kicks off here (~265 ms into flicker)
             true  to 110L,
             false to 40L,
             true  to 65L,
             false to 90L,
             true  to 0L,   // stays lit (final settle — AccentCyan)
-        ).forEach { (lit, holdMs) ->
+        ).forEachIndexed { index, (lit, holdMs) ->
             if (lit) {
                 zooColor = flickerColors[litStep]
                 litStep++
             }
             zooFilled = lit
+            // Launch tagline fade partway through (after step 3) so it arrives with ZOO settling
+            if (index == 3) launch { taglineAlpha.animateTo(1f, tween(500)) }
             if (holdMs > 0L) delay(holdMs)
         }
-
-        // Tagline right after ZOO settles — no extra pause
-        launch { taglineAlpha.animateTo(1f, tween(300)) }
 
         // Hold
         delay(800)
