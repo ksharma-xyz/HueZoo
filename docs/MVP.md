@@ -266,6 +266,76 @@ Open app
 - [ ] UX.14.1 Wire `SwatchSize` to a user setting in SQLDelight `user_settings`
 - [ ] UX.14.2 Add toggle in Settings screen (or game card options)
 
+#### UX.16 — Level-Driven UI Theming ⬜
+
+**Business requirement**: The primary accent color of the entire app UI reflects the player's current
+`PlayerLevel`. Rookie (default) stays cyan. Once the player reaches Trained (150 gems) the UI shifts
+to green. Sharp → magenta, Elite → yellow, Master → amber. This makes level-up feel like a true
+identity upgrade — the whole interface changes allegiance, not just a badge.
+
+**Color → level mapping** (from `PlayerLevel`):
+| Level | minGems | Accent color |
+|---|---|---|
+| Rookie | 0 | `AccentCyan` |
+| Trained | 150 | `AccentGreen` |
+| Sharp | 750 | `AccentMagenta` |
+| Elite | 5 000 | `AccentYellow` |
+| Master | 50 000 | `Color(0xFFFFB800)` (amber) |
+
+**What changes color** (level-themed):
+- Primary `HuezooButton` fill + ghost border
+- `HuezooIconButton` primary variant
+- `CurrencyPill` shadow, gem count, and icon tint
+- `HuezooTopBar` back-button shadow, back arrow, back-button border, wordmark (debatable — brand vs level)
+- `HomeScreen` level-progress bar, level badge dot, gem panel border/labels, gem spill illustration, scanner illustration accent, stat chips
+- `ThresholdScreen` correct-tap feedback color and ΔE stat chip accent
+- `DailyScreen` round indicator active color and ambient glow secondary color
+- `ResultScreen` hero gem count (when gems earned > 0), stat card accents, gem breakdown icons
+- `LevelsProgressSheet` header cyan accent bar
+
+**What stays fixed** (semantic / game-mechanic colors — do NOT level-theme):
+- Correct tap border: `AccentGreen` (game truth — green = right)
+- Wrong tap border: `AccentMagenta` (game truth — magenta = wrong)
+- `SwatchDisplayState.Revealed` border: `AccentCyan` (neutral reveal)
+- `DeltaEBadge` difficulty color scale (cyan/yellow/magenta — difficulty semantics)
+- Danger button variant: `AccentMagenta`
+- Zero-gem hero on Result: `AccentMagenta`
+- Level tier cards in `LevelsProgressSheet` (each card keeps its own tier color)
+
+**Architecture — `LocalPlayerAccentColor` CompositionLocal**:
+- Define `val LocalPlayerAccentColor = compositionLocalOf { HuezooColors.AccentCyan }` in a new
+  `LocalPlayerTheme.kt` (or alongside `HuezooColors`)
+- In `App.kt`: observe `SettingsRepository.getTotalGemsFlow()` (or load once on startup), derive
+  `PlayerLevel.fromGems(gems).levelColor`, wrap `NavDisplay` in
+  `CompositionLocalProvider(LocalPlayerAccentColor provides levelColor) { … }`
+- All level-themed composables replace `HuezooColors.AccentCyan` (primary role only) with
+  `LocalPlayerAccentColor.current`
+
+**Files requiring changes** (12 files):
+1. `LocalPlayerTheme.kt` — NEW: `LocalPlayerAccentColor` definition
+2. `App.kt` — observe gems, provide `CompositionLocalProvider`
+3. `HuezooButton.kt` — Primary bg + Ghost border/content → `LocalPlayerAccentColor`
+4. `HuezooIconButton.kt` — primary bg → `LocalPlayerAccentColor`
+5. `CurrencyPill.kt` — shadow + count + icon → `LocalPlayerAccentColor`
+6. `HuezooTopBar.kt` — back button shadow, arrow, border, wordmark → `LocalPlayerAccentColor`
+7. `HomeScreen.kt` — progress bar, level badge, gem panel, scanner accent, stat chip → `LocalPlayerAccentColor`
+8. `ThresholdScreen.kt` — correct color, ΔE chip → `LocalPlayerAccentColor`
+9. `DailyScreen.kt` — round indicator active + ambient glow → `LocalPlayerAccentColor`
+10. `ResultScreen.kt` — hero (non-zero gems), stat cards, breakdown icons → `LocalPlayerAccentColor`
+11. `LevelsProgressSheet.kt` — header accent bar → `LocalPlayerAccentColor`
+12. `AmbientGlow.kt` — default `primaryColor` parameter → `LocalPlayerAccentColor`
+
+- [ ] UX.16.1 Define `LocalPlayerAccentColor` CompositionLocal (default `AccentCyan`)
+- [ ] UX.16.2 `App.kt` — collect gems flow, derive level color, provide `CompositionLocalProvider`
+- [ ] UX.16.3 `HuezooButton` + `HuezooIconButton` — primary variants read `LocalPlayerAccentColor`
+- [ ] UX.16.4 `CurrencyPill` — reads `LocalPlayerAccentColor`
+- [ ] UX.16.5 `HuezooTopBar` — back button + wordmark read `LocalPlayerAccentColor`
+- [ ] UX.16.6 `HomeScreen` — all primary-accent usages read `LocalPlayerAccentColor`
+- [ ] UX.16.7 `ThresholdScreen` + `DailyScreen` — primary-accent usages read `LocalPlayerAccentColor`
+- [ ] UX.16.8 `ResultScreen` — hero + stat cards read `LocalPlayerAccentColor`
+- [ ] UX.16.9 `LevelsProgressSheet` + `AmbientGlow` — read `LocalPlayerAccentColor`
+- [ ] UX.16.10 Verify: game-mechanic colors (correct/wrong/revealed/DeltaEBadge) are unchanged
+
 #### UX.15 — Settings / About Screen ⬜
 - [ ] UX.15.1 **About screen** (or bottom sheet) — app version, legal links (Privacy Policy, Terms of Use), acknowledgements
 - [ ] UX.15.2 **Health & Eye Strain notice** — persistent, always accessible from About. Balanced copy (see UX.5.3): *"This game exercises colour perception. Take breaks. Stop if you feel eye strain or discomfort."* No alarmist language (App Store / Play Store content guidelines require factual, non-fear-based health copy).
