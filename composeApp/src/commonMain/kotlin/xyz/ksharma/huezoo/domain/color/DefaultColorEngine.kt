@@ -53,6 +53,44 @@ class DefaultColorEngine(private val random: Random = Random.Default) : ColorEng
         }
     }
 
+    override fun randomVividColorExcluding(excludeHue: Float, excludeHueWidth: Float): Color {
+        val hue = randomHueExcluding(excludeHue, excludeHueWidth)
+        return when {
+            random.nextFloat() < 0.10f -> {
+                val saturation = random.nextFloat() * 0.12f
+                val lightness = 0.28f + random.nextFloat() * 0.44f
+                hslToColor(hue, saturation, lightness)
+            }
+            random.nextFloat() < 0.25f -> {
+                val saturation = 0.20f + random.nextFloat() * 0.38f
+                val lightness = 0.35f + random.nextFloat() * 0.30f
+                hslToColor(hue, saturation, lightness)
+            }
+            else -> {
+                val saturation = VIVID_SAT_MIN + random.nextFloat() * VIVID_SAT_RANGE
+                val lightness = VIVID_LIG_MIN + random.nextFloat() * VIVID_LIG_RANGE
+                hslToColor(hue, saturation, lightness)
+            }
+        }
+    }
+
+    /**
+     * Picks a random hue uniformly from [0, 360) **excluding** the band
+     * `(center - halfWidth, center + halfWidth)` (wrapping mod 360).
+     *
+     * Strategy: the allowed region has width `360 - 2*halfWidth`. Map a uniform
+     * random value in that range starting just past the end of the exclusion zone,
+     * then rotate back into [0, 360).
+     */
+    private fun randomHueExcluding(center: Float, halfWidth: Float): Float {
+        val clampedWidth = halfWidth.coerceIn(0f, 180f)
+        val allowed = 360f - 2f * clampedWidth
+        val offset = random.nextFloat() * allowed
+        // Start angle = just past the "far" edge of the exclusion zone
+        val startAngle = (center + clampedWidth + 360f) % 360f
+        return (startAngle + offset) % 360f
+    }
+
     // ─── Odd Swatch Generation ────────────────────────────────────────────────
 
     override fun generateOddSwatch(base: Color, targetDeltaE: Float): Color {

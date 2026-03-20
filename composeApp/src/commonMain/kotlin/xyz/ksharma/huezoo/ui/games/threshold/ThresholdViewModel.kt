@@ -23,6 +23,7 @@ import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
+import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
@@ -83,8 +84,11 @@ class ThresholdViewModel(
      */
     private var roundGeneration = 0
 
-    /** Tracks last layout style to prevent same shape twice in a row. */
+    // Tracks last layout style to prevent same shape twice in a row.
     private var lastLayoutStyle: SwatchLayoutStyle? = null
+
+    // Current player level — derived from gems on session start; drives hue exclusion.
+    private var playerLevel: PlayerLevel = PlayerLevel.Rookie
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -123,7 +127,9 @@ class ThresholdViewModel(
     }
 
     private suspend fun startSession(status: AttemptStatus.Available) {
-        baseColor = colorEngine.randomVividColor()
+        totalGems = settingsRepository.getGems()
+        playerLevel = PlayerLevel.fromGems(totalGems)
+        baseColor = colorEngine.randomVividColorExcluding(playerLevel.levelHue)
         currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
         tapCount = 1
         bestDeltaE = null
@@ -131,7 +137,6 @@ class ThresholdViewModel(
         sessionTapGems = 0
         sessionMilestoneGems = 0
         triesRemaining = status.maxAttempts - status.attemptsUsed
-        totalGems = settingsRepository.getGems()
         awardedMilestones.clear()
         emitRound()
     }
@@ -191,7 +196,7 @@ class ThresholdViewModel(
             tapCount++
             currentDeltaE = (currentDeltaE - ThresholdGameEngine.DELTA_E_STEP)
                 .coerceAtLeast(ThresholdGameEngine.MIN_DELTA_E)
-            baseColor = colorEngine.randomVividColor()
+            baseColor = colorEngine.randomVividColorExcluding(playerLevel.levelHue)
             emitRound()
         }
     }
@@ -224,7 +229,7 @@ class ThresholdViewModel(
                 delay(ANIMATION_FOLD_MS)
                 currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
                 tapCount = 1
-                baseColor = colorEngine.randomVividColor()
+                baseColor = colorEngine.randomVividColorExcluding(playerLevel.levelHue)
                 emitRound()
             } else {
                 // All tries spent — navigate to result

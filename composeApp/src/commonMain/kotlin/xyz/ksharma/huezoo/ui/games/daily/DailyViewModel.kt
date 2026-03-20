@@ -23,6 +23,7 @@ import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiState
+import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
@@ -70,6 +71,9 @@ class DailyViewModel(
     private var roundGeneration = 0
     private var lastLayoutStyle: SwatchLayoutStyle? = null
 
+    // Current player level — loaded on game start; drives hue exclusion for base colors.
+    private var playerLevel: PlayerLevel = PlayerLevel.Rookie
+
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init {
@@ -109,7 +113,9 @@ class DailyViewModel(
             if (existing?.completed == true) {
                 _uiState.value = DailyUiState.AlreadyPlayed(score = existing.score)
             } else {
-                emitRound(colorEngine.randomVividColor())
+                val gems = settingsRepository.getGems()
+                playerLevel = PlayerLevel.fromGems(gems)
+                emitRound(colorEngine.randomVividColorExcluding(playerLevel.levelHue))
             }
         }
     }
@@ -168,7 +174,7 @@ class DailyViewModel(
                 }
                 delay(ANIMATION_FOLD_MS)
                 roundIndex++
-                emitRound(colorEngine.randomVividColor())
+                emitRound(colorEngine.randomVividColorExcluding(playerLevel.levelHue))
             }
         }
     }
@@ -197,7 +203,7 @@ class DailyViewModel(
                 }
                 delay(ANIMATION_FOLD_MS)
                 roundIndex++
-                emitRound(colorEngine.randomVividColor())
+                emitRound(colorEngine.randomVividColorExcluding(playerLevel.levelHue))
             }
         }
     }
