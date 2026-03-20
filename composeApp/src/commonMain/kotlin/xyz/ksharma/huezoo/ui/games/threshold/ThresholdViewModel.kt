@@ -17,8 +17,8 @@ import xyz.ksharma.huezoo.domain.color.ColorEngine
 import xyz.ksharma.huezoo.domain.game.GameRewardRates
 import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
-import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.GameId
+import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
@@ -276,7 +276,7 @@ class ThresholdViewModel(
     }
 
     private companion object {
-        const val ANIMATION_CORRECT_MS = 350L
+        const val ANIMATION_CORRECT_MS = 750L
         const val ANIMATION_WRONG_MS = 850L
         const val ANIMATION_FOLD_MS = 520L
     }

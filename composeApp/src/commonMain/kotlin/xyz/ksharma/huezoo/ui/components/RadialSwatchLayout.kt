@@ -38,6 +38,7 @@ import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.DiamondSwatch
 import xyz.ksharma.huezoo.ui.theme.HexagonSwatch
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.SquircleMedium
 import xyz.ksharma.huezoo.ui.theme.SquircleSmall
 import xyz.ksharma.huezoo.ui.theme.SwatchPetal
@@ -87,7 +88,7 @@ private val SHARED_CONTAINER = 300.dp
  */
 private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig = when (style) {
     SwatchLayoutStyle.Flower -> when (size) {
-        SwatchSize.Normal -> RadialConfig(84.dp,  116.dp, SHARED_CONTAINER, centerGap = 18.dp)
+        SwatchSize.Normal -> RadialConfig(84.dp, 116.dp, SHARED_CONTAINER, centerGap = 18.dp)
         SwatchSize.Medium -> RadialConfig(101.dp, 139.dp, SHARED_CONTAINER, centerGap = 10.dp)
     }
     SwatchLayoutStyle.HexRing -> when (size) {
@@ -99,7 +100,7 @@ private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig 
         SwatchSize.Medium -> RadialConfig(70.dp, 70.dp, SHARED_CONTAINER, centerGap = 28.dp, uniformScale = true)
     }
     SwatchLayoutStyle.SpokeBlades -> when (size) {
-        SwatchSize.Normal -> RadialConfig(36.dp,  92.dp, SHARED_CONTAINER, centerGap = 24.dp)
+        SwatchSize.Normal -> RadialConfig(36.dp, 92.dp, SHARED_CONTAINER, centerGap = 24.dp)
         SwatchSize.Medium -> RadialConfig(43.dp, 110.dp, SHARED_CONTAINER, centerGap = 18.dp)
     }
     SwatchLayoutStyle.DiamondHalo -> when (size) {
@@ -122,8 +123,8 @@ private const val TILE_COUNT = 6
 private const val STAGGER_UNFOLD_MS = 70L // delay between successive tile openings
 private const val STAGGER_FOLD_MS = 45L // delay between successive tile closings (faster)
 private const val FOLD_DURATION_MS = 210 // duration per tile fold animation
-private const val NEON_OUTER_STROKE_PX = 8f
-private const val NEON_INNER_STROKE_PX = 4f
+private const val NEON_OUTER_STROKE_PX = 12f
+private const val NEON_INNER_STROKE_PX = 6f
 private const val NEON_OUTER_ALPHA = 0.30f
 
 // ── Public composable ─────────────────────────────────────────────────────────
@@ -262,12 +263,40 @@ private fun RadialTile(
         }
     }
 
+    // ── Celebrate pop on correct ──────────────────────────────────────────────
+    // A quick spring-bounce to 1.18× then back to 1× gives satisfying tactile feedback.
+    val celebrateScale = remember { Animatable(1f) }
+    LaunchedEffect(displayState) {
+        when (displayState) {
+            SwatchDisplayState.Correct -> {
+                celebrateScale.animateTo(
+                    targetValue = 1.18f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessHigh,
+                    ),
+                )
+                celebrateScale.animateTo(
+                    targetValue = 1f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium,
+                    ),
+                )
+            }
+            else -> celebrateScale.snapTo(1f)
+        }
+    }
+
     // ── Border colour driven by display state ─────────────────────────────────
+    // Correct / Revealed → player's level accent (cyan at Rookie, green at Trained, etc.)
+    // Wrong              → pure white — neutral "you tapped this one" indicator
+    val levelAccent = LocalPlayerAccentColor.current
     val borderColor by animateColorAsState(
         targetValue = when (displayState) {
-            SwatchDisplayState.Correct -> HuezooColors.AccentGreen
-            SwatchDisplayState.Wrong -> HuezooColors.AccentMagenta
-            SwatchDisplayState.Revealed -> HuezooColors.AccentCyan
+            SwatchDisplayState.Correct -> levelAccent
+            SwatchDisplayState.Wrong -> Color.White
+            SwatchDisplayState.Revealed -> levelAccent
             SwatchDisplayState.Default -> Color.Transparent
         },
         animationSpec = tween(200),
@@ -304,12 +333,12 @@ private fun RadialTile(
 
                 // Uniform scale (squircle, hex): tiles pop out as a whole.
                 // Directional scale (petal, spoke, diamond): tiles grow along radial axis only.
-                val s = tileScale * pressScale
+                val s = tileScale * pressScale * celebrateScale.value
                 if (config.uniformScale) {
                     scaleX = s
                     scaleY = s
                 } else {
-                    scaleX = pressScale // only press feedback on X
+                    scaleX = pressScale * celebrateScale.value // tangential: press + celebrate bloom
                     scaleY = s
                 }
 

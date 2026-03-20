@@ -17,8 +17,8 @@ import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.domain.color.ColorEngine
 import xyz.ksharma.huezoo.domain.game.DailyGameEngine
 import xyz.ksharma.huezoo.domain.game.GameRewardRates
-import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.GameId
+import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiEvent
@@ -109,8 +109,7 @@ class DailyViewModel(
             if (existing?.completed == true) {
                 _uiState.value = DailyUiState.AlreadyPlayed(score = existing.score)
             } else {
-                val baseColor = colorEngine.seededColorForDate(date)
-                emitRound(baseColor)
+                emitRound(colorEngine.randomVividColor())
             }
         }
     }
@@ -169,7 +168,7 @@ class DailyViewModel(
                 }
                 delay(ANIMATION_FOLD_MS)
                 roundIndex++
-                emitRound(colorEngine.seededColorForDate(today))
+                emitRound(colorEngine.randomVividColor())
             }
         }
     }
@@ -198,7 +197,7 @@ class DailyViewModel(
                 }
                 delay(ANIMATION_FOLD_MS)
                 roundIndex++
-                emitRound(colorEngine.seededColorForDate(today))
+                emitRound(colorEngine.randomVividColor())
             }
         }
     }
@@ -239,7 +238,7 @@ class DailyViewModel(
     }
 
     private companion object {
-        const val ANIMATION_CORRECT_MS = 350L
+        const val ANIMATION_CORRECT_MS = 750L
         const val ANIMATION_WRONG_MS = 850L
         const val ANIMATION_FOLD_MS = 520L
     }
