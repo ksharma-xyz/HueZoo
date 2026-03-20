@@ -1,339 +1,706 @@
 # Huezoo — Design System
-*Game-grade UI. Not a settings screen. Not Material 3 defaults.*
+*Single source of truth. Supersedes: TYPOGRAPHY.md, kinetic_neon/DESIGN.md, STITCH_DESIGN_REVIEW.md, IMPLEMENTATION_PLAN_LEVELS_ECONOMY_UX.md, ux.md.*
+*Companion docs still active: `MVP.md` (implementation tracker) · `VISION.md` (product roadmap)*
 
 ---
 
-## Design Philosophy
+## 1. Philosophy & North Star
 
-> Every tap should feel like something happened.
-> Every correct answer should feel satisfying.
-> Every wrong answer should sting — politely, but deeply.
+> **"The Kinetic Vault"** — a high-end, tactile instrument where light behaves as a physical material.
 
-The UI is dark, vibrant, tactile. Buttons have depth. Colors glow.
-Swatches feel physical — like chips you can pick up.
+This is not a settings screen. Not Material 3 defaults. Not a web dashboard.
+Every tap should feel like something happened. Every correct answer should feel satisfying.
+Every wrong answer should **sting** — politely, but deeply.
+
+The visual language is **dark, vibrant, neo-brutalist, illustrated**.
+- Sharp rectangular corners on panels (0dp radius) — architectural, aggressive
+- Neon rim lighting defines edges, not traditional borders
+- "Physical shelves" under buttons and cards — depth through offset shadows, not blur
+- Canvas-drawn illustrations built from geometric lines — GI Joe / military-sensor aesthetic
+- Every screen should feel like something a player is proud to screenshot
 
 ---
 
-## The Sting Principle — Core UX Rule
+## 2. The Sting Principle — Core UX + Copy Rule
 
-**This is the most important copy and UX rule in the entire app. Never forget it.**
+**This is the most important rule in the app. Never forget it.**
 
 Wrong answers don't say "Oops! Try again :)" — that's a toddler app.
-
 Wrong answers tease. They challenge. They make the player feel like they *almost* had it
-and now they *have* to go again. The tone is a confident friend who just beat you at chess
-and is already setting up the board again.
+and now they *have* to go again.
 
-> Polite enough that it doesn't feel mean.
-> Sharp enough that you can't just close the app.
+> Polite enough that it doesn't feel mean. Sharp enough that you can't just close the app.
 
-### The Emotion We're Designing For
-
-Not shame. Not frustration. **Determination.**
-
-The player should think: *"That's not fair, I can do better than that."*
-Then immediately tap Play Again.
+**Emotion designed for:** Not shame. Not frustration. **Determination.**
 
 ### Rules for All In-App Copy
 
-1. **Never say sorry.** The app never apologizes for the player losing. That's condescending.
-2. **Never use exclamation marks on wrong answers.** "Wrong!" feels aggressive. "That wasn't it." feels like a raised eyebrow.
-3. **Always leave a door open.** Every loss message implies the next attempt is closer.
-4. **Reference their specific failure.** "ΔE 2.4 got you" is more stinging than generic "You missed."
-5. **Tease the ceiling.** Show them what's possible — make them feel the gap between where they are and where they could be.
-6. **On wins, be cool not hype.** Don't over-celebrate easy wins. Make hard wins feel genuinely earned.
+1. Never say sorry. The app never apologizes.
+2. Never use exclamation marks on wrong answers. "Wrong!" feels aggressive. "That wasn't it." feels like a raised eyebrow.
+3. Always leave a door open. Every loss message implies the next attempt is closer.
+4. Reference their specific failure. "ΔE 2.4 got you" stings more than generic "You missed."
+5. Tease the ceiling. Show them the gap between where they are and where they could be.
+6. On wins, be cool not hype. Don't over-celebrate easy wins.
 
 ### Copy Tone by Moment
 
-| Moment | Tone | Feel |
+| Moment | Tone | Example |
 |---|---|---|
 | Game start | Confident dare | "Let's see what you've got." |
 | Correct (easy) | Understated | "Not bad." |
 | Correct (hard) | Genuine respect | "Okay. That one was real." |
-| Wrong (early round) | Light tease | "ΔE 3.1 already? Hmm." |
-| Wrong (deep in game) | Real sting | "You were at ΔE 1.4. So close it hurts." |
+| Wrong (early) | Light tease | "ΔE 3.1 already? Hmm." |
+| Wrong (deep) | Real sting | "You were at ΔE 1.4. So close it hurts." |
 | New personal best | Cool, not hype | "ΔE 1.1. That's actually impressive." |
 | No improvement | Dare | "Same as last time. You sure that's your limit?" |
-| Daily Challenge done | Matter-of-fact | "Day 47. Done. Come back tomorrow." |
-| Out of tries (paywall) | Wry | "5 tries. Still not satisfied? Respect." |
-| Top of leaderboard | Rare praise | "ΔE 0.9. Most people can't even see that difference." |
+| Daily done | Matter-of-fact | "Day 47. Done. Come back tomorrow." |
+| Out of tries | Wry | "5 tries. Still not satisfied? Respect." |
 
-### Example Wrong Answer Copy Pool
+### Sting Copy Pool — Result Screen (by ΔE achieved)
 
-**Early miss (ΔE ~3.0+):**
-- "That one wasn't even close."
-- "ΔE 3.1. Your eyes were off today."
-- "Warmer. Not warm enough."
+```
+ΔE < 0.5  → "Superhuman. Seriously."
+ΔE < 1.0  → "Your eyes are elite."
+ΔE < 1.5  → "Sharp. Very sharp."
+ΔE < 2.0  → "Better than most."
+ΔE < 3.0  → "Solid perception."
+ΔE < 4.0  → "Room to grow."
+ΔE ≥ 4.0  → "Keep training."
+Daily >800 → "Perfect run."
+Daily >500 → "Strong."
+Daily >200 → "Not bad."
+Daily else → "Try again tomorrow."
+```
 
-**Mid-game miss (ΔE ~1.5–3.0):**
-- "ΔE {X} got you. Most people tap out here."
-- "That gap was real. You almost saw it."
-- "Your eyes made it to round {N}. They can go further."
+### Wrong Answer Copy Pool
 
-**Deep miss (ΔE < 1.5 — genuinely hard):**
-- "ΔE {X}. That's sub-pixel territory. Seriously impressive."
-- "You were at ΔE {X}. Only {Y}% of players ever get there."
-- "ΔE {X}. The difference was barely real. You still missed it."
+**Early miss (ΔE ~3.0+):** "That one wasn't even close." / "ΔE 3.1. Your eyes were off today." / "Warmer. Not warm enough."
 
-**Same score as personal best:**
-- "ΔE {X}. Again. You're stuck here. Break it."
-- "Your ceiling is ΔE {X}. Or is it?"
+**Mid-game (ΔE ~1.5–3.0):** "ΔE {X} got you. Most people tap out here." / "That gap was real. You almost saw it."
 
-**Improvement:**
-- "ΔE {X}. You moved the line. Now move it again."
-- "Closer. Not there yet."
+**Deep miss (ΔE < 1.5):** "ΔE {X}. That's sub-pixel territory. Seriously impressive." / "ΔE {X}. The difference was barely real. You still missed it."
 
 ### Home Screen Copy
 
 - App tagline: **"How sharp are your eyes?"**
 - The Threshold subtitle: **"One miss. That's all it takes."**
 - Daily Challenge subtitle: **"Everyone gets the same puzzle. Not everyone survives it."**
-- Leaderboard header: **"The sharpest eyes in the room."**
 
 ---
 
-## Game Aesthetic Reference
+## 3. Color System
 
-> The target feel: **premium mobile game — bold, physical, alive.**
-> Reference: hero-card screens from games like Brawl Stars, Hero Hunters, Overdrive City.
-> Every screen should feel like something a player is proud to screenshot.
-
-### The Core Principle — Everything Bigger
-
-In mobile games, UI elements are always slightly larger than you think is right. If a font size feels "a little too big" it's probably correct. If a button looks "a little chunky" it's right. Players tap fast, glance at numbers while playing, read stat labels in a second. Everything must be readable at a glance.
+### Surfaces (static dark — never change with system theme)
 
 ```
-Minimum touch target:    48dp × 48dp  (never smaller)
-Primary button height:   56dp  (pill shape, full width CTAs)
-Card minimum height:     160dp
-Card title font:         Fredoka Bold, 22sp minimum — not 16sp like a settings screen
-Number/stat font:        Antonio Bold — oversized, it's the hero of every readout
-Label font:              Space Grotesk Medium, 13sp minimum, UPPERCASE where possible
+Background    #080810   deep space void — screen root
+SurfaceL0     #0D0D18   deepest panel inset
+SurfaceL1     #12121E   card face, game board
+SurfaceL2     #1C1C2E   elevated panels, sheets, inner card panels
+SurfaceL3     #26263A   pressed states, stat box backgrounds
+SurfaceL4     #34343F   shelf color (shadow offset target), separators
 ```
 
-### Visual Language
-
-**Backgrounds:** Dark, deep. The app background is `#080810`. On home and result screens, let the identity color breathe at low opacity (~8-12%) as a radial gradient from center. On game screens, keep it neutral dark so color accuracy isn't compromised.
-
-**Cards:** Solid dark panel (`SurfaceL2`) floating inside a colored frame (identity color, 5dp inset). The shelf below the card is the shelf color — darker version of the identity color. The card feels physical, like a trading card you could pick up.
-
-**Buttons:** Chunky and confident. The face color is a solid saturated accent, the text is always `.onColor` computed (never hardcoded white or black). The shelf is the same color darkened. On press, the face slides into the shelf — immediate, spring-back on release.
-
-**Numbers:** Antonio Bold, always. Numbers in a game app are the scoreboard. They should be the most visible thing on the screen. Never let them compete with the label text — the number wins.
-
-**Icons:** Vector only — no emoji. Icons on buttons use the button's `.onColor` as their tint. Icons in the UI (gem, back arrow, info) are white on dark surfaces, always.
-
-**Character illustrations:** AI-generated per game mode. Style prompt for Gemini / Midjourney:
-```
-cartoon game character, vibrant saturated colors, mobile game art style,
-bold clean outlines, 3D render feel, [game-specific theme], no background,
-transparent PNG, hero pose
-```
-Each game mode gets its own character in the GameCard illustration slot (90dp height area).
-Replace `[game-specific theme]` per game:
-- The Threshold → `color scientist with magnifying glass examining swatches`
-- Daily Challenge → `calendar knight with colorful shield`
-- Color Memory → `wizard with glowing color orbs`
-
----
-
-## Color Palette
+### Accents (neon — interactive elements, identity colors, glows)
 
 ```
-── Surfaces (always dark — static, do not change with system theme) ──────────
-Background:       #080810   deep space — used as inner panel of result/game cards
-Surface L1:       #12121E   card face, game board
-Surface L2:       #1C1C2E   elevated panels, sheets, inner card panels
-Surface L3:       #26263A   pressed states, separators
-
-── Accents (electric — for interactive elements, identity colors, glows) ─────
-Accent Cyan:      #00E5FF   primary CTA, "correct", The Threshold active
-Accent Magenta:   #FF2D78   wrong answer, danger, dismiss
-Accent Yellow:    #FFE600   score display, Daily Challenge identity
-Accent Purple:    #9B5DE5   The Threshold game identity
-Accent Green:     #00F5A0   success, streak complete, ActionConfirm
-Warm Orange:      #FF8A50   Daily Challenge, secondary warm accent
-
-── Text (always on dark surfaces — use these, not MaterialTheme.colorScheme) ─
-Text Primary:     #FFFFFF   all primary text on dark cards/panels
-Text Secondary:   #9898BB   subtitles, metadata, secondary labels (~5.5:1 on L1)
-Text Disabled:    #777799   personal best, helper labels, faded states (~4.5:1 on L1)
-
-── Glows (40% alpha of accent — shadows, borders, indicator rings) ───────────
-Glow Cyan:        #00E5FF40
-Glow Magenta:     #FF2D7840
-Glow Yellow:      #FFE60040
-Glow Purple:      #9B5DE540
+AccentCyan     #00E5FF   primary CTA, "correct", Threshold active, Level 1
+AccentMagenta  #FF2D78   wrong answer, danger, Level 2 / Skilled
+AccentYellow   #FFE600   Daily Challenge identity, Level 3 / Master
+AccentPurple   #9B5DE5   secondary purple accent
+AccentGreen    #00F5A0   success, streak complete, ActionConfirm
+WarmOrange     #FF8A50   warm accent
 ```
 
-**Critical rule for text color on component surfaces:**
-`HuezooColors.SurfaceL1/L2/Background` are static dark tokens — they do NOT respond to the system light/dark theme. Always use `HuezooColors.TextPrimary / TextSecondary / TextDisabled` explicitly for text on these surfaces. Never use `MaterialTheme.colorScheme.onBackground` for text inside cards or buttons — that value goes near-black in light mode and becomes invisible on the dark static surface.
+### Game Identity Colors
+
+```
+GameThreshold  #7B6FF0   indigo-violet — used in ThresholdHeroCard illustration + tints
+GameDaily      #FFE600   AccentYellow — Daily Challenge
+```
+
+### Text (always on dark surfaces — use these, NOT MaterialTheme.colorScheme on cards)
+
+```
+TextPrimary    #FFFFFF   all primary text on dark cards/panels
+TextSecondary  #9898BB   subtitles, metadata, secondary labels (~5.5:1 on SurfaceL1)
+TextDisabled   #777799   personal best, helper labels, faded states (~4.5:1 on SurfaceL1)
+```
+
+### The Two-Surface Rule — Critical
+
+Huezoo has two surface types:
+
+| Surface | Background | Text tokens |
+|---|---|---|
+| **Static dark** (cards, buttons, sheets, game panels) | `HuezooColors.SurfaceL1/L2` — NEVER changes with theme | `HuezooColors.TextPrimary / TextSecondary / TextDisabled` — always explicit |
+| **App page background** (screen root) | `MaterialTheme.colorScheme.background` | `MaterialTheme.colorScheme.onBackground` — defaults OK |
+
+`MaterialTheme.colorScheme.onBackground` is near-black in light mode. Cards are always dark.
+Near-black on dark card = invisible. Always use explicit `HuezooColors.Text*` on cards.
+
+### Contrast & Color Safety (`ColorExt.kt`)
 
 ```kotlin
-// ✅ Correct — explicit static token, always right on SurfaceL2
-HuezooTitleMedium(text = title, color = HuezooColors.TextPrimary)
-HuezooBodyMedium(text = subtitle, color = HuezooColors.TextSecondary)
+// Always use on colored backgrounds (buttons, badges, identity chips)
+val textColor = faceColor.onColor          // → #0D0D1A (dark) or #FFFFFF (white)
 
-// ❌ Wrong — theme-aware, breaks on light mode when card surface stays dark
-HuezooTitleMedium(text = title)  // defaults to MaterialTheme.colorScheme.onBackground
+// Explicit contrast check
+val ratio = HuezooColors.AccentCyan.contrastRatio(HuezooColors.Background) // ~12.9
+
+// With preferred color
+val label = HuezooColors.AccentCyan.foregroundColor(preferred = Color.White) // → #0D0D1A (fails)
 ```
 
-For text on **colored backgrounds** (button face, badge, identity-color chip): use `.onColor` from `ColorExt.kt`.
+AccentPurple is the only accent that gets white text — all others get near-black text via `onColor`.
 
 ---
 
-## Typography
+## 4. Typography
 
-Huezoo uses a **three-font system** — each font has a deliberate role. Never pick fonts ad-hoc.
+### Font Families — Three Fonts, Strict Roles
 
 | Font | Role | Used for |
 |---|---|---|
-| **Antonio** | Bold, condensed display | Numbers, scores, ΔE values, hero text, app name |
-| **Fredoka** | Round, friendly | Card titles, section headings, playful labels |
-| **Space Grotesk** | Geometric sans | Body copy, button labels, metadata, badges |
+| **Bebas Neue** | Bold condensed display (replaces Antonio) | Numbers, scores, ΔE values, app name, hero text |
+| **Clash Display** | Round, architectural (replaces Fredoka) | Card titles, section headings, paywall title |
+| **Space Grotesk** | Geometric sans-serif | Body copy, button labels, metadata, badges, all small UI |
 
-> Full scale, composables, color defaults, and rules: see **`docs/TYPOGRAPHY.md`**
+Never use `Text()` directly. Always use typed `HuezooText` composables from `HuezooText.kt`.
 
-#### Quick scale reference
+### Full Type Scale
 
-```
-displayLarge   Antonio Bold      56sp   ΔE hero (ResultCard), big score reveals
-displayMedium  Antonio Bold      40sp   SCORE / ROUNDS stats (ResultCard)
-displaySmall   Antonio Bold      28sp   DeltaEBadge number, compact numeric readout
-headlineLarge  Antonio Bold      40sp   App name "Hue Zoo", screen hero title
-headlineSmall  Antonio Medium    20sp   Currency pill amount, inline numeric labels
-headlineMedium Fredoka SemiBold  28sp   Section headings, dialog titles
-titleLarge     Fredoka Bold      22sp   Card headers, sheet titles
-titleMedium    Fredoka SemiBold  20sp   GameCard title, bottom sheet heading
-titleSmall     Fredoka Regular   16sp   Secondary titles, list item sub-headers
-bodyLarge      Space Grotesk     18sp   Long-form description text
-bodyMedium     Space Grotesk     16sp   GameCard subtitle, description
-bodySmall      Space Grotesk     14sp   Captions, helper text
-labelLarge     Space Grotesk Bold   16sp   Button labels, prominent chips
-labelMedium    Space Grotesk Medium 13sp   Secondary labels
-labelSmall     Space Grotesk Medium 12sp   Badges, tries text, personal best, stat headers
-```
+| Slot | Composable | Font | Weight | Size | Use |
+|---|---|---|---|---|---|
+| `displayLarge` | `HuezooDisplayLarge` | Bebas Neue | Bold | 56sp | ΔE hero on ResultCard |
+| `displayMedium` | `HuezooDisplayMedium` | Bebas Neue | Bold | 40sp | Gems count, SCORE stat |
+| `displaySmall` | `HuezooDisplaySmall` | Bebas Neue | Bold | 28sp | DeltaEBadge number |
+| `headlineLarge` | `HuezooHeadlineLarge` | Bebas Neue | Bold | 40sp | App name, screen hero |
+| `headlineMedium` | `HuezooHeadlineMedium` | Clash Display | SemiBold | 28sp | Section headings, dialog titles |
+| `headlineSmall` | `HuezooHeadlineSmall` | Bebas Neue | Medium | 20sp | Currency pill, inline numbers |
+| `titleLarge` | `HuezooTitleLarge` | Clash Display | Bold | 22sp | Card headers "THE THRESHOLD" |
+| `titleMedium` | `HuezooTitleMedium` | Clash Display | SemiBold | 20sp | GameCard title |
+| `titleSmall` | `HuezooTitleSmall` | Clash Display | Regular | 16sp | Secondary titles |
+| `bodyLarge` | `HuezooBodyLarge` | Space Grotesk | Regular | 18sp | Long-form description |
+| `bodyMedium` | `HuezooBodyMedium` | Space Grotesk | Regular | 16sp | Card subtitle, description |
+| `bodySmall` | `HuezooBodySmall` | Space Grotesk | Regular | 14sp | Captions, hints |
+| `labelLarge` | `HuezooLabelLarge` | Space Grotesk | Bold | 16sp | Button labels, chips |
+| `labelMedium` | `HuezooLabelMedium` | Space Grotesk | Medium | 13sp | Secondary labels |
+| `labelSmall` | `HuezooLabelSmall` | Space Grotesk | Medium | 12sp | Badges, stat headers, tries text |
 
-**Never use bare `Text()` composable anywhere in the app.**
-Always use the typed `HuezooText` variants from `HuezooText.kt`.
+### Font Licenses
 
----
-
-## Shapes
-
-```
-PillShape          RoundedCornerShape(50)   text buttons, price button
-SquircleSmall      exponent 3.5f            chips, badges
-SquircleMedium     exponent 4.0f            icon buttons, tiles
-SquircleLarge      exponent 5.0f            result card (40dp equivalent)
-CardShape          RoundedCornerShape(20dp) game cards
-```
-
-**Shape usage:**
-- `PillShape` → HuezooButton, PriceButton
-- `SquircleMedium` → HuezooIconButton (X, ✓, info, back — 48×48dp)
-- `SquircleLarge` → ResultCard outer frame
-- `CardShape` → GameCard
-- `SquircleSmall` → Badges, currency pill, small tags
+- **Bebas Neue** — SIL OFL 1.1 (no action needed)
+- **Clash Display** — Fontshare FF EULA — verify bundling in APK/IPA is acceptable before App Store submission; fallback: DM Serif Display (SIL OFL)
+- **Space Grotesk** — SIL OFL 1.1 (no action needed)
 
 ---
 
-## Components
+## 5. Visual Language — Neo-Brutalist Kinetic
+
+### The Physical Shelf
+
+Depth is achieved by offset hard-edge shadows — not blur, not soft glow.
+Every elevated element sits on a "shelf": a darker layer offset (+4dp, +4dp) bottom-right.
+
+```kotlin
+// Applied via Modifier.shapedShadow() from Modifiers.kt
+modifier.shapedShadow(
+    shape = RectangleShape,
+    color = HuezooColors.SurfaceL4,
+    offsetX = 4.dp,
+    offsetY = 4.dp,
+)
+```
+
+### Neon Rim Light — No-Line Rule
+
+**Prohibit 1px solid borders.** Edges are defined by light. Use `rimLight()` modifier to simulate a physical light source hitting the top-left corner of a surface:
+
+```kotlin
+modifier.rimLight(cornerRadius = 0.dp)
+// Draws a faint inset highlight on top + left edges in AccentCyan at ~0.30 alpha
+```
+
+### AmbientGlowBackground
+
+Every screen root uses two large radial gradients anchored at opposite corners — top-start (primary) and bottom-end (secondary) — at 10% alpha. This creates ambient identity color bleed without affecting color accuracy in game panels.
+
+```kotlin
+AmbientGlowBackground(
+    primaryColor = HuezooColors.AccentCyan,   // default
+    secondaryColor = HuezooColors.AccentMagenta,
+) { content() }
+```
+
+### Edge-to-Edge
+
+`enableEdgeToEdge()` is called in `MainActivity`. `AmbientGlowBackground` fills under the status bar.
+Status bar padding is applied via `WindowInsets.statusBars` inside `HuezooTopBar`.
+**On the Home screen, `HuezooTopBar` is inside the scrollable Column** — it scrolls with content (not pinned), and its `windowInsetsTopHeight` spacer handles the status bar gap.
+
+---
+
+## 6. Modifier Toolkit
+
+All custom modifiers live in `ui/theme/Modifiers.kt`.
+
+### `shapedShadow(shape, color, offsetX, offsetY)`
+Neo-brutal offset shadow. Draws a filled shape at `(+offsetX, +offsetY)` behind the component.
+Works with any `Shape`; `RectangleShape` uses the fast `Outline.Rectangle` branch.
+Always apply **before** `.background()` in the modifier chain.
+
+### `rimLight(cornerRadius)`
+Top + left inset highlight in `AccentCyan.copy(0.30f)`.
+Simulates a physical light source at the top-left corner of a card.
+Apply as the **last** modifier after `.background()`.
+
+### Usage order on a typical card
+
+```kotlin
+modifier
+    .shapedShadow(RectangleShape, HuezooColors.SurfaceL4, 4.dp, 4.dp) // shadow behind
+    .background(HuezooColors.SurfaceL2)                                 // fill
+    .rimLight(cornerRadius = 0.dp)                                       // light on top
+```
+
+---
+
+## 7. Shapes
+
+```
+ParallelogramBack     Custom GenericShape   Back button (skewed left)
+RectangleShape        System               All panel cards, hero cards, stat boxes
+RoundedCornerShape    System (per use)     DeltaEInfoCard (CornerCard token)
+```
+
+`HuezooSize.CornerCard` = the standard corner radius for any card that uses rounded corners (e.g. `DeltaEInfoCard`). All hero cards / panel cards use `RectangleShape` (0dp radius — architectural sharp).
+
+`HuezooSpacing.*` provides the spacing scale: `xs, sm, md, lg, xl`.
+
+---
+
+## 8. Components
+
+All in `composeApp/src/commonMain/kotlin/xyz/ksharma/huezoo/ui/components/`.
+
+### HuezooTopBar
+Glassmorphic bar. Vertical frost gradient Background 95%→82%. 4dp bottom border in `SurfaceL1`.
+- Home/root screen: shows wordmark `HUEZ` (Bebas Neue italic, AccentCyan) — no gems
+- Inner screens: shows parallelogram back button (cyan shadow, `SurfaceL3` face)
+- `windowInsetsTopHeight(WindowInsets.statusBars)` spacer handles status bar
+- Scrolls with content on Home screen (not fixed)
 
 ### HuezooButton
-Candy-style pill button. Two-layer Box: shelf fixed at `offset(x=0, y=shelfHeight)`, face translates Y on press. Spring release. No X offset — bottom-only shelf is what makes it feel like a game button, not a brutalist one.
-
-Variants: Primary (Cyan), Confirm (Green), Danger (Magenta), Score (Yellow), Try (Blue), Ghost (transparent).
-Text: always `HuezooLabelLarge`, color computed via `.onColor`.
+Pill-shaped. Variants: `Primary` (Cyan), `Confirm` (Green), `Danger` (Magenta), `Score` (Yellow), `Ghost` (transparent + cyan border), `GhostDanger` (transparent + magenta border).
+Text: `HuezooLabelLarge`, color via `.onColor`. No X shadow — bottom-only shelf.
 
 ### HuezooIconButton
-Square squircle (48×48dp) with 4dp bottom shelf. Same press animation. Four variants: Dismiss (red), Confirm (green), Back (dark), Info (cyan). **Use instead of any TopAppBar back arrow in game screens.**
+Squircle 48×48dp, 4dp bottom shelf. Variants: Dismiss (red), Confirm (green), Back (dark), Info (cyan). Use instead of any `TopAppBar` back arrow in game screens.
 
 ### PriceButton
-Wide pill (56dp tall, full width) with 6dp bottom shelf. Bright green face. Price text as `HuezooHeadlineMedium`, ExtraBold. Used only for purchase CTAs.
+Wide pill, 56dp tall. Bright green face. Used only for purchase CTAs.
 
-### GameCard
-Layered candy card. Outer frame: identity color fill, CardShape. Inner panel: SurfaceL2, inset 5dp. Illustration area: 90dp, identity color at 12% opacity. Badge overlaid top-right of illustration area. 8dp bottom shelf in darkened identity color. Press translates Y only — no X.
+### SwatchBlock
+Color swatch with states: default / pressed / correct / wrong / revealed.
+Shake animation (ShakeX) on wrong. Scale spring on appear.
 
-### ResultCard
-Share-ready end-of-game card. Inner panel on Background color. 8dp bottom shelf. Spring entrance (slide up 60dp + scale 0.9→1.0 + fade). Count-up animation for score and ΔE values.
+### RadialSwatchLayout
+Flower-petal radial arrangement of swatches (6 petals). Used in both Threshold and Daily games.
+
+### SwatchGradientOverlay
+Top-left highlight + bottom-right shadow over a swatch for physical chip look.
+
+### SkewedStatChip
+Parallelogram-shaped HUD chip (skewed). Shows game stats (ROUND, TRIES). Add ~3dp `paddingStart` offset to clear the angled boundary on the left edge.
 
 ### DeltaEBadge
-Shows ΔE value after each round. Color reflects difficulty: Cyan (easy, >3.0), Yellow (medium, 1.5–3.0), Magenta (hard, <1.5). Antonio Bold display size for the number.
+Animated ΔE readout. Color shifts: `AccentCyan` (easy, >3.0) → `AccentYellow` (medium, 1.5–3.0) → `AccentMagenta` (hard, <1.5). Bebas Neue Bold for the number.
 
 ### RoundIndicator
-Row of dots for game progress. Active dot: animated scale to 1.2f + white border. Inactive: smaller, SurfaceL3. Completed: accent green fill.
+Row of dots: inactive / active (pulse + scale 1.2f + white border) / completed (accent green).
+
+### ResultCard
+Share-ready end-of-game card. Spring entrance (slide up 60dp + scale 0.9→1.0). Count-up animation for score and ΔE. Sting copy based on ΔE achieved.
+
+### GameCard
+Legacy card component. Hero illustration area (90dp). Identity color accent bar. Personal best. Still used in some contexts; Home screen now uses custom card components instead.
 
 ### CurrencyPill
-Display-only pill showing gem icon + amount. SurfaceL2 background, 1.5dp GemGreen border. No shelf, no press animation.
+Display-only pill. SurfaceL2 background. No press animation. Not shown on Home screen TopBar — gems are in the Home Stats Section only.
+
+### AmbientGlowBackground
+Screen-level background. Two radial gradients at 10% alpha anchored at opposite corners. Never intercepts touch events. See §5.
+
+### HuezooBottomSheet
+Game-styled modal sheet. 32dp top corners, handle bar. Used for paywall.
 
 ---
 
-## Game Identity Colors
+## 9. Illustration System
 
-Each game has an identity color used as: card frame, card background tint, ΔE badge color, result card glow.
+**Rule:** Every major game card should have a canvas-drawn illustration that communicates its personality through geometry and lines — not photographs or generic gradients.
 
-| Game | Identity Color | Hex |
+### Philosophy
+
+Illustrations are drawn entirely from **lines, arcs, dots, and geometric shapes** in the game's identity color at low opacity. They sit behind content as a full-card background layer. The visual metaphor matches the game's theme:
+- **Threshold** → Tactical scanner / targeting computer (precision, military sensor)
+- **Daily** → Pending design (see below)
+
+### How to Apply
+
+```kotlin
+Box(modifier = cardModifier) {
+    // Illustration fills the full card behind content
+    MyGameIllustration(
+        enabled = enabled,
+        modifier = Modifier.matchParentSize(),
+    )
+    // Content column on top
+    Column(modifier = Modifier.fillMaxWidth().padding(...)) { ... }
+}
+```
+
+The illustration composable wraps a `Canvas(modifier = modifier)` that draws into the full card bounds.
+Canvas clips automatically to its bounds — elements drawn beyond `size.width` are cut off cleanly.
+
+### Threshold Scanner Illustration (`ThresholdScannerIllustration`)
+
+Built from these layers, all in `HuezooColors.GameThreshold` + `AccentCyan` accents:
+
+| Layer | What it draws | Alpha |
 |---|---|---|
-| The Threshold | Electric Purple | `#9B5DE5` |
-| Daily Challenge | Electric Yellow | `#FFE600` |
-| What's My Delta E? | Cyan | `#00E5FF` |
-| Odd Swatch Out | Electric Green | `#00F5A0` |
-| Mix to Match | Hot Magenta | `#FF2D78` |
-| Color Memory | Electric Orange | `#FF9500` |
+| Dot grid | Evenly spaced dots, fades left (protecting text readability) | 0.07 |
+| Range arcs (×5) | Concentric partial arcs from right edge (~190° sweep) | 0.22 → 0.10 |
+| Arc tick marks | Major (every 4th) + minor ticks on each arc | 0.25 → 0.12 |
+| Crosshair | H + V lines through reticle center, gapped around focal point | 0.13 |
+| Sweep arm | Primary arm + ghost trailing arm 14° behind | 0.30 / 0.10 |
+| Center ornament | Diamond (stroked, not filled) + AccentCyan dot | 0.45 / 0.80 |
+| Data blips | Small squares at specific arc/angle positions; accent blips in cyan | 0.35–0.60 |
+| Corner brackets | Military L-shaped markers at all 4 corners | 0.22 |
+| Data scan line | Horizontal line at 60% height + tick marks | 0.08–0.12 |
+
+All alphas multiply by `dimFactor` (1.0 enabled, 0.35 when card is blocked/disabled).
+
+### Adding a New Illustration
+
+1. Create `private fun DrawScope.draw[Name]Illustration()` or a `@Composable fun [Name]Illustration(modifier)`.
+2. Pick a visual metaphor that matches the game's personality.
+3. Draw only with strokes and geometric fills — no raster images.
+4. Anchor focal elements to one edge (usually right) so they bleed off screen slightly.
+5. Fade elements on the left third of the card (use alpha gradient logic on x-position) to keep text legible.
+6. Accept `enabled: Boolean` and multiply all alphas by `dimFactor = if (enabled) 1f else 0.35f`.
+7. Use the game's identity color as the primary drawing color + `AccentCyan` for focal accents.
+
+### Canvas Icon Drawers
+
+For compact card icons (36dp size), use `DrawScope` extension functions typed as `DrawScope.(Color) -> Unit`:
+
+```kotlin
+// ✅ Correct — DrawScope extension, called inside Canvas {}
+private fun DrawScope.drawMedalStar(color: Color) { ... }
+Canvas(Modifier.size(36.dp)) { drawMedalStar(accentColor) }
+
+// ❌ Wrong — @Composable lambda cannot be called inside Canvas {}
+val icon: @Composable (Color) -> Unit = { c -> Icon(...) } // won't compile
+```
+
+Existing canvas icons: `drawMedalStar` (5-pointed star), `drawLeaderboardBars` (ascending bars).
 
 ---
 
-## What NOT to Do
+## 10. Screen Designs
+
+### Home Screen
+
+Scrollable, edge-to-edge. TopBar scrolls with content (not pinned).
+
+```
+HuezooTopBar               ← wordmark, scrolls away with content
+──────────────────────────
+CURRENT INVENTORY          ← HuezooLabelSmall, TextDisabled
+┌─ Cyan bar ─────────────┐
+│  1,250  GEMS            │  ← shapedShadow, IntrinsicSize.Min Row
+└────────────────────────┘
+┌──────────┐  ┌──────────┐
+│ STREAK   │  │  RANK    │  ← StatBox, equal weight(1f)
+│ 0 DAYS   │  │  —       │
+└──────────┘  └──────────┘
+
+┌──────────────────────────┐
+│ ThresholdScannerIllus... │  ← matchParentSize Canvas behind content
+│ • ACTIVE MISSION         │
+│ THE THRESHOLD            │
+│ Description...           │
+│ 5 / 5 TRIES REMAINING    │
+│ [ENTER SIMULATION]       │  ← only this button navigates, not the card
+│ ████░░ ROOKIE  SKILLED   │  ← LevelProgressBar
+└──────────────────────────┘
+
+┌──────────────────────────┐
+│ ★  DAILY CHALLENGE       │  ← AccentMagenta, fullWidth
+│    ULTRAVIOLET BURST     │
+│    Available now         │
+└──────────────────────────┘
+
+┌──────────────────────────┐
+│ ▐▌ GLOBAL LEADERBOARD    │  ← AccentYellow, fullWidth, disabled
+│    TOP 5% WORLDWIDE      │
+│    Claim weekly rewards  │
+└──────────────────────────┘
+
+▼ WHAT IS ΔE? ▲            ← DeltaEInfoCard, expand/collapse, always visible
+```
+
+**Key rules:**
+- Gems shown in StatsSection only — NOT in TopBar
+- Threshold hero card is NOT tappable — only the "ENTER SIMULATION" button navigates
+- Compact cards (Daily, Leaderboard) are full-width, stacked in a Column (not Row)
+- Challenge name is date-seeded from `CHALLENGE_NAMES[dayOfYear % size]`
+- All cards stagger-animate in (80ms delay per index)
+
+### The Threshold Game Screen
+
+Skewed stat chips (ROUND + TRIES). Radial swatch layout. Fixed-height feedback slot (graphicsLayer alpha — no layout shift). DeltaEBadge (color by difficulty tier). ΔE correct-tap label animates in/out.
+
+### Daily Challenge Game Screen
+
+Same layout as Threshold. Shows today's date subtitle ("March 20 · Same for everyone"). Final round (6/6): feedback slot shows "Last one — make it count" on tap.
+
+### Result Screen
+
+Slide-up ResultCard entrance (offset 60dp + scale 0.9→1.0, spring). Count-up for ΔE and score. Confetti burst (identity color particles). Sting copy by ΔE. Share button → native sheet. Play Again button checks attempt gate (shows "NO TRIES LEFT" + `GhostDanger` variant when `!canPlayAgain`).
+
+### Already-Played / Blocked Screens
+
+Daily already-played: "ALREADY PLAYED" styled header + score card read-only + live countdown to next puzzle + "BACK TO HOME" primary button.
+
+Threshold blocked: live "Resets in Xh Xm" countdown + "Back to Home" primary button + personal best as consolation.
+
+---
+
+## 11. Game Identity Colors
+
+| Game | Color token | Hex | Level |
+|---|---|---|---|
+| The Threshold | `GameThreshold` | `#7B6FF0` | — |
+| Daily Challenge | `AccentYellow` | `#FFE600` | Level 3 / Master |
+| Level 1 / Rookie | `AccentCyan` | `#00E5FF` | Cyan |
+| Level 2 / Skilled | `AccentMagenta` | `#FF2D78` | Magenta |
+| Level 3 / Master | `AccentYellow` | `#FFE600` | Gold |
+
+Identity color is used as: card accent bar, card background tint, ΔE badge color, result card glow, `rimLight` tint, `AmbientGlowBackground` primary color.
+
+---
+
+## 12. Levels, Economy & Progression
+
+### Player Level (`PlayerLevel.kt`)
+
+```kotlin
+enum class PlayerLevel(val displayName: String, val minGems: Int, val levelColor: Color) {
+    Rookie(displayName = "ROOKIE",  minGems = 0,       levelColor = HuezooColors.AccentCyan),
+    Skilled(displayName = "SKILLED", minGems = 400,     levelColor = HuezooColors.AccentMagenta),
+    Master(displayName = "MASTER",  minGems = 100_000, levelColor = HuezooColors.AccentYellow);
+    companion object {
+        fun fromGems(gems: Int): PlayerLevel = when {
+            gems >= 100_000 -> Master; gems >= 400 -> Skilled; else -> Rookie
+        }
+    }
+}
+```
+
+Level progress bar shown at bottom of Threshold hero card. Streak and Rank shown as stat boxes on Home screen (stubbed at 0 / null until Firebase wired — Phase 8.9 / 8.10).
+
+### Gem Economy (current implementation)
+
+- **Earning**: gems accumulated via `SettingsRepository.addGems()`; earn rate defined per gameplay session
+- **Display**: `HomeUiState.Ready.totalGems` → formatted as `1,250` via `formatGems()`
+- **Spending**: Threshold refill (300 gems → 10 questions) — not yet wired, Phase 7
+
+### Attempt Window (Threshold)
+
+5 tries per 8-hour window. `next_reset_at` stored as ISO timestamp in SQLDelight.
+`ThresholdRepository.getAttemptStatus(now)` returns `AttemptStatus.Available` or `AttemptStatus.Exhausted(nextResetAt)`.
+
+### ΔE Tier Labels (reference — not yet wired into HUD)
+
+| ΔE range | Label | Meaning |
+|---|---|---|
+| 5.0–10.0 | BEGINNER | Easy — obvious difference |
+| 3.0–5.0 | TRAINING | Visible but not trivial |
+| 2.0–3.0 | SHARP | Requires focus |
+| 1.0–2.0 | EXPERT | Hard — expert territory |
+| 0.5–1.0 | ELITE | Very hard — professional colorist level |
+| < 0.5 | SUPERHUMAN | Near limits of human vision |
+
+---
+
+## 13. UX Rules & Moments
+
+### Missing UX Moments (status)
+
+| Moment | Status | Target |
+|---|---|---|
+| New user opens app | ✅ DeltaEInfoCard always visible, expand/collapse | — |
+| Correct tap | ✅ "↓ ΔE X.X — SHARPER" label 700ms | — |
+| Wrong tap | ✅ Shake + reveal, 450ms delay | — |
+| Result with great score | ✅ Confetti + sting copy | — |
+| Daily complete, home | ✅ "Done" + score + countdown | — |
+| Threshold blocked, home | ✅ "No tries" + reset countdown | — |
+| Share score | ✅ Share button → native sheet | — |
+| Play Again when tries exhausted | ✅ "NO TRIES LEFT" GhostDanger | — |
+| Streak tracking | ⬜ Wired to 0 placeholder | Phase 8.10 |
+| Player rank | ⬜ Wired to null placeholder | Phase 8.9 |
+| Confetti threshold (only good scores) | ⬜ | UX.11 |
+
+### ΔE Info Card (DeltaEInfoCard)
+
+Always visible on Home screen. Expand/collapse with animated chevron. Local `remember` state (not persisted). Never dismissable. Always the last item before debug reset.
+
+### Navigation Rules
+
+- Home → Threshold game: `onNavigate(ThresholdGame)`
+- Home → Daily game: `onNavigate(DailyGame)`
+- Game → Result: carries `GameId`, `deltaE`, `score`, `gameType`
+- Result → Home: pop back stack
+- Result → Play Again: only if attempts available (checked in `ResultViewModel`)
+- Leaderboard button: hidden until Firebase integrated
+
+---
+
+## 14. Non-Negotiables
+
+These must survive every future iteration:
+
+1. `HUEZ` wordmark in Bebas Neue italic — every screen
+2. 3 levels: Rookie / Skilled / Master (gem thresholds: 0 / 400 / 100,000)
+3. Level colors: Cyan (L1) / Magenta (L2) / Gold (L3)
+4. Fixed-height feedback slot during gameplay — no layout shift
+5. Economy: gems earned in gameplay, 300 gems = 10 tries refill
+6. No forced ads mid-round
+7. TopBar is NOT a Material3 `TopAppBar` — use `HuezooTopBar` only
+8. No bare `Text()` composable — always `HuezooText` variants
+9. No hardcoded `Color.White` on colored backgrounds — use `.onColor`
+10. No light theme — Huezoo is permanently dark
+
+---
+
+## 15. What Never to Do
 
 ```
 ❌ NEVER use TopAppBar with back arrow in game screens
 ✅ Use HuezooIconButton(variant = Back / Dismiss) instead
 
-❌ NEVER use diagonal shadow (x+y offset)
-✅ Use bottom shelf only (x=0, y=shelfHeight)
+❌ NEVER use diagonal/blurry drop shadow
+✅ shapedShadow() — hard-edge offset, bottom-right only
 
 ❌ NEVER use emoji as UI elements
-✅ Use Res.drawable.* vector composables
+✅ Vector composables from composeResources/drawable/
 
-❌ NEVER use bare Text() composable
-✅ Use the typed HuezooText variants from HuezooText.kt
+❌ NEVER use bare Text() anywhere in screens or components
+✅ HuezooText variants from HuezooText.kt
 
 ❌ NEVER use MaterialTheme.colorScheme.onBackground on card/button surfaces
-✅ Use HuezooColors.TextPrimary / TextSecondary / TextDisabled explicitly
+✅ HuezooColors.TextPrimary / TextSecondary / TextDisabled explicitly
 
 ❌ NEVER hardcode Color.White or Color.Black for text on colored backgrounds
-✅ Use .onColor from ColorExt.kt
+✅ .onColor from ColorExt.kt
 
-❌ NEVER use light theme — Huezoo is dark only
+❌ NEVER use light theme — Huezoo is dark-only permanently
+
+❌ NEVER put gems in the TopBar on Home screen
+✅ Gems live in the StatsSection below the TopBar only
+
+❌ NEVER make the entire Threshold hero card tappable
+✅ Only the "ENTER SIMULATION" button navigates
+
+❌ NEVER use @Composable lambdas as Canvas icon content
+✅ DrawScope.(Color) -> Unit extension functions, called inside Canvas {}
+
+❌ NEVER blur values over 5px
+✅ Hard-edge depth (shelf + rimLight) — no soft glows
 ```
 
 ---
 
-## File Reference
+## 16. File Reference
 
 ```
 composeApp/src/commonMain/
 ├── composeResources/
 │   ├── drawable/          ← all vectors (ic_close, ic_check, game art, etc.)
-│   └── font/              ← Antonio, Fredoka, Space Grotesk TTF files
+│   └── font/              ← bebas_neue_regular, clash_display_*, space_grotesk_* .ttf
 └── kotlin/xyz/ksharma/huezoo/
-    ├── ui/theme/
-    │   ├── Color.kt         ← all color tokens + darken() extension
-    │   ├── ColorExt.kt      ← contrastRatio(), foregroundColor(), onColor
-    │   ├── Shape.kt         ← SquircleShape presets + PillShape
-    │   ├── Typography.kt    ← three-font system wired into huezooTypography()
-    │   └── Theme.kt         ← HuezooTheme (dark-only)
-    └── ui/components/
-        ├── HuezooText.kt        ← ALL typed text composables — only file using Text()
-        ├── HuezooButton.kt      ← pill + shelf + spring press
-        ├── HuezooIconButton.kt  ← squircle icon buttons (X, ✓, back, info)
-        ├── PriceButton.kt       ← purchase CTA
-        ├── GameCard.kt          ← frame + inner panel + shelf
-        ├── ResultCard.kt        ← end-of-game share card
-        ├── SwatchBlock.kt       ← color swatch with states
-        ├── DeltaEBadge.kt       ← animated ΔE display
-        ├── RoundIndicator.kt    ← round progress dots
-        ├── CurrencyPill.kt      ← gem + amount display
-        └── HuezooBottomSheet.kt ← paywall / name entry sheet
+    ├── App.kt                          ← nav host, screen wiring
+    ├── navigation/                     ← route objects (ThresholdGame, DailyGame, Result…)
+    ├── domain/
+    │   ├── color/
+    │   │   ├── ColorMath.kt            ← rgbToLab, CIEDE2000 deltaE
+    │   │   ├── ColorEngine.kt          ← randomVividColor, generateOddSwatch, scoreFromDeltaE
+    │   │   └── Lab.kt                  ← Lab data class + Lab.toColor()
+    │   └── game/
+    │       ├── ThresholdGameEngine.kt  ← game loop logic
+    │       ├── DefaultDailyGameEngine.kt
+    │       └── model/AttemptStatus.kt
+    ├── data/
+    │   ├── db/                         ← SQLDelight schema + generated queries
+    │   └── repository/
+    │       ├── ThresholdRepository.kt  ← getAttemptStatus, getPersonalBest
+    │       ├── DailyRepository.kt      ← getChallenge, markCompleted
+    │       └── SettingsRepository.kt   ← isPaid, getGems, addGems, resetAll
+    ├── platform/
+    │   └── PlatformOps.kt              ← shareText, isDebugBuild (expect/actual)
+    └── ui/
+        ├── theme/
+        │   ├── Color.kt                ← HuezooColors token object
+        │   ├── ColorExt.kt             ← contrastRatio, foregroundColor, onColor
+        │   ├── Typography.kt           ← BebasNeue/ClashDisplay/SpaceGrotesk + scale
+        │   ├── Shape.kt                ← ParallelogramBack + HuezooSize/HuezooSpacing tokens
+        │   ├── Modifiers.kt            ← shapedShadow, rimLight
+        │   ├── Dimensions.kt           ← HuezooSpacing, HuezooSize dimension tokens
+        │   └── Theme.kt                ← HuezooTheme (dark-only)
+        ├── components/
+        │   ├── HuezooText.kt           ← ALL typed text composables — only file using Text()
+        │   ├── HuezooButton.kt         ← pill + shelf, Primary/Confirm/Danger/Ghost/GhostDanger
+        │   ├── HuezooIconButton.kt     ← squircle icon buttons (X, ✓, back, info)
+        │   ├── HuezooTopBar.kt         ← wordmark + back button + status bar spacer
+        │   ├── PriceButton.kt          ← purchase CTA
+        │   ├── AmbientGlow.kt          ← screen-level background glow
+        │   ├── GameCard.kt             ← legacy card (frame + inner panel + shelf)
+        │   ├── ResultCard.kt           ← end-of-game share card
+        │   ├── SwatchBlock.kt          ← color swatch with states + shake animation
+        │   ├── RadialSwatchLayout.kt   ← 6-petal flower arrangement
+        │   ├── SwatchGradientOverlay.kt← top-left highlight chip effect
+        │   ├── SkewedStatChip.kt       ← parallelogram HUD chip
+        │   ├── DeltaEBadge.kt          ← animated ΔE display (color by difficulty)
+        │   ├── RoundIndicator.kt       ← round progress dots
+        │   ├── CurrencyPill.kt         ← gem + amount display
+        │   └── HuezooBottomSheet.kt    ← game-styled paywall sheet
+        ├── model/
+        │   ├── PlayerLevel.kt          ← Rookie/Skilled/Master enum + fromGems()
+        │   ├── RoundPhase.kt           ← game round phase enum
+        │   ├── SwatchLayoutStyle.kt    ← layout style enum
+        │   └── SwatchUiModel.kt        ← swatch UI model
+        ├── home/
+        │   ├── HomeScreen.kt           ← full redesign (scanner illustration, scrolling TopBar)
+        │   ├── HomeViewModel.kt
+        │   └── state/HomeUiState.kt / HomeUiEvent.kt
+        ├── games/
+        │   ├── threshold/
+        │   │   ├── ThresholdScreen.kt
+        │   │   ├── ThresholdViewModel.kt
+        │   │   └── state/ThresholdUiState.kt / ThresholdUiEvent.kt / ThresholdNavEvent.kt
+        │   └── daily/
+        │       ├── DailyScreen.kt
+        │       ├── DailyViewModel.kt
+        │       └── state/DailyUiState.kt / DailyUiEvent.kt / DailyNavEvent.kt
+        ├── result/
+        │   ├── ResultScreen.kt         ← confetti, sting copy, canPlayAgain gate
+        │   ├── ResultViewModel.kt
+        │   └── state/ResultUiState.kt
+        ├── leaderboard/
+        │   └── LeaderboardScreen.kt    ← stub, pending Firebase (Phase 8)
+        └── paywall/
+            └── PaywallSheet.kt
 ```
