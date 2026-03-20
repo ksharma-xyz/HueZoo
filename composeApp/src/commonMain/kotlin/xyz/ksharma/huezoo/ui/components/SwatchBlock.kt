@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -111,7 +112,12 @@ fun SwatchBlock(
             SwatchBlockState.Pressed -> HuezooColors.AccentCyan.copy(alpha = 0.5f)
             else -> Color.Transparent
         },
-        animationSpec = tween(200),
+        // Snap to Transparent immediately on Default/Revealed so a fading border from the
+        // previous round never leaks onto the next round's swatches at the same index.
+        animationSpec = when (state) {
+            SwatchBlockState.Default, SwatchBlockState.Revealed -> snap()
+            else -> tween(200)
+        },
         label = "borderColor",
     )
 
