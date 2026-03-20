@@ -248,6 +248,37 @@ Paywall Sheet
 - [ ] UX.12.4 Ads strategy: show rewarded ad offer only if: (a) user is not paid, AND (b) score was good (≥ threshold), AND (c) ad not shown in last 24h. Never show after a bad result — that feels punishing.
 - [ ] UX.12.5 All reward/ad/level logic flows through `GameRewardEngine` — neither ViewModel nor Screen contains raw logic
 
+#### UX.13 — Threshold Game Loop Design Rethink ⚠️ DESIGN DECISION NEEDED
+*Open questions about the core Threshold loop — decide before building monetization or progression.*
+
+**Question 1 — What does "Round" mean in Threshold?**
+Currently Threshold is an infinite-attempt game that ends on first wrong tap. The "round" counter
+tracks correct taps in a single session. Should "Round" be renamed to "Streak" or "Tap #N"?
+Or is the round model the right one (session structured as rounds, not infinite streak)?
+
+**Question 2 — ΔE reset on single wrong: is this right?**
+Current: one wrong tap → game over → ΔE resets to starting value on the next attempt.
+Proposed alternative: Threshold becomes a 10-tries-per-day format —
+  - Player gets a fixed try budget (10/day), not a one-miss-and-out streak
+  - Each try goes until a miss or the player voluntarily ends
+  - After all 10 tries are exhausted, result screen shows best ΔE achieved across all tries
+  - ΔE is NOT shown during gameplay (it's revealed only at Result) — keeps tension without anchoring the player
+  - This is more like a golf handicap model: total budget of attempts, best score counts
+
+**Question 3 — Monetization model for more tries**
+  - Option A: Watch a rewarded ad → +1 try (free fallback)
+  - Option B: Spend gems → buy a try pack (300 gems = 10 tries, per existing spec)
+  - Option C: One-time IAP ("Unlimited" or "Buy app") → 100 tries/day or truly unlimited
+  - Or combine: base = 10/day, paid = 100/day, ad = +1 per watch
+
+**Recommended next step**: Decide the loop model (streak vs try-budget) in a doc before touching
+`ThresholdGameEngine`, `ThresholdViewModel`, or `ResultViewModel`. Wrong choice here cascades.
+
+- [ ] UX.13.1 Write `docs/THRESHOLD_LOOP_DESIGN.md` — lock the round/try model before coding
+- [ ] UX.13.2 Once model is locked: rename in-game "ROUND" label to match chosen model vocabulary
+- [ ] UX.13.3 Decide whether ΔE is shown in-game or only on Result screen
+- [ ] UX.13.4 Implement try-budget model if chosen (replaces current one-miss-end model)
+
 ### Phase DS.3 — Haptics
 - [ ] DS.3.1 `HapticType` enum in commonMain (Light, Medium, Heavy, Success, Error, Warning, Selection)
 - [ ] DS.3.2 `HapticEngine` interface in commonMain

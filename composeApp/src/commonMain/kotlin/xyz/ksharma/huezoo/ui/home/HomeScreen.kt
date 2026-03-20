@@ -3,8 +3,14 @@ package xyz.ksharma.huezoo.ui.home
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +25,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
@@ -30,15 +40,21 @@ import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.GameCard
+import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
+import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
+import xyz.ksharma.huezoo.ui.components.HuezooTitleMedium
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.home.state.DailyCardData
 import xyz.ksharma.huezoo.ui.home.state.HomeUiEvent
 import xyz.ksharma.huezoo.ui.home.state.HomeUiState
 import xyz.ksharma.huezoo.ui.home.state.ThresholdCardData
+import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.PillShape
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -74,6 +90,7 @@ fun HomeScreen(
                     state = state,
                     onThresholdTap = { onNavigate(ThresholdGame) },
                     onDailyTap = { onNavigate(DailyGame) },
+                    onDismissDeltaECard = { viewModel.onUiEvent(HomeUiEvent.DismissDeltaECard) },
                     showDebugReset = platformOps.isDebugBuild,
                     onDebugReset = { viewModel.onUiEvent(HomeUiEvent.DebugResetTapped) },
                 )
@@ -87,6 +104,7 @@ private fun ReadyContent(
     state: HomeUiState.Ready,
     onThresholdTap: () -> Unit,
     onDailyTap: () -> Unit,
+    onDismissDeltaECard: () -> Unit,
     modifier: Modifier = Modifier,
     showDebugReset: Boolean = false,
     onDebugReset: () -> Unit = {},
@@ -97,13 +115,31 @@ private fun ReadyContent(
             .verticalScroll(rememberScrollState())
             .padding(HuezooSpacing.md),
     ) {
-        Spacer(Modifier.height(HuezooSpacing.md))
+        Spacer(Modifier.height(HuezooSpacing.sm))
+
+        HeroStatsRow(
+            totalGems = state.totalGems,
+            playerLevel = state.playerLevel,
+        )
+
+        Spacer(Modifier.height(HuezooSpacing.lg))
+
+        AnimatedVisibility(
+            visible = state.showDeltaECard,
+            enter = fadeIn(tween(300)) + slideInVertically(tween(300)) { -it / 4 },
+            exit = fadeOut(tween(200)),
+        ) {
+            Column {
+                DeltaEInfoCard(onDismiss = onDismissDeltaECard)
+                Spacer(Modifier.height(HuezooSpacing.lg))
+            }
+        }
 
         StaggeredCard(index = 0) {
             ThresholdCard(data = state.threshold, onClick = onThresholdTap)
         }
 
-        Spacer(Modifier.height(HuezooSpacing.md))
+        Spacer(Modifier.height(HuezooSpacing.lg))
 
         StaggeredCard(index = 1) {
             DailyCard(data = state.daily, onClick = onDailyTap)
@@ -116,6 +152,98 @@ private fun ReadyContent(
                 onClick = onDebugReset,
                 variant = HuezooButtonVariant.GhostDanger,
                 modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        Spacer(Modifier.height(HuezooSpacing.md))
+    }
+}
+
+/**
+ * Hero stats row showing level badge and gem count — sits below the top bar.
+ */
+@Composable
+private fun HeroStatsRow(
+    totalGems: Int,
+    playerLevel: PlayerLevel,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        // Level badge
+        Box(
+            modifier = Modifier
+                .background(playerLevel.levelColor.copy(alpha = 0.15f), PillShape)
+                .border(1.5.dp, playerLevel.levelColor.copy(alpha = 0.6f), PillShape)
+                .padding(horizontal = HuezooSize.BadgeHorizontalPad, vertical = 6.dp),
+        ) {
+            HuezooLabelSmall(
+                text = playerLevel.displayName,
+                color = playerLevel.levelColor,
+                fontWeight = FontWeight.ExtraBold,
+            )
+        }
+
+        // Gem total — large headline number
+        Column(horizontalAlignment = Alignment.End) {
+            HuezooTitleMedium(
+                text = "$totalGems",
+                color = HuezooColors.GemGreen,
+                fontWeight = FontWeight.ExtraBold,
+            )
+            HuezooLabelSmall(
+                text = "GEMS",
+                color = HuezooColors.TextSecondary,
+            )
+        }
+    }
+}
+
+/**
+ * Dismissable first-launch info card explaining ΔE.
+ * Shown once only; dismissed state is persisted via [SettingsRepository].
+ */
+@Composable
+private fun DeltaEInfoCard(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(HuezooColors.SurfaceL2, androidx.compose.foundation.shape.RoundedCornerShape(HuezooSize.CornerCard))
+            .border(
+                1.5.dp,
+                HuezooColors.AccentCyan.copy(alpha = 0.35f),
+                androidx.compose.foundation.shape.RoundedCornerShape(HuezooSize.CornerCard),
+            )
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(HuezooSize.CornerCard))
+            .padding(HuezooSpacing.md),
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                HuezooLabelSmall(
+                    text = "WHAT IS ΔE?",
+                    color = HuezooColors.AccentCyan,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+                HuezooButton(
+                    text = "GOT IT",
+                    onClick = onDismiss,
+                    variant = HuezooButtonVariant.Ghost,
+                )
+            }
+            Spacer(Modifier.height(HuezooSpacing.xs))
+            HuezooBodyMedium(
+                text = "ΔE measures color difference. Lower ΔE = colors are more similar = harder to spot the odd one out.",
+                color = HuezooColors.TextSecondary,
             )
         }
     }
@@ -165,6 +293,7 @@ private fun ThresholdCard(
         identityColor = HuezooColors.GameThreshold,
         onClick = onClick,
         enabled = !data.isBlocked,
+        isHero = true,
         triesText = triesText,
         personalBest = personalBest,
         countdownText = countdown,
@@ -240,9 +369,12 @@ private fun HomeReadyPreview() {
                 ),
                 isPaid = false,
                 totalGems = 128,
+                playerLevel = PlayerLevel.Rookie,
+                showDeltaECard = true,
             ),
             onThresholdTap = {},
             onDailyTap = {},
+            onDismissDeltaECard = {},
         )
     }
 }
@@ -265,9 +397,12 @@ private fun HomeBlockedAndCompletedPreview() {
                 ),
                 isPaid = true,
                 totalGems = 2450,
+                playerLevel = PlayerLevel.Skilled,
+                showDeltaECard = false,
             ),
             onThresholdTap = {},
             onDailyTap = {},
+            onDismissDeltaECard = {},
         )
     }
 }

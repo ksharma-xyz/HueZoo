@@ -19,6 +19,7 @@ import xyz.ksharma.huezoo.ui.home.state.DailyCardData
 import xyz.ksharma.huezoo.ui.home.state.HomeUiEvent
 import xyz.ksharma.huezoo.ui.home.state.HomeUiState
 import xyz.ksharma.huezoo.ui.home.state.ThresholdCardData
+import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -40,6 +41,7 @@ class HomeViewModel(
         when (event) {
             HomeUiEvent.ScreenResumed -> load()
             HomeUiEvent.DebugResetTapped -> debugReset()
+            HomeUiEvent.DismissDeltaECard -> dismissDeltaECard()
             else -> Unit // Navigation events handled directly in the screen composable.
         }
     }
@@ -48,6 +50,15 @@ class HomeViewModel(
         viewModelScope.launch {
             settingsRepository.resetAll()
             load()
+        }
+    }
+
+    private fun dismissDeltaECard() {
+        viewModelScope.launch {
+            settingsRepository.dismissDeltaECard()
+            (_uiState.value as? HomeUiState.Ready)?.let {
+                _uiState.value = it.copy(showDeltaECard = false)
+            }
         }
     }
 
@@ -61,6 +72,7 @@ class HomeViewModel(
             val dailyChallenge = dailyRepository.getChallenge(today)
             val isPaid = settingsRepository.isPaid()
             val totalGems = settingsRepository.getGems()
+            val showDeltaECard = !settingsRepository.hasDismissedDeltaECard()
 
             val tz = TimeZone.currentSystemDefault()
             val thresholdCard = when (attemptStatus) {
@@ -97,6 +109,8 @@ class HomeViewModel(
                 daily = dailyCard,
                 isPaid = isPaid,
                 totalGems = totalGems,
+                playerLevel = PlayerLevel.fromGems(totalGems),
+                showDeltaECard = showDeltaECard,
             )
         }
     }

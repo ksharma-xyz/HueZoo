@@ -1,5 +1,8 @@
 package xyz.ksharma.huezoo.ui.model
 
+import androidx.compose.ui.graphics.Color
+import xyz.ksharma.huezoo.ui.theme.HuezooColors
+
 /**
  * Three-tier player level system based on lifetime gems earned
  * (1 gem ≈ 1 correct answer, as per the economy spec).
@@ -14,10 +17,11 @@ package xyz.ksharma.huezoo.ui.model
 enum class PlayerLevel(
     val displayName: String,
     val minGems: Int,
+    val levelColor: Color,
 ) {
-    Rookie(displayName = "ROOKIE", minGems = 0),
-    Skilled(displayName = "SKILLED", minGems = 400),
-    Master(displayName = "MASTER", minGems = 100_000);
+    Rookie(displayName = "ROOKIE", minGems = 0, levelColor = HuezooColors.AccentCyan),
+    Skilled(displayName = "SKILLED", minGems = 400, levelColor = HuezooColors.AccentMagenta),
+    Master(displayName = "MASTER", minGems = 100_000, levelColor = HuezooColors.AccentYellow);
 
     companion object {
         fun fromGems(gems: Int): PlayerLevel = when {

@@ -49,6 +49,7 @@ private val CardShelf = 8.dp
 private val FrameInset = 5.dp
 private val IllustrationSize = 72.dp
 private val IllustrationAreaHeight = 90.dp
+private val HeroIllustrationAreaHeight = 140.dp
 
 /**
  * Candy-style game card for the Home screen.
@@ -76,6 +77,8 @@ fun GameCard(
     /** Live countdown string shown below tries/personal best (e.g. "Resets in 2h 14m"). */
     countdownText: String? = null,
     enabled: Boolean = true,
+    /** Hero mode: taller illustration area — use for the primary/featured game card. */
+    isHero: Boolean = false,
     illustrationPainter: Painter? = null,
     visualContent: (@Composable () -> Unit)? = null,
 ) {
@@ -139,7 +142,7 @@ fun GameCard(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(IllustrationAreaHeight)
+                            .height(if (isHero) HeroIllustrationAreaHeight else IllustrationAreaHeight)
                             .background(identityColor.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center,
                     ) {

@@ -2,6 +2,7 @@ package xyz.ksharma.huezoo.ui.home.state
 
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
+import xyz.ksharma.huezoo.ui.model.PlayerLevel
 
 sealed interface HomeUiState {
 
@@ -12,6 +13,9 @@ sealed interface HomeUiState {
         val daily: DailyCardData,
         val isPaid: Boolean,
         val totalGems: Int,
+        val playerLevel: PlayerLevel,
+        /** True until the user dismisses the first-launch ΔE info card. */
+        val showDeltaECard: Boolean,
     ) : HomeUiState
 }
 

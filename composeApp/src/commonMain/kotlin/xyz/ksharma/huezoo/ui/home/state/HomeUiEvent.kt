@@ -6,4 +6,5 @@ sealed interface HomeUiEvent {
     data object UnlockTapped : HomeUiEvent
     data object ScreenResumed : HomeUiEvent
     data object DebugResetTapped : HomeUiEvent
+    data object DismissDeltaECard : HomeUiEvent
 }
