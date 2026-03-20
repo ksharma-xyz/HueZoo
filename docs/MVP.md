@@ -194,6 +194,29 @@ Paywall Sheet
 - [ ] UX.6.1 Result "Play Again" for Threshold: check attempts before navigating — show inline "No tries left" if exhausted instead of starting a game that immediately blocks
 - [ ] UX.6.2 Leaderboard button on Result: hide until Firebase is implemented (remove or show "Coming soon" toast)
 
+#### UX.7 — Directional Feedback During Gameplay
+*Problem: users don't know if lower ΔE is good or bad. No sense of direction or progress.*
+- [ ] UX.7.1 On correct tap: show "↓ ΔE X.X — SHARPER" (gaming language, not just the number) for 700ms
+- [ ] UX.7.2 DeltaEBadge tier label (below the number): "EASY" / "MODERATE" / "HARD" / "EXPERT" / "SUPERHUMAN" based on current ΔE range — updates each round
+- [ ] UX.7.3 On level-up (ΔE crosses a tier boundary): brief tier-change pulse animation on DeltaEBadge (already partially specced DS.5) + "LEVEL UP" micro-text flash
+- [ ] UX.7.4 First-round tooltip copy: "Lower ΔE = harder to spot. Go as low as you can." (one-time, dismisses on first tap)
+
+#### UX.8 — Streak System
+*Reward consecutive correct taps — make the player feel momentum.*
+- [ ] UX.8.1 Track consecutive correct taps in ThresholdGameEngine (`correctStreak: Int`)
+- [ ] UX.8.2 5-in-a-row: confetti burst (identity color particles) + "5 STREAK!" flash banner for 800ms
+- [ ] UX.8.3 10-in-a-row: premium confetti (multi-color, higher density) + "UNSTOPPABLE!" banner + bonus gems awarded
+- [ ] UX.8.4 Streak counter shown in HUD (appears after first correct, e.g. "🔥 3") — disappears on wrong tap
+- [ ] UX.8.5 Streak breaks on wrong tap: brief "STREAK LOST" gray flash (no harsh punishment, just acknowledgement)
+
+#### UX.9 — Gems Earning System
+*Players need to see gems accumulate as they play — currency with meaning.*
+- [ ] UX.9.1 Define gem earn rates: +1 per correct tap, +5 per round survived to round 5+, +10 per game completed, +50 bonus for 10-streak
+- [ ] UX.9.2 On gem earn: animated "+N 💎" float-up label from the HUD gem counter, fades out over 600ms
+- [ ] UX.9.3 HUD gem counter increments with a brief scale pulse (1.0 → 1.2 → 1.0, spring) when gems are added
+- [ ] UX.9.4 Persist gem total in SQLDelight `user_stats` table (accumulated lifetime gems)
+- [ ] UX.9.5 Result screen: show gems earned this session (e.g. "+32 💎 earned") below the stat cards
+
 ### Phase DS.3 — Haptics
 - [ ] DS.3.1 `HapticType` enum in commonMain (Light, Medium, Heavy, Success, Error, Warning, Selection)
 - [ ] DS.3.2 `HapticEngine` interface in commonMain
