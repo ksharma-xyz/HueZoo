@@ -31,6 +31,7 @@ import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.SquircleMedium
+import xyz.ksharma.huezoo.ui.theme.neonStrike
 
 enum class SwatchBlockSize(val sizeDp: Dp) {
     Small(80.dp),
@@ -132,7 +133,16 @@ fun SwatchBlock(
                 scaleX = scale.value * pressScale
                 scaleY = scale.value * pressScale
                 translationX = shakeX.value
+                // Allow neonStrike to render its rings outside the layer bounds on reveal
+                clip = state != SwatchBlockState.Revealed
             }
+            .then(
+                if (state == SwatchBlockState.Revealed) {
+                    Modifier.neonStrike(HuezooColors.AccentCyan, cornerRadius = 32.dp)
+                } else {
+                    Modifier
+                },
+            )
             .border(borderWidth, borderColor, SquircleMedium)
             .background(color, SquircleMedium)
             .clip(SquircleMedium)
