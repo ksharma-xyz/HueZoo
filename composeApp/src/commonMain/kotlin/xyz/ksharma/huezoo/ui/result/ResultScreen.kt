@@ -7,7 +7,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,6 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -63,7 +65,6 @@ import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.result.state.ResultUiState
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
-import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
 import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.onColor
 import xyz.ksharma.huezoo.ui.theme.rimLight
@@ -72,6 +73,7 @@ import xyz.ksharma.huezoo.ui.theme.shapedShadow
 private val BannerShape = RoundedCornerShape(12.dp)
 private val CardShape = RoundedCornerShape(16.dp)
 private val StatIconSize = 28.dp
+private val CardShelfHeight = 4.dp
 
 @Composable
 fun ResultScreen(
@@ -134,6 +136,17 @@ private fun Float.fmt(): String {
     return "$i.$d"
 }
 
+private fun Int.formatWithCommas(): String {
+    if (this < 1000) return toString()
+    val s = toString()
+    val result = StringBuilder()
+    s.reversed().forEachIndexed { i, c ->
+        if (i > 0 && i % 3 == 0) result.append(',')
+        result.append(c)
+    }
+    return result.reversed().toString()
+}
+
 // ── ReadyContent ───────────────────────────────────────────────────────────────
 
 @Composable
@@ -174,7 +187,7 @@ private fun ReadyContent(
     ) {
         Spacer(Modifier.height(HuezooSpacing.sm))
 
-        // ── 1. Outcome banner — constrained width, matches stitch ─────────────
+        // ── 1. Outcome banner — full-width, colored shelf ──────────────────────
         MissionOutcomeBanner(
             text = if (isDaily) "MISSION OUTCOME: COMPLETE" else "MISSION OUTCOME: FAILURE",
             color = accentColor,
@@ -182,7 +195,7 @@ private fun ReadyContent(
 
         Spacer(Modifier.height(HuezooSpacing.md))
 
-        // ── 2. Hero score ─────────────────────────────────────────────────────
+        // ── 2. Hero score — ambient radial glow behind ─────────────────────────
         HeroScore(
             score = displayScore.value.toInt(),
             modifier = Modifier.fillMaxWidth(),
@@ -201,12 +214,11 @@ private fun ReadyContent(
 
         Spacer(Modifier.height(HuezooSpacing.sm))
 
-        // ── 4. Stat cards — stacked full-width (matches stitch) ───────────────
+        // ── 4. Stat cards — stacked full-width, each with bottom shelf ─────────
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
         ) {
-            // SPECTRAL DRIFT — score % toward max
             StatBreakdownCard(
                 label = "SPECTRAL DRIFT",
                 value = "${((state.score / 5000f) * 100).toInt().coerceIn(0, 100)}%",
@@ -215,7 +227,6 @@ private fun ReadyContent(
                 icon = { WaveIcon(color = HuezooColors.AccentCyan) },
                 modifier = Modifier.fillMaxWidth(),
             )
-            // CALIBRATION — rounds survived
             StatBreakdownCard(
                 label = "CALIBRATION",
                 value = "${state.roundsSurvived}",
@@ -233,6 +244,9 @@ private fun ReadyContent(
             text = if (isDaily) "BACK TO HOME" else "PLAY AGAIN",
             onClick = onPlayAgain,
             variant = HuezooButtonVariant.Primary,
+            leadingIcon = if (!isDaily) {
+                { PlayIcon() }
+            } else null,
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(HuezooSpacing.sm))
@@ -264,9 +278,8 @@ private fun MissionOutcomeBanner(
 ) {
     Box(
         modifier = modifier
-            .wrapContentWidth()
+            .fillMaxWidth()
             .shapedShadow(BannerShape, color.darken(0.5f), offsetX = 0.dp, offsetY = 6.dp)
-            .border(2.dp, Color.White.copy(alpha = 0.12f), BannerShape)
             .background(color, BannerShape)
             .padding(horizontal = HuezooSpacing.lg, vertical = HuezooSpacing.sm),
         contentAlignment = Alignment.Center,
@@ -300,6 +313,19 @@ private fun HeroScore(
 
     Box(
         modifier = modifier
+            .drawBehind {
+                // Soft radial ambient glow behind the score text (matches stitch bg-primary/5 blur-3xl)
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            HuezooColors.AccentCyan.copy(alpha = 0.08f),
+                            Color.Transparent,
+                        ),
+                        center = Offset(size.width / 2f, size.height / 2f),
+                        radius = size.width * 0.9f,
+                    ),
+                )
+            }
             .graphicsLayer {
                 scaleX = scale.value
                 scaleY = scale.value
@@ -308,10 +334,10 @@ private fun HeroScore(
         contentAlignment = Alignment.Center,
     ) {
         androidx.compose.material3.Text(
-            text = "$score PTS",
+            text = "${score.formatWithCommas()} PTS",
             style = MaterialTheme.typography.displayLarge.copy(
-                fontSize = 88.sp,
-                lineHeight = 88.sp,
+                fontSize = 96.sp,
+                lineHeight = 96.sp,
             ),
             color = HuezooColors.AccentCyan,
             textAlign = TextAlign.Center,
@@ -327,61 +353,64 @@ private fun StingReadout(
     accentColor: Color,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Box(
         modifier = modifier
             .height(IntrinsicSize.Min)
-            .background(HuezooColors.SurfaceL2, CardShape)
+            .background(HuezooColors.SurfaceL1, CardShape)
             .rimLight(cornerRadius = 16.dp)
             .clip(CardShape),
     ) {
-        // Left accent strip
-        Box(
-            modifier = Modifier
-                .width(4.dp)
-                .fillMaxHeight()
-                .background(accentColor),
-        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            // Left accent strip
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .fillMaxHeight()
+                    .background(accentColor),
+            )
 
-        Column(
-            modifier = Modifier.padding(HuezooSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-        ) {
-            // ΔE value + badge
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(HuezooSpacing.md),
+                verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
             ) {
-                androidx.compose.material3.Text(
-                    text = "ΔE ${deltaE.fmt()}",
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        fontSize = 48.sp,
-                        lineHeight = 48.sp,
-                    ),
-                    color = accentColor,
-                )
-                // Skewed badge
-                Box(
-                    modifier = Modifier
-                        .shapedShadow(ParallelogramBack, accentColor.copy(alpha = 0.3f))
-                        .clip(ParallelogramBack)
-                        .background(accentColor.copy(alpha = 0.15f))
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                    contentAlignment = Alignment.Center,
+                // ΔE value + inline badge label
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
                 ) {
+                    androidx.compose.material3.Text(
+                        text = "ΔE ${deltaE.fmt()}",
+                        style = MaterialTheme.typography.displayLarge.copy(
+                            fontSize = 56.sp,
+                            lineHeight = 56.sp,
+                        ),
+                        color = accentColor,
+                    )
                     HuezooLabelSmall(
                         text = badgeText,
                         color = accentColor,
                         fontWeight = FontWeight.ExtraBold,
                     )
                 }
-            }
 
-            // Sting copy
-            HuezooBodyMedium(
-                text = stingCopy,
-                color = HuezooColors.TextSecondary,
-            )
+                // Sting copy — width capped to 80% so ghost icon is visible
+                HuezooBodyMedium(
+                    text = stingCopy,
+                    color = HuezooColors.TextSecondary,
+                    modifier = Modifier.fillMaxWidth(0.82f),
+                )
+            }
         }
+
+        // Ghost watermark icon — top-right corner, 10% opacity
+        GhostExclamationIcon(
+            color = accentColor.copy(alpha = 0.10f),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(HuezooSpacing.sm),
+        )
     }
 }
 
@@ -399,48 +428,57 @@ private fun StatBreakdownCard(
         animatedProgress.animateTo(progress, tween(900, easing = EaseOutCubic))
     }
 
-    Column(
-        modifier = modifier
-            .background(HuezooColors.SurfaceL2, CardShape)
-            .rimLight(cornerRadius = 16.dp)
-            .padding(HuezooSpacing.md),
-        verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-    ) {
-        // Top row: skewed label chip + icon
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+    // Outer Box reserves space for the bottom shelf
+    Box(modifier = modifier.padding(bottom = CardShelfHeight)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shapedShadow(CardShape, HuezooColors.SurfaceL0, offsetX = 0.dp, offsetY = CardShelfHeight)
+                .background(HuezooColors.SurfaceL3, CardShape)
+                .rimLight(cornerRadius = 16.dp)
+                .padding(HuezooSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
         ) {
-            Box(
-                modifier = Modifier
-                    .shapedShadow(ParallelogramBack, accentColor.copy(alpha = 0.3f))
-                    .clip(ParallelogramBack)
-                    .background(accentColor.copy(alpha = 0.15f))
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
-                contentAlignment = Alignment.Center,
+            // Top row: solid filled label chip + icon
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                HuezooLabelSmall(
-                    text = label,
-                    color = accentColor,
-                    fontWeight = FontWeight.ExtraBold,
-                )
+                // Solid filled parallelogram label chip (matches stitch bg-primary / bg-tertiary)
+                Box(
+                    modifier = Modifier
+                        .shapedShadow(
+                            xyz.ksharma.huezoo.ui.theme.ParallelogramBack,
+                            accentColor.darken(0.5f),
+                        )
+                        .clip(xyz.ksharma.huezoo.ui.theme.ParallelogramBack)
+                        .background(accentColor)
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    HuezooLabelSmall(
+                        text = label,
+                        color = accentColor.onColor,
+                        fontWeight = FontWeight.ExtraBold,
+                    )
+                }
+                icon()
             }
-            icon()
+
+            // Stat value
+            androidx.compose.material3.Text(
+                text = value,
+                style = MaterialTheme.typography.displayMedium,
+                color = HuezooColors.TextPrimary,
+            )
+
+            // Neon progress bar
+            NeonProgressBar(
+                progress = animatedProgress.value,
+                color = accentColor,
+            )
         }
-
-        // Stat value
-        androidx.compose.material3.Text(
-            text = value,
-            style = MaterialTheme.typography.displayMedium,
-            color = HuezooColors.TextPrimary,
-        )
-
-        // Neon progress bar
-        NeonProgressBar(
-            progress = animatedProgress.value,
-            color = accentColor,
-        )
     }
 }
 
@@ -456,10 +494,10 @@ private fun NeonProgressBar(
         modifier = modifier
             .fillMaxWidth()
             .height(8.dp)
-            .background(HuezooColors.SurfaceL3, trackShape)
+            .background(HuezooColors.SurfaceL0, trackShape)
             .clip(trackShape),
     ) {
-        // Glow halo — semi-transparent wider layer behind solid fill
+        // Glow halo
         Box(
             modifier = Modifier
                 .fillMaxWidth(clampedProgress)
@@ -477,9 +515,9 @@ private fun NeonProgressBar(
     }
 }
 
-// ── Stat card icons ────────────────────────────────────────────────────────────
+// ── Icons ──────────────────────────────────────────────────────────────────────
 
-/** Three horizontal sine-wave lines — used on SPECTRAL DRIFT card. */
+/** Three sine-wave lines — SPECTRAL DRIFT card. */
 @Composable
 private fun WaveIcon(color: Color, modifier: Modifier = Modifier) {
     androidx.compose.foundation.Canvas(modifier = modifier.size(StatIconSize)) {
@@ -491,21 +529,14 @@ private fun WaveIcon(color: Color, modifier: Modifier = Modifier) {
             val y = gap * (row + 0.9f)
             val path = Path().apply {
                 moveTo(0f, y)
-                cubicTo(
-                    w * 0.25f,
-                    y - gap * 0.55f,
-                    w * 0.75f,
-                    y + gap * 0.55f,
-                    w,
-                    y,
-                )
+                cubicTo(w * 0.25f, y - gap * 0.55f, w * 0.75f, y + gap * 0.55f, w, y)
             }
             drawPath(path, color, style = stroke)
         }
     }
 }
 
-/** Filled lightning bolt — used on CALIBRATION card. */
+/** Filled lightning bolt — CALIBRATION card. */
 @Composable
 private fun LightningIcon(color: Color, modifier: Modifier = Modifier) {
     androidx.compose.foundation.Canvas(modifier = modifier.size(StatIconSize)) {
@@ -521,5 +552,106 @@ private fun LightningIcon(color: Color, modifier: Modifier = Modifier) {
             close()
         }
         drawPath(path, color)
+    }
+}
+
+/** Solid filled right-pointing triangle — used as a play icon on the PLAY AGAIN button. */
+@Composable
+private fun PlayIcon(modifier: Modifier = Modifier) {
+    androidx.compose.foundation.Canvas(modifier = modifier.size(16.dp)) {
+        val path = Path().apply {
+            moveTo(0f, 0f)
+            lineTo(size.width, size.height / 2f)
+            lineTo(0f, size.height)
+            close()
+        }
+        drawPath(path, HuezooColors.AccentCyan.onColor)
+    }
+}
+
+/** Decorative ghost exclamation mark — drawn as a large "!" at low alpha. */
+@Composable
+private fun GhostExclamationIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    androidx.compose.foundation.Canvas(modifier = modifier.size(64.dp)) {
+        val cx = size.width / 2f
+        val stemW = size.width * 0.14f
+        val stemTop = size.height * 0.08f
+        val stemBot = size.height * 0.62f
+        val dotTop = size.height * 0.72f
+        val dotBot = size.height * 0.92f
+
+        // Stem
+        drawRoundRect(
+            color = color,
+            topLeft = androidx.compose.ui.geometry.Offset(cx - stemW / 2f, stemTop),
+            size = Size(stemW, stemBot - stemTop),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(stemW / 2f),
+        )
+        // Dot
+        drawRoundRect(
+            color = color,
+            topLeft = androidx.compose.ui.geometry.Offset(cx - stemW / 2f, dotTop),
+            size = Size(stemW, dotBot - dotTop),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(stemW / 2f),
+        )
+    }
+}
+
+// ── Previews ─────────────────────────────────────────────────────────────────
+
+@xyz.ksharma.huezoo.ui.preview.PreviewScreen
+@androidx.compose.runtime.Composable
+private fun ResultThresholdFailurePreview() {
+    xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
+        ReadyContent(
+            state = xyz.ksharma.huezoo.ui.result.state.ResultUiState.Ready(
+                gameId = xyz.ksharma.huezoo.navigation.GameId.THRESHOLD,
+                deltaE = 1.4f,
+                score = 714,
+                roundsSurvived = 4,
+                isNewPersonalBest = false,
+                personalBestDeltaE = 1.2f,
+            ),
+            onPlayAgain = {},
+        )
+    }
+}
+
+@xyz.ksharma.huezoo.ui.preview.PreviewScreen
+@androidx.compose.runtime.Composable
+private fun ResultThresholdElitePreview() {
+    xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
+        ReadyContent(
+            state = xyz.ksharma.huezoo.ui.result.state.ResultUiState.Ready(
+                gameId = xyz.ksharma.huezoo.navigation.GameId.THRESHOLD,
+                deltaE = 0.8f,
+                score = 1250,
+                roundsSurvived = 11,
+                isNewPersonalBest = true,
+                personalBestDeltaE = 0.8f,
+            ),
+            onPlayAgain = {},
+        )
+    }
+}
+
+@xyz.ksharma.huezoo.ui.preview.PreviewScreen
+@androidx.compose.runtime.Composable
+private fun ResultDailyCompletePreview() {
+    xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
+        ReadyContent(
+            state = xyz.ksharma.huezoo.ui.result.state.ResultUiState.Ready(
+                gameId = xyz.ksharma.huezoo.navigation.GameId.DAILY,
+                deltaE = 2.1f,
+                score = 476,
+                roundsSurvived = 1,
+                isNewPersonalBest = false,
+                personalBestDeltaE = null,
+            ),
+            onPlayAgain = {},
+        )
     }
 }
