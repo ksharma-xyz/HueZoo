@@ -35,7 +35,15 @@ class HomeViewModel(
     fun onUiEvent(event: HomeUiEvent) {
         when (event) {
             HomeUiEvent.ScreenResumed -> load()
+            HomeUiEvent.DebugResetTapped -> debugReset()
             else -> Unit // Navigation events handled directly in the screen composable.
+        }
+    }
+
+    private fun debugReset() {
+        viewModelScope.launch {
+            settingsRepository.resetAll()
+            load()
         }
     }
 

@@ -5,10 +5,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -130,17 +132,23 @@ private fun PlayingContent(
 
         Spacer(Modifier.height(HuezooSpacing.xl))
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            state.swatches.forEachIndexed { index, swatch ->
-                SwatchBlock(
-                    color = swatch.color,
-                    state = swatch.displayState.toSwatchBlockState(),
-                    size = SwatchBlockSize.Medium,
-                    onClick = { onSwatchTap(index) },
-                )
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val swatchCount = state.swatches.size
+            val spacing = HuezooSpacing.md
+            val adaptiveSize = ((maxWidth - spacing * (swatchCount - 1)) / swatchCount)
+                .coerceAtMost(SwatchBlockSize.Medium.sizeDp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(spacing),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                state.swatches.forEachIndexed { index, swatch ->
+                    SwatchBlock(
+                        color = swatch.color,
+                        state = swatch.displayState.toSwatchBlockState(),
+                        sizeDp = adaptiveSize,
+                        onClick = { onSwatchTap(index) },
+                    )
+                }
             }
         }
 

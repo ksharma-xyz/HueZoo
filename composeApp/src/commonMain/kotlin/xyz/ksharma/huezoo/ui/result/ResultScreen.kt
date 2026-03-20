@@ -3,10 +3,15 @@ package xyz.ksharma.huezoo.ui.result
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +46,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -239,30 +245,28 @@ private fun ReadyContent(
 
         Spacer(Modifier.height(HuezooSpacing.md))
 
-        // ── 5. Buttons ────────────────────────────────────────────────────────
-        HuezooButton(
-            text = if (isDaily) "BACK TO HOME" else "PLAY AGAIN",
-            onClick = onPlayAgain,
-            variant = HuezooButtonVariant.Primary,
-            leadingIcon = if (!isDaily) {
-                { PlayIcon() }
-            } else null,
+        // ── 5. Buttons — PLAY AGAIN + share icon in same row ─────────────────
+        Row(
             modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(Modifier.height(HuezooSpacing.sm))
-        HuezooButton(
-            text = "SHARE SCORE",
-            onClick = { platformOps.shareText(shareText) },
-            variant = HuezooButtonVariant.GhostDanger,
-            leadingIcon = {
-                Image(
-                    painter = shareIcon,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-        )
+            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            HuezooButton(
+                text = if (isDaily) "BACK TO HOME" else "PLAY AGAIN",
+                onClick = onPlayAgain,
+                variant = HuezooButtonVariant.Primary,
+                leadingIcon = if (!isDaily) {
+                    { PlayIcon() }
+                } else {
+                    null
+                },
+                modifier = Modifier.weight(1f),
+            )
+            ShareIconButton(
+                onClick = { platformOps.shareText(shareText) },
+                icon = shareIcon,
+            )
+        }
 
         Spacer(Modifier.height(HuezooSpacing.md))
     }
@@ -512,6 +516,68 @@ private fun NeonProgressBar(
                 .align(Alignment.CenterStart)
                 .background(color, RoundedCornerShape(4.dp)),
         )
+    }
+}
+
+// ── Icon button ────────────────────────────────────────────────────────────────
+
+private val ShareButtonSize = 52.dp
+private val ShareButtonShelfHeight = 5.dp
+private val ShareButtonShape = RoundedCornerShape(16.dp)
+
+/** Square icon button that matches the HuezooButton press-shelf visual style. */
+@Composable
+private fun ShareIconButton(
+    onClick: () -> Unit,
+    icon: androidx.compose.ui.graphics.painter.Painter,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val pressProgress by animateFloatAsState(
+        targetValue = if (isPressed) 1f else 0f,
+        animationSpec = if (isPressed) {
+            tween(80)
+        } else {
+            spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow,
+            )
+        },
+        label = "sharePress",
+    )
+    val shelfPx = with(LocalDensity.current) { ShareButtonShelfHeight.toPx() }
+
+    Box(modifier = modifier.padding(bottom = ShareButtonShelfHeight)) {
+        Box(
+            modifier = Modifier
+                .size(ShareButtonSize)
+                .graphicsLayer {
+                    translationY = pressProgress * shelfPx
+                    clip = false
+                }
+                .shapedShadow(
+                    ShareButtonShape,
+                    HuezooColors.ShelfMagenta,
+                    offsetX = 0.dp,
+                    offsetY = ShareButtonShelfHeight,
+                )
+                .border(1.dp, HuezooColors.AccentMagenta, ShareButtonShape)
+                .background(Color.Transparent, ShareButtonShape)
+                .clip(ShareButtonShape)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                painter = icon,
+                contentDescription = "Share score",
+                modifier = Modifier.size(20.dp),
+            )
+        }
     }
 }
 

@@ -5,6 +5,9 @@ import android.content.Intent
 
 class AndroidPlatformOps(private val context: Context) : PlatformOps {
 
+    override val isDebugBuild: Boolean
+        get() = context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
+
     override fun shareText(text: String, title: String) {
         val intent = Intent().apply {
             action = Intent.ACTION_SEND

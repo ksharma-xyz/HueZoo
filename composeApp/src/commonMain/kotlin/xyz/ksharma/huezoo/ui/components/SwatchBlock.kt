@@ -8,7 +8,6 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -23,7 +22,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -51,11 +53,18 @@ enum class SwatchBlockState {
 /**
  * A colored swatch block used in the game.
  *
+ * @param sizeDp Optional override for the swatch size. Use this for adaptive sizing
+ *   (e.g. from BoxWithConstraints). Falls back to [size].sizeDp when null.
+ *
  * Animations (baked in):
  * - Appear: scale 0.85 → 1.0, spring bounce (DS.5.5)
- * - Correct tap: scale 1.0 → 1.08 → 1.0 + green border flash (DS.5.6)
+ * - Correct tap: scale 1.0 → 1.08 → 1.0 + green neonStrike + border (DS.5.6)
  * - Wrong tap: shake ±10 dp × 3 cycles + magenta border (DS.5.1)
  * - Press: scale 0.94 instantly, spring release
+ *
+ * Border is drawn via [drawWithContent] (not Modifier.border) so the squircle
+ * path is always respected — Modifier.border with Generic outlines can appear
+ * rectangular inside a graphicsLayer.
  */
 @Composable
 fun SwatchBlock(
@@ -63,15 +72,17 @@ fun SwatchBlock(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     size: SwatchBlockSize = SwatchBlockSize.Medium,
+    sizeDp: Dp? = null,
     state: SwatchBlockState = SwatchBlockState.Default,
 ) {
+    val actualSize = sizeDp ?: size.sizeDp
+
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
     // ── Scale animation ───────────────────────────────────────────────────────
     val scale = remember { Animatable(0.85f) }
 
-    // Appear on first composition
     LaunchedEffect(Unit) {
         scale.animateTo(
             targetValue = 1f,
@@ -135,7 +146,7 @@ fun SwatchBlock(
 
     Box(
         modifier = modifier
-            .size(size.sizeDp)
+            .size(actualSize)
             .graphicsLayer {
                 scaleX = scale.value * pressScale
                 scaleY = scale.value * pressScale
@@ -153,7 +164,23 @@ fun SwatchBlock(
                     else -> Modifier
                 },
             )
-            .border(borderWidth, borderColor, SquircleMedium)
+            // drawWithContent strokes the squircle path directly on top of the background —
+            // avoids Modifier.border(Generic outline) appearing rectangular inside graphicsLayer.
+            .drawWithContent {
+                drawContent()
+                val bw = borderWidth
+                val bc = borderColor
+                if (bw > 0.dp && bc != Color.Transparent) {
+                    val outline = SquircleMedium.createOutline(this.size, layoutDirection, this)
+                    if (outline is Outline.Generic) {
+                        drawPath(
+                            path = outline.path,
+                            color = bc,
+                            style = Stroke(width = bw.toPx()),
+                        )
+                    }
+                }
+            }
             .background(color, SquircleMedium)
             .clip(SquircleMedium)
             .clickable(

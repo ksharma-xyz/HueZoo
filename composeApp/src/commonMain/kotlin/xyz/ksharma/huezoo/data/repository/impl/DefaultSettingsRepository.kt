@@ -29,6 +29,15 @@ class DefaultSettingsRepository(
         next
     }
 
+    override suspend fun resetAll() = withContext(Dispatchers.Default) {
+        val q = db.huezooDatabaseQueries
+        q.deleteAllThresholdSessions()
+        q.deleteAllDailyChallenges()
+        q.deleteAllPersonalBests()
+        q.deleteAllSettings()
+        Unit
+    }
+
     private companion object {
         const val KEY_IS_PAID = "is_paid"
         const val KEY_TOTAL_GEMS = "total_gems"

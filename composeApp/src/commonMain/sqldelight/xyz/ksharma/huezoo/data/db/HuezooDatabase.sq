@@ -52,3 +52,16 @@ SELECT value FROM user_settings WHERE key = ?;
 
 setSetting:
 INSERT OR REPLACE INTO user_settings(key, value) VALUES (?, ?);
+
+-- Debug / reset queries
+deleteAllThresholdSessions:
+DELETE FROM threshold_session;
+
+deleteAllDailyChallenges:
+DELETE FROM daily_challenge;
+
+deleteAllPersonalBests:
+DELETE FROM personal_best;
+
+deleteAllSettings:
+DELETE FROM user_settings;

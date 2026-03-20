@@ -9,8 +9,13 @@ import platform.Foundation.NSOperationQueue
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 import platform.UIKit.popoverPresentationController
+import kotlin.experimental.ExperimentalNativeApi
 
 class IosPlatformOps : PlatformOps {
+
+    @OptIn(ExperimentalNativeApi::class)
+    override val isDebugBuild: Boolean
+        get() = Platform.isDebugBinary
 
     @OptIn(ExperimentalForeignApi::class)
     override fun shareText(text: String, title: String) {

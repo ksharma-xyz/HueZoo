@@ -22,11 +22,15 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.ThresholdGame
+import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.GameCard
+import xyz.ksharma.huezoo.ui.components.HuezooButton
+import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.home.state.DailyCardData
 import xyz.ksharma.huezoo.ui.home.state.HomeUiEvent
@@ -46,6 +50,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val platformOps: PlatformOps = koinInject()
 
     // Re-load every time HomeScreen becomes the active top entry (e.g. returning from a game).
     LifecycleResumeEffect(Unit) {
@@ -65,6 +70,8 @@ fun HomeScreen(
                     state = state,
                     onThresholdTap = { onNavigate(ThresholdGame) },
                     onDailyTap = { onNavigate(DailyGame) },
+                    showDebugReset = platformOps.isDebugBuild,
+                    onDebugReset = { viewModel.onUiEvent(HomeUiEvent.DebugResetTapped) },
                 )
             }
         }
@@ -77,6 +84,8 @@ private fun ReadyContent(
     onThresholdTap: () -> Unit,
     onDailyTap: () -> Unit,
     modifier: Modifier = Modifier,
+    showDebugReset: Boolean = false,
+    onDebugReset: () -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -94,6 +103,16 @@ private fun ReadyContent(
 
         StaggeredCard(index = 1) {
             DailyCard(data = state.daily, onClick = onDailyTap)
+        }
+
+        if (showDebugReset) {
+            Spacer(Modifier.height(HuezooSpacing.xl))
+            HuezooButton(
+                text = "DEBUG: RESET ALL",
+                onClick = onDebugReset,
+                variant = HuezooButtonVariant.GhostDanger,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
