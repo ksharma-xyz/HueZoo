@@ -44,13 +44,6 @@ class HomeViewModel(
         }
     }
 
-    private fun debugReset() {
-        viewModelScope.launch {
-            settingsRepository.resetAll()
-            load()
-        }
-    }
-
     private fun load() {
         viewModelScope.launch {
             val now = Clock.System.now()
