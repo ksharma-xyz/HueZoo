@@ -1,8 +1,6 @@
 package xyz.ksharma.huezoo.ui.splash
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -23,7 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -43,60 +40,41 @@ import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 
 /**
- * Animated neon-sign splash screen.
+ * Splash screen: static wordmark → ZOO tube-light flicker → full lit.
  *
- * Visual concept: "HUE" is always solid bold cyan — the colour is already lit.
- * "ZOO" starts as an outline (unlit tube) then flickers to life like a neon sign.
+ * "HUE" appears solid (the colour is already alive).
+ * "ZOO" appears as an outline (unlit neon tube), waits, then flickers to life.
+ * No entrance animation — the flicker IS the moment.
  *
  * Timeline (~2.8 s total):
- *   0 ms     — dark background, nothing visible
- *   0–500ms  — scanner illustration glows in
- *   250–700ms — "HUEZOO" wordmark springs in; HUE solid, ZOO outlined
- *   700ms    — tube-light flicker sequence on ZOO + background glow pulses
- *   ~1300ms  — ZOO settles solid; tagline fades in
- *   1650ms   — hold
- *   2450ms   — screen fades to black → [onFinished]
- *
- * Back press from Home never returns here — Splash is removed from the back stack on exit.
+ *   0 ms    — solid dark background; corner brackets fade in
+ *   0 ms    — "HUE" solid + "ZOO" outline appear immediately (static)
+ *   500 ms  — pause so the unlit outline registers
+ *   500 ms  — ZOO tube-light flicker sequence (~650 ms)
+ *   1150 ms — ZOO settled solid with cyan glow; tagline fades in
+ *   1500 ms — hold
+ *   2300 ms — screen fades to black → [onFinished]
  */
 @Composable
 fun SplashScreen(
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val glowAlpha = remember { Animatable(0f) }
-    val wordmarkAlpha = remember { Animatable(0f) }
-    val wordmarkScale = remember { Animatable(0.88f) }
-    // zooFilled drives the HUE=solid / ZOO=outline vs ZOO=filled split
+    val bracketsAlpha = remember { Animatable(0f) }
     var zooFilled by remember { mutableStateOf(false) }
-    // zooGlowAlpha controls the bright bloom behind ZOO in the illustration
     val zooGlowAlpha = remember { Animatable(0f) }
     val taglineAlpha = remember { Animatable(0f) }
     val screenAlpha = remember { Animatable(1f) }
 
     LaunchedEffect(Unit) {
-        // Phase 1 — scanner illustration blooms in
-        launch { glowAlpha.animateTo(1f, tween(500)) }
+        // Corner brackets fade in immediately
+        launch { bracketsAlpha.animateTo(1f, tween(400)) }
 
-        delay(250)
+        // Wordmark is static — no entrance animation, just wait for eye to register
+        delay(500)
 
-        // Phase 2 — wordmark springs in (HUE solid, ZOO outline at start)
-        launch { wordmarkAlpha.animateTo(1f, tween(400)) }
-        launch {
-            wordmarkScale.animateTo(
-                targetValue = 1f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMediumLow,
-                ),
-            )
-        }
-
-        delay(700) // wait for wordmark to settle before flicker
-
-        // Phase 3 — tube-light flicker on ZOO
-        // Pattern: [lit, holdMs] — each on-flash also pulses the background glow
-        val flickers = listOf(
+        // Tube-light flicker on ZOO
+        listOf(
             true  to 80L,
             false to 55L,
             true  to 50L,
@@ -105,23 +83,21 @@ fun SplashScreen(
             false to 40L,
             true  to 65L,
             false to 90L,
-            true  to 0L,  // final — stays lit
-        )
-        flickers.forEach { (lit, holdMs) ->
+            true  to 0L,   // stays lit
+        ).forEach { (lit, holdMs) ->
             zooFilled = lit
             zooGlowAlpha.snapTo(if (lit) 1f else 0f)
             if (holdMs > 0L) delay(holdMs)
         }
 
-        // Phase 4 — tagline appears after ZOO lights up
-        delay(200)
-        taglineAlpha.animateTo(1f, tween(350))
+        // Tagline after ZOO is lit
+        delay(150)
+        taglineAlpha.animateTo(1f, tween(300))
 
-        // Phase 5 — hold
+        // Hold
         delay(800)
 
-        // Phase 6 — fade out and navigate
-        launch { glowAlpha.animateTo(0f, tween(400)) }
+        // Fade out → navigate
         launch { zooGlowAlpha.animateTo(0f, tween(400)) }
         screenAlpha.animateTo(0f, tween(500))
         onFinished()
@@ -134,8 +110,8 @@ fun SplashScreen(
             .background(HuezooColors.Background),
         contentAlignment = Alignment.Center,
     ) {
-        SplashIllustration(
-            glowAlpha = { glowAlpha.value },
+        SplashBackground(
+            bracketsAlpha = { bracketsAlpha.value },
             zooGlowAlpha = { zooGlowAlpha.value },
         )
 
@@ -146,22 +122,14 @@ fun SplashScreen(
                 fontStyle = FontStyle.Italic,
             )
 
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier.graphicsLayer {
-                    alpha = wordmarkAlpha.value
-                    scaleX = wordmarkScale.value
-                    scaleY = wordmarkScale.value
-                },
-            ) {
-                // "HUE" — always solid bold fill
+            Row(verticalAlignment = Alignment.Bottom) {
+                // HUE — always solid; the colour is already alive
                 Text(
                     text = "HUE",
                     style = baseStyle,
                     color = HuezooColors.AccentCyan,
                 )
-
-                // "ZOO" — outline until flicker sequence completes, then solid + glow
+                // ZOO — outline (unlit tube) until flicker completes, then solid + glow
                 Text(
                     text = "ZOO",
                     style = if (zooFilled) {
@@ -195,192 +163,99 @@ fun SplashScreen(
     }
 }
 
-// ── Background illustration ───────────────────────────────────────────────────
+// ── Background canvas ─────────────────────────────────────────────────────────
 
 /**
- * Tactical scanner canvas — dot grid, radial bloom, arcs, corner brackets,
- * crosshair, scan lines. All elements driven by [glowAlpha].
- *
- * [zooGlowAlpha] adds an extra right-biased bloom that pulses with each
- * flicker of the ZOO letters, reinforcing the tube-light effect.
- *
- * Both values taken as lambdas so they're read at draw time — no recomposition
- * overhead during animation frames.
+ * Minimal solid-background canvas — dots, corner brackets, and the ZOO flicker bloom.
+ * No radial glow blooms or arcs; keeps the background truly solid and uncluttered
+ * so the wordmark and flicker stay in focus.
  */
 @Composable
-private fun SplashIllustration(
-    glowAlpha: () -> Float,
+private fun SplashBackground(
+    bracketsAlpha: () -> Float,
     zooGlowAlpha: () -> Float,
     modifier: Modifier = Modifier,
 ) {
-    val baseColor = HuezooColors.AccentCyan
+    val color = HuezooColors.AccentCyan
 
     Canvas(modifier = modifier.fillMaxSize()) {
         val w = size.width
         val h = size.height
         val cx = w / 2f
         val cy = h / 2f
-        val ga = glowAlpha()
-        val zga = zooGlowAlpha()
         val sw = 1.dp.toPx()
+        val ba = bracketsAlpha()
+        val zga = zooGlowAlpha()
 
-        // ── 1. Dot grid ──────────────────────────────────────────────────────
-        val dotStep = 24.dp.toPx()
-        val dotR = 1.1.dp.toPx()
-        var gx = dotStep / 2f
+        // ── Dot grid — very subtle, always on ────────────────────────────────
+        val step = 26.dp.toPx()
+        val dotR = 1.dp.toPx()
+        var gx = step / 2f
         while (gx <= w) {
-            var gy = dotStep / 2f
+            var gy = step / 2f
             while (gy <= h) {
-                drawCircle(
-                    color = baseColor.copy(alpha = 0.045f),
-                    radius = dotR,
-                    center = Offset(gx, gy),
-                )
-                gy += dotStep
+                drawCircle(color.copy(alpha = 0.04f), dotR, Offset(gx, gy))
+                gy += step
             }
-            gx += dotStep
+            gx += step
         }
 
-        // ── 2. Base radial glow bloom (driven by glowAlpha) ──────────────────
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    baseColor.copy(alpha = ga * 0.20f),
-                    baseColor.copy(alpha = ga * 0.07f),
-                    Color.Transparent,
-                ),
-                center = Offset(cx, cy),
-                radius = w * 0.72f,
-            ),
-            radius = w * 0.72f,
-            center = Offset(cx, cy),
-        )
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    baseColor.copy(alpha = ga * 0.18f),
-                    Color.Transparent,
-                ),
-                center = Offset(cx, cy),
-                radius = w * 0.30f,
-            ),
-            radius = w * 0.30f,
-            center = Offset(cx, cy),
-        )
-
-        // ── 3. ZOO tube-light flash bloom (right-biased, driven by zooGlowAlpha) ──
-        // Placed slightly right of center where ZOO letters sit in the wordmark.
-        if (zga > 0f) {
-            val zooBloomCx = cx + 52.dp.toPx()
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        baseColor.copy(alpha = zga * 0.45f),
-                        baseColor.copy(alpha = zga * 0.15f),
-                        Color.Transparent,
-                    ),
-                    center = Offset(zooBloomCx, cy),
-                    radius = 100.dp.toPx(),
-                ),
-                radius = 100.dp.toPx(),
-                center = Offset(zooBloomCx, cy),
-            )
-        }
-
-        // ── 4. Concentric partial arcs (scanner rings) ───────────────────────
-        listOf(75.dp.toPx(), 140.dp.toPx(), 215.dp.toPx()).forEachIndexed { i, r ->
-            val arcAlpha = ga * (0.12f - i * 0.028f).coerceAtLeast(0.02f)
-            drawArc(
-                color = baseColor.copy(arcAlpha),
-                startAngle = -200f,
-                sweepAngle = 220f,
-                useCenter = false,
-                topLeft = Offset(cx - r, cy - r),
-                size = Size(r * 2f, r * 2f),
-                style = Stroke(sw),
-            )
-            val ticks = 8 + i * 4
-            for (t in 0..ticks) {
-                val angleDeg = -200f + t * (220f / ticks.toFloat())
-                val rad = angleDeg * kotlin.math.PI.toFloat() / 180f
-                val cosA = kotlin.math.cos(rad.toDouble()).toFloat()
-                val sinA = kotlin.math.sin(rad.toDouble()).toFloat()
-                val isMajor = t % 4 == 0
-                val tickLen = if (isMajor) 5.dp.toPx() else 2.5.dp.toPx()
-                val tickAlpha = (if (isMajor) arcAlpha * 1.7f else arcAlpha).coerceAtMost(0.5f)
-                drawLine(
-                    baseColor.copy(tickAlpha),
-                    Offset(cx + (r - tickLen) * cosA, cy + (r - tickLen) * sinA),
-                    Offset(cx + r * cosA, cy + r * sinA),
-                    sw,
-                )
-            }
-        }
-
-        // ── 5. Military corner brackets ──────────────────────────────────────
-        val bLen = 22.dp.toPx()
-        val bAlpha = ga * 0.38f
-        val bSw = sw * 2f
+        // ── Military corner brackets — fade in with bracketsAlpha ─────────────
+        val bLen = 24.dp.toPx()
+        val bAlpha = ba * 0.40f
+        val bSw = sw * 2.2f
         listOf(
             Offset(0f, 0f) to Pair(1f, 1f),
             Offset(w, 0f) to Pair(-1f, 1f),
             Offset(0f, h) to Pair(1f, -1f),
             Offset(w, h) to Pair(-1f, -1f),
-        ).forEach { (origin, dir) ->
-            drawLine(baseColor.copy(bAlpha), origin, Offset(origin.x + dir.first * bLen, origin.y), bSw)
-            drawLine(baseColor.copy(bAlpha), origin, Offset(origin.x, origin.y + dir.second * bLen), bSw)
+        ).forEach { (o, d) ->
+            drawLine(color.copy(bAlpha), o, Offset(o.x + d.first * bLen, o.y), bSw)
+            drawLine(color.copy(bAlpha), o, Offset(o.x, o.y + d.second * bLen), bSw)
         }
 
-        // ── 6. Crosshair with gap around logo ────────────────────────────────
-        val crossAlpha = ga * 0.09f
-        val gapR = 88.dp.toPx()
-        drawLine(baseColor.copy(crossAlpha), Offset(0f, cy), Offset(cx - gapR, cy), sw)
-        drawLine(baseColor.copy(crossAlpha), Offset(cx + gapR, cy), Offset(w, cy), sw)
-        drawLine(baseColor.copy(crossAlpha), Offset(cx, 0f), Offset(cx, cy - gapR), sw)
-        drawLine(baseColor.copy(crossAlpha), Offset(cx, cy + gapR), Offset(cx, h), sw)
-
-        // ── 7. Horizontal scan lines ──────────────────────────────────────────
-        val scanAlpha = ga * 0.06f
-        listOf(cy - 110.dp.toPx(), cy + 110.dp.toPx()).forEach { scanY ->
-            drawLine(baseColor.copy(scanAlpha), Offset(0f, scanY), Offset(w, scanY), sw)
-            var tx = 0f
-            while (tx < w) {
-                drawLine(
-                    baseColor.copy(scanAlpha * 1.8f),
-                    Offset(tx, scanY - 3.dp.toPx()),
-                    Offset(tx, scanY + 3.dp.toPx()),
-                    sw * 0.8f,
-                )
-                tx += 18.dp.toPx()
-            }
+        // ── ZOO flicker bloom — right-biased, pulses with each flash ─────────
+        if (zga > 0f) {
+            val boomCx = cx + 54.dp.toPx()
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        color.copy(alpha = zga * 0.40f),
+                        color.copy(alpha = zga * 0.12f),
+                        Color.Transparent,
+                    ),
+                    center = Offset(boomCx, cy),
+                    radius = 110.dp.toPx(),
+                ),
+                radius = 110.dp.toPx(),
+                center = Offset(boomCx, cy),
+            )
         }
     }
 }
 
 // ── Previews ──────────────────────────────────────────────────────────────────
 
-/** Preview at initial state: ZOO outlined, HUE solid. */
 @PreviewScreen
 @Composable
-private fun SplashOutlinePreview() {
+private fun SplashUnlitPreview() {
     HuezooPreviewTheme {
         Box(
             modifier = Modifier.fillMaxSize().background(HuezooColors.Background),
             contentAlignment = Alignment.Center,
         ) {
-            SplashIllustration(glowAlpha = { 1f }, zooGlowAlpha = { 0f })
-            val baseStyle = MaterialTheme.typography.displayLarge.copy(
+            SplashBackground(bracketsAlpha = { 1f }, zooGlowAlpha = { 0f })
+            val base = MaterialTheme.typography.displayLarge.copy(
                 fontSize = 96.sp, lineHeight = 100.sp, fontStyle = FontStyle.Italic,
             )
             Row(verticalAlignment = Alignment.Bottom) {
-                Text("HUE", style = baseStyle, color = HuezooColors.AccentCyan)
-                Text("ZOO", style = baseStyle.copy(drawStyle = Stroke(width = 5f)), color = HuezooColors.AccentCyan)
+                Text("HUE", style = base, color = HuezooColors.AccentCyan)
+                Text("ZOO", style = base.copy(drawStyle = Stroke(width = 5f)), color = HuezooColors.AccentCyan)
             }
         }
     }
 }
 
-/** Preview at final state: both solid, glow active, tagline visible. */
 @PreviewScreen
 @Composable
 private fun SplashLitPreview() {
@@ -389,16 +264,16 @@ private fun SplashLitPreview() {
             modifier = Modifier.fillMaxSize().background(HuezooColors.Background),
             contentAlignment = Alignment.Center,
         ) {
-            SplashIllustration(glowAlpha = { 1f }, zooGlowAlpha = { 1f })
-            val baseStyle = MaterialTheme.typography.displayLarge.copy(
+            SplashBackground(bracketsAlpha = { 1f }, zooGlowAlpha = { 1f })
+            val base = MaterialTheme.typography.displayLarge.copy(
                 fontSize = 96.sp, lineHeight = 100.sp, fontStyle = FontStyle.Italic,
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(verticalAlignment = Alignment.Bottom) {
-                    Text("HUE", style = baseStyle, color = HuezooColors.AccentCyan)
+                    Text("HUE", style = base, color = HuezooColors.AccentCyan)
                     Text(
                         "ZOO",
-                        style = baseStyle.copy(
+                        style = base.copy(
                             drawStyle = Fill,
                             shadow = Shadow(
                                 color = HuezooColors.AccentCyan.copy(alpha = 0.85f),
@@ -411,7 +286,7 @@ private fun SplashLitPreview() {
                 }
                 Spacer(Modifier.height(HuezooSpacing.md))
                 Text(
-                    text = "IDENTIFY  THE  OUTLIER",
+                    "IDENTIFY  THE  OUTLIER",
                     style = MaterialTheme.typography.labelMedium,
                     color = HuezooColors.TextDisabled,
                     fontWeight = FontWeight.SemiBold,
