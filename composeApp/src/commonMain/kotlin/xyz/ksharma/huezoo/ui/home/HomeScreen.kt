@@ -286,17 +286,18 @@ private fun StatsSection(
                 // Gem spill illustration — behind text
                 GemSpillIllustration(modifier = Modifier.matchParentSize())
 
-                Row(verticalAlignment = Alignment.Bottom) {
+                Row {
                     HuezooDisplayMedium(
                         text = formatGems(totalGems),
                         color = HuezooColors.TextPrimary,
+                        modifier = Modifier.alignByBaseline(),
                     )
                     Spacer(Modifier.width(HuezooSpacing.xs))
                     HuezooLabelSmall(
                         text = "GEMS",
                         color = HuezooColors.AccentCyan,
                         fontWeight = FontWeight.ExtraBold,
-                        modifier = Modifier.padding(bottom = 4.dp),
+                        modifier = Modifier.alignByBaseline(),
                     )
                 }
             }
