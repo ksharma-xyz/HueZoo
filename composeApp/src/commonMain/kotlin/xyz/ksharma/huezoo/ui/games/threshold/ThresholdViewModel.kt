@@ -23,6 +23,7 @@ import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
+import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -54,6 +55,15 @@ class ThresholdViewModel(
     private var bestDeltaE: Float? = null
     private var baseColor: Color = Color.Unspecified
     private var totalGems: Int = 0
+    /** Tracks the last-used layout style to avoid showing the same shape twice in a row. */
+    private var lastLayoutStyle: SwatchLayoutStyle? = null
+
+    /**
+     * Increments on every [emitRound] call — correct taps AND wrong-tap-resets.
+     * Drives the `roundKey` in [RadialSwatchLayout] so the unfold animation always fires.
+     * [roundCount] only increments on correct taps (it's what's shown in the HUD).
+     */
+    private var roundGeneration = 0
 
     init {
         loadGame()
@@ -107,6 +117,7 @@ class ThresholdViewModel(
     private fun emitRound() {
         val round = gameEngine.generateRound(baseColor, currentDeltaE)
         oddIndex = round.oddIndex
+        roundGeneration++
         _uiState.value = ThresholdUiState.Playing(
             swatches = round.swatches.map { SwatchUiModel(it) },
             deltaE = currentDeltaE,
@@ -114,7 +125,19 @@ class ThresholdViewModel(
             attemptsRemaining = triesRemaining,
             roundPhase = RoundPhase.Idle,
             totalGems = totalGems,
+            layoutStyle = pickLayoutStyle(),
+            roundGeneration = roundGeneration,
         )
+    }
+
+    /**
+     * Returns a random [SwatchLayoutStyle] that is different from [lastLayoutStyle],
+     * so the same shape never appears in two consecutive rounds.
+     */
+    private fun pickLayoutStyle(): SwatchLayoutStyle {
+        val all = SwatchLayoutStyle.entries
+        val candidates = if (lastLayoutStyle != null) all.filter { it != lastLayoutStyle } else all
+        return candidates.random().also { lastLayoutStyle = it }
     }
 
     private fun handleSwatchTap(index: Int) {
