@@ -973,12 +973,12 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
             ) {
                 HuezooBodyMedium(
                     text = "ΔE is how different two colors look to your eyes.\n\nThink of it like " +
-                            "this — ΔE 10 is like red vs blue, obvious. ΔE 1 is like two blues " +
-                            "that look almost the same. The lower the number, the sneakier " +
+                            "this — ΔE 10 is like red vs blue, obvious.\nΔE 1 is like two blues " +
+                            "that look almost the same.\n\nThe lower the number, the sneakier " +
                             "the odd color is.",
                     color = HuezooColors.TextSecondary,
                 )
-                Spacer(Modifier.height(HuezooSpacing.sm))
+                Spacer(Modifier.height(HuezooSpacing.md))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
