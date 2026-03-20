@@ -40,9 +40,12 @@ class ThresholdViewModel(
     // Mutable game state — not exposed directly in UiState to keep state atomic.
     private var currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
     private var roundCount = 1
-    private var attemptsRemaining = ThresholdGameEngine.MAX_ATTEMPTS
+    // Tracks the total number of tries (lives) remaining for this session.
+    // Each wrong tap consumes one try and records a DB attempt.
+    private var triesRemaining = 0
     private var oddIndex = 0
-    private var lastSuccessfulDeltaE: Float? = null
+    // Best (lowest) ΔE achieved across all lives in this session.
+    private var bestDeltaE: Float? = null
     private var baseColor: Color = Color.Unspecified
 
     init {
@@ -82,12 +85,13 @@ class ThresholdViewModel(
     }
 
     private suspend fun startGame(status: AttemptStatus.Available) {
-        repository.recordAttempt(Clock.System.now())
+        // Attempts are recorded per wrong tap, not per game start.
+        // Lives = total remaining attempts in the current 8-hour window.
         baseColor = colorEngine.randomVividColor()
         currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
         roundCount = 1
-        lastSuccessfulDeltaE = null
-        attemptsRemaining = status.maxAttempts - (status.attemptsUsed + 1)
+        bestDeltaE = null
+        triesRemaining = status.maxAttempts - status.attemptsUsed
         emitRound()
     }
 
@@ -98,7 +102,7 @@ class ThresholdViewModel(
             swatches = round.swatches.map { SwatchUiModel(it) },
             deltaE = currentDeltaE,
             round = roundCount,
-            attemptsRemaining = attemptsRemaining,
+            attemptsRemaining = triesRemaining,
             roundPhase = RoundPhase.Idle,
         )
     }
@@ -115,7 +119,8 @@ class ThresholdViewModel(
     }
 
     private fun handleCorrectTap(state: ThresholdUiState.Playing) {
-        lastSuccessfulDeltaE = currentDeltaE
+        val currentBest = bestDeltaE
+        bestDeltaE = if (currentBest == null) currentDeltaE else minOf(currentBest, currentDeltaE)
         _uiState.value = state.copy(
             swatches = state.swatches.mapIndexed { i, s ->
                 if (i == oddIndex) s.copy(displayState = SwatchDisplayState.Correct) else s
@@ -132,6 +137,7 @@ class ThresholdViewModel(
     }
 
     private fun handleWrongTap(state: ThresholdUiState.Playing, tappedIndex: Int) {
+        val sting = wrongStingCopy(currentDeltaE)
         _uiState.value = state.copy(
             swatches = state.swatches.mapIndexed { i, s ->
                 when (i) {
@@ -141,29 +147,50 @@ class ThresholdViewModel(
                 }
             },
             roundPhase = RoundPhase.Wrong,
+            stingCopy = sting,
         )
         viewModelScope.launch {
+            // Record one attempt per wrong tap (consumes a life from the 8-hour pool).
+            repository.recordAttempt(Clock.System.now())
+            triesRemaining--
+
             delay(ANIMATION_WRONG_MS)
-            val score = lastSuccessfulDeltaE
-                ?.let { colorEngine.scoreFromDeltaE(it) }
-                ?: 0
-            val roundsSurvived = roundCount - 1
-            repository.savePersonalBest(currentDeltaE, score)
-            _navEvent.emit(
-                ThresholdNavEvent.NavigateToResult(
-                    Result(
-                        gameId = GameId.THRESHOLD,
-                        deltaE = currentDeltaE,
-                        roundsSurvived = roundsSurvived,
-                        score = score,
+
+            if (triesRemaining > 0) {
+                // Still has lives — reset ΔE, keep cumulative round count.
+                currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
+                emitRound()
+            } else {
+                // All lives spent → navigate to result.
+                val finalDeltaE = bestDeltaE ?: currentDeltaE
+                val score = colorEngine.scoreFromDeltaE(finalDeltaE)
+                val roundsSurvived = roundCount - 1
+                repository.savePersonalBest(finalDeltaE, score)
+                _navEvent.emit(
+                    ThresholdNavEvent.NavigateToResult(
+                        Result(
+                            gameId = GameId.THRESHOLD,
+                            deltaE = finalDeltaE,
+                            roundsSurvived = roundsSurvived,
+                            score = score,
+                        ),
                     ),
-                ),
-            )
+                )
+            }
         }
+    }
+
+    private fun wrongStingCopy(deltaE: Float): String = when {
+        deltaE > 4f -> "Too easy. You missed anyway."
+        deltaE > 3f -> "Your eyes chose... wrong."
+        deltaE > 2f -> "So close. And yet."
+        deltaE > 1f -> "You had it. Your brain didn't."
+        deltaE > 0.5f -> "Elite miss. That stings, right?"
+        else -> "Superhuman territory. And you fumbled."
     }
 
     private companion object {
         const val ANIMATION_CORRECT_MS = 350L
-        const val ANIMATION_WRONG_MS = 450L
+        const val ANIMATION_WRONG_MS = 850L
     }
 }

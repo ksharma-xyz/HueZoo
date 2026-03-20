@@ -21,6 +21,8 @@ sealed interface ThresholdUiState {
         val round: Int,
         val attemptsRemaining: Int,
         val roundPhase: RoundPhase,
+        /** Ego-sting shown during Wrong phase; null otherwise. */
+        val stingCopy: String? = null,
     ) : ThresholdUiState
 }
 

@@ -1,5 +1,9 @@
 package xyz.ksharma.huezoo.ui.games.threshold
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +18,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import huezoo.composeapp.generated.resources.Res
 import huezoo.composeapp.generated.resources.ic_gem
@@ -27,6 +33,7 @@ import xyz.ksharma.huezoo.ui.components.SkewedStatChip
 import xyz.ksharma.huezoo.ui.components.SwatchBlock
 import xyz.ksharma.huezoo.ui.components.SwatchBlockSize
 import xyz.ksharma.huezoo.ui.components.SwatchBlockState
+import xyz.ksharma.huezoo.ui.games.threshold.state.RoundPhase
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
@@ -126,11 +133,31 @@ private fun PlayingContent(
         }
 
         Spacer(Modifier.height(HuezooSpacing.lg))
-        Text(
-            text = "Tap the odd one out",
-            style = MaterialTheme.typography.bodyMedium,
-            color = HuezooColors.TextSecondary,
-        )
+
+        // During Wrong phase: sting copy replaces the instruction text
+        AnimatedVisibility(
+            visible = state.roundPhase == RoundPhase.Wrong && state.stingCopy != null,
+            enter = fadeIn(tween(200)),
+            exit = fadeOut(tween(300)),
+        ) {
+            Text(
+                text = state.stingCopy.orEmpty(),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = HuezooColors.AccentMagenta,
+                textAlign = TextAlign.Center,
+            )
+        }
+        AnimatedVisibility(
+            visible = state.roundPhase != RoundPhase.Wrong,
+            enter = fadeIn(tween(200)),
+            exit = fadeOut(tween(150)),
+        ) {
+            Text(
+                text = "Tap the odd one out",
+                style = MaterialTheme.typography.bodyMedium,
+                color = HuezooColors.TextSecondary,
+            )
+        }
     }
 }
 

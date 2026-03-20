@@ -201,6 +201,10 @@ Paywall Sheet
 - [ ] UX.7.3 On level-up (ΔE crosses a tier boundary): brief tier-change pulse animation on DeltaEBadge (already partially specced DS.5) + "LEVEL UP" micro-text flash
 - [ ] UX.7.4 First-round tooltip copy: "Lower ΔE = harder to spot. Go as low as you can." (one-time, dismisses on first tap)
 
+#### UX.8 — Correct Swatch Dismiss Animation
+*Make the correct tap feel viscerally satisfying.*
+- [ ] UX.8.0 Design + implement a cool dismiss animation for the correct swatch (pop → scale to 0, or shatter, or glow-burst + implode — pick the most satisfying one). Consider: animate just the odd-colored swatch (the different one) vs both same-colored blocks.
+
 #### UX.8 — Streak System
 *Reward consecutive correct taps — make the player feel momentum.*
 - [ ] UX.8.1 Track consecutive correct taps in ThresholdGameEngine (`correctStreak: Int`)
