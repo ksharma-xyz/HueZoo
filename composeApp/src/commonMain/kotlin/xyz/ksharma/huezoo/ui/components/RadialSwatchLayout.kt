@@ -31,6 +31,7 @@ import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
+import xyz.ksharma.huezoo.ui.model.SwatchSize
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
@@ -40,6 +41,14 @@ import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.SquircleMedium
 import xyz.ksharma.huezoo.ui.theme.SquircleSmall
 import xyz.ksharma.huezoo.ui.theme.SwatchPetal
+
+// ── Active swatch size ────────────────────────────────────────────────────────
+
+/**
+ * Swap between [SwatchSize.Normal] and [SwatchSize.Medium] here to toggle tile size.
+ * Users always see whichever value is set here — this is not exposed to the UI layer.
+ */
+internal val ACTIVE_SWATCH_SIZE = SwatchSize.Medium
 
 // ── Layout configs ────────────────────────────────────────────────────────────
 
@@ -65,49 +74,38 @@ private data class RadialConfig(
 
 private val SHARED_CONTAINER = 300.dp
 
-private fun configFor(style: SwatchLayoutStyle): RadialConfig = when (style) {
-    // Petals taper toward centre — slight tangential overlap is intentional (natural flower feel).
-    SwatchLayoutStyle.Flower -> RadialConfig(
-        tileWidth = 84.dp,
-        tileHeight = 116.dp,
-        containerSize = SHARED_CONTAINER,
-        centerGap = 18.dp,
-        uniformScale = false,
-    )
-    // Hexagons: uniform scale so they pop out symmetrically.
-    // 60 dp tiles at 28 dp gap → tangential slot ≈ 63 dp — tiles just clear each other.
-    SwatchLayoutStyle.HexRing -> RadialConfig(
-        tileWidth = 60.dp,
-        tileHeight = 60.dp,
-        containerSize = SHARED_CONTAINER,
-        centerGap = 28.dp,
-        uniformScale = true,
-    )
-    // Squircles: uniform scale, small gap for a clean orbit feel.
-    // 58 dp tiles at 32 dp gap → tangential slot ≈ 64 dp — clear spacing.
-    SwatchLayoutStyle.SquircleOrbit -> RadialConfig(
-        tileWidth = 58.dp,
-        tileHeight = 58.dp,
-        containerSize = SHARED_CONTAINER,
-        centerGap = 32.dp,
-        uniformScale = true,
-    )
-    // Spokes are narrow (36 dp) so there's generous air between them at any radius.
-    SwatchLayoutStyle.SpokeBlades -> RadialConfig(
-        tileWidth = 36.dp,
-        tileHeight = 92.dp,
-        containerSize = SHARED_CONTAINER,
-        centerGap = 24.dp,
-        uniformScale = false,
-    )
-    // Diamonds at 54 dp with 28 dp gap → tangential slot ≈ 58 dp — clear spacing.
-    SwatchLayoutStyle.DiamondHalo -> RadialConfig(
-        tileWidth = 54.dp,
-        tileHeight = 54.dp,
-        containerSize = SHARED_CONTAINER,
-        centerGap = 28.dp,
-        uniformScale = false,
-    )
+/**
+ * Returns the layout geometry for [style] at the given [size].
+ *
+ * Container stays fixed at [SHARED_CONTAINER] = 300 dp so the layout never overflows its
+ * parent. For [SwatchSize.Medium] (1.2×) the tile dimensions grow; [centerGap] is trimmed
+ * only where needed (Flower, SpokeBlades) to keep outer tile tips inside the container.
+ *
+ * Derivation for overflow safety:
+ *   max tile reach = containerSize/2 + centerGap + tileHeight ≤ containerSize
+ *   → centerGap ≤ containerSize/2 − tileHeight
+ */
+private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig = when (style) {
+    SwatchLayoutStyle.Flower -> when (size) {
+        SwatchSize.Normal -> RadialConfig(84.dp,  116.dp, SHARED_CONTAINER, centerGap = 18.dp)
+        SwatchSize.Medium -> RadialConfig(101.dp, 139.dp, SHARED_CONTAINER, centerGap = 10.dp)
+    }
+    SwatchLayoutStyle.HexRing -> when (size) {
+        SwatchSize.Normal -> RadialConfig(60.dp, 60.dp, SHARED_CONTAINER, centerGap = 28.dp, uniformScale = true)
+        SwatchSize.Medium -> RadialConfig(72.dp, 72.dp, SHARED_CONTAINER, centerGap = 28.dp, uniformScale = true)
+    }
+    SwatchLayoutStyle.SquircleOrbit -> when (size) {
+        SwatchSize.Normal -> RadialConfig(58.dp, 58.dp, SHARED_CONTAINER, centerGap = 32.dp, uniformScale = true)
+        SwatchSize.Medium -> RadialConfig(70.dp, 70.dp, SHARED_CONTAINER, centerGap = 28.dp, uniformScale = true)
+    }
+    SwatchLayoutStyle.SpokeBlades -> when (size) {
+        SwatchSize.Normal -> RadialConfig(36.dp,  92.dp, SHARED_CONTAINER, centerGap = 24.dp)
+        SwatchSize.Medium -> RadialConfig(43.dp, 110.dp, SHARED_CONTAINER, centerGap = 18.dp)
+    }
+    SwatchLayoutStyle.DiamondHalo -> when (size) {
+        SwatchSize.Normal -> RadialConfig(54.dp, 54.dp, SHARED_CONTAINER, centerGap = 28.dp)
+        SwatchSize.Medium -> RadialConfig(65.dp, 65.dp, SHARED_CONTAINER, centerGap = 28.dp)
+    }
 }
 
 private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
@@ -179,7 +177,7 @@ fun RadialSwatchLayout(
     onSwatchTap: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val config = remember(layoutStyle) { configFor(layoutStyle) }
+    val config = remember(layoutStyle) { configFor(layoutStyle, ACTIVE_SWATCH_SIZE) }
     val shape = remember(layoutStyle) { shapeFor(layoutStyle) }
 
     // One Animatable (0 → 1) per tile, shared across layout-style changes.
