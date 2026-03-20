@@ -23,6 +23,7 @@ import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Home
 import xyz.ksharma.huezoo.navigation.Leaderboard
 import xyz.ksharma.huezoo.navigation.Result
+import xyz.ksharma.huezoo.navigation.Settings
 import xyz.ksharma.huezoo.navigation.Splash
 import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.ui.eyestrain.EyeStrainNoticeScreen
@@ -32,6 +33,7 @@ import xyz.ksharma.huezoo.ui.home.HomeScreen
 import xyz.ksharma.huezoo.ui.leaderboard.LeaderboardScreen
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.result.ResultScreen
+import xyz.ksharma.huezoo.ui.settings.SettingsScreen
 import xyz.ksharma.huezoo.ui.splash.SplashScreen
 import xyz.ksharma.huezoo.ui.theme.HuezooTheme
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
@@ -90,7 +92,17 @@ fun App() {
                         }
 
                         is Home -> NavEntry(destination) {
-                            HomeScreen(onNavigate = { backStack.add(it) })
+                            HomeScreen(
+                                onNavigate = { backStack.add(it) },
+                                onSettingsTap = { backStack.add(Settings) },
+                            )
+                        }
+
+                        is Settings -> NavEntry(destination) {
+                            SettingsScreen(
+                                onBack = { backStack.removeLast() },
+                                onViewHealthNotice = { backStack.add(EyeStrainNotice) },
+                            )
                         }
 
                         is ThresholdGame -> NavEntry(destination) {

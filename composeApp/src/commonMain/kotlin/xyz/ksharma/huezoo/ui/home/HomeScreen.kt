@@ -119,6 +119,7 @@ private val CHALLENGE_NAMES = listOf(
 @Composable
 fun HomeScreen(
     onNavigate: (Any) -> Unit,
+    onSettingsTap: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
@@ -137,6 +138,7 @@ fun HomeScreen(
                 state = state,
                 onThresholdTap = { onNavigate(ThresholdGame) },
                 onDailyTap = { onNavigate(DailyGame) },
+                onSettingsTap = onSettingsTap,
                 showDebugReset = platformOps.isDebugBuild,
                 onDebugReset = { viewModel.onUiEvent(HomeUiEvent.DebugResetTapped) },
             )
@@ -150,6 +152,7 @@ private fun ReadyContent(
     state: HomeUiState.Ready,
     onThresholdTap: () -> Unit,
     onDailyTap: () -> Unit,
+    onSettingsTap: () -> Unit,
     modifier: Modifier = Modifier,
     showDebugReset: Boolean = false,
     onDebugReset: () -> Unit = {},
@@ -174,7 +177,7 @@ private fun ReadyContent(
             .verticalScroll(rememberScrollState()),
     ) {
         // TopBar scrolls with content; its windowInsetsTopHeight spacer provides status-bar padding
-        HuezooTopBar()
+        HuezooTopBar(onSettingsClick = onSettingsTap)
 
         // Padded content column — TopBar stays full-width above
         Column(modifier = Modifier.padding(horizontal = HuezooSpacing.md)) {
@@ -1241,6 +1244,7 @@ private fun HomeReadyPreview() {
             ),
             onThresholdTap = {},
             onDailyTap = {},
+            onSettingsTap = {},
         )
     }
 }
@@ -1266,6 +1270,7 @@ private fun HomeBlockedPreview() {
             ),
             onThresholdTap = {},
             onDailyTap = {},
+            onSettingsTap = {},
         )
     }
 }

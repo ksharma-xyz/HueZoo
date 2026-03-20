@@ -30,6 +30,9 @@ data class Result(
 @Serializable
 data object Leaderboard
 
+@Serializable
+data object Settings
+
 sealed interface GameId {
     companion object {
         const val THRESHOLD = "threshold"

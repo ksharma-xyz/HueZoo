@@ -8,11 +8,13 @@ import xyz.ksharma.huezoo.ui.games.daily.DailyViewModel
 import xyz.ksharma.huezoo.ui.games.threshold.ThresholdViewModel
 import xyz.ksharma.huezoo.ui.home.HomeViewModel
 import xyz.ksharma.huezoo.ui.result.ResultViewModel
+import xyz.ksharma.huezoo.ui.settings.SettingsViewModel
 
 val viewModelModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::ThresholdViewModel)
     viewModelOf(::DailyViewModel)
+    viewModelOf(::SettingsViewModel)
     viewModel { params ->
         ResultViewModel(
             navResult = params.get<Result>(),

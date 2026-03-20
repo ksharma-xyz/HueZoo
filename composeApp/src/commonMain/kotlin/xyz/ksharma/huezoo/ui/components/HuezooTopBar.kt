@@ -92,6 +92,7 @@ fun HuezooTopBar(
     onBackClick: (() -> Unit)? = null,
     currencyAmount: Int? = null,
     onHelpClick: (() -> Unit)? = null,
+    onSettingsClick: (() -> Unit)? = null,
 ) {
     val frostBrush = Brush.verticalGradient(
         colors = listOf(
@@ -137,6 +138,9 @@ fun HuezooTopBar(
             ) {
                 if (onHelpClick != null) {
                     TopBarHelpButton(onClick = onHelpClick)
+                }
+                if (onSettingsClick != null) {
+                    TopBarSettingsButton(onClick = onSettingsClick)
                 }
                 if (currencyAmount != null) {
                     CurrencyPill(amount = currencyAmount)
@@ -198,6 +202,59 @@ private fun TopBarHelpButton(
             style = MaterialTheme.typography.titleMedium,
             color = accent,
             fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+        )
+    }
+}
+
+/**
+ * Small ⚙ parallelogram button for the top-bar right slot.
+ * Matches the help button's shape, shadow, and press animation.
+ */
+@Composable
+private fun TopBarSettingsButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) BACK_PRESS_SCALE else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "settingsScale",
+    )
+
+    val accent = LocalPlayerAccentColor.current
+    Box(
+        modifier = modifier
+            .size(BackButtonHeight)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .shapedShadow(
+                shape = ParallelogramBack,
+                color = accent.copy(alpha = BACK_SHADOW_ALPHA),
+                offsetX = BackShadowOffsetX,
+                offsetY = BackShadowOffsetY,
+            )
+            .clip(ParallelogramBack)
+            .background(HuezooColors.SurfaceL3)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+                role = Role.Button,
+                onClickLabel = "Settings",
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = "⚙",
+            style = MaterialTheme.typography.titleMedium,
+            color = accent,
         )
     }
 }
