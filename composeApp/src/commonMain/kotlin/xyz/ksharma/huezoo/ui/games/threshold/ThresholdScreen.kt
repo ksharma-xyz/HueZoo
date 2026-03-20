@@ -1,11 +1,7 @@
 package xyz.ksharma.huezoo.ui.games.threshold
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,18 +20,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
-import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
+import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
 import xyz.ksharma.huezoo.ui.components.SkewedStatChip
 import xyz.ksharma.huezoo.ui.games.threshold.state.RoundPhase
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
@@ -124,20 +122,22 @@ private fun PlayingContent(
 
         Spacer(Modifier.height(HuezooSpacing.xxl))
 
-        // Instruction title — fades out during fold so the eye follows the petals closing
-        AnimatedVisibility(
-            visible = state.roundPhase != RoundPhase.FoldingOut,
-            enter = fadeIn(tween(180)),
-            exit = fadeOut(tween(150)),
-        ) {
-            Text(
-                text = "IDENTIFY THE OUTLIER",
-                style = MaterialTheme.typography.titleLarge,
-                color = HuezooColors.AccentCyan,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center,
-            )
-        }
+        // Instruction title — fades out during fold without collapsing its layout space.
+        // graphicsLayer alpha is render-only: the Text stays in the tree at full size
+        // so nothing below it shifts when it becomes invisible.
+        val titleAlpha by animateFloatAsState(
+            targetValue = if (state.roundPhase == RoundPhase.FoldingOut) 0f else 1f,
+            animationSpec = tween(durationMillis = 150),
+            label = "titleAlpha",
+        )
+        Text(
+            text = "IDENTIFY THE OUTLIER",
+            style = MaterialTheme.typography.titleLarge,
+            color = HuezooColors.AccentCyan,
+            fontWeight = FontWeight.ExtraBold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.graphicsLayer { alpha = titleAlpha },
+        )
 
         Spacer(Modifier.height(HuezooSpacing.md))
 
@@ -151,41 +151,49 @@ private fun PlayingContent(
         Spacer(Modifier.height(HuezooSpacing.lg))
 
         // ── Fixed-height feedback slot ────────────────────────────────────────
-        // Height is always 28dp; content fades in/out inside it.
-        // Nothing outside this Box shifts when the message changes.
+        // Rules:
+        //   • Box height is ALWAYS exactly FEEDBACK_SLOT_HEIGHT — never grows, never shrinks.
+        //   • Both Text nodes live in the layout tree permanently (no AnimatedVisibility /
+        //     AnimatedContent) so the Box never re-measures due to children entering or leaving.
+        //   • Visibility is controlled by graphicsLayer { alpha } which is a pure render pass —
+        //     it has zero effect on layout or measurement.
+        //   • maxLines = 1 on the sting copy stops long strings from ever requesting extra height.
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(FEEDBACK_SLOT_HEIGHT),
             contentAlignment = Alignment.Center,
         ) {
-            val feedbackText: String? = when (state.roundPhase) {
-                RoundPhase.Correct -> "↓ ΔE ${state.deltaE.fmt()} — SHARPER"
-                RoundPhase.Wrong -> state.stingCopy
-                else -> null
-            }
-            val feedbackColor = when (state.roundPhase) {
-                RoundPhase.Correct -> HuezooColors.AccentGreen
-                else -> HuezooColors.AccentMagenta
-            }
-            AnimatedContent(
-                targetState = feedbackText,
-                transitionSpec = {
-                    fadeIn(tween(140)) togetherWith fadeOut(tween(180))
-                },
-                label = "feedbackSlot",
-            ) { text ->
-                if (text != null) {
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                        ),
-                        color = feedbackColor,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-            }
+            // Correct feedback (green) ─────────────────────────────────────────
+            val correctAlpha by animateFloatAsState(
+                targetValue = if (state.roundPhase == RoundPhase.Correct) 1f else 0f,
+                animationSpec = tween(durationMillis = 160),
+                label = "feedbackCorrectAlpha",
+            )
+            Text(
+                text = "↓ ΔE ${state.deltaE.fmt()} — SHARPER",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = HuezooColors.AccentGreen,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                modifier = Modifier.graphicsLayer { alpha = correctAlpha },
+            )
+
+            // Wrong feedback / sting (magenta) ────────────────────────────────
+            val wrongAlpha by animateFloatAsState(
+                targetValue = if (state.roundPhase == RoundPhase.Wrong) 1f else 0f,
+                animationSpec = tween(durationMillis = 160),
+                label = "feedbackWrongAlpha",
+            )
+            Text(
+                text = state.stingCopy.orEmpty(),
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = HuezooColors.AccentMagenta,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.graphicsLayer { alpha = wrongAlpha },
+            )
         }
 
         Spacer(Modifier.height(HuezooSpacing.md))
