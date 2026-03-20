@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 data object Splash
 
 @Serializable
+data object EyeStrainNotice
+
+@Serializable
 data object Home
 
 @Serializable

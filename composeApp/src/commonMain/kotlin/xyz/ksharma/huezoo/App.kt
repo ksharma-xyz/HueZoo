@@ -3,24 +3,29 @@ package xyz.ksharma.huezoo
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.navigation.DailyGame
+import xyz.ksharma.huezoo.navigation.EyeStrainNotice
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Home
 import xyz.ksharma.huezoo.navigation.Leaderboard
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.navigation.Splash
 import xyz.ksharma.huezoo.navigation.ThresholdGame
+import xyz.ksharma.huezoo.ui.eyestrain.EyeStrainNoticeScreen
 import xyz.ksharma.huezoo.ui.games.daily.DailyScreen
 import xyz.ksharma.huezoo.ui.games.threshold.ThresholdScreen
 import xyz.ksharma.huezoo.ui.home.HomeScreen
@@ -31,7 +36,6 @@ import xyz.ksharma.huezoo.ui.splash.SplashScreen
 import xyz.ksharma.huezoo.ui.theme.HuezooTheme
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerShelfColor
-import androidx.compose.runtime.CompositionLocalProvider
 
 @Composable
 fun App() {
@@ -40,6 +44,7 @@ fun App() {
     HuezooTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             val backStack = remember { mutableStateListOf<Any>(Splash) }
+            val scope = rememberCoroutineScope()
 
             // Re-read gems whenever the back stack changes (returning from a game screen).
             // PlayerLevel is derived from gems — drives the UI accent color everywhere.
@@ -60,7 +65,26 @@ fun App() {
                             SplashScreen(
                                 onFinished = {
                                     backStack.removeLast() // drop Splash — can't go back to it
-                                    backStack.add(Home)
+                                    scope.launch {
+                                        val next = if (settingsRepository.hasSeenHealthNotice()) {
+                                            Home
+                                        } else {
+                                            EyeStrainNotice
+                                        }
+                                        backStack.add(next)
+                                    }
+                                },
+                            )
+                        }
+
+                        is EyeStrainNotice -> NavEntry(destination) {
+                            EyeStrainNoticeScreen(
+                                onDismiss = {
+                                    scope.launch {
+                                        settingsRepository.setSeenHealthNotice()
+                                        backStack.removeLast() // drop EyeStrainNotice
+                                        backStack.add(Home)
+                                    }
                                 },
                             )
                         }

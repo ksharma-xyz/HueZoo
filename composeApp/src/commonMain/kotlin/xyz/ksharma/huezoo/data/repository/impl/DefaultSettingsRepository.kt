@@ -29,6 +29,17 @@ class DefaultSettingsRepository(
         next
     }
 
+    override suspend fun hasSeenHealthNotice(): Boolean = withContext(Dispatchers.Default) {
+        db.huezooDatabaseQueries.getSetting(KEY_HEALTH_NOTICE_SEEN)
+            .executeAsOneOrNull()
+            ?.toBoolean() ?: false
+    }
+
+    override suspend fun setSeenHealthNotice() = withContext(Dispatchers.Default) {
+        db.huezooDatabaseQueries.setSetting(KEY_HEALTH_NOTICE_SEEN, "true")
+        Unit
+    }
+
     override suspend fun resetAll() = withContext(Dispatchers.Default) {
         val q = db.huezooDatabaseQueries
         q.deleteAllThresholdSessions()
@@ -41,5 +52,6 @@ class DefaultSettingsRepository(
     private companion object {
         const val KEY_IS_PAID = "is_paid"
         const val KEY_TOTAL_GEMS = "total_gems"
+        const val KEY_HEALTH_NOTICE_SEEN = "health_notice_seen"
     }
 }
