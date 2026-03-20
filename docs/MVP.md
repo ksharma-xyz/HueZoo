@@ -2,6 +2,9 @@
 
 *One obsessive game loop. Ship it. Hook people. Monetize the obsession.*
 
+Implementation planning companion for LLM-driven feature work:
+- `docs/IMPLEMENTATION_PLAN_LEVELS_ECONOMY_UX.md`
+
 ---
 
 ## Progress

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HueZoo - Flower Layout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;700&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-lowest": "#0d0d16",
+              "outline": "#849396",
+              "on-primary": "#00363d",
+              "surface-tint": "#00daf3",
+              "on-primary-container": "#00626e",
+              "background": "#13131b",
+              "on-error-container": "#ffdad6",
+              "tertiary": "#ffef86",
+              "on-error": "#690005",
+              "secondary-container": "#e00363",
+              "on-tertiary": "#373100",
+              "primary-fixed": "#9cf0ff",
+              "primary-fixed-dim": "#00daf3",
+              "surface": "#13131b",
+              "surface-container": "#1f1f28",
+              "tertiary-fixed": "#fde400",
+              "on-surface-variant": "#bac9cc",
+              "primary": "#c3f5ff",
+              "secondary": "#ffb1c0",
+              "secondary-fixed-dim": "#ffb1c0",
+              "secondary-fixed": "#ffd9df",
+              "inverse-on-surface": "#302f39",
+              "inverse-primary": "#006875",
+              "tertiary-fixed-dim": "#dec800",
+              "on-tertiary-fixed-variant": "#504700",
+              "on-primary-fixed": "#001f24",
+              "on-secondary-container": "#fff6f6",
+              "surface-variant": "#34343d",
+              "inverse-surface": "#e4e1ed",
+              "error-container": "#93000a",
+              "surface-bright": "#393842",
+              "on-secondary-fixed-variant": "#90003d",
+              "error": "#ffb4ab",
+              "on-secondary-fixed": "#3f0017",
+              "surface-container-low": "#1b1b23",
+              "on-tertiary-fixed": "#201c00",
+              "outline-variant": "#3b494c",
+              "on-secondary": "#660029",
+              "on-primary-fixed-variant": "#004f58",
+              "on-background": "#e4e1ed",
+              "primary-container": "#00e5ff",
+              "on-surface": "#e4e1ed",
+              "surface-container-high": "#292932",
+              "surface-container-highest": "#34343d",
+              "on-tertiary-container": "#645a00",
+              "surface-dim": "#13131b",
+              "tertiary-container": "#e9d200"
+            },
+            fontFamily: {
+              "headline": ["Antonio"],
+              "body": ["Space Grotesk"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .petal-arrangement {
+            position: relative;
+            width: 320px;
+            height: 320px;
+        }
+        .petal {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            left: 50%;
+            top: 50%;
+            transform-origin: center 160px;
+        }
+        .slanted-ui {
+            transform: skewX(-10deg);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-[#13131b] docked full-width top-0 z-50 border-b border-[#00e5ff]/30 shadow-[0_4px_0_0_#292932] flex justify-between items-center w-full px-6 h-16 fixed">
+<div class="flex items-center gap-4">
+<button class="text-[#00e5ff] hover:bg-[#292932] transition-colors active:translate-y-0.5 transition-transform p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="text-[#e4e1ed] font-['Antonio'] font-bold text-2xl [text-shadow:_0_0_5px_#00e5ff] uppercase tracking-tighter">
+                Hue<span class="text-[#00e5ff] [text-shadow:none]" style="-webkit-text-stroke: 0.5px #00e5ff; color: transparent;">Zoo</span>
+</h1>
+</div>
+<div class="flex items-center">
+<button class="text-[#e4e1ed] hover:bg-[#292932] transition-colors active:translate-y-0.5 transition-transform p-2">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 flex flex-col items-center justify-between min-h-screen px-6">
+<!-- HUD Feedback Slot -->
+<div class="w-full max-w-md h-12 flex items-center justify-center bg-surface-container-high border-t border-l border-primary-container/40 relative">
+<div class="absolute -bottom-1 -right-1 w-full h-full bg-surface-container-highest -z-10"></div>
+<p class="font-headline text-primary-container text-xl font-bold tracking-widest">GREAT STREAK</p>
+</div>
+<!-- Gameplay Data Readouts (Slanted) -->
+<div class="w-full max-w-md flex justify-between mt-8">
+<div class="slanted-ui bg-surface-container-low px-4 py-2 border-l-4 border-secondary-container">
+<p class="text-[10px] font-label uppercase tracking-[0.1rem] text-on-surface-variant">Time Remaining</p>
+<p class="font-headline text-2xl text-secondary-container">0:42</p>
+</div>
+<div class="slanted-ui bg-surface-container-low px-4 py-2 border-r-4 border-tertiary-container text-right">
+<p class="text-[10px] font-label uppercase tracking-[0.1rem] text-on-surface-variant">Calibration</p>
+<p class="font-headline text-2xl text-tertiary-container">12/50</p>
+</div>
+</div>
+<!-- Flower Layout Grid -->
+<div class="relative flex items-center justify-center py-12">
+<div class="petal-arrangement">
+<!-- Petal 1 -->
+<div class="petal" style="transform: translate(-50%, -100%) rotate(0deg);">
+<div class="w-full h-full bg-[#3d2c8d] shadow-[4px_4px_0_0_#1f1f28] border-t border-l border-white/10 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"></div>
+</div>
+<!-- Petal 2 -->
+<div class="petal" style="transform: translate(-50%, -100%) rotate(60deg);">
+<div class="w-full h-full bg-[#3d2c8d] shadow-[4px_4px_0_0_#1f1f28] border-t border-l border-white/10 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"></div>
+</div>
+<!-- Petal 3 (Odd One Out - Subtle difference) -->
+<div class="petal" style="transform: translate(-50%, -100%) rotate(120deg);">
+<div class="w-full h-full bg-[#4633a1] shadow-[4px_4px_0_0_#1f1f28] border-t border-l border-white/10 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"></div>
+</div>
+<!-- Petal 4 -->
+<div class="petal" style="transform: translate(-50%, -100%) rotate(180deg);">
+<div class="w-full h-full bg-[#3d2c8d] shadow-[4px_4px_0_0_#1f1f28] border-t border-l border-white/10 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"></div>
+</div>
+<!-- Petal 5 -->
+<div class="petal" style="transform: translate(-50%, -100%) rotate(240deg);">
+<div class="w-full h-full bg-[#3d2c8d] shadow-[4px_4px_0_0_#1f1f28] border-t border-l border-white/10 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"></div>
+</div>
+<!-- Petal 6 -->
+<div class="petal" style="transform: translate(-50%, -100%) rotate(300deg);">
+<div class="w-full h-full bg-[#3d2c8d] shadow-[4px_4px_0_0_#1f1f28] border-t border-l border-white/10 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"></div>
+</div>
+<!-- Center Hub -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-surface-container-lowest border border-outline-variant/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container text-3xl" style="font-variation-settings: 'FILL' 1;">pentagon</span>
+</div>
+</div>
+</div>
+<!-- Solid Blue Rocket Button -->
+<div class="mb-8">
+<button class="w-20 h-20 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_0_20px_0_rgba(0,229,255,0.4)] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar (Suppressed for focused gameplay, showing the template's required structure if needed for context but hiding according to UI rules for task-focused pages, however, the prompt requested a specific HUD and interaction. I will keep it for navigation shell consistency as specified in hierarchy) -->
+<nav class="fixed bottom-0 w-full h-20 z-50 bg-[#13131b]/90 backdrop-blur-xl border-t border-[#00e5ff]/20 shadow-[0_-4px_0_0_#292932] flex justify-around items-center px-4 pb-safe">
+<button class="flex items-center justify-center text-[#00e5ff] [filter:drop-shadow(0_0_2px_#00e5ff)] scale-110 hover:text-[#00e5ff] transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+<button class="flex items-center justify-center text-[#e4e1ed]/50 hover:text-[#00e5ff] transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">military_tech</span>
+</button>
+<button class="flex items-center justify-center text-[#e4e1ed]/50 hover:text-[#00e5ff] transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<button class="flex items-center justify-center text-[#e4e1ed]/50 hover:text-[#00e5ff] transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">leaderboard</span>
+</button>
+<button class="flex items-center justify-center text-[#e4e1ed]/50 hover:text-[#00e5ff] transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</nav>
+<!-- Background Pattern -->
+<div class="fixed inset-0 -z-20 opacity-10 pointer-events-none" data-alt="Technical blueprint grid pattern background" style="background-image: radial-gradient(#00e5ff 0.5px, transparent 0.5px); background-size: 24px 24px;">
+</div>
+</body></html>
