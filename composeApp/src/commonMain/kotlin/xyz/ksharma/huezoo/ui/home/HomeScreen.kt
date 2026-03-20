@@ -1100,7 +1100,7 @@ private fun HomeBlockedPreview() {
                 daily = DailyCardData(isCompletedToday = true, todayScore = 740f),
                 isPaid = true,
                 totalGems = 2450,
-                playerLevel = PlayerLevel.Skilled,
+                playerLevel = PlayerLevel.Sharp,
                 streak = 7,
                 rank = 412,
             ),

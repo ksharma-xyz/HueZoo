@@ -55,6 +55,7 @@ class ResultViewModel(
                 score = navResult.score,
                 isNewPersonalBest = best?.bestScore?.let { navResult.score > it } ?: true,
                 personalBestDeltaE = best?.bestDeltaE,
+                gemsEarned = navResult.gemsEarned,
                 canPlayAgain = canPlayAgain,
             )
         }

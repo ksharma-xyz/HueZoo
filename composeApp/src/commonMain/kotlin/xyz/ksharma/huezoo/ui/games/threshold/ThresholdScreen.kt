@@ -109,8 +109,8 @@ private fun PlayingContent(
             horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
         ) {
             SkewedStatChip(
-                label = "ROUND",
-                value = state.round.toString(),
+                label = "TAP",
+                value = state.tap.toString(),
                 accentColor = HuezooColors.GameThreshold,
             )
             SkewedStatChip(
@@ -309,7 +309,7 @@ private fun ThresholdPlayingPreview() {
                 swatches = List(5) { xyz.ksharma.huezoo.ui.model.SwatchUiModel(PREVIEW_PURPLE) } +
                     listOf(xyz.ksharma.huezoo.ui.model.SwatchUiModel(PREVIEW_ODD)),
                 deltaE = 2.4f,
-                round = 3,
+                tap = 3,
                 attemptsRemaining = 4,
                 roundPhase = RoundPhase.Idle,
                 totalGems = 24,
@@ -332,7 +332,7 @@ private fun ThresholdCorrectPhasePreview() {
                     ),
                 ) + List(5) { xyz.ksharma.huezoo.ui.model.SwatchUiModel(PREVIEW_PURPLE) },
                 deltaE = 2.4f,
-                round = 3,
+                tap = 3,
                 attemptsRemaining = 4,
                 roundPhase = RoundPhase.Correct,
                 totalGems = 26,
@@ -363,7 +363,7 @@ private fun ThresholdWrongPhasePreview() {
                     xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFFE91E63)),
                 ),
                 deltaE = 1.8f,
-                round = 5,
+                tap = 5,
                 attemptsRemaining = 2,
                 roundPhase = RoundPhase.Wrong,
                 stingCopy = "So close. And yet.",

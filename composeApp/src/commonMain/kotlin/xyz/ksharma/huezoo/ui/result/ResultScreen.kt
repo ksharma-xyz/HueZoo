@@ -297,6 +297,17 @@ private fun ReadyContent(
             )
         }
 
+        // ── 4b. Gems earned this session ──────────────────────────────────────
+        if (state.gemsEarned > 0) {
+            Spacer(Modifier.height(HuezooSpacing.sm))
+            HuezooBodyMedium(
+                text = "+${state.gemsEarned} gems earned",
+                color = HuezooColors.GemGreen,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
         Spacer(Modifier.height(HuezooSpacing.md))
 
         // ── 5. Buttons ────────────────────────────────────────────────────────

@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
 import xyz.ksharma.huezoo.domain.color.ColorEngine
+import xyz.ksharma.huezoo.domain.game.GameRewardRates
 import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.navigation.GameId
@@ -42,39 +43,48 @@ class ThresholdViewModel(
     private val _navEvent = MutableSharedFlow<ThresholdNavEvent>(extraBufferCapacity = 1)
     val navEvent: SharedFlow<ThresholdNavEvent> = _navEvent.asSharedFlow()
 
-    // Mutable game state — not exposed directly in UiState to keep state atomic.
-    private var currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
-    private var roundCount = 1
+    // ── Per-session state ─────────────────────────────────────────────────────
 
-    // Tracks the total number of tries (lives) remaining for this session.
-    // Each wrong tap consumes one try and records a DB attempt.
+    /** Correct-tap counter within the current try. Resets to 1 on each new try. */
+    private var tapCount = 1
+
+    /** How many tries remain in the current 8-hour window. */
     private var triesRemaining = 0
-    private var oddIndex = 0
 
-    // Best (lowest) ΔE achieved across all lives in this session.
-    private var bestDeltaE: Float? = null
+    private var currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
+    private var oddIndex = 0
     private var baseColor: Color = Color.Unspecified
+
+    /** Best (lowest) ΔE survived across all tries in this session. */
+    private var bestDeltaE: Float? = null
+
+    /** Lifetime gem total (kept in sync with DB). */
     private var totalGems: Int = 0
 
-    /** Tracks the last-used layout style to avoid showing the same shape twice in a row. */
-    private var lastLayoutStyle: SwatchLayoutStyle? = null
+    /** Gems earned in this session — shown on Result screen. */
+    private var sessionGems: Int = 0
 
     /**
-     * Increments on every [emitRound] call — correct taps AND wrong-tap-resets.
-     * Drives the `roundKey` in [RadialSwatchLayout] so the unfold animation always fires.
-     * [roundCount] only increments on correct taps (it's what's shown in the HUD).
+     * Milestones awarded in the *current try*.
+     * Cleared on every wrong tap so each new try can earn milestones fresh.
+     */
+    private val awardedMilestones = mutableSetOf<Float>()
+
+    /**
+     * Increments on every [emitRound] call — correct AND wrong-tap-resets.
+     * Drives [RadialSwatchLayout] unfold animation regardless of [tapCount].
      */
     private var roundGeneration = 0
+
+    /** Tracks last layout style to prevent same shape twice in a row. */
+    private var lastLayoutStyle: SwatchLayoutStyle? = null
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init {
         loadGame()
     }
 
-    /**
-     * Call when the screen enters composition (LaunchedEffect(Unit)).
-     * - Reused after a completed game (roundPhase != Idle) → start fresh.
-     * - Reused in Blocked state → re-check in case the debug reset cleared attempts.
-     */
     fun onStart() {
         when (val current = _uiState.value) {
             is ThresholdUiState.Playing -> if (current.roundPhase != RoundPhase.Idle) loadGame()
@@ -89,11 +99,13 @@ class ThresholdViewModel(
         }
     }
 
+    // ── Internal ──────────────────────────────────────────────────────────────
+
     private fun loadGame() {
         viewModelScope.launch {
             val now = Clock.System.now()
             when (val status = repository.getAttemptStatus(now)) {
-                is AttemptStatus.Available -> startGame(status)
+                is AttemptStatus.Available -> startSession(status)
                 is AttemptStatus.Exhausted -> _uiState.value = ThresholdUiState.Blocked(
                     nextResetAt = status.nextResetAt,
                     attemptsUsed = status.maxAttempts,
@@ -103,15 +115,15 @@ class ThresholdViewModel(
         }
     }
 
-    private suspend fun startGame(status: AttemptStatus.Available) {
-        // Attempts are recorded per wrong tap, not per game start.
-        // Lives = total remaining attempts in the current 8-hour window.
+    private suspend fun startSession(status: AttemptStatus.Available) {
         baseColor = colorEngine.randomVividColor()
         currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
-        roundCount = 1
+        tapCount = 1
         bestDeltaE = null
+        sessionGems = 0
         triesRemaining = status.maxAttempts - status.attemptsUsed
         totalGems = settingsRepository.getGems()
+        awardedMilestones.clear()
         emitRound()
     }
 
@@ -122,7 +134,7 @@ class ThresholdViewModel(
         _uiState.value = ThresholdUiState.Playing(
             swatches = round.swatches.map { SwatchUiModel(it) },
             deltaE = currentDeltaE,
-            round = roundCount,
+            tap = tapCount,
             attemptsRemaining = triesRemaining,
             roundPhase = RoundPhase.Idle,
             totalGems = totalGems,
@@ -131,10 +143,6 @@ class ThresholdViewModel(
         )
     }
 
-    /**
-     * Returns a random [SwatchLayoutStyle] that is different from [lastLayoutStyle],
-     * so the same shape never appears in two consecutive rounds.
-     */
     private fun pickLayoutStyle(): SwatchLayoutStyle {
         val all = SwatchLayoutStyle.entries
         val candidates = if (lastLayoutStyle != null) all.filter { it != lastLayoutStyle } else all
@@ -144,17 +152,15 @@ class ThresholdViewModel(
     private fun handleSwatchTap(index: Int) {
         val state = _uiState.value as? ThresholdUiState.Playing ?: return
         if (state.roundPhase != RoundPhase.Idle) return
-
-        if (index == oddIndex) {
-            handleCorrectTap(state)
-        } else {
-            handleWrongTap(state, tappedIndex = index)
-        }
+        if (index == oddIndex) handleCorrectTap(state) else handleWrongTap(state, tappedIndex = index)
     }
 
     private fun handleCorrectTap(state: ThresholdUiState.Playing) {
-        val currentBest = bestDeltaE
-        bestDeltaE = if (currentBest == null) currentDeltaE else minOf(currentBest, currentDeltaE)
+        bestDeltaE = bestDeltaE?.let { minOf(it, currentDeltaE) } ?: currentDeltaE
+
+        val milestoneBonus = checkAndAwardMilestone(currentDeltaE)
+        val gemsThisTap = GameRewardRates.THRESHOLD_CORRECT_TAP + milestoneBonus
+
         _uiState.value = state.copy(
             swatches = state.swatches.mapIndexed { i, s ->
                 if (i == oddIndex) s.copy(displayState = SwatchDisplayState.Correct) else s
@@ -162,20 +168,18 @@ class ThresholdViewModel(
             roundPhase = RoundPhase.Correct,
         )
         viewModelScope.launch {
-            // Earn 2 gems per correct tap.
-            totalGems = settingsRepository.addGems(GEMS_PER_CORRECT_TAP)
-            delay(ANIMATION_CORRECT_MS)
+            totalGems = settingsRepository.addGems(gemsThisTap)
+            sessionGems += gemsThisTap
 
-            // Signal the flower to fold away before the next round arrives.
+            delay(ANIMATION_CORRECT_MS)
             (_uiState.value as? ThresholdUiState.Playing)?.let {
-                _uiState.value = it.copy(roundPhase = RoundPhase.FoldingOut)
+                _uiState.value = it.copy(roundPhase = RoundPhase.FoldingOut, totalGems = totalGems)
             }
             delay(ANIMATION_FOLD_MS)
 
-            roundCount++
+            tapCount++
             currentDeltaE = (currentDeltaE - ThresholdGameEngine.DELTA_E_STEP)
                 .coerceAtLeast(ThresholdGameEngine.MIN_DELTA_E)
-            // Fresh base color every round — keeps gameplay visually varied.
             baseColor = colorEngine.randomVividColor()
             emitRound()
         }
@@ -195,39 +199,55 @@ class ThresholdViewModel(
             stingCopy = sting,
         )
         viewModelScope.launch {
-            // Record one attempt per wrong tap (consumes a life from the 8-hour pool).
             repository.recordAttempt(Clock.System.now())
             triesRemaining--
 
             delay(ANIMATION_WRONG_MS)
 
             if (triesRemaining > 0) {
-                // Still has lives — fold the current flower, then reset ΔE and load new round.
+                // Still has tries — reset ΔE and milestones for the new try
+                awardedMilestones.clear()
                 (_uiState.value as? ThresholdUiState.Playing)?.let {
                     _uiState.value = it.copy(roundPhase = RoundPhase.FoldingOut)
                 }
                 delay(ANIMATION_FOLD_MS)
                 currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
+                tapCount = 1
                 baseColor = colorEngine.randomVividColor()
                 emitRound()
             } else {
-                // All lives spent → navigate to result.
+                // All tries spent — navigate to result
                 val finalDeltaE = bestDeltaE ?: currentDeltaE
                 val score = colorEngine.scoreFromDeltaE(finalDeltaE)
-                val roundsSurvived = roundCount - 1
                 repository.savePersonalBest(finalDeltaE, score)
                 _navEvent.emit(
                     ThresholdNavEvent.NavigateToResult(
                         Result(
                             gameId = GameId.THRESHOLD,
                             deltaE = finalDeltaE,
-                            roundsSurvived = roundsSurvived,
+                            roundsSurvived = tapCount - 1,
                             score = score,
+                            gemsEarned = sessionGems,
                         ),
                     ),
                 )
             }
         }
+    }
+
+    /**
+     * Checks if [deltaE] crosses a milestone boundary for the first time in the current try.
+     * Awards the bonus and records the milestone so it isn't double-awarded.
+     *
+     * @return gems to award (0 if no new milestone crossed).
+     */
+    private fun checkAndAwardMilestone(deltaE: Float): Int {
+        for ((boundary, bonus) in GameRewardRates.THRESHOLD_MILESTONES) {
+            if (deltaE < boundary && awardedMilestones.add(boundary)) {
+                return bonus
+            }
+        }
+        return 0
     }
 
     private fun wrongStingCopy(deltaE: Float): String = when {
@@ -242,9 +262,6 @@ class ThresholdViewModel(
     private companion object {
         const val ANIMATION_CORRECT_MS = 350L
         const val ANIMATION_WRONG_MS = 850L
-
-        /** Time budget for the flower fold-out animation before the next round is emitted. */
         const val ANIMATION_FOLD_MS = 520L
-        const val GEMS_PER_CORRECT_TAP = 2
     }
 }

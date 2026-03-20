@@ -13,8 +13,10 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import xyz.ksharma.huezoo.data.repository.DailyRepository
+import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.domain.color.ColorEngine
 import xyz.ksharma.huezoo.domain.game.DailyGameEngine
+import xyz.ksharma.huezoo.domain.game.GameRewardRates
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
@@ -31,6 +33,7 @@ import kotlin.time.ExperimentalTime
 class DailyViewModel(
     private val gameEngine: DailyGameEngine,
     private val repository: DailyRepository,
+    private val settingsRepository: SettingsRepository,
     private val colorEngine: ColorEngine,
 ) : ViewModel() {
 
@@ -43,22 +46,32 @@ class DailyViewModel(
     private val today get() = Clock.System.now()
         .toLocalDateTime(TimeZone.currentSystemDefault()).date
 
+    // ── Per-session state ─────────────────────────────────────────────────────
+
     private var roundIndex = 0
     private var oddIndex = 0
+
+    /** Cumulative score from correct rounds only. */
     private var cumulativeScore = 0
+
+    /** Number of rounds answered correctly (0–6). */
+    private var correctRounds = 0
+
+    /** ΔE of the last round played (for personal best tracking). */
     private var lastRoundDeltaE = 0f
+
+    /** Gems earned this session — participation + per-correct + perfect bonus. */
+    private var sessionGems = 0
+
     private var roundGeneration = 0
     private var lastLayoutStyle: SwatchLayoutStyle? = null
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init {
         loadGame()
     }
 
-    /**
-     * Call when the screen enters composition (LaunchedEffect(Unit)).
-     * - Re-checks DB when [AlreadyPlayed] in case a debug reset cleared the record.
-     * - Restarts when a game ended mid-session (roundPhase != Idle).
-     */
     fun onStart() {
         when (val current = _uiState.value) {
             is DailyUiState.AlreadyPlayed -> loadGame()
@@ -73,12 +86,15 @@ class DailyViewModel(
         }
     }
 
+    // ── Internal ──────────────────────────────────────────────────────────────
+
     private fun loadGame() {
-        // Reset all in-memory state before starting fresh.
         roundIndex = 0
         oddIndex = 0
         cumulativeScore = 0
+        correctRounds = 0
         lastRoundDeltaE = 0f
+        sessionGems = 0
         roundGeneration = 0
         lastLayoutStyle = null
 
@@ -111,10 +127,6 @@ class DailyViewModel(
         )
     }
 
-    /**
-     * Returns a random [SwatchLayoutStyle] that is different from [lastLayoutStyle],
-     * so the same shape never appears in two consecutive rounds.
-     */
     private fun pickLayoutStyle(): SwatchLayoutStyle {
         val all = SwatchLayoutStyle.entries
         val candidates = if (lastLayoutStyle != null) all.filter { it != lastLayoutStyle } else all
@@ -124,16 +136,13 @@ class DailyViewModel(
     private fun handleSwatchTap(index: Int) {
         val state = _uiState.value as? DailyUiState.Playing ?: return
         if (state.roundPhase != RoundPhase.Idle) return
-
-        if (index == oddIndex) {
-            handleCorrectTap(state)
-        } else {
-            handleWrongTap(state, tappedIndex = index)
-        }
+        if (index == oddIndex) handleCorrectTap(state) else handleWrongTap(state, tappedIndex = index)
     }
 
     private fun handleCorrectTap(state: DailyUiState.Playing) {
         cumulativeScore += colorEngine.scoreFromDeltaE(lastRoundDeltaE)
+        correctRounds++
+
         _uiState.value = state.copy(
             swatches = state.swatches.mapIndexed { i, s ->
                 if (i == oddIndex) s.copy(displayState = SwatchDisplayState.Correct) else s
@@ -141,24 +150,27 @@ class DailyViewModel(
             roundPhase = RoundPhase.Correct,
         )
         viewModelScope.launch {
+            settingsRepository.addGems(GameRewardRates.DAILY_CORRECT_ROUND)
+            sessionGems += GameRewardRates.DAILY_CORRECT_ROUND
+
             delay(ANIMATION_CORRECT_MS)
             val isLastRound = roundIndex == gameEngine.totalRounds - 1
             if (isLastRound) {
                 finishGame()
             } else {
-                // Fold the flower before advancing to next round.
                 (_uiState.value as? DailyUiState.Playing)?.let {
                     _uiState.value = it.copy(roundPhase = RoundPhase.FoldingOut)
                 }
                 delay(ANIMATION_FOLD_MS)
                 roundIndex++
-                val baseColor = colorEngine.seededColorForDate(today)
-                emitRound(baseColor)
+                emitRound(colorEngine.seededColorForDate(today))
             }
         }
     }
 
     private fun handleWrongTap(state: DailyUiState.Playing, tappedIndex: Int) {
+        // Wrong tap: reveal correct swatch, show feedback, then advance to next round.
+        // Daily never ends early — all 6 rounds are always played.
         _uiState.value = state.copy(
             swatches = state.swatches.mapIndexed { i, s ->
                 when (i) {
@@ -171,22 +183,44 @@ class DailyViewModel(
         )
         viewModelScope.launch {
             delay(ANIMATION_WRONG_MS)
-            finishGame()
+            val isLastRound = roundIndex == gameEngine.totalRounds - 1
+            if (isLastRound) {
+                finishGame()
+            } else {
+                (_uiState.value as? DailyUiState.Playing)?.let {
+                    _uiState.value = it.copy(roundPhase = RoundPhase.FoldingOut)
+                }
+                delay(ANIMATION_FOLD_MS)
+                roundIndex++
+                emitRound(colorEngine.seededColorForDate(today))
+            }
         }
     }
 
     private suspend fun finishGame() {
         val date = today
-        val score = cumulativeScore.toFloat()
-        repository.saveCompletion(date, score)
+
+        // Participation bonus — always awarded for completing all 6 rounds
+        settingsRepository.addGems(GameRewardRates.DAILY_PARTICIPATION)
+        sessionGems += GameRewardRates.DAILY_PARTICIPATION
+
+        // Perfect bonus — all 6 rounds correct
+        val isPerfect = correctRounds == gameEngine.totalRounds
+        if (isPerfect) {
+            settingsRepository.addGems(GameRewardRates.DAILY_PERFECT_BONUS)
+            sessionGems += GameRewardRates.DAILY_PERFECT_BONUS
+        }
+
+        repository.saveCompletion(date, cumulativeScore.toFloat())
         repository.savePersonalBest(lastRoundDeltaE, cumulativeScore)
         _navEvent.emit(
             DailyNavEvent.NavigateToResult(
                 Result(
                     gameId = GameId.DAILY,
                     deltaE = lastRoundDeltaE,
-                    roundsSurvived = roundIndex,
+                    roundsSurvived = correctRounds,
                     score = cumulativeScore,
+                    gemsEarned = sessionGems,
                 ),
             ),
         )
@@ -195,8 +229,6 @@ class DailyViewModel(
     private companion object {
         const val ANIMATION_CORRECT_MS = 350L
         const val ANIMATION_WRONG_MS = 850L
-
-        /** Time budget for the flower fold-out animation before the next round is emitted. */
         const val ANIMATION_FOLD_MS = 520L
     }
 }
