@@ -32,7 +32,7 @@ import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
-import xyz.ksharma.huezoo.ui.components.FlowerSwatchLayout
+import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
@@ -190,11 +190,15 @@ private fun PlayingContent(
 
         Spacer(Modifier.height(HuezooSpacing.md))
 
-        // ── Flower swatch layout ──────────────────────────────────────────────
-        FlowerSwatchLayout(
+        // ── Radial swatch layout (shape changes every round) ──────────────────
+        RadialSwatchLayout(
             swatches = state.swatches,
             roundPhase = state.roundPhase,
-            roundKey = state.round,
+            // roundGeneration increments on EVERY emitRound() call (correct + wrong-reset),
+            // so the unfold animation always triggers — unlike state.round which only
+            // increments on correct taps.
+            roundKey = state.roundGeneration,
+            layoutStyle = state.layoutStyle,
             onSwatchTap = onSwatchTap,
         )
     }
