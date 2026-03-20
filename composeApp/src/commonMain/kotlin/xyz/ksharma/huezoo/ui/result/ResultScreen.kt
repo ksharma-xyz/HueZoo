@@ -102,7 +102,6 @@ private val CardShelfHeight = 4.dp
 @Composable
 fun ResultScreen(
     result: Result,
-    onLeaderboard: () -> Unit,
     onPlayAgain: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -123,7 +122,7 @@ fun ResultScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 HuezooTopBar(
                     onBackClick = onBack,
-                    currencyAmount = 0,
+                    currencyAmount = null,
                 )
 
                 when (val state = uiState) {
@@ -292,27 +291,40 @@ private fun ReadyContent(
 
         Spacer(Modifier.height(HuezooSpacing.md))
 
-        // ── 5. Buttons — PLAY AGAIN + share icon in same row ─────────────────
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            HuezooButton(
-                text = if (isDaily) "BACK TO HOME" else "PLAY AGAIN",
-                onClick = onPlayAgain,
-                variant = HuezooButtonVariant.Primary,
-                leadingIcon = if (!isDaily) {
-                    { PlayIcon() }
-                } else {
-                    null
-                },
-                modifier = Modifier.weight(1f),
-            )
-            ShareIconButton(
-                onClick = { onShare(shareText) },
-                icon = shareIcon,
-            )
+        // ── 5. Buttons ────────────────────────────────────────────────────────
+        // Daily: "BACK TO HOME" (always). Threshold: "PLAY AGAIN" enabled only if
+        // canPlayAgain — otherwise shows disabled "NO TRIES LEFT" variant.
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                HuezooButton(
+                    text = when {
+                        isDaily -> "BACK TO HOME"
+                        state.canPlayAgain -> "PLAY AGAIN"
+                        else -> "NO TRIES LEFT"
+                    },
+                    onClick = if (state.canPlayAgain || isDaily) onPlayAgain else { {} },
+                    variant = if (!isDaily && !state.canPlayAgain) {
+                        HuezooButtonVariant.GhostDanger
+                    } else {
+                        HuezooButtonVariant.Primary
+                    },
+                    enabled = isDaily || state.canPlayAgain,
+                    leadingIcon = if (!isDaily && state.canPlayAgain) {
+                        { PlayIcon() }
+                    } else {
+                        null
+                    },
+                    modifier = Modifier.weight(1f),
+                )
+                ShareIconButton(
+                    onClick = { onShare(shareText) },
+                    icon = shareIcon,
+                )
+            }
         }
 
         // Daily: show "Next puzzle in Xh Xm" countdown

@@ -63,10 +63,11 @@ fun App() {
                         is Result -> NavEntry(destination) {
                             ResultScreen(
                                 result = destination,
-                                onLeaderboard = { backStack.add(Leaderboard) },
                                 onPlayAgain = {
                                     backStack.removeLast() // remove Result
                                     // Daily is once-per-day — go Home instead of replaying.
+                                    // Threshold: canPlayAgain gate is checked in ResultScreen;
+                                    // this lambda is only called when attempts are available.
                                     if (destination.gameId == GameId.THRESHOLD) {
                                         backStack.add(ThresholdGame)
                                     }
