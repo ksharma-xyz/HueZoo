@@ -117,7 +117,8 @@ fun SwatchBlock(
 
     val borderWidth by animateDpAsState(
         targetValue = when (state) {
-            SwatchBlockState.Correct, SwatchBlockState.Wrong -> 5.dp
+            SwatchBlockState.Correct -> 5.dp
+            SwatchBlockState.Wrong -> 3.dp
             else -> 0.dp
         },
         animationSpec = tween(200),
