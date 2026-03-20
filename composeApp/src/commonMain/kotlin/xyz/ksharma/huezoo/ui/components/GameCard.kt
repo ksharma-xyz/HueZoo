@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -42,6 +41,8 @@ import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.PillShape
 import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.onColor
+import xyz.ksharma.huezoo.ui.theme.rimLight
+import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val CardShape = RoundedCornerShape(20.dp)
 private val CardShelf = 8.dp
@@ -101,21 +102,19 @@ fun GameCard(
             .widthIn(min = 280.dp)
             .padding(bottom = CardShelf),
     ) {
-        // Shelf — fixed, bottom only
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .offset(x = 0.dp, y = CardShelf)
-                .background(shelfColor, CardShape),
-        )
-
-        // Card face — slides down into shelf on press
+        // Card face — shapedShadow draws the shelf; face slides into it on press
         Box(
             modifier = Modifier
                 .graphicsLayer {
-                    translationX = 0f
                     translationY = pressProgress * shelfPx
+                    clip = false // let the shadow render outside the layer bounds
                 }
+                .shapedShadow(
+                    shape = CardShape,
+                    color = shelfColor,
+                    offsetX = 0.dp,
+                    offsetY = CardShelf,
+                )
                 .background(frameColor, CardShape)
                 .clip(CardShape)
                 .clickable(
@@ -125,11 +124,12 @@ fun GameCard(
                     onClick = onClick,
                 ),
         ) {
-            // Inner panel (SurfaceL1, inset from outer frame)
+            // Inner panel inset from the identity-color frame, with rim light for depth
             Box(
                 modifier = Modifier
                     .padding(FrameInset)
                     .background(HuezooColors.SurfaceL2, CardShape)
+                    .rimLight(cornerRadius = 20.dp)
                     .clip(CardShape),
             ) {
                 Column {
