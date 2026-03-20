@@ -139,8 +139,6 @@ fun HomeScreen(
                 onThresholdTap = { onNavigate(ThresholdGame) },
                 onDailyTap = { onNavigate(DailyGame) },
                 onSettingsTap = onSettingsTap,
-                showDebugReset = platformOps.isDebugBuild,
-                onDebugReset = { viewModel.onUiEvent(HomeUiEvent.DebugResetTapped) },
             )
         }
     }
@@ -154,8 +152,6 @@ private fun ReadyContent(
     onDailyTap: () -> Unit,
     onSettingsTap: () -> Unit,
     modifier: Modifier = Modifier,
-    showDebugReset: Boolean = false,
-    onDebugReset: () -> Unit = {},
 ) {
     var showLevelsSheet by remember { mutableStateOf(false) }
 
@@ -226,16 +222,6 @@ private fun ReadyContent(
             Spacer(Modifier.height(HuezooSpacing.lg))
 
             DeltaEInfoCard()
-
-            if (showDebugReset) {
-                Spacer(Modifier.height(HuezooSpacing.xl))
-                HuezooButton(
-                    text = "DEBUG: RESET ALL",
-                    onClick = onDebugReset,
-                    variant = HuezooButtonVariant.GhostDanger,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
 
             Spacer(Modifier.height(HuezooSpacing.xl))
         }
