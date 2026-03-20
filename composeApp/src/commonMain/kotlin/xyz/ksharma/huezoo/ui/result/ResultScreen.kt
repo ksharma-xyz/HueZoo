@@ -67,12 +67,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.random.Random
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -93,6 +87,12 @@ import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.onColor
 import xyz.ksharma.huezoo.ui.theme.rimLight
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.random.Random
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 private val BannerShape = RoundedCornerShape(12.dp)
 private val CardShape = RoundedCornerShape(16.dp)
@@ -725,19 +725,19 @@ private fun GhostExclamationIcon(
 
 // ── Confetti ──────────────────────────────────────────────────────────────────
 
-private const val CONFETTI_COUNT = 117  // ~90 × 1.3
+private const val CONFETTI_COUNT = 117 // ~90 × 1.3
 private const val CONFETTI_DURATION_MS = 4500
-private const val CONFETTI_GRAVITY = 0.55f  // normalized units per second² (downward)
+private const val CONFETTI_GRAVITY = 0.55f // normalized units per second² (downward)
 
 private enum class ConfettiShape { Hexagon, Circle, Triangle, Capsule, Rect }
 
 private data class ConfettiParticle(
-    val x0: Float,          // launch x [0..1 fraction of canvas width]
-    val y0: Float,          // launch y [0..1 fraction — starts in upper third]
-    val vx: Float,          // horizontal velocity [fraction/s]
-    val vy: Float,          // initial vertical velocity — negative = upward
-    val wobbleAmp: Float,   // horizontal sine-wobble amplitude [fraction]
-    val wobbleFreq: Float,  // wobble frequency [rad/s]
+    val x0: Float, // launch x [0..1 fraction of canvas width]
+    val y0: Float, // launch y [0..1 fraction — starts in upper third]
+    val vx: Float, // horizontal velocity [fraction/s]
+    val vy: Float, // initial vertical velocity — negative = upward
+    val wobbleAmp: Float, // horizontal sine-wobble amplitude [fraction]
+    val wobbleFreq: Float, // wobble frequency [rad/s]
     val wobblePhase: Float, // wobble phase offset [rad]
     val color: Color,
     val rotation0: Float,

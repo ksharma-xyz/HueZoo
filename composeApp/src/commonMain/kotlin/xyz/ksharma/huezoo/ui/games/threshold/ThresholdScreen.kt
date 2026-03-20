@@ -12,20 +12,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
+import xyz.ksharma.huezoo.ui.components.HuezooButton
+import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.SkewedStatChip
 import xyz.ksharma.huezoo.ui.components.SwatchBlock
@@ -38,6 +43,9 @@ import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @Composable
 fun ThresholdScreen(
@@ -71,7 +79,10 @@ fun ThresholdScreen(
 
             when (val state = uiState) {
                 ThresholdUiState.Loading -> Unit
-                is ThresholdUiState.Blocked -> BlockedContent(state = state)
+                is ThresholdUiState.Blocked -> BlockedContent(
+                    state = state,
+                    onBack = onBack,
+                )
                 is ThresholdUiState.Playing -> PlayingContent(
                     state = state,
                     onSwatchTap = { index ->
@@ -130,6 +141,21 @@ private fun PlayingContent(
             accentColor = HuezooColors.AccentCyan,
         )
 
+        // UX.4.1 — "↓ ΔE X.X" confirmation label during Correct phase
+        AnimatedVisibility(
+            visible = state.roundPhase == RoundPhase.Correct,
+            enter = fadeIn(tween(120)),
+            exit = fadeOut(tween(200)),
+        ) {
+            Text(
+                text = "↓ ΔE ${state.deltaE.fmt()} — SHARPER",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = HuezooColors.AccentGreen,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = HuezooSpacing.xs),
+            )
+        }
+
         Spacer(Modifier.height(HuezooSpacing.xl))
 
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -154,7 +180,7 @@ private fun PlayingContent(
 
         Spacer(Modifier.height(HuezooSpacing.lg))
 
-        // During Wrong phase: sting copy appears below instruction
+        // During Wrong phase: sting copy appears below swatches
         AnimatedVisibility(
             visible = state.roundPhase == RoundPhase.Wrong && state.stingCopy != null,
             enter = fadeIn(tween(200)),
@@ -170,29 +196,77 @@ private fun PlayingContent(
     }
 }
 
+// UX.3.2 — Styled blocked screen: live countdown + back button
+@OptIn(ExperimentalTime::class)
 @Composable
 private fun BlockedContent(
     state: ThresholdUiState.Blocked,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val countdown by countdownUntil(state.nextResetAt)
+
     Column(
         modifier = modifier
             .fillMaxSize()
+            .navigationBarsPadding()
             .padding(HuezooSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
     ) {
+        Spacer(Modifier.weight(1f))
+
         Text(
-            text = "No tries left",
+            text = "OUT OF TRIES",
             style = MaterialTheme.typography.headlineMedium,
-            color = HuezooColors.TextPrimary,
+            color = HuezooColors.AccentMagenta,
+            fontWeight = FontWeight.ExtraBold,
+            textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(HuezooSpacing.sm))
         Text(
             text = "${state.attemptsUsed}/${state.maxAttempts} used this window",
             style = MaterialTheme.typography.bodyMedium,
             color = HuezooColors.TextSecondary,
+            textAlign = TextAlign.Center,
         )
+        Spacer(Modifier.height(HuezooSpacing.xl))
+        if (countdown.isNotEmpty()) {
+            Text(
+                text = "Resets in $countdown",
+                style = MaterialTheme.typography.titleMedium,
+                color = HuezooColors.TextPrimary,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+            )
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        HuezooButton(
+            text = "BACK TO HOME",
+            onClick = onBack,
+            variant = HuezooButtonVariant.Primary,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(HuezooSpacing.md))
+    }
+}
+
+/** Returns a live-updating "Xh Xm" string, ticking every 60 s. */
+@OptIn(ExperimentalTime::class)
+@Composable
+private fun countdownUntil(until: Instant) = produceState(initialValue = "") {
+    while (true) {
+        val remaining = until - Clock.System.now()
+        val totalSeconds = remaining.inWholeSeconds.coerceAtLeast(0)
+        value = if (totalSeconds <= 0) {
+            ""
+        } else {
+            val hours = totalSeconds / 3600
+            val minutes = (totalSeconds % 3600) / 60
+            if (hours > 0) "${hours}h ${minutes}m" else "${minutes}m"
+        }
+        delay(60_000L)
     }
 }
 
@@ -235,6 +309,31 @@ private fun ThresholdPlayingPreview() {
 
 @xyz.ksharma.huezoo.ui.preview.PreviewScreen
 @androidx.compose.runtime.Composable
+private fun ThresholdCorrectPhasePreview() {
+    xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
+        PlayingContent(
+            state = ThresholdUiState.Playing(
+                swatches = listOf(
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(
+                        androidx.compose.ui.graphics.Color(0xFF4CAF50),
+                        displayState = SwatchDisplayState.Correct,
+                    ),
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF4CAF50)),
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF4CAF50)),
+                ),
+                deltaE = 2.4f,
+                round = 3,
+                attemptsRemaining = 4,
+                roundPhase = RoundPhase.Correct,
+                totalGems = 26,
+            ),
+            onSwatchTap = {},
+        )
+    }
+}
+
+@xyz.ksharma.huezoo.ui.preview.PreviewScreen
+@androidx.compose.runtime.Composable
 private fun ThresholdWrongPhasePreview() {
     xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
         PlayingContent(
@@ -264,14 +363,16 @@ private fun ThresholdWrongPhasePreview() {
 
 @xyz.ksharma.huezoo.ui.preview.PreviewScreen
 @androidx.compose.runtime.Composable
+@kotlin.OptIn(kotlin.time.ExperimentalTime::class)
 private fun ThresholdBlockedPreview() {
     xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
         BlockedContent(
             state = ThresholdUiState.Blocked(
-                nextResetAt = kotlin.time.Clock.System.now(),
+                nextResetAt = kotlin.time.Clock.System.now().plus(kotlin.time.Duration.parse("2h30m")),
                 attemptsUsed = 5,
                 maxAttempts = 5,
             ),
+            onBack = {},
         )
     }
 }
