@@ -325,16 +325,16 @@ identity upgrade — the whole interface changes allegiance, not just a badge.
 11. `LevelsProgressSheet.kt` — header accent bar → `LocalPlayerAccentColor`
 12. `AmbientGlow.kt` — default `primaryColor` parameter → `LocalPlayerAccentColor`
 
-- [ ] UX.16.1 Define `LocalPlayerAccentColor` CompositionLocal (default `AccentCyan`)
-- [ ] UX.16.2 `App.kt` — collect gems flow, derive level color, provide `CompositionLocalProvider`
-- [ ] UX.16.3 `HuezooButton` + `HuezooIconButton` — primary variants read `LocalPlayerAccentColor`
-- [ ] UX.16.4 `CurrencyPill` — reads `LocalPlayerAccentColor`
-- [ ] UX.16.5 `HuezooTopBar` — back button + wordmark read `LocalPlayerAccentColor`
-- [ ] UX.16.6 `HomeScreen` — all primary-accent usages read `LocalPlayerAccentColor`
-- [ ] UX.16.7 `ThresholdScreen` + `DailyScreen` — primary-accent usages read `LocalPlayerAccentColor`
-- [ ] UX.16.8 `ResultScreen` — hero + stat cards read `LocalPlayerAccentColor`
-- [ ] UX.16.9 `LevelsProgressSheet` + `AmbientGlow` — read `LocalPlayerAccentColor`
-- [ ] UX.16.10 Verify: game-mechanic colors (correct/wrong/revealed/DeltaEBadge) are unchanged
+- [x] UX.16.1 Define `LocalPlayerAccentColor` + `LocalPlayerShelfColor` CompositionLocals (`LocalPlayerTheme.kt`)
+- [x] UX.16.2 `App.kt` — re-read gems on back-stack change, derive `PlayerLevel`, `CompositionLocalProvider`
+- [x] UX.16.3 `HuezooButton` + `HuezooIconButton` — primary/ghost/info variants read level locals
+- [x] UX.16.4 `CurrencyPill` — shadow, gem count, label read `LocalPlayerAccentColor`
+- [x] UX.16.5 `HuezooTopBar` — back button shadow + chevron, help button, wordmark read level color
+- [x] UX.16.6 `HomeScreen` — gem panel bar, GEMS label, pulse dot, scanner accent, GemSpillIllustration, DeltaEInfoCard
+- [x] UX.16.7 `ThresholdScreen` + `DailyScreen` — title color, ΔE chip, ambient glow secondary
+- [x] UX.16.8 `ResultScreen` — hero gems, stat cards, breakdown amounts, PlayIcon
+- [x] UX.16.9 `LevelsProgressSheet` — header accent bar
+- [x] UX.16.10 Verified: correct/wrong/revealed/DeltaEBadge colors unchanged; `PlayerLevel` cards keep tier colors
 
 #### UX.15 — Settings / About Screen ⬜
 - [ ] UX.15.1 **About screen** (or bottom sheet) — app version, legal links (Privacy Policy, Terms of Use), acknowledgements
