@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -152,7 +153,8 @@ private fun ReadyContent(
     onDebugReset: () -> Unit = {},
 ) {
     val challengeName = remember {
-        val dayOfYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).dayOfYear
+        val dayOfYear =
+            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).dayOfYear
         CHALLENGE_NAMES[dayOfYear % CHALLENGE_NAMES.size]
     }
 
@@ -300,7 +302,7 @@ private fun StatsSection(
 
         // Streak + Rank side-by-side, equal width
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(top = HuezooSpacing.md),
             horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
         ) {
             StatBox(
@@ -337,7 +339,7 @@ private fun StatBox(
                     size = Size(size.width, 2.dp.toPx()),
                 )
             }
-            .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+            .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.md),
     ) {
         Column {
             HuezooLabelSmall(
@@ -394,19 +396,10 @@ private fun ThresholdHeroCard(
             .background(HuezooColors.SurfaceL2)
             .rimLight(cornerRadius = 0.dp),
     ) {
-        // Right gradient illustration area
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .size(width = 120.dp, height = 300.dp)
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            HuezooColors.GameThreshold.copy(alpha = if (enabled) 0.20f else 0.08f),
-                        ),
-                    ),
-                ),
+        // Tactical scanner illustration — fills the full card, drawn behind content
+        ThresholdScannerIllustration(
+            enabled = enabled,
+            modifier = Modifier.matchParentSize(),
         )
 
         Column(modifier = Modifier.fillMaxWidth().padding(HuezooSpacing.lg)) {
@@ -483,6 +476,191 @@ private fun ThresholdHeroCard(
                 nextLevelName = nextLevelName,
                 accentColor = playerLevel.levelColor,
             )
+        }
+    }
+}
+
+// ── Threshold scanner illustration ───────────────────────────────────────────
+
+/**
+ * Tactical scanner drawn entirely from lines — GI Joe / robot sensor array aesthetic.
+ *
+ * Elements:
+ *  • Dot grid background (holographic HUD feel)
+ *  • 5 concentric partial arcs anchored at the right edge (range rings)
+ *  • Tick marks on each arc (major every 4th, minor otherwise)
+ *  • Horizontal + vertical crosshair lines with a gap around the focal point
+ *  • Radar sweep arm + a ghost trailing arm
+ *  • Center focal diamond + cyan dot
+ *  • Data blips (small squares) scattered along the outer arcs
+ *  • Military corner bracket markers
+ *
+ * All elements drawn in [HuezooColors.GameThreshold] (indigo-violet) with [HuezooColors.AccentCyan]
+ * accents. Alpha drops off toward the left edge, keeping text readable.
+ */
+@Composable
+private fun ThresholdScannerIllustration(
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val baseColor = HuezooColors.GameThreshold
+    val accentColor = HuezooColors.AccentCyan
+    val dimFactor = if (enabled) 1f else 0.35f
+
+    Canvas(modifier = modifier) {
+        val sw = 1.dp.toPx()
+        val w = size.width
+        val h = size.height
+
+        // Reticle anchor: slightly off-screen right, upper-third of card
+        val cx = w + 16.dp.toPx()
+        val cy = h * 0.28f
+
+        // ── 1. Dot grid ──────────────────────────────────────────────────────
+        val dotStep = 22.dp.toPx()
+        val dotR = 1.2.dp.toPx()
+        var gx = 0f
+        while (gx <= w) {
+            var gy = 0f
+            while (gy <= h) {
+                // Fade dots on the left quarter so text stays readable
+                val fadeAlpha = ((gx / w - 0.25f) / 0.75f).coerceIn(0f, 1f)
+                drawCircle(
+                    color = baseColor.copy(alpha = 0.07f * fadeAlpha * dimFactor),
+                    radius = dotR,
+                    center = Offset(gx, gy),
+                )
+                gy += dotStep
+            }
+            gx += dotStep
+        }
+
+        // ── 2. Concentric range arcs ─────────────────────────────────────────
+        val arcRadii = listOf(70.0, 115.0, 165.0, 222.0, 285.0).map { it.dp.toPx() }
+        val arcStart = 140f   // degrees — leftward-facing sweep
+        val arcSweep = 185f
+
+        arcRadii.forEachIndexed { i, r ->
+            val arcAlpha = (0.22f - i * 0.025f) * dimFactor
+            drawArc(
+                color = baseColor.copy(arcAlpha),
+                startAngle = arcStart,
+                sweepAngle = arcSweep,
+                useCenter = false,
+                topLeft = Offset(cx - r, cy - r),
+                size = Size(r * 2, r * 2),
+                style = Stroke(width = sw),
+            )
+
+            // Tick marks
+            val numTicks = 9 + i * 3
+            for (t in 0..numTicks) {
+                val angleDeg = arcStart + t * (arcSweep / numTicks.toFloat())
+                val rad = angleDeg * PI / 180.0
+                val cosA = cos(rad).toFloat()
+                val sinA = sin(rad).toFloat()
+                val isMajor = t % 4 == 0
+                val tickLen = (if (isMajor) 5.5.dp else 2.5.dp).toPx()
+                val tickAlpha = (if (isMajor) arcAlpha * 1.8f else arcAlpha).coerceAtMost(0.55f)
+                drawLine(
+                    color = baseColor.copy(tickAlpha),
+                    start = Offset(cx + (r - tickLen) * cosA, cy + (r - tickLen) * sinA),
+                    end = Offset(cx + r * cosA, cy + r * sinA),
+                    strokeWidth = sw,
+                )
+            }
+        }
+
+        // ── 3. Crosshair lines ────────────────────────────────────────────────
+        val crossAlpha = 0.13f * dimFactor
+        val gapR = 40.dp.toPx()
+        // Horizontal arm going left
+        drawLine(baseColor.copy(crossAlpha), Offset(0f, cy), Offset(cx - gapR, cy), sw)
+        // Vertical arm going down
+        drawLine(baseColor.copy(crossAlpha), Offset(cx, cy + gapR), Offset(cx, h + 20.dp.toPx()), sw)
+        // Vertical arm going up
+        drawLine(baseColor.copy(crossAlpha), Offset(cx, 0f), Offset(cx, cy - gapR), sw)
+
+        // ── 4. Radar sweep arm + ghost ────────────────────────────────────────
+        val sweepDeg = 212.0
+        val sweepRad = sweepDeg * PI / 180.0
+        val sweepLen = arcRadii.last()
+        drawLine(
+            color = baseColor.copy(0.30f * dimFactor),
+            start = Offset(cx, cy),
+            end = Offset((cx + sweepLen * cos(sweepRad)).toFloat(), (cy + sweepLen * sin(sweepRad)).toFloat()),
+            strokeWidth = sw * 1.6f,
+        )
+        val ghostRad = (sweepDeg - 14.0) * PI / 180.0
+        drawLine(
+            color = baseColor.copy(0.10f * dimFactor),
+            start = Offset(cx, cy),
+            end = Offset((cx + sweepLen * cos(ghostRad)).toFloat(), (cy + sweepLen * sin(ghostRad)).toFloat()),
+            strokeWidth = sw,
+        )
+
+        // ── 5. Center focal diamond + cyan dot ────────────────────────────────
+        val d = 9.dp.toPx()
+        val diamond = Path().apply {
+            moveTo(cx, cy - d); lineTo(cx + d, cy); lineTo(cx, cy + d); lineTo(cx - d, cy); close()
+        }
+        drawPath(diamond, baseColor.copy(0.45f * dimFactor), style = Stroke(sw * 1.5f))
+        drawCircle(accentColor.copy(0.80f * dimFactor), 2.5.dp.toPx(), Offset(cx, cy))
+
+        // ── 6. Data blips on arcs ─────────────────────────────────────────────
+        data class Blip(val arcIdx: Int, val angleDeg: Float)
+        val blips = listOf(
+            Blip(2, 148f), Blip(2, 182f), Blip(2, 225f), Blip(2, 275f), Blip(2, 318f),
+            Blip(3, 155f), Blip(3, 200f), Blip(3, 260f), Blip(3, 310f),
+            Blip(4, 170f), Blip(4, 240f), Blip(4, 290f),
+        )
+        blips.forEach { (arcIdx, angleDeg) ->
+            val r = arcRadii[arcIdx]
+            val rad = angleDeg * PI / 180.0
+            val bx = (cx + r * cos(rad)).toFloat()
+            val by = (cy + r * sin(rad)).toFloat()
+            if (bx < w && by >= 0f && by <= h) {
+                val bSz = 4.dp.toPx()
+                val isAccent = angleDeg in 180f..200f || angleDeg in 300f..320f
+                val blipColor = if (isAccent) accentColor else baseColor
+                val blipAlpha = if (isAccent) 0.60f * dimFactor else 0.35f * dimFactor
+                drawRect(blipColor.copy(blipAlpha), Offset(bx - bSz / 2f, by - bSz / 2f), Size(bSz, bSz))
+            }
+        }
+
+        // ── 7. Military corner brackets ───────────────────────────────────────
+        val bLen = 12.dp.toPx()
+        val bAlpha = 0.22f * dimFactor
+        val bSw = sw * 1.8f
+        data class Corner(val x: Float, val y: Float, val dx: Float, val dy: Float)
+        listOf(
+            Corner(0f, 0f, 1f, 1f),               // top-left
+            Corner(w, 0f, -1f, 1f),               // top-right
+            Corner(0f, h, 1f, -1f),               // bottom-left
+            Corner(w, h, -1f, -1f),               // bottom-right
+        ).forEach { (x, y, dx, dy) ->
+            drawLine(baseColor.copy(bAlpha), Offset(x, y), Offset(x + dx * bLen, y), bSw)
+            drawLine(baseColor.copy(bAlpha), Offset(x, y), Offset(x, y + dy * bLen), bSw)
+        }
+
+        // ── 8. Horizontal data-scan line at 60% height ───────────────────────
+        val scanY = h * 0.62f
+        drawLine(
+            color = accentColor.copy(0.08f * dimFactor),
+            start = Offset(w * 0.35f, scanY),
+            end = Offset(w, scanY),
+            strokeWidth = sw,
+        )
+        // Tick on scan line every 18dp
+        var tx = w * 0.40f
+        while (tx <= w - 4.dp.toPx()) {
+            drawLine(
+                accentColor.copy(0.12f * dimFactor),
+                Offset(tx, scanY - 3.dp.toPx()),
+                Offset(tx, scanY + 3.dp.toPx()),
+                sw,
+            )
+            tx += 18.dp.toPx()
         }
     }
 }
@@ -777,7 +955,7 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
                 ),
             ) {
                 HuezooBodyMedium(
-                    text = "ΔE measures color difference. Lower = colors are more similar = harder to spot the odd one out.",
+                    text = "ΔE measures color difference.\nLower = colors are more similar = harder to spot the odd one out.",
                     color = HuezooColors.TextSecondary,
                 )
                 Spacer(Modifier.height(HuezooSpacing.sm))
@@ -817,7 +995,7 @@ private fun StaggeredCard(
         visible = visible,
         modifier = modifier,
         enter = fadeIn(tween(CARD_ANIM_DURATION_MS)) +
-            slideInVertically(tween(CARD_ANIM_DURATION_MS)) { it / SLIDE_FRACTION },
+                slideInVertically(tween(CARD_ANIM_DURATION_MS)) { it / SLIDE_FRACTION },
     ) {
         content()
     }
