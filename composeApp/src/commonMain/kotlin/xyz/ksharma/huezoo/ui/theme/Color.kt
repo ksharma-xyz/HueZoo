@@ -19,6 +19,7 @@ object HuezooColors {
     val AccentGreen = Color(0xFF00F5A0)
     val AccentOrange = Color(0xFFFF7A00)   // Sharp level — vivid orange  (hue ≈ 29°)
     val AccentPink = Color(0xFFFF3D9E)     // Elite level — hot pink      (hue ≈ 330°)
+    val AccentGold = Color(0xFFFFB800)     // Master level — gold         (hue ≈ 43°)
 
     // Text
     val TextPrimary = Color(0xFFFFFFFF)

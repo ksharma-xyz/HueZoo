@@ -1,6 +1,5 @@
 package xyz.ksharma.huezoo.ui.model
 
-import androidx.compose.ui.graphics.Color
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 
 /**
@@ -55,7 +54,7 @@ enum class PlayerLevel(
     Master(
         displayName = "MASTER",
         minGems = 50_000,
-        levelColor = Color(0xFFFFB800),
+        levelColor = HuezooColors.AccentGold,
         shelfColor = HuezooColors.ShelfMaster,
         levelHue = 43f,
     ),
