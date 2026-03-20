@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -35,6 +34,7 @@ import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.PillShape
 import xyz.ksharma.huezoo.ui.theme.onColor
+import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val ShelfHeight = 5.dp
 
@@ -128,23 +128,21 @@ fun HuezooButton(
 
     val shelfPx = with(LocalDensity.current) { ShelfHeight.toPx() }
 
-    // Reserve bottom space for the shelf
+    // Reserve bottom space so the shadow doesn't get clipped by the parent
     Box(modifier = modifier.padding(bottom = ShelfHeight)) {
-        // Shelf — fixed, bottom only
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .offset(x = 0.dp, y = ShelfHeight)
-                .background(resolvedShelf, PillShape),
-        )
-
-        // Face — slides down on press, springs back on release
+        // Face — shapedShadow draws the shelf; face slides into it on press
         Box(
             modifier = Modifier
                 .graphicsLayer {
-                    translationX = 0f
                     translationY = pressProgress * shelfPx
+                    clip = false // let the shadow render outside the layer bounds
                 }
+                .shapedShadow(
+                    shape = PillShape,
+                    color = resolvedShelf,
+                    offsetX = 0.dp,
+                    offsetY = ShelfHeight,
+                )
                 .then(
                     if (resolvedBorder != Color.Transparent) {
                         Modifier.border(HuezooSize.BorderThin, resolvedBorder, PillShape)
