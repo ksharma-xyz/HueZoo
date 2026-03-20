@@ -961,8 +961,8 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
 
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically(tween(200)) + fadeIn(tween(200)),
-            exit = shrinkVertically(tween(200)),
+            enter = expandVertically(tween(300)) + fadeIn(tween(300)),
+            exit = shrinkVertically(tween(400)),
         ) {
             Column(
                 modifier = Modifier.padding(
