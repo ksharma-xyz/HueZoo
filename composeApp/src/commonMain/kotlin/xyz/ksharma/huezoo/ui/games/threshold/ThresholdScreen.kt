@@ -128,7 +128,7 @@ private fun PlayingContent(
             accentColor = HuezooColors.AccentCyan,
         )
 
-        Spacer(Modifier.height(HuezooSpacing.md))
+        Spacer(Modifier.height(HuezooSpacing.xl))
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
@@ -199,4 +199,71 @@ private fun SwatchDisplayState.toSwatchBlockState(): SwatchBlockState = when (th
     SwatchDisplayState.Correct -> SwatchBlockState.Correct
     SwatchDisplayState.Wrong -> SwatchBlockState.Wrong
     SwatchDisplayState.Revealed -> SwatchBlockState.Revealed
+}
+
+// ── Previews ─────────────────────────────────────────────────────────────────
+
+@xyz.ksharma.huezoo.ui.preview.PreviewScreen
+@androidx.compose.runtime.Composable
+private fun ThresholdPlayingPreview() {
+    xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
+        PlayingContent(
+            state = ThresholdUiState.Playing(
+                swatches = listOf(
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF4CAF50)),
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF4CAF50)),
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF66BB6A)),
+                ),
+                deltaE = 2.4f,
+                round = 3,
+                attemptsRemaining = 4,
+                roundPhase = RoundPhase.Idle,
+                totalGems = 24,
+            ),
+            onSwatchTap = {},
+        )
+    }
+}
+
+@xyz.ksharma.huezoo.ui.preview.PreviewScreen
+@androidx.compose.runtime.Composable
+private fun ThresholdWrongPhasePreview() {
+    xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
+        PlayingContent(
+            state = ThresholdUiState.Playing(
+                swatches = listOf(
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(
+                        androidx.compose.ui.graphics.Color(0xFFE91E63),
+                        displayState = SwatchDisplayState.Wrong,
+                    ),
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFFE91E63)),
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(
+                        androidx.compose.ui.graphics.Color(0xFFF06292),
+                        displayState = SwatchDisplayState.Revealed,
+                    ),
+                ),
+                deltaE = 1.8f,
+                round = 5,
+                attemptsRemaining = 2,
+                roundPhase = RoundPhase.Wrong,
+                stingCopy = "So close. And yet.",
+                totalGems = 32,
+            ),
+            onSwatchTap = {},
+        )
+    }
+}
+
+@xyz.ksharma.huezoo.ui.preview.PreviewScreen
+@androidx.compose.runtime.Composable
+private fun ThresholdBlockedPreview() {
+    xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
+        BlockedContent(
+            state = ThresholdUiState.Blocked(
+                nextResetAt = kotlinx.datetime.Clock.System.now(),
+                attemptsUsed = 5,
+                maxAttempts = 5,
+            ),
+        )
+    }
 }

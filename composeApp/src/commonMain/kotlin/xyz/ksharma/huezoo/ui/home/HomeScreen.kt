@@ -166,3 +166,55 @@ private fun DailyCard(
         modifier = modifier.fillMaxWidth(),
     )
 }
+
+// ── Previews ─────────────────────────────────────────────────────────────────
+
+@xyz.ksharma.huezoo.ui.preview.PreviewScreen
+@androidx.compose.runtime.Composable
+private fun HomeReadyPreview() {
+    xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
+        ReadyContent(
+            state = HomeUiState.Ready(
+                threshold = ThresholdCardData(
+                    personalBestDeltaE = 1.4f,
+                    attemptsRemaining = 3,
+                    maxAttempts = 5,
+                    isBlocked = false,
+                ),
+                daily = DailyCardData(
+                    isCompletedToday = false,
+                    todayScore = null,
+                ),
+                isPaid = false,
+                totalGems = 128,
+            ),
+            onThresholdTap = {},
+            onDailyTap = {},
+        )
+    }
+}
+
+@xyz.ksharma.huezoo.ui.preview.PreviewScreen
+@androidx.compose.runtime.Composable
+private fun HomeBlockedAndCompletedPreview() {
+    xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
+        ReadyContent(
+            state = HomeUiState.Ready(
+                threshold = ThresholdCardData(
+                    personalBestDeltaE = 0.9f,
+                    attemptsRemaining = 0,
+                    maxAttempts = 5,
+                    isBlocked = true,
+                ),
+                daily = DailyCardData(
+                    isCompletedToday = true,
+                    todayScore = 740f,
+                ),
+                isPaid = true,
+                totalGems = 2450,
+            ),
+            onThresholdTap = {},
+            onDailyTap = {},
+        )
+    }
+}
