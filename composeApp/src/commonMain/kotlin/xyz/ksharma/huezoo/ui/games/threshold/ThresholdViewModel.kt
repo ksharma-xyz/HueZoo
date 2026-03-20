@@ -132,6 +132,8 @@ class ThresholdViewModel(
             roundCount++
             currentDeltaE = (currentDeltaE - ThresholdGameEngine.DELTA_E_STEP)
                 .coerceAtLeast(ThresholdGameEngine.MIN_DELTA_E)
+            // Fresh base color every round — keeps gameplay visually varied.
+            baseColor = colorEngine.randomVividColor()
             emitRound()
         }
     }
@@ -157,8 +159,9 @@ class ThresholdViewModel(
             delay(ANIMATION_WRONG_MS)
 
             if (triesRemaining > 0) {
-                // Still has lives — reset ΔE, keep cumulative round count.
+                // Still has lives — reset ΔE, fresh color, keep cumulative round count.
                 currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
+                baseColor = colorEngine.randomVividColor()
                 emitRound()
             } else {
                 // All lives spent → navigate to result.
