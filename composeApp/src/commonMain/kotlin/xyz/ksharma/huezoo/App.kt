@@ -13,25 +13,36 @@ import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Home
 import xyz.ksharma.huezoo.navigation.Leaderboard
 import xyz.ksharma.huezoo.navigation.Result
+import xyz.ksharma.huezoo.navigation.Splash
 import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.ui.games.daily.DailyScreen
 import xyz.ksharma.huezoo.ui.games.threshold.ThresholdScreen
 import xyz.ksharma.huezoo.ui.home.HomeScreen
 import xyz.ksharma.huezoo.ui.leaderboard.LeaderboardScreen
 import xyz.ksharma.huezoo.ui.result.ResultScreen
+import xyz.ksharma.huezoo.ui.splash.SplashScreen
 import xyz.ksharma.huezoo.ui.theme.HuezooTheme
 
 @Composable
 fun App() {
     HuezooTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
-            val backStack = remember { mutableStateListOf<Any>(Home) }
+            val backStack = remember { mutableStateListOf<Any>(Splash) }
 
             NavDisplay(
                 backStack = backStack,
                 onBack = { if (backStack.size > 1) backStack.removeLast() },
                 entryProvider = { destination ->
                     when (destination) {
+                        is Splash -> NavEntry(destination) {
+                            SplashScreen(
+                                onFinished = {
+                                    backStack.removeLast() // drop Splash — can't go back to it
+                                    backStack.add(Home)
+                                },
+                            )
+                        }
+
                         is Home -> NavEntry(destination) {
                             HomeScreen(onNavigate = { backStack.add(it) })
                         }

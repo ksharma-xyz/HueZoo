@@ -3,6 +3,9 @@ package xyz.ksharma.huezoo.navigation
 import kotlinx.serialization.Serializable
 
 @Serializable
+data object Splash
+
+@Serializable
 data object Home
 
 @Serializable

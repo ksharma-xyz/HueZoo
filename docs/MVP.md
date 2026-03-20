@@ -241,7 +241,7 @@ Open app
 #### UX.10 — Progression Screens ✅
 - [x] UX.10.1 Home screen — full design with gem panel, player level, stat boxes, game cards, illustrations
 - [x] UX.10.2 **Levels & Progress sheet** — `LevelsProgressSheet.kt`; tap gem inventory area on Home → shows all 5 tiers as color-coded neo-brutalist cards, progress bar, gem threshold to next level. Design ref: `docs/stitch_huezoo_prd_design_doc/huezoo_levels_progress/`
-- [ ] UX.10.3 **Splash screen** — animated logo reveal. Build after home is locked.
+- [x] UX.10.3 **Splash screen** — `SplashScreen.kt`; tactical scanner illustration (dot grid, arcs, crosshair, corner brackets, scan lines) + "HUEZOO" 96sp Bebas Neue italic springs in + "IDENTIFY THE OUTLIER" tagline; ~2.3 s then cross-fades to Home. `Splash` destination removed from back stack on exit.
 
 #### UX.11 — Out of Tries Refill Sheet ⬜
 *Replace current full-screen Blocked state with a monetisation-ready modal.*
