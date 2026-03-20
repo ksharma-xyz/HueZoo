@@ -229,6 +229,7 @@ Open app
 - [ ] UX.7.2 ΔE tier label in HUD (below ΔE chip): "BEGINNER / TRAINING / SHARP / EXPERT / ELITE" — updates each round
 - [ ] UX.7.3 Tier-change animation: brief pulse when ΔE crosses a tier boundary
 - [ ] UX.7.4 First-round tooltip: "Lower ΔE = harder to spot" — one-time, dismisses on first tap
+- [ ] UX.7.5 **Daily Challenge: per-round base color variety** — currently all 6 rounds use the same hue family; each round should seed a different base color so the challenge feels visually distinct across rounds. Wire through `DailyGameEngine` / `DefaultDailyGameEngine` date+round seed.
 
 #### UX.8 — Satisfying Correct Dismiss ⬜
 - [ ] UX.8.1 Design + implement dismiss animation for the correct swatch (pop/glow-burst/implode)
