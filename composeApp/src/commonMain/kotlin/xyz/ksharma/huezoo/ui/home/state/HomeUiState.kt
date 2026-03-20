@@ -8,6 +8,7 @@ sealed interface HomeUiState {
         val threshold: ThresholdCardData,
         val daily: DailyCardData,
         val isPaid: Boolean,
+        val totalGems: Int,
     ) : HomeUiState
 }
 

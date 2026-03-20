@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
 import xyz.ksharma.huezoo.domain.color.ColorEngine
 import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine
@@ -29,6 +30,7 @@ class ThresholdViewModel(
     private val gameEngine: ThresholdGameEngine,
     private val repository: ThresholdRepository,
     private val colorEngine: ColorEngine,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ThresholdUiState>(ThresholdUiState.Loading)
@@ -49,6 +51,7 @@ class ThresholdViewModel(
     // Best (lowest) ΔE achieved across all lives in this session.
     private var bestDeltaE: Float? = null
     private var baseColor: Color = Color.Unspecified
+    private var totalGems: Int = 0
 
     init {
         loadGame()
@@ -94,6 +97,7 @@ class ThresholdViewModel(
         roundCount = 1
         bestDeltaE = null
         triesRemaining = status.maxAttempts - status.attemptsUsed
+        totalGems = settingsRepository.getGems()
         emitRound()
     }
 
@@ -106,6 +110,7 @@ class ThresholdViewModel(
             round = roundCount,
             attemptsRemaining = triesRemaining,
             roundPhase = RoundPhase.Idle,
+            totalGems = totalGems,
         )
     }
 
@@ -130,6 +135,8 @@ class ThresholdViewModel(
             roundPhase = RoundPhase.Correct,
         )
         viewModelScope.launch {
+            // Earn 2 gems per correct tap.
+            totalGems = settingsRepository.addGems(GEMS_PER_CORRECT_TAP)
             delay(ANIMATION_CORRECT_MS)
             roundCount++
             currentDeltaE = (currentDeltaE - ThresholdGameEngine.DELTA_E_STEP)
@@ -197,5 +204,6 @@ class ThresholdViewModel(
     private companion object {
         const val ANIMATION_CORRECT_MS = 350L
         const val ANIMATION_WRONG_MS = 850L
+        const val GEMS_PER_CORRECT_TAP = 2
     }
 }

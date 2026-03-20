@@ -227,6 +227,7 @@ Paywall Sheet
 - [ ] DS.3.3 Android actual — `VibrationEffect` patterns per type (minSdk 28, safe to use all effects)
 - [ ] DS.3.4 iOS actual — `UIImpactFeedbackGenerator` / `UINotificationFeedbackGenerator`
 - [ ] DS.3.5 Koin binding — `androidModule` provides `AndroidHapticEngine(androidContext())`
+- [ ] DS.3.6 Wire haptics into gameplay: wrong tap → `HapticType.Error` (medium buzz, not harsh — "teasing" not "punishing"); correct tap → `HapticType.Success` (light, satisfying); game over → `HapticType.Heavy`
 
 ### Phase DS.4 — Sound
 - [ ] DS.4.1 Source 8 sound files: `correct`, `wrong`, `levelup`, `gameover`, `tick`, `confetti`, `button_tap`, `swatch_tap`

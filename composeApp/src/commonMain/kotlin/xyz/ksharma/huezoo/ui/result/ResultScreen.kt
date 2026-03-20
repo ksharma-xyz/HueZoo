@@ -172,7 +172,7 @@ private fun ReadyContent(
             .padding(horizontal = HuezooSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(HuezooSpacing.md))
+        Spacer(Modifier.height(HuezooSpacing.sm))
 
         // ── 1. Outcome banner — constrained width, matches stitch ─────────────
         MissionOutcomeBanner(
@@ -180,7 +180,7 @@ private fun ReadyContent(
             color = accentColor,
         )
 
-        Spacer(Modifier.height(HuezooSpacing.xl))
+        Spacer(Modifier.height(HuezooSpacing.md))
 
         // ── 2. Hero score ─────────────────────────────────────────────────────
         HeroScore(
@@ -188,7 +188,7 @@ private fun ReadyContent(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Spacer(Modifier.height(HuezooSpacing.xl))
+        Spacer(Modifier.height(HuezooSpacing.sm))
 
         // ── 3. ΔE sting readout ───────────────────────────────────────────────
         StingReadout(
@@ -199,7 +199,7 @@ private fun ReadyContent(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Spacer(Modifier.height(HuezooSpacing.md))
+        Spacer(Modifier.height(HuezooSpacing.sm))
 
         // ── 4. Stat cards — stacked full-width (matches stitch) ───────────────
         Column(
@@ -226,7 +226,7 @@ private fun ReadyContent(
             )
         }
 
-        Spacer(Modifier.height(HuezooSpacing.xl))
+        Spacer(Modifier.height(HuezooSpacing.md))
 
         // ── 5. Buttons ────────────────────────────────────────────────────────
         HuezooButton(
@@ -250,7 +250,7 @@ private fun ReadyContent(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Spacer(Modifier.height(HuezooSpacing.lg))
+        Spacer(Modifier.height(HuezooSpacing.md))
     }
 }
 

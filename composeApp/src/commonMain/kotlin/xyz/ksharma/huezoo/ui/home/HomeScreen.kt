@@ -56,7 +56,7 @@ fun HomeScreen(
     AmbientGlowBackground(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
             HuezooTopBar(
-                currencyAmount = 0,
+                currencyAmount = (uiState as? HomeUiState.Ready)?.totalGems,
             )
 
             when (val state = uiState) {

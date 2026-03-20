@@ -48,6 +48,7 @@ class HomeViewModel(
             val thresholdBest = thresholdRepository.getPersonalBest()
             val dailyChallenge = dailyRepository.getChallenge(today)
             val isPaid = settingsRepository.isPaid()
+            val totalGems = settingsRepository.getGems()
 
             val thresholdCard = when (attemptStatus) {
                 is AttemptStatus.Available -> ThresholdCardData(
@@ -73,6 +74,7 @@ class HomeViewModel(
                 threshold = thresholdCard,
                 daily = dailyCard,
                 isPaid = isPaid,
+                totalGems = totalGems,
             )
         }
     }

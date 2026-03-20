@@ -18,7 +18,19 @@ class DefaultSettingsRepository(
         Unit
     }
 
+    override suspend fun getGems(): Int = withContext(Dispatchers.Default) {
+        db.huezooDatabaseQueries.getSetting(KEY_TOTAL_GEMS).executeAsOneOrNull()?.toIntOrNull() ?: 0
+    }
+
+    override suspend fun addGems(amount: Int): Int = withContext(Dispatchers.Default) {
+        val current = db.huezooDatabaseQueries.getSetting(KEY_TOTAL_GEMS).executeAsOneOrNull()?.toIntOrNull() ?: 0
+        val next = current + amount
+        db.huezooDatabaseQueries.setSetting(KEY_TOTAL_GEMS, next.toString())
+        next
+    }
+
     private companion object {
         const val KEY_IS_PAID = "is_paid"
+        const val KEY_TOTAL_GEMS = "total_gems"
     }
 }

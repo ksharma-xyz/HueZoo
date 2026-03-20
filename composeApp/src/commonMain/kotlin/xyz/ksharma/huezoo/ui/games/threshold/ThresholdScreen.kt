@@ -24,7 +24,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
-import xyz.ksharma.huezoo.ui.components.DeltaEBadge
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.SkewedStatChip
 import xyz.ksharma.huezoo.ui.components.SwatchBlock
@@ -65,7 +64,7 @@ fun ThresholdScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             HuezooTopBar(
                 onBackClick = onBack,
-                currencyAmount = 0,
+                currencyAmount = (uiState as? ThresholdUiState.Playing)?.totalGems,
             )
 
             when (val state = uiState) {
@@ -109,28 +108,27 @@ private fun PlayingContent(
             )
         }
 
-        Spacer(Modifier.height(HuezooSpacing.lg))
+        Spacer(Modifier.height(HuezooSpacing.xxl))
 
         // Instruction title
         Text(
             text = "IDENTIFY THE OUTLIER",
             style = MaterialTheme.typography.titleLarge,
-            color = HuezooColors.TextPrimary,
+            color = HuezooColors.AccentCyan,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(HuezooSpacing.xs))
 
-        // Current sensitivity
-        Text(
-            text = "CURRENT SENSITIVITY: ΔE ${state.deltaE.fmt()}",
-            style = MaterialTheme.typography.labelMedium,
-            color = HuezooColors.TextSecondary,
+        Spacer(Modifier.height(HuezooSpacing.md))
+
+        // Delta E chip — shows current sensitivity as a SkewedStatChip
+        SkewedStatChip(
+            label = "CURRENT ΔE",
+            value = state.deltaE.fmt(),
+            accentColor = HuezooColors.AccentCyan,
         )
 
         Spacer(Modifier.height(HuezooSpacing.md))
-        DeltaEBadge(deltaE = state.deltaE)
-        Spacer(Modifier.height(HuezooSpacing.xl))
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
