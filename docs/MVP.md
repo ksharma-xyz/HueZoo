@@ -163,6 +163,37 @@ Paywall Sheet
 - [ ] DS.2.6 `ResultCard` — radial gradient, glow border, share-ready 1:1 layout
 - [ ] DS.2.7 `HuezooBottomSheet` — game-styled sheet, 32dp top corners, handle bar
 
+### Phase UX — UX Polish (do before haptics/sound/monetisation)
+
+#### UX.1 — Result Screen
+- [ ] UX.1.1 Confetti burst on result enter (identity color particles, 50 count, gravity physics)
+- [ ] UX.1.2 Share button ("Share Result") → native share sheet via `platformOps.shareText()`
+- [ ] UX.1.3 Sting copy on ResultCard based on ΔE achieved (see `docs/ux.md` copy pool)
+- [ ] UX.1.4 Daily result: show "Next puzzle in Xh Xm" countdown below buttons
+- [ ] UX.1.5 ResultCard slide-up entrance (offset 60dp + scale 0.9 → 1.0, spring)
+- [ ] UX.1.6 Score count-up animation (0 → final, spring 800ms)
+
+#### UX.2 — Home Screen Timers
+- [ ] UX.2.1 Daily card (completed): show today's score + live "Next puzzle in Xh Xm" countdown
+- [ ] UX.2.2 Threshold card (blocked): show live "Resets in Xh Xm" countdown
+
+#### UX.3 — Already Played / Blocked States
+- [ ] UX.3.1 Daily already-played screen: show read-only ResultCard + countdown (not just plain text)
+- [ ] UX.3.2 Threshold blocked screen: show live reset countdown + styled "Back to Home" primary button
+
+#### UX.4 — In-Game Feedback
+- [ ] UX.4.1 Correct tap: show brief "↓ ΔE X.X" label below badge for 600ms before next round
+- [ ] UX.4.2 Daily: show today's date under "Daily Challenge" title ("March 20 · Same for everyone")
+- [ ] UX.4.3 Daily final round (6/6): change instruction text to "Last one — make it count"
+
+#### UX.5 — New User / Onboarding
+- [ ] UX.5.1 First-launch ΔE info card on Home (dismissable, stored in SQLDelight `user_settings`)
+- [ ] UX.5.2 Review subtitle copy on both game cards to be more instructional for new users
+
+#### UX.6 — Navigation Gaps
+- [ ] UX.6.1 Result "Play Again" for Threshold: check attempts before navigating — show inline "No tries left" if exhausted instead of starting a game that immediately blocks
+- [ ] UX.6.2 Leaderboard button on Result: hide until Firebase is implemented (remove or show "Coming soon" toast)
+
 ### Phase DS.3 — Haptics
 - [ ] DS.3.1 `HapticType` enum in commonMain (Light, Medium, Heavy, Success, Error, Warning, Selection)
 - [ ] DS.3.2 `HapticEngine` interface in commonMain
