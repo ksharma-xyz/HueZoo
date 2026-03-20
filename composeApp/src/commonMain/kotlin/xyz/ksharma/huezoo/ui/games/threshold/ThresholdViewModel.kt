@@ -18,10 +18,10 @@ import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Result
-import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
+import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
@@ -55,6 +55,7 @@ class ThresholdViewModel(
     private var bestDeltaE: Float? = null
     private var baseColor: Color = Color.Unspecified
     private var totalGems: Int = 0
+
     /** Tracks the last-used layout style to avoid showing the same shape twice in a row. */
     private var lastLayoutStyle: SwatchLayoutStyle? = null
 
@@ -241,6 +242,7 @@ class ThresholdViewModel(
     private companion object {
         const val ANIMATION_CORRECT_MS = 350L
         const val ANIMATION_WRONG_MS = 850L
+
         /** Time budget for the flower fold-out animation before the next round is emitted. */
         const val ANIMATION_FOLD_MS = 520L
         const val GEMS_PER_CORRECT_TAP = 2

@@ -68,34 +68,44 @@ private val SHARED_CONTAINER = 300.dp
 private fun configFor(style: SwatchLayoutStyle): RadialConfig = when (style) {
     // Petals taper toward centre — slight tangential overlap is intentional (natural flower feel).
     SwatchLayoutStyle.Flower -> RadialConfig(
-        tileWidth = 84.dp, tileHeight = 116.dp,
-        containerSize = SHARED_CONTAINER, centerGap = 18.dp,
+        tileWidth = 84.dp,
+        tileHeight = 116.dp,
+        containerSize = SHARED_CONTAINER,
+        centerGap = 18.dp,
         uniformScale = false,
     )
     // Hexagons: uniform scale so they pop out symmetrically.
     // 60 dp tiles at 28 dp gap → tangential slot ≈ 63 dp — tiles just clear each other.
     SwatchLayoutStyle.HexRing -> RadialConfig(
-        tileWidth = 60.dp, tileHeight = 60.dp,
-        containerSize = SHARED_CONTAINER, centerGap = 28.dp,
+        tileWidth = 60.dp,
+        tileHeight = 60.dp,
+        containerSize = SHARED_CONTAINER,
+        centerGap = 28.dp,
         uniformScale = true,
     )
     // Squircles: uniform scale, small gap for a clean orbit feel.
     // 58 dp tiles at 32 dp gap → tangential slot ≈ 64 dp — clear spacing.
     SwatchLayoutStyle.SquircleOrbit -> RadialConfig(
-        tileWidth = 58.dp, tileHeight = 58.dp,
-        containerSize = SHARED_CONTAINER, centerGap = 32.dp,
+        tileWidth = 58.dp,
+        tileHeight = 58.dp,
+        containerSize = SHARED_CONTAINER,
+        centerGap = 32.dp,
         uniformScale = true,
     )
     // Spokes are narrow (36 dp) so there's generous air between them at any radius.
     SwatchLayoutStyle.SpokeBlades -> RadialConfig(
-        tileWidth = 36.dp, tileHeight = 92.dp,
-        containerSize = SHARED_CONTAINER, centerGap = 24.dp,
+        tileWidth = 36.dp,
+        tileHeight = 92.dp,
+        containerSize = SHARED_CONTAINER,
+        centerGap = 24.dp,
         uniformScale = false,
     )
     // Diamonds at 54 dp with 28 dp gap → tangential slot ≈ 58 dp — clear spacing.
     SwatchLayoutStyle.DiamondHalo -> RadialConfig(
-        tileWidth = 54.dp, tileHeight = 54.dp,
-        containerSize = SHARED_CONTAINER, centerGap = 28.dp,
+        tileWidth = 54.dp,
+        tileHeight = 54.dp,
+        containerSize = SHARED_CONTAINER,
+        centerGap = 28.dp,
         uniformScale = false,
     )
 }
@@ -111,9 +121,9 @@ private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
 // ── Animation constants ───────────────────────────────────────────────────────
 
 private const val TILE_COUNT = 6
-private const val STAGGER_UNFOLD_MS = 70L   // delay between successive tile openings
-private const val STAGGER_FOLD_MS = 45L     // delay between successive tile closings (faster)
-private const val FOLD_DURATION_MS = 210    // duration per tile fold animation
+private const val STAGGER_UNFOLD_MS = 70L // delay between successive tile openings
+private const val STAGGER_FOLD_MS = 45L // delay between successive tile closings (faster)
+private const val FOLD_DURATION_MS = 210 // duration per tile fold animation
 private const val NEON_OUTER_STROKE_PX = 8f
 private const val NEON_INNER_STROKE_PX = 4f
 private const val NEON_OUTER_ALPHA = 0.30f
@@ -301,7 +311,7 @@ private fun RadialTile(
                     scaleX = s
                     scaleY = s
                 } else {
-                    scaleX = pressScale   // only press feedback on X
+                    scaleX = pressScale // only press feedback on X
                     scaleY = s
                 }
 
@@ -458,4 +468,3 @@ private fun RadialCorrectStatePreview() {
         )
     }
 }
-

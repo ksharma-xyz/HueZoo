@@ -195,6 +195,7 @@ class DailyViewModel(
     private companion object {
         const val ANIMATION_CORRECT_MS = 350L
         const val ANIMATION_WRONG_MS = 850L
+
         /** Time budget for the flower fold-out animation before the next round is emitted. */
         const val ANIMATION_FOLD_MS = 520L
     }

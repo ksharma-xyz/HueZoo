@@ -1,8 +1,8 @@
 package xyz.ksharma.huezoo.ui.home.state
 
+import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
-import xyz.ksharma.huezoo.ui.model.PlayerLevel
 
 sealed interface HomeUiState {
 

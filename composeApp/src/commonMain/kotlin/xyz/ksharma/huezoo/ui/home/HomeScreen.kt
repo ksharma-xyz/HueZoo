@@ -19,6 +19,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -68,11 +69,11 @@ import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
-import xyz.ksharma.huezoo.ui.components.HuezooDisplaySmall
-import xyz.ksharma.huezoo.ui.components.HuezooHeadlineLarge
+import xyz.ksharma.huezoo.ui.components.HuezooDisplayMedium
 import xyz.ksharma.huezoo.ui.components.HuezooHeadlineSmall
 import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTitleLarge
+import xyz.ksharma.huezoo.ui.components.HuezooTitleSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.home.state.DailyCardData
 import xyz.ksharma.huezoo.ui.home.state.HomeUiEvent
@@ -82,7 +83,6 @@ import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
-import xyz.ksharma.huezoo.ui.theme.PillShape
 import xyz.ksharma.huezoo.ui.theme.rimLight
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 import kotlin.math.PI
@@ -96,14 +96,11 @@ private const val STAGGER_DELAY_MS = 80L
 private const val CARD_ANIM_DURATION_MS = 300
 private const val SLIDE_FRACTION = 5
 
-// Neo-brutalist shelf shadow color and offset
 private val ShelfColor = HuezooColors.SurfaceL4
 private val ShelfOffset = 4.dp
+private val IconBoxSize = 80.dp
+private val CyanAccentBarWidth = 6.dp
 
-// Icon box size for compact cards
-private val IconBoxSize = 88.dp
-
-// Challenge names — seeded by day-of-year for a consistent daily title
 private val CHALLENGE_NAMES = listOf(
     "ULTRAVIOLET BURST", "CRIMSON SURGE", "AZURE DRIFT", "MAGENTA STORM",
     "COBALT PULSE", "EMERALD WAVE", "SOLAR FLARE", "NEON BREACH",
@@ -131,21 +128,15 @@ fun HomeScreen(
     }
 
     AmbientGlowBackground(modifier = modifier) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            HuezooTopBar(
-                currencyAmount = (uiState as? HomeUiState.Ready)?.totalGems,
+        when (val state = uiState) {
+            HomeUiState.Loading -> Unit
+            is HomeUiState.Ready -> ReadyContent(
+                state = state,
+                onThresholdTap = { onNavigate(ThresholdGame) },
+                onDailyTap = { onNavigate(DailyGame) },
+                showDebugReset = platformOps.isDebugBuild,
+                onDebugReset = { viewModel.onUiEvent(HomeUiEvent.DebugResetTapped) },
             )
-
-            when (val state = uiState) {
-                HomeUiState.Loading -> Unit
-                is HomeUiState.Ready -> ReadyContent(
-                    state = state,
-                    onThresholdTap = { onNavigate(ThresholdGame) },
-                    onDailyTap = { onNavigate(DailyGame) },
-                    showDebugReset = platformOps.isDebugBuild,
-                    onDebugReset = { viewModel.onUiEvent(HomeUiEvent.DebugResetTapped) },
-                )
-            }
         }
     }
 }
@@ -160,7 +151,6 @@ private fun ReadyContent(
     showDebugReset: Boolean = false,
     onDebugReset: () -> Unit = {},
 ) {
-    // Derive daily challenge name from today's day-of-year
     val challengeName = remember {
         val dayOfYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).dayOfYear
         CHALLENGE_NAMES[dayOfYear % CHALLENGE_NAMES.size]
@@ -169,113 +159,131 @@ private fun ReadyContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = HuezooSpacing.md),
+            .verticalScroll(rememberScrollState()),
     ) {
-        Spacer(Modifier.height(HuezooSpacing.md))
+        // TopBar scrolls with content; its windowInsetsTopHeight spacer provides status-bar padding
+        HuezooTopBar()
 
-        // ── Stats summary row ────────────────────────────────────────────────
-        StatsRow(
-            totalGems = state.totalGems,
-            streak = state.streak,
-            rank = state.rank,
-        )
+        // Padded content column — TopBar stays full-width above
+        Column(modifier = Modifier.padding(horizontal = HuezooSpacing.md)) {
+            Spacer(Modifier.height(HuezooSpacing.md))
 
-        Spacer(Modifier.height(HuezooSpacing.lg))
+            StaggeredCard(index = 0) {
+                StatsSection(
+                    totalGems = state.totalGems,
+                    streak = state.streak,
+                    rank = state.rank,
+                )
+            }
 
-        // ── Threshold hero card ──────────────────────────────────────────────
-        StaggeredCard(index = 0) {
-            ThresholdHeroCard(
-                data = state.threshold,
-                playerLevel = state.playerLevel,
-                totalGems = state.totalGems,
-                onClick = onThresholdTap,
-            )
-        }
+            Spacer(Modifier.height(HuezooSpacing.lg))
 
-        Spacer(Modifier.height(HuezooSpacing.lg))
+            StaggeredCard(index = 1) {
+                ThresholdHeroCard(
+                    data = state.threshold,
+                    playerLevel = state.playerLevel,
+                    totalGems = state.totalGems,
+                    onEnterGame = onThresholdTap,
+                )
+            }
 
-        // ── Daily + Leaderboard side-by-side ─────────────────────────────────
-        StaggeredCard(index = 1) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
-            ) {
+            Spacer(Modifier.height(HuezooSpacing.lg))
+
+            StaggeredCard(index = 2) {
                 DailyCompactCard(
                     data = state.daily,
                     challengeName = challengeName,
                     onClick = onDailyTap,
-                    modifier = Modifier.weight(1f),
-                )
-                LeaderboardCompactCard(
-                    rank = state.rank,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
-        }
 
-        Spacer(Modifier.height(HuezooSpacing.lg))
+            Spacer(Modifier.height(HuezooSpacing.md))
 
-        // ── ΔE info card (always present, expand/collapse) ───────────────────
-        DeltaEInfoCard()
+            StaggeredCard(index = 3) {
+                LeaderboardCompactCard(
+                    rank = state.rank,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-        if (showDebugReset) {
+            Spacer(Modifier.height(HuezooSpacing.lg))
+
+            DeltaEInfoCard()
+
+            if (showDebugReset) {
+                Spacer(Modifier.height(HuezooSpacing.xl))
+                HuezooButton(
+                    text = "DEBUG: RESET ALL",
+                    onClick = onDebugReset,
+                    variant = HuezooButtonVariant.GhostDanger,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
             Spacer(Modifier.height(HuezooSpacing.xl))
-            HuezooButton(
-                text = "DEBUG: RESET ALL",
-                onClick = onDebugReset,
-                variant = HuezooButtonVariant.GhostDanger,
-                modifier = Modifier.fillMaxWidth(),
-            )
         }
-
-        Spacer(Modifier.height(HuezooSpacing.xl))
     }
 }
 
-// ── Stats summary row ─────────────────────────────────────────────────────────
+// ── Stats section ─────────────────────────────────────────────────────────────
 
 /**
- * Asymmetric stats row matching the Stitch design:
- * - Left: large gems panel with cyan left-border
- * - Right: STREAK + RANK stat boxes with top-border accents
+ * Stats section layout (mobile-first, matches Stitch):
+ *
+ * CURRENT INVENTORY  ← label above, outside the box
+ * ┌─────────────────────────────┐
+ * │▌ 1,250  GEMS                │  ← cyan left accent bar + neo-brutal shadow
+ * └─────────────────────────────┘
+ * ┌──────────────┐ ┌────────────┐
+ * │ STREAK       │ │ RANK       │  ← equal-width stat boxes
+ * │ 0 DAYS       │ │ —          │
+ * └──────────────┘ └────────────┘
  */
 @Composable
-private fun StatsRow(
+private fun StatsSection(
     totalGems: Int,
     streak: Int,
     rank: Int?,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
+        verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
     ) {
-        // Gems panel — left cyan border, neo-brutal shadow
-        Box(
+        HuezooLabelSmall(
+            text = "CURRENT INVENTORY",
+            color = HuezooColors.TextDisabled,
+            fontWeight = FontWeight.SemiBold,
+        )
+
+        // Gems panel — cyan left accent bar, neo-brutal right+bottom shadow
+        // height(IntrinsicSize.Min) lets the accent bar match content height via fillMaxHeight()
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .shapedShadow(RectangleShape, ShelfColor, ShelfOffset, ShelfOffset)
-                .background(HuezooColors.SurfaceL2)
-                .drawBehind {
-                    drawRect(
-                        color = HuezooColors.AccentCyan,
-                        topLeft = Offset(0f, 0f),
-                        size = Size(4.dp.toPx(), size.height),
-                    )
-                }
-                .padding(start = HuezooSpacing.md, top = HuezooSpacing.md, end = HuezooSpacing.md, bottom = HuezooSpacing.md),
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+                .shapedShadow(RectangleShape, ShelfColor, ShelfOffset, ShelfOffset),
         ) {
-            Column {
-                HuezooLabelSmall(
-                    text = "CURRENT INVENTORY",
-                    color = HuezooColors.TextDisabled,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Spacer(Modifier.height(4.dp))
+            // Cyan accent bar
+            Box(
+                modifier = Modifier
+                    .width(CyanAccentBarWidth)
+                    .fillMaxHeight()
+                    .background(HuezooColors.AccentCyan),
+            )
+            // Gems content
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(HuezooColors.SurfaceL2)
+                    .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm + 4.dp),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
                 Row(verticalAlignment = Alignment.Bottom) {
-                    HuezooHeadlineLarge(
+                    HuezooDisplayMedium(
                         text = formatGems(totalGems),
                         color = HuezooColors.TextPrimary,
                     )
@@ -290,23 +298,27 @@ private fun StatsRow(
             }
         }
 
-        // Streak + Rank boxes
-        Column(verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
+        // Streak + Rank side-by-side, equal width
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+        ) {
             StatBox(
                 label = "STREAK",
                 value = "$streak DAYS",
                 accentColor = HuezooColors.AccentMagenta,
+                modifier = Modifier.weight(1f),
             )
             StatBox(
                 label = "RANK",
                 value = rank?.let { "#$it" } ?: "—",
                 accentColor = HuezooColors.AccentYellow,
+                modifier = Modifier.weight(1f),
             )
         }
     }
 }
 
-/** Single stat box with top-border accent. */
 @Composable
 private fun StatBox(
     label: String,
@@ -320,7 +332,7 @@ private fun StatBox(
             .background(HuezooColors.SurfaceL0)
             .drawBehind {
                 drawRect(
-                    color = accentColor.copy(alpha = 0.5f),
+                    color = accentColor.copy(alpha = 0.55f),
                     topLeft = Offset(0f, 0f),
                     size = Size(size.width, 2.dp.toPx()),
                 )
@@ -333,6 +345,7 @@ private fun StatBox(
                 color = accentColor,
                 fontWeight = FontWeight.ExtraBold,
             )
+            Spacer(Modifier.height(2.dp))
             HuezooHeadlineSmall(
                 text = value,
                 color = HuezooColors.TextPrimary,
@@ -344,8 +357,8 @@ private fun StatBox(
 // ── Threshold hero card ───────────────────────────────────────────────────────
 
 /**
- * Full-width hero card for The Threshold — neo-brutalist, large, with pulsing
- * "ACTIVE MISSION" indicator, level progress bar, and CTA button.
+ * Full-width hero card. The CARD ITSELF is NOT tappable — only the
+ * "ENTER SIMULATION" button navigates to the game.
  */
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -353,17 +366,16 @@ private fun ThresholdHeroCard(
     data: ThresholdCardData,
     playerLevel: PlayerLevel,
     totalGems: Int,
-    onClick: () -> Unit,
+    onEnterGame: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val triesText = when {
         data.isBlocked -> "OUT OF TRIES"
-        else -> "${data.attemptsRemaining}/${data.maxAttempts} TRIES REMAINING"
+        else -> "${data.attemptsRemaining} / ${data.maxAttempts} TRIES REMAINING"
     }
     val countdown = data.nextResetAt?.let { countdownUntil(it, prefix = "Resets in ") }
     val enabled = !data.isBlocked
 
-    // Pulsing dot animation
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseAlpha by infiniteTransition.animateFloat(
         initialValue = 0.4f,
@@ -372,7 +384,6 @@ private fun ThresholdHeroCard(
         label = "pulseAlpha",
     )
 
-    // Level progress
     val progressFraction = levelProgressFraction(playerLevel, totalGems)
     val nextLevelName = nextLevelName(playerLevel)
 
@@ -380,48 +391,34 @@ private fun ThresholdHeroCard(
         modifier = modifier
             .fillMaxWidth()
             .shapedShadow(RectangleShape, ShelfColor, ShelfOffset, ShelfOffset)
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        HuezooColors.GameThreshold.copy(alpha = 0.08f),
-                        HuezooColors.SurfaceL2,
-                    ),
-                ),
-            )
-            .rimLight(cornerRadius = 0.dp)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                enabled = enabled,
-                onClick = onClick,
-            ),
+            .background(HuezooColors.SurfaceL2)
+            .rimLight(cornerRadius = 0.dp),
     ) {
-        // Right-side gradient illustration placeholder
+        // Right gradient illustration area
         Box(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .fillMaxHeight()
-                .width(140.dp)
+                .size(width = 120.dp, height = 300.dp)
                 .background(
                     Brush.horizontalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            HuezooColors.GameThreshold.copy(alpha = if (enabled) 0.18f else 0.07f),
+                            HuezooColors.GameThreshold.copy(alpha = if (enabled) 0.20f else 0.08f),
                         ),
                     ),
                 ),
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(HuezooSpacing.lg),
-        ) {
-            // Active mission indicator
+        Column(modifier = Modifier.fillMaxWidth().padding(HuezooSpacing.lg)) {
+            // Active mission dot
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Canvas(modifier = Modifier.size(10.dp)) {
                     drawCircle(
-                        color = if (enabled) HuezooColors.AccentCyan.copy(alpha = pulseAlpha) else HuezooColors.TextDisabled,
+                        color = if (enabled) {
+                            HuezooColors.AccentCyan.copy(alpha = pulseAlpha)
+                        } else {
+                            HuezooColors.TextDisabled
+                        },
                         radius = size.minDimension / 2f,
                     )
                 }
@@ -435,60 +432,51 @@ private fun ThresholdHeroCard(
 
             Spacer(Modifier.height(HuezooSpacing.md))
 
-            // Hero title
             HuezooTitleLarge(
                 text = "THE\nTHRESHOLD",
-                color = if (enabled) HuezooColors.TextPrimary else HuezooColors.TextDisabled,
+                color = if (enabled) HuezooColors.TextPrimary else HuezooColors.TextSecondary,
                 fontWeight = FontWeight.ExtraBold,
             )
 
             Spacer(Modifier.height(HuezooSpacing.sm))
 
             HuezooBodyMedium(
-                text = "Analyze chromatic anomalies. Detect the odd color out — precision test for the elite observer.",
+                text = "Analyze chromatic anomalies. Detect the odd color — precision test for the elite observer.",
                 color = HuezooColors.TextSecondary,
                 maxLines = 3,
             )
 
             Spacer(Modifier.height(HuezooSpacing.lg))
 
-            // CTA + tries info
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
-            ) {
-                HuezooButton(
-                    text = if (enabled) "ENTER SIMULATION" else "NO TRIES LEFT",
-                    onClick = onClick,
-                    enabled = enabled,
-                    variant = if (enabled) HuezooButtonVariant.Primary else HuezooButtonVariant.GhostDanger,
-                )
-                if (countdown != null) {
-                    HuezooLabelSmall(
-                        text = countdown,
-                        color = HuezooColors.TextDisabled,
-                    )
-                } else {
-                    HuezooLabelSmall(
-                        text = triesText,
-                        color = if (enabled) HuezooColors.GameThreshold else HuezooColors.TextDisabled,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
-            }
+            // Tries info — start-aligned, full width
+            HuezooLabelSmall(
+                text = countdown ?: triesText,
+                color = if (enabled) HuezooColors.GameThreshold else HuezooColors.TextDisabled,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.fillMaxWidth(),
+            )
 
-            // Personal best
+            // Personal best inline
             data.personalBestDeltaE?.let { de ->
-                Spacer(Modifier.height(HuezooSpacing.sm))
+                Spacer(Modifier.height(2.dp))
                 HuezooLabelSmall(
                     text = "BEST: ΔE ${((de * 10).toInt() / 10.0)}",
                     color = HuezooColors.TextDisabled,
                 )
             }
 
+            Spacer(Modifier.height(HuezooSpacing.md))
+
+            // CTA button — only this navigates (card is not tappable at root level)
+            HuezooButton(
+                text = if (enabled) "ENTER SIMULATION" else "NO TRIES LEFT",
+                onClick = onEnterGame,
+                enabled = enabled,
+                variant = if (enabled) HuezooButtonVariant.Primary else HuezooButtonVariant.GhostDanger,
+            )
+
             Spacer(Modifier.height(HuezooSpacing.lg))
 
-            // Level progress bar
             LevelProgressBar(
                 fraction = progressFraction,
                 currentLevel = playerLevel,
@@ -508,11 +496,10 @@ private fun LevelProgressBar(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        // Progress track
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(4.dp)
+                .height(3.dp)
                 .background(HuezooColors.SurfaceL4),
         ) {
             Box(
@@ -538,8 +525,8 @@ private fun LevelProgressBar(
 // ── Compact cards ─────────────────────────────────────────────────────────────
 
 /**
- * Daily Challenge compact card — icon box (magenta) + title + countdown.
- * Matches the Stitch side-by-side card layout.
+ * Daily Challenge compact card — full width, stacked below Threshold.
+ * Clickable when daily is not yet completed today.
  */
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -550,7 +537,7 @@ private fun DailyCompactCard(
     modifier: Modifier = Modifier,
 ) {
     val countdown = data.nextPuzzleAt?.let { countdownUntil(it, prefix = "Next in ") }
-    val statusText = when {
+    val subtitleText = when {
         data.isCompletedToday -> countdown ?: "Completed today"
         else -> "Available now"
     }
@@ -558,18 +545,17 @@ private fun DailyCompactCard(
     CompactCard(
         label = "DAILY CHALLENGE",
         title = challengeName,
-        subtitle = statusText,
+        subtitle = subtitleText,
         accentColor = HuezooColors.AccentMagenta,
         enabled = !data.isCompletedToday,
         onClick = onClick,
-        iconContent = { color -> drawMedalStar(color) },
+        iconDraw = { color -> drawMedalStar(color) },
         modifier = modifier,
     )
 }
 
 /**
- * Leaderboard compact card — icon box (gold) + global rank info.
- * Rank is stubbed until Firebase is integrated; shows "—" as placeholder.
+ * Global Leaderboard compact card — full width, stubbed until Firebase.
  */
 @Composable
 private fun LeaderboardCompactCard(
@@ -578,19 +564,23 @@ private fun LeaderboardCompactCard(
 ) {
     CompactCard(
         label = "GLOBAL LEADERBOARD",
-        title = if (rank != null) "TOP ${rank}% WORLDWIDE" else "TOP 5% WORLDWIDE",
+        title = if (rank != null) "RANK #$rank" else "TOP 5% WORLDWIDE",
         subtitle = "Claim weekly rewards",
         accentColor = HuezooColors.AccentYellow,
-        enabled = false, // Leaderboard not yet implemented — tappable once Firebase is wired
+        enabled = false,
         onClick = {},
-        iconContent = { color -> drawLeaderboardBars(color) },
+        iconDraw = { color -> drawLeaderboardBars(color) },
         modifier = modifier,
     )
 }
 
 /**
- * Base layout for a compact card: [iconContent] box on the left, text on the right.
- * Neo-brutalist style: sharp corners, top-border accent, shelf shadow.
+ * Compact card matching the Stitch design:
+ * - Left: fixed-size icon box with neon top-left rim + icon drawn via Canvas
+ * - Right: label (small, accent) / title (large headline) / subtitle (small, secondary)
+ * - Neo-brutalist top-border accent + shelf shadow
+ *
+ * Colors always at full brightness — clickable state only gates the onClick action.
  */
 @Composable
 private fun CompactCard(
@@ -600,57 +590,73 @@ private fun CompactCard(
     accentColor: Color,
     enabled: Boolean,
     onClick: () -> Unit,
-    iconContent: DrawScope.(Color) -> Unit,
+    iconDraw: DrawScope.(Color) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val tintColor = if (enabled) accentColor else accentColor.copy(alpha = 0.4f)
-
     Row(
         modifier = modifier
-            .shapedShadow(RectangleShape, ShelfColor, ShelfOffset, ShelfOffset)
-            .background(HuezooColors.SurfaceL2)
-            .drawBehind {
-                // Top accent border
-                drawRect(
-                    color = tintColor.copy(alpha = 0.6f),
-                    topLeft = Offset(0f, 0f),
-                    size = Size(size.width, 2.dp.toPx()),
-                )
-            }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 enabled = enabled,
                 onClick = onClick,
             )
+            .shapedShadow(RectangleShape, ShelfColor, ShelfOffset, ShelfOffset)
+            .background(HuezooColors.SurfaceL2)
+            .drawBehind {
+                drawRect(
+                    color = accentColor.copy(alpha = 0.55f),
+                    topLeft = Offset(0f, 0f),
+                    size = Size(size.width, 2.dp.toPx()),
+                )
+            }
             .padding(HuezooSpacing.md),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
     ) {
-        // Icon box
+        // Icon box — fixed size, neon top-left rim drawn over SurfaceL0 background
         Box(
             modifier = Modifier
                 .size(IconBoxSize)
                 .background(HuezooColors.SurfaceL0)
-                .rimLight(cornerRadius = 0.dp),
+                .drawBehind {
+                    val stroke = 1.5.dp.toPx()
+                    // top rim
+                    drawLine(
+                        accentColor.copy(alpha = 0.5f),
+                        Offset(0f, stroke / 2f),
+                        Offset(size.width, stroke / 2f),
+                        stroke,
+                    )
+                    // left rim
+                    drawLine(
+                        accentColor.copy(alpha = 0.5f),
+                        Offset(stroke / 2f, 0f),
+                        Offset(stroke / 2f, size.height),
+                        stroke,
+                    )
+                },
             contentAlignment = Alignment.Center,
         ) {
-            Canvas(modifier = Modifier.size(40.dp)) {
-                iconContent(tintColor)
+            Canvas(modifier = Modifier.size(36.dp)) {
+                iconDraw(accentColor)
             }
         }
 
-        // Text
-        Column(modifier = Modifier.weight(1f)) {
+        // Text content
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center,
+        ) {
             HuezooLabelSmall(
                 text = label,
-                color = tintColor,
+                color = accentColor,
                 fontWeight = FontWeight.ExtraBold,
             )
-            Spacer(Modifier.height(2.dp))
-            HuezooTitleLarge(
+            Spacer(Modifier.height(4.dp))
+            HuezooTitleSmall(
                 text = title,
-                color = if (enabled) HuezooColors.TextPrimary else HuezooColors.TextSecondary,
+                color = HuezooColors.TextPrimary,
                 fontWeight = FontWeight.ExtraBold,
                 maxLines = 2,
             )
@@ -663,18 +669,17 @@ private fun CompactCard(
     }
 }
 
-// ── Icon drawers ──────────────────────────────────────────────────────────────
+// ── Icon canvas drawers ───────────────────────────────────────────────────────
 
-/** 5-pointed star (military medal approximation). Drawn via Canvas. */
 private fun DrawScope.drawMedalStar(color: Color) {
     val cx = size.width / 2f
     val cy = size.height / 2f
-    val outerR = size.minDimension * 0.48f
-    val innerR = outerR * 0.42f
+    val outer = size.minDimension * 0.48f
+    val inner = outer * 0.40f
     val path = Path()
     for (i in 0..9) {
         val angle = (i * 36.0 - 90.0) * PI / 180.0
-        val r = if (i % 2 == 0) outerR else innerR
+        val r = if (i % 2 == 0) outer else inner
         val x = cx + (r * cos(angle)).toFloat()
         val y = cy + (r * sin(angle)).toFloat()
         if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
@@ -683,14 +688,12 @@ private fun DrawScope.drawMedalStar(color: Color) {
     drawPath(path, color = color)
 }
 
-/** Three ascending bars (leaderboard/bar-chart icon). Drawn via Canvas. */
 private fun DrawScope.drawLeaderboardBars(color: Color) {
-    val barW = size.width * 0.22f
-    val gap = size.width * 0.07f
+    val barW = size.width * 0.24f
+    val gap = size.width * 0.08f
     val totalW = barW * 3 + gap * 2
     val startX = (size.width - totalW) / 2f
-    val heights = listOf(0.45f, 0.70f, 1.0f)
-    heights.forEachIndexed { i, h ->
+    listOf(0.45f, 0.70f, 1.0f).forEachIndexed { i, h ->
         val barH = size.height * h
         drawRect(
             color = color,
@@ -702,8 +705,6 @@ private fun DrawScope.drawLeaderboardBars(color: Color) {
 
 // ── ΔE info card ─────────────────────────────────────────────────────────────
 
-private val DeltaECardShape = RoundedCornerShape(HuezooSize.CornerCard)
-
 @Composable
 private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
     var expanded by remember { mutableStateOf(false) }
@@ -713,12 +714,13 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
         label = "chevron",
     )
 
+    val cardShape = RoundedCornerShape(HuezooSize.CornerCard)
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(HuezooColors.SurfaceL2, DeltaECardShape)
-            .border(1.5.dp, HuezooColors.AccentCyan.copy(alpha = 0.28f), DeltaECardShape)
-            .clip(DeltaECardShape),
+            .background(HuezooColors.SurfaceL2, cardShape)
+            .border(1.5.dp, HuezooColors.AccentCyan.copy(alpha = 0.28f), cardShape)
+            .clip(cardShape),
     ) {
         Row(
             modifier = Modifier
@@ -743,9 +745,22 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
                     .graphicsLayer { rotationZ = chevronRotation },
             ) {
                 val sw = 2.5.dp.toPx()
-                val w = size.width; val h = size.height
-                drawLine(HuezooColors.AccentCyan.copy(alpha = 0.7f), Offset(w * 0.15f, h * 0.38f), Offset(w * 0.50f, h * 0.65f), sw, StrokeCap.Round)
-                drawLine(HuezooColors.AccentCyan.copy(alpha = 0.7f), Offset(w * 0.50f, h * 0.65f), Offset(w * 0.85f, h * 0.38f), sw, StrokeCap.Round)
+                val w = size.width
+                val h = size.height
+                drawLine(
+                    HuezooColors.AccentCyan.copy(alpha = 0.7f),
+                    Offset(w * 0.15f, h * 0.38f),
+                    Offset(w * 0.50f, h * 0.65f),
+                    sw,
+                    StrokeCap.Round,
+                )
+                drawLine(
+                    HuezooColors.AccentCyan.copy(alpha = 0.7f),
+                    Offset(w * 0.50f, h * 0.65f),
+                    Offset(w * 0.85f, h * 0.38f),
+                    sw,
+                    StrokeCap.Round,
+                )
             }
         }
 
@@ -754,7 +769,13 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
             enter = expandVertically(tween(200)) + fadeIn(tween(200)),
             exit = shrinkVertically(tween(200)),
         ) {
-            Column(modifier = Modifier.padding(start = HuezooSpacing.md, end = HuezooSpacing.md, bottom = HuezooSpacing.md)) {
+            Column(
+                modifier = Modifier.padding(
+                    start = HuezooSpacing.md,
+                    end = HuezooSpacing.md,
+                    bottom = HuezooSpacing.md,
+                ),
+            ) {
                 HuezooBodyMedium(
                     text = "ΔE measures color difference. Lower = colors are more similar = harder to spot the odd one out.",
                     color = HuezooColors.TextSecondary,
@@ -810,17 +831,14 @@ private fun formatGems(gems: Int): String = when {
 }
 
 private fun levelProgressFraction(level: PlayerLevel, totalGems: Int): Float {
-    val levels = PlayerLevel.entries
-    val nextLevel = levels.getOrNull(level.ordinal + 1) ?: return 1f
-    val range = (nextLevel.minGems - level.minGems).toFloat()
+    val next = PlayerLevel.entries.getOrNull(level.ordinal + 1) ?: return 1f
+    val range = (next.minGems - level.minGems).toFloat()
     val progress = (totalGems - level.minGems).toFloat()
     return (progress / range).coerceIn(0f, 1f)
 }
 
-private fun nextLevelName(level: PlayerLevel): String? {
-    val levels = PlayerLevel.entries
-    return levels.getOrNull(level.ordinal + 1)?.displayName
-}
+private fun nextLevelName(level: PlayerLevel): String? =
+    PlayerLevel.entries.getOrNull(level.ordinal + 1)?.displayName
 
 @OptIn(ExperimentalTime::class)
 @Composable

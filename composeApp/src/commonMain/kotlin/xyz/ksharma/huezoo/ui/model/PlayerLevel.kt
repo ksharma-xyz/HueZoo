@@ -21,7 +21,8 @@ enum class PlayerLevel(
 ) {
     Rookie(displayName = "ROOKIE", minGems = 0, levelColor = HuezooColors.AccentCyan),
     Skilled(displayName = "SKILLED", minGems = 400, levelColor = HuezooColors.AccentMagenta),
-    Master(displayName = "MASTER", minGems = 100_000, levelColor = HuezooColors.AccentYellow);
+    Master(displayName = "MASTER", minGems = 100_000, levelColor = HuezooColors.AccentYellow),
+    ;
 
     companion object {
         fun fromGems(gems: Int): PlayerLevel = when {

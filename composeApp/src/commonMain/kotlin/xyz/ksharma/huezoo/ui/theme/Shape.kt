@@ -166,15 +166,21 @@ class PetalShape : Shape {
             moveTo(cx, 0f)
             // Right edge: from tip → sweeps out to the right → curves around the bottom
             cubicTo(
-                w * 0.95f, h * 0.15f, // control 1 — right side, near top
-                w,          h * 0.60f, // control 2 — far right, mid-height
-                cx,         h,         // end — bottom centre (the round belly)
+                w * 0.95f,
+                h * 0.15f, // control 1 — right side, near top
+                w,
+                h * 0.60f, // control 2 — far right, mid-height
+                cx,
+                h, // end — bottom centre (the round belly)
             )
             // Left edge: from bottom centre → sweeps back up the left side → returns to tip
             cubicTo(
-                0f, h * 0.60f, // control 1 — far left, mid-height
-                w * 0.05f, h * 0.15f, // control 2 — left side, near top
-                cx, 0f,        // end — back to tip
+                0f,
+                h * 0.60f, // control 1 — far left, mid-height
+                w * 0.05f,
+                h * 0.15f, // control 2 — left side, near top
+                cx,
+                0f, // end — back to tip
             )
             close()
         }
@@ -204,10 +210,10 @@ class DiamondShape : Shape {
         val cx = size.width / 2f
         val cy = size.height / 2f
         return Path().apply {
-            moveTo(cx, 0f)              // top tip
-            lineTo(size.width, cy)      // right point
-            lineTo(cx, size.height)     // bottom tip
-            lineTo(0f, cy)              // left point
+            moveTo(cx, 0f) // top tip
+            lineTo(size.width, cy) // right point
+            lineTo(cx, size.height) // bottom tip
+            lineTo(0f, cy) // left point
             close()
         }
     }
@@ -215,4 +221,3 @@ class DiamondShape : Shape {
 
 /** Default diamond tile for the DiamondHalo layout. */
 val DiamondSwatch = DiamondShape()
-
