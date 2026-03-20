@@ -2,10 +2,12 @@ package xyz.ksharma.huezoo.ui.result
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,11 +35,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -45,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
@@ -55,7 +60,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import huezoo.composeapp.generated.resources.Res
 import huezoo.composeapp.generated.resources.ic_share
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.random.Random
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -91,29 +108,41 @@ fun ResultScreen(
     modifier: Modifier = Modifier,
     viewModel: ResultViewModel = koinViewModel(parameters = { parametersOf(result) }),
 ) {
+    val platformOps: PlatformOps = koinInject()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isDaily = result.gameId == GameId.DAILY
     val identityColor = if (isDaily) HuezooColors.GameDaily else HuezooColors.GameThreshold
     val glowColor = if (isDaily) identityColor else HuezooColors.AccentMagenta
 
-    AmbientGlowBackground(
-        modifier = modifier,
-        primaryColor = glowColor,
-        secondaryColor = identityColor,
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            HuezooTopBar(
-                onBackClick = onBack,
-                currencyAmount = 0,
-            )
-
-            when (val state = uiState) {
-                ResultUiState.Loading -> Unit
-                is ResultUiState.Ready -> ReadyContent(
-                    state = state,
-                    onPlayAgain = onPlayAgain,
+    Box(modifier = modifier) {
+        AmbientGlowBackground(
+            modifier = Modifier.fillMaxSize(),
+            primaryColor = glowColor,
+            secondaryColor = identityColor,
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                HuezooTopBar(
+                    onBackClick = onBack,
+                    currencyAmount = 0,
                 )
+
+                when (val state = uiState) {
+                    ResultUiState.Loading -> Unit
+                    is ResultUiState.Ready -> ReadyContent(
+                        state = state,
+                        onPlayAgain = onPlayAgain,
+                        onShare = { text -> platformOps.shareText(text) },
+                    )
+                }
             }
+        }
+
+        // Confetti overlay — non-intercepting (Canvas captures no touches)
+        if (uiState is ResultUiState.Ready) {
+            ConfettiEffect(
+                identityColor = identityColor,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
     }
 }
@@ -160,14 +189,27 @@ private fun Int.formatWithCommas(): String {
 private fun ReadyContent(
     state: ResultUiState.Ready,
     onPlayAgain: () -> Unit,
+    onShare: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val platformOps: PlatformOps = koinInject()
     val isDaily = state.gameId == GameId.DAILY
     val identityColor = if (isDaily) HuezooColors.GameDaily else HuezooColors.GameThreshold
     val accentColor = if (isDaily) identityColor else HuezooColors.AccentMagenta
     val sting = stingData(state.gameId, state.deltaE, state.score)
     val shareIcon = painterResource(Res.drawable.ic_share)
+
+    // Slide-up entrance: content rises from 60dp below + fades in
+    val slideUp = remember { Animatable(60f) }
+    val fadeIn = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        launch {
+            slideUp.animateTo(
+                0f,
+                spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = 200f),
+            )
+        }
+        launch { fadeIn.animateTo(1f, tween(300)) }
+    }
 
     // Count-up: 0 → final score
     val displayScore = remember { Animatable(0f) }
@@ -187,6 +229,10 @@ private fun ReadyContent(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .graphicsLayer {
+                translationY = slideUp.value
+                alpha = fadeIn.value
+            }
             .verticalScroll(rememberScrollState())
             .navigationBarsPadding()
             .padding(horizontal = HuezooSpacing.md),
@@ -264,9 +310,15 @@ private fun ReadyContent(
                 modifier = Modifier.weight(1f),
             )
             ShareIconButton(
-                onClick = { platformOps.shareText(shareText) },
+                onClick = { onShare(shareText) },
                 icon = shareIcon,
             )
+        }
+
+        // Daily: show "Next puzzle in Xh Xm" countdown
+        if (isDaily) {
+            Spacer(Modifier.height(HuezooSpacing.sm))
+            NextPuzzleCountdown(modifier = Modifier.fillMaxWidth())
         }
 
         Spacer(Modifier.height(HuezooSpacing.md))
@@ -671,6 +723,172 @@ private fun GhostExclamationIcon(
     }
 }
 
+// ── Confetti ──────────────────────────────────────────────────────────────────
+
+private const val CONFETTI_COUNT = 117  // ~90 × 1.3
+private const val CONFETTI_DURATION_MS = 4500
+private const val CONFETTI_GRAVITY = 0.55f  // normalized units per second² (downward)
+
+private enum class ConfettiShape { Hexagon, Circle, Triangle, Capsule, Rect }
+
+private data class ConfettiParticle(
+    val x0: Float,          // launch x [0..1 fraction of canvas width]
+    val y0: Float,          // launch y [0..1 fraction — starts in upper third]
+    val vx: Float,          // horizontal velocity [fraction/s]
+    val vy: Float,          // initial vertical velocity — negative = upward
+    val wobbleAmp: Float,   // horizontal sine-wobble amplitude [fraction]
+    val wobbleFreq: Float,  // wobble frequency [rad/s]
+    val wobblePhase: Float, // wobble phase offset [rad]
+    val color: Color,
+    val rotation0: Float,
+    val rotVel: Float,
+    val sizeDp: Float,
+    val shape: ConfettiShape,
+)
+
+@Composable
+private fun ConfettiEffect(
+    identityColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    val elapsed = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        elapsed.animateTo(
+            targetValue = CONFETTI_DURATION_MS / 1000f,
+            animationSpec = tween(durationMillis = CONFETTI_DURATION_MS, easing = LinearEasing),
+        )
+    }
+
+    val particles = remember(identityColor) {
+        val rng = Random(seed = 13)
+        val colors = listOf(
+            identityColor,
+            Color.White,
+            HuezooColors.AccentCyan,
+            HuezooColors.AccentYellow,
+            HuezooColors.AccentMagenta,
+        )
+        val shapes = ConfettiShape.entries
+        List(CONFETTI_COUNT) {
+            ConfettiParticle(
+                // Spread launch x across the full width; cluster more toward center
+                x0 = 0.1f + rng.nextFloat() * 0.8f,
+                // Launch from upper portion of the screen (0.05 – 0.3)
+                y0 = 0.05f + rng.nextFloat() * 0.25f,
+                // Gentle horizontal drift
+                vx = (rng.nextFloat() - 0.5f) * 0.25f,
+                // Negative = shoots upward; then gravity arcs it back down
+                vy = -(rng.nextFloat() * 0.45f + 0.15f),
+                // Subtle side-to-side wobble for a drifting leaf feel
+                wobbleAmp = 0.02f + rng.nextFloat() * 0.04f,
+                wobbleFreq = 1.5f + rng.nextFloat() * 2.5f,
+                wobblePhase = rng.nextFloat() * (2f * PI.toFloat()),
+                color = colors[it % colors.size],
+                rotation0 = rng.nextFloat() * 360f,
+                rotVel = (rng.nextFloat() - 0.5f) * 240f,
+                // Every 5th particle is ~2× larger for visual variety
+                sizeDp = if (it % 5 == 0) 18f + rng.nextFloat() * 10f else 7f + rng.nextFloat() * 8f,
+                shape = shapes[it % shapes.size],
+            )
+        }
+    }
+
+    val t = elapsed.value
+    val durationS = CONFETTI_DURATION_MS / 1000f
+    Canvas(modifier = modifier) {
+        particles.forEach { p ->
+            // Physics: projectile arc + horizontal wobble
+            val xFrac = p.x0 + p.vx * t + p.wobbleAmp * sin(p.wobbleFreq * t + p.wobblePhase)
+            val yFrac = p.y0 + p.vy * t + 0.5f * CONFETTI_GRAVITY * t * t
+            val x = xFrac * size.width
+            val y = yFrac * size.height
+            // Fade out gently over the last 30% of lifetime
+            val lifeProgress = (t / durationS).coerceIn(0f, 1f)
+            val alpha = (1f - ((lifeProgress - 0.7f) / 0.3f).coerceIn(0f, 1f)).coerceIn(0f, 1f)
+            if (y < size.height * 1.1f && alpha > 0f) {
+                val s = p.sizeDp.dp.toPx()
+                val c = p.color.copy(alpha = alpha)
+                withTransform({
+                    translate(x, y)
+                    rotate(p.rotation0 + p.rotVel * t)
+                }) {
+                    when (p.shape) {
+                        ConfettiShape.Rect -> drawRect(
+                            color = c,
+                            topLeft = Offset(-s / 2f, -s * 0.28f),
+                            size = Size(s, s * 0.56f),
+                        )
+                        ConfettiShape.Circle -> drawCircle(
+                            color = c,
+                            radius = s * 0.38f,
+                        )
+                        ConfettiShape.Triangle -> {
+                            val path = Path().apply {
+                                moveTo(0f, -s * 0.48f)
+                                lineTo(s * 0.42f, s * 0.24f)
+                                lineTo(-s * 0.42f, s * 0.24f)
+                                close()
+                            }
+                            drawPath(path, c)
+                        }
+                        ConfettiShape.Hexagon -> {
+                            val path = Path().apply {
+                                for (i in 0..5) {
+                                    val angle = (PI / 3.0 * i - PI / 6.0).toFloat()
+                                    val px = cos(angle) * s * 0.44f
+                                    val py = sin(angle) * s * 0.44f
+                                    if (i == 0) moveTo(px, py) else lineTo(px, py)
+                                }
+                                close()
+                            }
+                            drawPath(path, c)
+                        }
+                        ConfettiShape.Capsule -> drawRoundRect(
+                            color = c,
+                            topLeft = Offset(-s * 0.18f, -s * 0.52f),
+                            size = Size(s * 0.36f, s * 1.04f),
+                            cornerRadius = CornerRadius(s * 0.18f),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ── Daily countdown ───────────────────────────────────────────────────────────
+
+@OptIn(ExperimentalTime::class)
+@Composable
+private fun NextPuzzleCountdown(modifier: Modifier = Modifier) {
+    val text by produceState(initialValue = "") {
+        while (true) {
+            val now = Clock.System.now()
+            val tz = TimeZone.currentSystemDefault()
+            val today = now.toLocalDateTime(tz).date
+            val nextMidnight = today.plus(1, DateTimeUnit.DAY).atStartOfDayIn(tz)
+            val remaining = nextMidnight - now
+            val totalSeconds = remaining.inWholeSeconds.coerceAtLeast(0)
+            value = if (totalSeconds <= 0) {
+                ""
+            } else {
+                val hours = totalSeconds / 3600
+                val minutes = (totalSeconds % 3600) / 60
+                if (hours > 0) "Next puzzle in ${hours}h ${minutes}m" else "Next puzzle in ${minutes}m"
+            }
+            delay(60_000L)
+        }
+    }
+    if (text.isNotEmpty()) {
+        HuezooBodyMedium(
+            text = text,
+            color = HuezooColors.TextSecondary,
+            textAlign = TextAlign.Center,
+            modifier = modifier,
+        )
+    }
+}
+
 // ── Previews ─────────────────────────────────────────────────────────────────
 
 @xyz.ksharma.huezoo.ui.preview.PreviewScreen
@@ -687,6 +905,7 @@ private fun ResultThresholdFailurePreview() {
                 personalBestDeltaE = 1.2f,
             ),
             onPlayAgain = {},
+            onShare = {},
         )
     }
 }
@@ -705,6 +924,7 @@ private fun ResultThresholdElitePreview() {
                 personalBestDeltaE = 0.8f,
             ),
             onPlayAgain = {},
+            onShare = {},
         )
     }
 }
@@ -723,6 +943,7 @@ private fun ResultDailyCompletePreview() {
                 personalBestDeltaE = null,
             ),
             onPlayAgain = {},
+            onShare = {},
         )
     }
 }

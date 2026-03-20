@@ -6,7 +6,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import xyz.ksharma.huezoo.data.repository.DailyRepository
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
@@ -59,6 +62,7 @@ class HomeViewModel(
             val isPaid = settingsRepository.isPaid()
             val totalGems = settingsRepository.getGems()
 
+            val tz = TimeZone.currentSystemDefault()
             val thresholdCard = when (attemptStatus) {
                 is AttemptStatus.Available -> ThresholdCardData(
                     personalBestDeltaE = thresholdBest?.bestDeltaE,
@@ -71,12 +75,21 @@ class HomeViewModel(
                     attemptsRemaining = 0,
                     maxAttempts = attemptStatus.maxAttempts,
                     isBlocked = true,
+                    nextResetAt = attemptStatus.nextResetAt,
                 )
             }
 
+            val isCompletedToday = dailyChallenge?.completed == true
+            val nextPuzzleAt = if (isCompletedToday) {
+                val tomorrow = today.plus(1, DateTimeUnit.DAY)
+                tomorrow.atStartOfDayIn(tz)
+            } else {
+                null
+            }
             val dailyCard = DailyCardData(
-                isCompletedToday = dailyChallenge?.completed == true,
+                isCompletedToday = isCompletedToday,
                 todayScore = dailyChallenge?.score,
+                nextPuzzleAt = nextPuzzleAt,
             )
 
             _uiState.value = HomeUiState.Ready(

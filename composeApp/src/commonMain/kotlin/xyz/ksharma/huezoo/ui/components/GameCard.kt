@@ -73,6 +73,8 @@ fun GameCard(
     badgeText: String? = null,
     triesText: String? = null,
     personalBest: String? = null,
+    /** Live countdown string shown below tries/personal best (e.g. "Resets in 2h 14m"). */
+    countdownText: String? = null,
     enabled: Boolean = true,
     illustrationPainter: Painter? = null,
     visualContent: (@Composable () -> Unit)? = null,
@@ -221,6 +223,14 @@ fun GameCard(
                             Spacer(Modifier.height(HuezooSpacing.sm))
                             HuezooLabelSmall(
                                 text = personalBest,
+                                color = HuezooColors.TextDisabled,
+                            )
+                        }
+
+                        if (countdownText != null) {
+                            Spacer(Modifier.height(HuezooSpacing.xs))
+                            HuezooLabelSmall(
+                                text = countdownText,
                                 color = HuezooColors.TextDisabled,
                             )
                         }

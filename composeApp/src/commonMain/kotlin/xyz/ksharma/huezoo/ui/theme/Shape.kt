@@ -69,6 +69,40 @@ val SquircleButton = SquircleShape(exponent = 4f)
 val PillShape = androidx.compose.foundation.shape.RoundedCornerShape(50)
 
 /**
+ * Flat-top regular hexagon — used for SwatchBlock tiles.
+ *
+ * Vertices at 0°, 60°, 120°, 180°, 240°, 300° from center.
+ * The horizontal radius equals half the composable width, so the hexagon
+ * always spans the full width of its bounding box; height is ~86.6% of width.
+ */
+class HexagonShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(hexagonPath(size))
+
+    private fun hexagonPath(size: Size): Path {
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val rx = size.width / 2f
+        val path = Path()
+        for (i in 0..5) {
+            val angle = PI / 3.0 * i
+            val px = (cx + rx * cos(angle)).toFloat()
+            val py = (cy + rx * sin(angle)).toFloat()
+            if (i == 0) path.moveTo(px, py) else path.lineTo(px, py)
+        }
+        path.close()
+        return path
+    }
+}
+
+/** Flat-top regular hexagon — default swatch tile shape */
+val HexagonSwatch = HexagonShape()
+
+/**
  * Parallelogram (italic rectangle) shape.
  * [skewFraction] is the horizontal offset applied to the top edge as a fraction of the component
  * height — 0.25f gives a ~14° lean, matching the italic feel of Bebas Neue headings.

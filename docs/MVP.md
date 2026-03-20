@@ -153,6 +153,8 @@ Paywall Sheet
 - [ ] DS.1.2 `Modifier.colorGlow()` — platform actual: Android `setShadowLayer`, iOS `BlurMaskFilter`
 - [ ] DS.1.3 `Modifier.depthShadow()` — layered Box for 3D card/button feel
 - [ ] DS.1.4 `SwatchGradientOverlay` — top-left highlight + bottom-right shadow for physical chip look
+- [ ] DS.1.5 **SwatchBlock shape exploration** — try hexagon (`HexagonShape` already in Shape.kt) or other non-squircle tile shapes. Current issue: `neonStrike` uses `drawRoundRect` which won't match a hexagon; need to port neon ring logic into `drawWithContent` using the actual shape path before switching. Keep squircle until this is polished.
+- [ ] DS.1.6 **SkewedStatChip start padding** — text in the parallelogram chip sits too close to the left edge due to the skew angle; add ~3dp `paddingStart` offset so text clears the angled boundary cleanly.
 
 ### Phase DS.2 — Core Components
 - [ ] DS.2.1 `HuezooButton` — primary/danger/ghost/score variants, 3D press (scale 0.94, shadow collapses)
@@ -166,16 +168,16 @@ Paywall Sheet
 ### Phase UX — UX Polish (do before haptics/sound/monetisation)
 
 #### UX.1 — Result Screen
-- [ ] UX.1.1 Confetti burst on result enter (identity color particles, 50 count, gravity physics)
-- [ ] UX.1.2 Share button ("Share Result") → native share sheet via `platformOps.shareText()`
-- [ ] UX.1.3 Sting copy on ResultCard based on ΔE achieved (see `docs/ux.md` copy pool)
-- [ ] UX.1.4 Daily result: show "Next puzzle in Xh Xm" countdown below buttons
-- [ ] UX.1.5 ResultCard slide-up entrance (offset 60dp + scale 0.9 → 1.0, spring)
-- [ ] UX.1.6 Score count-up animation (0 → final, spring 800ms)
+- [x] UX.1.1 Confetti burst on result enter (identity color particles, 50 count, gravity physics)
+- [x] UX.1.2 Share button → native share sheet via `platformOps.shareText()`
+- [x] UX.1.3 Sting copy on ResultCard based on ΔE achieved
+- [x] UX.1.4 Daily result: show "Next puzzle in Xh Xm" countdown below buttons
+- [x] UX.1.5 ResultCard slide-up entrance (offset 60dp, spring)
+- [x] UX.1.6 Score count-up animation (0 → final, spring)
 
 #### UX.2 — Home Screen Timers
-- [ ] UX.2.1 Daily card (completed): show today's score + live "Next puzzle in Xh Xm" countdown
-- [ ] UX.2.2 Threshold card (blocked): show live "Resets in Xh Xm" countdown
+- [x] UX.2.1 Daily card (completed): show live "Next puzzle in Xh Xm" countdown
+- [x] UX.2.2 Threshold card (blocked): show live "Resets in Xh Xm" countdown
 
 #### UX.3 — Already Played / Blocked States
 - [ ] UX.3.1 Daily already-played screen: show read-only ResultCard + countdown (not just plain text)

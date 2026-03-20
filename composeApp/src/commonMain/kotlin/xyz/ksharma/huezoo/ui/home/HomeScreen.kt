@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -24,6 +25,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.PlatformOps
@@ -138,6 +142,7 @@ private fun StaggeredCard(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 private fun ThresholdCard(
     data: ThresholdCardData,
@@ -152,6 +157,7 @@ private fun ThresholdCard(
         val rounded = (de * 10).toInt() / 10.0
         "Best: ΔE $rounded"
     }
+    val countdown = data.nextResetAt?.let { countdownUntil(it, prefix = "Resets in ") }
 
     GameCard(
         title = "The Threshold",
@@ -161,10 +167,12 @@ private fun ThresholdCard(
         enabled = !data.isBlocked,
         triesText = triesText,
         personalBest = personalBest,
+        countdownText = countdown,
         modifier = modifier.fillMaxWidth(),
     )
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 private fun DailyCard(
     data: DailyCardData,
@@ -173,6 +181,7 @@ private fun DailyCard(
 ) {
     val badgeText = if (data.isCompletedToday) "Done" else null
     val personalBest = data.todayScore?.let { "Score: ${it.toInt()}" }
+    val countdown = data.nextPuzzleAt?.let { countdownUntil(it, prefix = "Next puzzle in ") }
 
     GameCard(
         title = "Daily Challenge",
@@ -182,8 +191,33 @@ private fun DailyCard(
         enabled = !data.isCompletedToday,
         badgeText = badgeText,
         personalBest = personalBest,
+        countdownText = countdown,
         modifier = modifier.fillMaxWidth(),
     )
+}
+
+/**
+ * Returns a live-updating countdown string (e.g. "Resets in 2h 14m") that
+ * ticks every minute until [until] is reached.
+ */
+@OptIn(ExperimentalTime::class)
+@Composable
+private fun countdownUntil(until: Instant, prefix: String): String {
+    val text by produceState(initialValue = "") {
+        while (true) {
+            val remaining = until - Clock.System.now()
+            val totalSeconds = remaining.inWholeSeconds.coerceAtLeast(0)
+            value = if (totalSeconds <= 0) {
+                ""
+            } else {
+                val hours = totalSeconds / 3600
+                val minutes = (totalSeconds % 3600) / 60
+                if (hours > 0) "$prefix${hours}h ${minutes}m" else "$prefix${minutes}m"
+            }
+            delay(60_000L)
+        }
+    }
+    return text
 }
 
 // ── Previews ─────────────────────────────────────────────────────────────────
