@@ -68,6 +68,7 @@ import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
+import xyz.ksharma.huezoo.ui.components.LevelsProgressSheet
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooDisplayMedium
@@ -152,6 +153,14 @@ private fun ReadyContent(
     showDebugReset: Boolean = false,
     onDebugReset: () -> Unit = {},
 ) {
+    var showLevelsSheet by remember { mutableStateOf(false) }
+
+    if (showLevelsSheet) {
+        LevelsProgressSheet(
+            currentGems = state.totalGems,
+            onDismiss = { showLevelsSheet = false },
+        )
+    }
     val challengeName = remember {
         val dayOfYear =
             Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).dayOfYear
@@ -175,6 +184,7 @@ private fun ReadyContent(
                     totalGems = state.totalGems,
                     streak = state.streak,
                     rank = state.rank,
+                    onGemsClick = { showLevelsSheet = true },
                 )
             }
 
@@ -247,6 +257,7 @@ private fun StatsSection(
     totalGems: Int,
     streak: Int,
     rank: Int?,
+    onGemsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -274,12 +285,17 @@ private fun StatsSection(
                     .fillMaxHeight()
                     .background(HuezooColors.AccentCyan),
             )
-            // Gems content
+            // Gems content — tappable to open Levels & Progress sheet
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
                     .background(HuezooColors.SurfaceL2)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onGemsClick,
+                    )
                     .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm + 4.dp),
                 contentAlignment = Alignment.BottomStart,
             ) {

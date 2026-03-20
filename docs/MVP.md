@@ -218,6 +218,7 @@ Open app
 - [x] UX.5.0 In-game `?` help button on Threshold + Daily screens with rules bottom sheet
 - [ ] UX.5.1 First-launch onboarding — 3-slide walkthrough before Home; gated on `SettingsRepository.hasSeenOnboarding()` flag; slide 1: ΔE explainer, slide 2: Threshold rules, slide 3: Daily rules; skip always visible
 - [ ] UX.5.2 Review subtitle copy on both game cards to be more instructional for new users
+- [ ] UX.5.3 **Eye strain / health notice** — displayed on first launch (slide 0, before ΔE explainer) and accessible from About / Settings at any time. Copy must follow store guidelines — no fear-based language. Suggested wording: *"This game exercises your colour perception. Extended play may cause eye fatigue. Take breaks and stop if you experience discomfort. Play at your own pace."* Implementation notes: same `hasSeenOnboarding()` gate; include a "Got it" dismiss; also surface in About section (UX.16).
 
 #### UX.6 — Navigation Gaps ⬜
 - [x] UX.6.1 Result "Play Again" for Threshold: `canPlayAgain` checked; shows "NO TRIES LEFT" disabled button if exhausted
@@ -237,9 +238,9 @@ Open app
 - [x] UX.9.2 `CurrencyPill` scale pulse (1.0 → 1.2 → 1.0, spring) when gem count changes on return to Home
 - [ ] UX.9.3 In-game "+N 💎" float-up label from HUD gem counter on earn (fades out over 600ms)
 
-#### UX.10 — Progression Screens ⬜
+#### UX.10 — Progression Screens ✅
 - [x] UX.10.1 Home screen — full design with gem panel, player level, stat boxes, game cards, illustrations
-- [ ] UX.10.2 **Levels & Progress sheet** — bottom sheet (tap gem pill or level badge) showing all 5 tiers, progress bar, gem threshold to next level. Design ref: `docs/stitch_huezoo_prd_design_doc/huezoo_levels_progress/`
+- [x] UX.10.2 **Levels & Progress sheet** — `LevelsProgressSheet.kt`; tap gem inventory area on Home → shows all 5 tiers as color-coded neo-brutalist cards, progress bar, gem threshold to next level. Design ref: `docs/stitch_huezoo_prd_design_doc/huezoo_levels_progress/`
 - [ ] UX.10.3 **Splash screen** — animated logo reveal. Build after home is locked.
 
 #### UX.11 — Out of Tries Refill Sheet ⬜
@@ -263,6 +264,11 @@ Open app
 - [x] UX.14.0 `SwatchSize` enum (`Normal` 1.0× / `Medium` 1.2×); `ACTIVE_SWATCH_SIZE` constant in `RadialSwatchLayout.kt`; currently hardcoded to `Medium`
 - [ ] UX.14.1 Wire `SwatchSize` to a user setting in SQLDelight `user_settings`
 - [ ] UX.14.2 Add toggle in Settings screen (or game card options)
+
+#### UX.15 — Settings / About Screen ⬜
+- [ ] UX.15.1 **About screen** (or bottom sheet) — app version, legal links (Privacy Policy, Terms of Use), acknowledgements
+- [ ] UX.15.2 **Health & Eye Strain notice** — persistent, always accessible from About. Balanced copy (see UX.5.3): *"This game exercises colour perception. Take breaks. Stop if you feel eye strain or discomfort."* No alarmist language (App Store / Play Store content guidelines require factual, non-fear-based health copy).
+- [ ] UX.15.3 Privacy Policy link (required by both stores)
 
 ### Phase 7 — Monetization ⬜
 - [ ] 7.1 Attempt counter on Threshold card ("X of 10 tries used this window")
