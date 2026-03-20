@@ -117,7 +117,7 @@ fun SwatchBlock(
 
     val borderWidth by animateDpAsState(
         targetValue = when (state) {
-            SwatchBlockState.Correct, SwatchBlockState.Wrong -> 2.5.dp
+            SwatchBlockState.Correct, SwatchBlockState.Wrong -> 5.dp
             else -> 0.dp
         },
         animationSpec = tween(200),
@@ -133,14 +133,17 @@ fun SwatchBlock(
                 scaleX = scale.value * pressScale
                 scaleY = scale.value * pressScale
                 translationX = shakeX.value
-                // Allow neonStrike to render its rings outside the layer bounds on reveal
-                clip = state != SwatchBlockState.Revealed
+                // Allow neonStrike rings to render outside layer bounds for Correct and Revealed
+                clip = state == SwatchBlockState.Default || state == SwatchBlockState.Wrong ||
+                    state == SwatchBlockState.Pressed
             }
             .then(
-                if (state == SwatchBlockState.Revealed) {
-                    Modifier.neonStrike(HuezooColors.AccentCyan, cornerRadius = 32.dp)
-                } else {
-                    Modifier
+                when (state) {
+                    SwatchBlockState.Correct ->
+                        Modifier.neonStrike(HuezooColors.AccentGreen, cornerRadius = 32.dp)
+                    SwatchBlockState.Revealed ->
+                        Modifier.neonStrike(HuezooColors.AccentCyan, cornerRadius = 32.dp)
+                    else -> Modifier
                 },
             )
             .border(borderWidth, borderColor, SquircleMedium)
