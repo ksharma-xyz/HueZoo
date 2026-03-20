@@ -2,7 +2,6 @@ package xyz.ksharma.huezoo.data.repository.impl
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Instant
 import xyz.ksharma.huezoo.data.db.HuezooDatabase
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
 import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine
@@ -11,7 +10,10 @@ import xyz.ksharma.huezoo.domain.game.model.PersonalBest
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.platform.PlatformOps
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 class DefaultThresholdRepository(
     private val db: HuezooDatabase,
     private val platformOps: PlatformOps,

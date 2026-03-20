@@ -1,8 +1,10 @@
 package xyz.ksharma.huezoo.domain.game.model
 
-import kotlinx.datetime.Instant
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /** Current state of the 8-hour attempt gate for The Threshold. */
+@OptIn(ExperimentalTime::class)
 sealed interface AttemptStatus {
 
     /** Player can start a game. */

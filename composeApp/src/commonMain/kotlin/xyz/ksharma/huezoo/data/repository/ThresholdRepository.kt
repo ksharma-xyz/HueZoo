@@ -1,9 +1,11 @@
 package xyz.ksharma.huezoo.data.repository
 
-import kotlinx.datetime.Instant
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.domain.game.model.PersonalBest
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 interface ThresholdRepository {
 
     /** Returns whether the player can start a game right now. */

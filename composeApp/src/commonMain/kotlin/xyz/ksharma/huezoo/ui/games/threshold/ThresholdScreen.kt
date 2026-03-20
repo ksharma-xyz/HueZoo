@@ -268,7 +268,7 @@ private fun ThresholdBlockedPreview() {
     xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
         BlockedContent(
             state = ThresholdUiState.Blocked(
-                nextResetAt = kotlinx.datetime.Clock.System.now(),
+                nextResetAt = kotlin.time.Clock.System.now(),
                 attemptsUsed = 5,
                 maxAttempts = 5,
             ),

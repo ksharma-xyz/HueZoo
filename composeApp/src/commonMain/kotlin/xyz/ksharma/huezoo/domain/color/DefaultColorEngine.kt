@@ -82,8 +82,8 @@ class DefaultColorEngine(private val random: Random = Random.Default) : ColorEng
 
     override fun seededColorForDate(date: LocalDate): Color {
         val seed = date.year.toLong() * 10_000L +
-            date.monthNumber.toLong() * 100L +
-            date.dayOfMonth.toLong()
+            (date.month.ordinal + 1).toLong() * 100L +
+            date.day.toLong()
 
         val hue = lcgHash(seed, multiplier = LCG_MULT_HUE, increment = LCG_INC_HUE)
             .let { abs(it) / LCG_MAX.toFloat() * 360f }

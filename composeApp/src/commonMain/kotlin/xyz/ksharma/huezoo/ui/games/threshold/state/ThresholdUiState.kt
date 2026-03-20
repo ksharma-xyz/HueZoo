@@ -1,8 +1,10 @@
 package xyz.ksharma.huezoo.ui.games.threshold.state
 
-import kotlinx.datetime.Instant
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 sealed interface ThresholdUiState {
 
     data object Loading : ThresholdUiState
