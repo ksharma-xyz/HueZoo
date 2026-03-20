@@ -166,6 +166,49 @@ To test ViewModels: inject fake `ColorEngine`, `ThresholdRepository`, `DailyRepo
 
 ---
 
+## Player-Facing Game Explanation
+
+*This is the copy used in the in-game `?` help sheets (`GameHelpSheet.kt`). Keep this in sync when rules change.*
+
+### The Threshold — player copy
+
+| Section | Copy |
+|---|---|
+| THE GOAL | Six swatches appear — one has a slightly different hue. Tap the outlier. |
+| TAPS | Each correct tap makes the colour difference smaller by ΔE 0.3. The longer your streak, the harder it gets. |
+| TRIES | One wrong tap ends the current try — ΔE resets to 5.0 and a new run begins. You get 10 tries per session. Your best ΔE across all tries is your result. |
+| WHAT IS ΔE? | ΔE measures colour difference. ΔE 5.0 = easy / ΔE 2.0 = trained / ΔE 1.0 = expert / ΔE 0.5 = near human limits. |
+| GEMS | +2 per tap. Milestone bonuses: ΔE < 2.0 → +5 / ΔE < 1.0 → +10 / ΔE < 0.5 → +25. Reset each try. |
+
+### Daily Challenge — player copy
+
+| Section | Copy |
+|---|---|
+| THE GOAL | Six swatches appear — one has a slightly different hue. Tap the outlier. |
+| 6 ROUNDS, ALWAYS | Fixed ΔE curve: 4.0 → 3.0 → 2.0 → 1.5 → 1.0 → 0.7. Wrong tap reveals correct swatch and advances — all 6 always play. |
+| SCORING | Correct rounds score 1000 ÷ ΔE. Wrong rounds score 0. Total is cumulative. |
+| SAME PUZZLE WORLDWIDE | Date-seeded — same colours for every player. One attempt per day. |
+| GEMS | +5 per correct round. +3 participation (always). +20 perfect-run bonus (all 6 correct). |
+
+---
+
+## Planned Screens (TODO)
+
+### First-Launch Onboarding
+
+Show a brief walkthrough on the very first app open, before the Home screen:
+- Slide 1: "What is ΔE?" — one sentence + visual (two swatches, delta label)
+- Slide 2: Threshold rules in 3 bullet points
+- Slide 3: Daily rules in 3 bullet points
+- Skip button always visible
+
+**Implementation notes:**
+- Gate on a `SettingsRepository.hasSeenOnboarding(): Boolean` flag (store in SQLDelight settings table or DataStore).
+- Render as a full-screen overlay on top of `HomeScreen` (not a separate nav destination) so nav stack stays clean.
+- After dismiss, set flag so it never shows again.
+
+---
+
 ## Open Design Questions
 
 1. **Threshold try count**: currently 5 free / 10 free (see `MAX_ATTEMPTS_RELEASE`). Confirm final value before monetization implementation.
