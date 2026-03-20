@@ -184,3 +184,35 @@ class PetalShape : Shape {
 /** Default petal tile for the flower swatch layout. */
 val SwatchPetal = PetalShape()
 
+/**
+ * Diamond shape — a perfect rhombus whose **top tip sits at (width/2, 0)** and bottom tip at
+ * (width/2, height), with the widest points at the vertical midpoint.
+ *
+ * Compatible with [RadialSwatchLayout]: placing each tile with its top tip at [centerGap]
+ * distance from the layout centre and rotating radially produces a ring of inward-pointing
+ * diamonds.
+ */
+class DiamondShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(diamondPath(size))
+
+    private fun diamondPath(size: Size): Path {
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        return Path().apply {
+            moveTo(cx, 0f)              // top tip
+            lineTo(size.width, cy)      // right point
+            lineTo(cx, size.height)     // bottom tip
+            lineTo(0f, cy)              // left point
+            close()
+        }
+    }
+}
+
+/** Default diamond tile for the DiamondHalo layout. */
+val DiamondSwatch = DiamondShape()
+
