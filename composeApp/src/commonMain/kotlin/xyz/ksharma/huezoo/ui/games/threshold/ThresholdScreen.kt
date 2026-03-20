@@ -17,7 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -33,6 +36,7 @@ import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
+import xyz.ksharma.huezoo.ui.components.ThresholdHelpSheet
 import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
 import xyz.ksharma.huezoo.ui.components.SkewedStatChip
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
@@ -54,6 +58,11 @@ fun ThresholdScreen(
     viewModel: ThresholdViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showHelp by remember { mutableStateOf(false) }
+
+    if (showHelp) {
+        ThresholdHelpSheet(onDismiss = { showHelp = false })
+    }
 
     LaunchedEffect(Unit) {
         viewModel.onStart()
@@ -74,6 +83,7 @@ fun ThresholdScreen(
             HuezooTopBar(
                 onBackClick = onBack,
                 currencyAmount = (uiState as? ThresholdUiState.Playing)?.totalGems,
+                onHelpClick = { showHelp = true },
             )
 
             when (val state = uiState) {

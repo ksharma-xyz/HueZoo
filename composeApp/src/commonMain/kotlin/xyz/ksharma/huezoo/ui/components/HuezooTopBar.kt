@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -89,6 +90,7 @@ fun HuezooTopBar(
     modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
     currencyAmount: Int? = null,
+    onHelpClick: (() -> Unit)? = null,
 ) {
     val frostBrush = Brush.verticalGradient(
         colors = listOf(
@@ -126,15 +128,77 @@ fun HuezooTopBar(
                 HuezooWordmark()
             }
 
-            // ── Right: currency pill ─────────────────────────────────────────
-            if (currencyAmount != null) {
-                CurrencyPill(amount = currencyAmount)
+            // ── Right: help button (optional) + currency pill (optional) ────
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.wrapContentWidth(),
+            ) {
+                if (onHelpClick != null) {
+                    TopBarHelpButton(onClick = onHelpClick)
+                }
+                if (currencyAmount != null) {
+                    CurrencyPill(amount = currencyAmount)
+                }
             }
         }
     }
 }
 
 // ── Private composables ───────────────────────────────────────────────────────
+
+/**
+ * Small `?` parallelogram button for the top-bar right slot.
+ * Matches the back button's shape, shadow, and press animation.
+ */
+@Composable
+private fun TopBarHelpButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) BACK_PRESS_SCALE else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "helpScale",
+    )
+
+    Box(
+        modifier = modifier
+            .size(BackButtonHeight) // square — same height as back button
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .shapedShadow(
+                shape = ParallelogramBack,
+                color = HuezooColors.AccentCyan.copy(alpha = BACK_SHADOW_ALPHA),
+                offsetX = BackShadowOffsetX,
+                offsetY = BackShadowOffsetY,
+            )
+            .clip(ParallelogramBack)
+            .background(HuezooColors.SurfaceL3)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+                role = Role.Button,
+                onClickLabel = "How to play",
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = "?",
+            style = MaterialTheme.typography.titleMedium,
+            color = HuezooColors.AccentCyan,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+        )
+    }
+}
 
 /**
  * "HUEZ" brand wordmark in Bebas Neue italic.
