@@ -35,13 +35,13 @@ class DefaultColorEngine(private val random: Random = Random.Default) : ColorEng
             random.nextFloat() < 0.10f -> {
                 // Near-grey: saturation almost zero, mid lightness
                 val saturation = random.nextFloat() * 0.12f
-                val lightness = 0.28f + random.nextFloat() * 0.44f  // 0.28–0.72
+                val lightness = 0.28f + random.nextFloat() * 0.44f // 0.28–0.72
                 hslToColor(hue, saturation, lightness)
             }
             random.nextFloat() < 0.25f -> {
                 // Muted / pastel: moderate saturation
-                val saturation = 0.20f + random.nextFloat() * 0.38f  // 0.20–0.58
-                val lightness = 0.35f + random.nextFloat() * 0.30f   // 0.35–0.65
+                val saturation = 0.20f + random.nextFloat() * 0.38f // 0.20–0.58
+                val lightness = 0.35f + random.nextFloat() * 0.30f // 0.35–0.65
                 hslToColor(hue, saturation, lightness)
             }
             else -> {

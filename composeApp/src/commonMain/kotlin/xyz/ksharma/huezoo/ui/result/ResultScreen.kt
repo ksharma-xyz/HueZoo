@@ -5,7 +5,9 @@ import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +20,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -31,6 +35,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import huezoo.composeapp.generated.resources.Res
-import huezoo.composeapp.generated.resources.ic_gem
+import huezoo.composeapp.generated.resources.ic_share
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
@@ -64,7 +71,7 @@ import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val BannerShape = RoundedCornerShape(12.dp)
 private val CardShape = RoundedCornerShape(16.dp)
-private val StatCardShape = RoundedCornerShape(12.dp)
+private val StatIconSize = 28.dp
 
 @Composable
 fun ResultScreen(
@@ -76,8 +83,6 @@ fun ResultScreen(
     viewModel: ResultViewModel = koinViewModel(parameters = { parametersOf(result) }),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val gemIcon = painterResource(Res.drawable.ic_gem)
-
     val isDaily = result.gameId == GameId.DAILY
     val identityColor = if (isDaily) HuezooColors.GameDaily else HuezooColors.GameThreshold
     val glowColor = if (isDaily) identityColor else HuezooColors.AccentMagenta
@@ -91,7 +96,6 @@ fun ResultScreen(
             HuezooTopBar(
                 onBackClick = onBack,
                 currencyAmount = 0,
-                gemIcon = gemIcon,
             )
 
             when (val state = uiState) {
@@ -141,7 +145,9 @@ private fun ReadyContent(
     val platformOps: PlatformOps = koinInject()
     val isDaily = state.gameId == GameId.DAILY
     val identityColor = if (isDaily) HuezooColors.GameDaily else HuezooColors.GameThreshold
+    val accentColor = if (isDaily) identityColor else HuezooColors.AccentMagenta
     val sting = stingData(state.gameId, state.deltaE, state.score)
+    val shareIcon = painterResource(Res.drawable.ic_share)
 
     // Count-up: 0 → final score
     val displayScore = remember { Animatable(0f) }
@@ -168,11 +174,10 @@ private fun ReadyContent(
     ) {
         Spacer(Modifier.height(HuezooSpacing.md))
 
-        // ── 1. Outcome banner ─────────────────────────────────────────────────
+        // ── 1. Outcome banner — constrained width, matches stitch ─────────────
         MissionOutcomeBanner(
             text = if (isDaily) "MISSION OUTCOME: COMPLETE" else "MISSION OUTCOME: FAILURE",
-            color = if (isDaily) identityColor else HuezooColors.AccentMagenta,
-            modifier = Modifier.fillMaxWidth(),
+            color = accentColor,
         )
 
         Spacer(Modifier.height(HuezooSpacing.xl))
@@ -190,32 +195,34 @@ private fun ReadyContent(
             deltaE = state.deltaE,
             badgeText = sting.badge,
             stingCopy = sting.copy,
-            accentColor = if (isDaily) identityColor else HuezooColors.AccentMagenta,
+            accentColor = accentColor,
             modifier = Modifier.fillMaxWidth(),
         )
 
         Spacer(Modifier.height(HuezooSpacing.md))
 
-        // ── 4. Stat breakdown ─────────────────────────────────────────────────
-        Row(
+        // ── 4. Stat cards — stacked full-width (matches stitch) ───────────────
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+            verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
         ) {
-            // Spectral Drift — score percentage toward max (5000 = excellent)
+            // SPECTRAL DRIFT — score % toward max
             StatBreakdownCard(
                 label = "SPECTRAL DRIFT",
                 value = "${((state.score / 5000f) * 100).toInt().coerceIn(0, 100)}%",
                 progress = (state.score / 5000f).coerceIn(0f, 1f),
                 accentColor = HuezooColors.AccentCyan,
-                modifier = Modifier.weight(1f),
+                icon = { WaveIcon(color = HuezooColors.AccentCyan) },
+                modifier = Modifier.fillMaxWidth(),
             )
-            // Calibration — rounds survived
+            // CALIBRATION — rounds survived
             StatBreakdownCard(
                 label = "CALIBRATION",
                 value = "${state.roundsSurvived}",
                 progress = (state.roundsSurvived / 15f).coerceIn(0f, 1f),
                 accentColor = HuezooColors.AccentYellow,
-                modifier = Modifier.weight(1f),
+                icon = { LightningIcon(color = HuezooColors.AccentYellow) },
+                modifier = Modifier.fillMaxWidth(),
             )
         }
 
@@ -232,7 +239,14 @@ private fun ReadyContent(
         HuezooButton(
             text = "SHARE SCORE",
             onClick = { platformOps.shareText(shareText) },
-            variant = HuezooButtonVariant.Ghost,
+            variant = HuezooButtonVariant.GhostDanger,
+            leadingIcon = {
+                Image(
+                    painter = shareIcon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+            },
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -250,7 +264,9 @@ private fun MissionOutcomeBanner(
 ) {
     Box(
         modifier = modifier
+            .wrapContentWidth()
             .shapedShadow(BannerShape, color.darken(0.5f), offsetX = 0.dp, offsetY = 6.dp)
+            .border(2.dp, Color.White.copy(alpha = 0.12f), BannerShape)
             .background(color, BannerShape)
             .padding(horizontal = HuezooSpacing.lg, vertical = HuezooSpacing.sm),
         contentAlignment = Alignment.Center,
@@ -294,8 +310,8 @@ private fun HeroScore(
         androidx.compose.material3.Text(
             text = "$score PTS",
             style = MaterialTheme.typography.displayLarge.copy(
-                fontSize = 72.sp,
-                lineHeight = 72.sp,
+                fontSize = 88.sp,
+                lineHeight = 88.sp,
             ),
             color = HuezooColors.AccentCyan,
             textAlign = TextAlign.Center,
@@ -343,7 +359,7 @@ private fun StingReadout(
                     ),
                     color = accentColor,
                 )
-                // Skewed badge — same DS pattern as SkewedStatChip label
+                // Skewed badge
                 Box(
                     modifier = Modifier
                         .shapedShadow(ParallelogramBack, accentColor.copy(alpha = 0.3f))
@@ -375,6 +391,7 @@ private fun StatBreakdownCard(
     value: String,
     progress: Float,
     accentColor: Color,
+    icon: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val animatedProgress = remember { Animatable(0f) }
@@ -384,25 +401,32 @@ private fun StatBreakdownCard(
 
     Column(
         modifier = modifier
-            .background(HuezooColors.SurfaceL2, StatCardShape)
-            .rimLight(cornerRadius = 12.dp)
+            .background(HuezooColors.SurfaceL2, CardShape)
+            .rimLight(cornerRadius = 16.dp)
             .padding(HuezooSpacing.md),
         verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
     ) {
-        // Skewed label chip
-        Box(
-            modifier = Modifier
-                .shapedShadow(ParallelogramBack, accentColor.copy(alpha = 0.3f))
-                .clip(ParallelogramBack)
-                .background(accentColor.copy(alpha = 0.15f))
-                .padding(horizontal = 10.dp, vertical = 4.dp),
-            contentAlignment = Alignment.Center,
+        // Top row: skewed label chip + icon
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            HuezooLabelSmall(
-                text = label,
-                color = accentColor,
-                fontWeight = FontWeight.ExtraBold,
-            )
+            Box(
+                modifier = Modifier
+                    .shapedShadow(ParallelogramBack, accentColor.copy(alpha = 0.3f))
+                    .clip(ParallelogramBack)
+                    .background(accentColor.copy(alpha = 0.15f))
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                HuezooLabelSmall(
+                    text = label,
+                    color = accentColor,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+            }
+            icon()
         }
 
         // Stat value
@@ -426,18 +450,76 @@ private fun NeonProgressBar(
     color: Color,
     modifier: Modifier = Modifier,
 ) {
+    val trackShape = RoundedCornerShape(4.dp)
+    val clampedProgress = progress.coerceIn(0f, 1f)
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(6.dp)
-            .background(HuezooColors.SurfaceL3, RoundedCornerShape(3.dp))
-            .clip(RoundedCornerShape(3.dp)),
+            .height(8.dp)
+            .background(HuezooColors.SurfaceL3, trackShape)
+            .clip(trackShape),
     ) {
+        // Glow halo — semi-transparent wider layer behind solid fill
         Box(
             modifier = Modifier
-                .fillMaxWidth(progress.coerceIn(0f, 1f))
+                .fillMaxWidth(clampedProgress)
                 .fillMaxHeight()
-                .background(color, RoundedCornerShape(3.dp)),
+                .background(color.copy(alpha = 0.35f), trackShape),
         )
+        // Solid fill
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(clampedProgress)
+                .fillMaxHeight(0.6f)
+                .align(Alignment.CenterStart)
+                .background(color, RoundedCornerShape(4.dp)),
+        )
+    }
+}
+
+// ── Stat card icons ────────────────────────────────────────────────────────────
+
+/** Three horizontal sine-wave lines — used on SPECTRAL DRIFT card. */
+@Composable
+private fun WaveIcon(color: Color, modifier: Modifier = Modifier) {
+    androidx.compose.foundation.Canvas(modifier = modifier.size(StatIconSize)) {
+        val w = size.width
+        val h = size.height
+        val stroke = Stroke(width = 2.2.dp.toPx(), cap = StrokeCap.Round)
+        val gap = h / 4f
+        repeat(3) { row ->
+            val y = gap * (row + 0.9f)
+            val path = Path().apply {
+                moveTo(0f, y)
+                cubicTo(
+                    w * 0.25f,
+                    y - gap * 0.55f,
+                    w * 0.75f,
+                    y + gap * 0.55f,
+                    w,
+                    y,
+                )
+            }
+            drawPath(path, color, style = stroke)
+        }
+    }
+}
+
+/** Filled lightning bolt — used on CALIBRATION card. */
+@Composable
+private fun LightningIcon(color: Color, modifier: Modifier = Modifier) {
+    androidx.compose.foundation.Canvas(modifier = modifier.size(StatIconSize)) {
+        val w = size.width
+        val h = size.height
+        val path = Path().apply {
+            moveTo(w * 0.64f, 0f)
+            lineTo(w * 0.18f, h * 0.50f)
+            lineTo(w * 0.50f, h * 0.50f)
+            lineTo(w * 0.36f, h)
+            lineTo(w * 0.82f, h * 0.50f)
+            lineTo(w * 0.50f, h * 0.50f)
+            close()
+        }
+        drawPath(path, color)
     }
 }

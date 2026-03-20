@@ -40,10 +40,12 @@ class ThresholdViewModel(
     // Mutable game state — not exposed directly in UiState to keep state atomic.
     private var currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
     private var roundCount = 1
+
     // Tracks the total number of tries (lives) remaining for this session.
     // Each wrong tap consumes one try and records a DB attempt.
     private var triesRemaining = 0
     private var oddIndex = 0
+
     // Best (lowest) ΔE achieved across all lives in this session.
     private var bestDeltaE: Float? = null
     private var baseColor: Color = Color.Unspecified

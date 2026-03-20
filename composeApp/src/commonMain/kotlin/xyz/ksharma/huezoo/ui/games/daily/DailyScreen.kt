@@ -15,9 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import huezoo.composeapp.generated.resources.Res
-import huezoo.composeapp.generated.resources.ic_gem
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
@@ -41,7 +38,6 @@ fun DailyScreen(
     viewModel: DailyViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val gemIcon = painterResource(Res.drawable.ic_gem)
 
     LaunchedEffect(Unit) {
         viewModel.navEvent.collect { event ->
@@ -61,7 +57,6 @@ fun DailyScreen(
             HuezooTopBar(
                 onBackClick = onBack,
                 currencyAmount = 0,
-                gemIcon = gemIcon,
             )
 
             when (val state = uiState) {

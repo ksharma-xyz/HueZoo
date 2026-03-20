@@ -21,9 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import huezoo.composeapp.generated.resources.Res
-import huezoo.composeapp.generated.resources.ic_gem
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
@@ -49,7 +46,6 @@ fun ThresholdScreen(
     viewModel: ThresholdViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val gemIcon = painterResource(Res.drawable.ic_gem)
 
     LaunchedEffect(Unit) {
         viewModel.onStart()
@@ -70,7 +66,6 @@ fun ThresholdScreen(
             HuezooTopBar(
                 onBackClick = onBack,
                 currencyAmount = 0,
-                gemIcon = gemIcon,
             )
 
             when (val state = uiState) {
@@ -114,7 +109,26 @@ private fun PlayingContent(
             )
         }
 
-        Spacer(Modifier.height(HuezooSpacing.xl))
+        Spacer(Modifier.height(HuezooSpacing.lg))
+
+        // Instruction title
+        Text(
+            text = "IDENTIFY THE OUTLIER",
+            style = MaterialTheme.typography.titleLarge,
+            color = HuezooColors.TextPrimary,
+            fontWeight = FontWeight.ExtraBold,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(HuezooSpacing.xs))
+
+        // Current sensitivity
+        Text(
+            text = "CURRENT SENSITIVITY: ΔE ${state.deltaE.fmt()}",
+            style = MaterialTheme.typography.labelMedium,
+            color = HuezooColors.TextSecondary,
+        )
+
+        Spacer(Modifier.height(HuezooSpacing.md))
         DeltaEBadge(deltaE = state.deltaE)
         Spacer(Modifier.height(HuezooSpacing.xl))
 
@@ -134,7 +148,7 @@ private fun PlayingContent(
 
         Spacer(Modifier.height(HuezooSpacing.lg))
 
-        // During Wrong phase: sting copy replaces the instruction text
+        // During Wrong phase: sting copy appears below instruction
         AnimatedVisibility(
             visible = state.roundPhase == RoundPhase.Wrong && state.stingCopy != null,
             enter = fadeIn(tween(200)),
@@ -145,17 +159,6 @@ private fun PlayingContent(
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                 color = HuezooColors.AccentMagenta,
                 textAlign = TextAlign.Center,
-            )
-        }
-        AnimatedVisibility(
-            visible = state.roundPhase != RoundPhase.Wrong,
-            enter = fadeIn(tween(200)),
-            exit = fadeOut(tween(150)),
-        ) {
-            Text(
-                text = "Tap the odd one out",
-                style = MaterialTheme.typography.bodyMedium,
-                color = HuezooColors.TextSecondary,
             )
         }
     }
@@ -185,6 +188,12 @@ private fun BlockedContent(
             color = HuezooColors.TextSecondary,
         )
     }
+}
+
+private fun Float.fmt(): String {
+    val i = toInt()
+    val d = ((this - i) * 10).toInt()
+    return "$i.$d"
 }
 
 private fun SwatchDisplayState.toSwatchBlockState(): SwatchBlockState = when (this) {

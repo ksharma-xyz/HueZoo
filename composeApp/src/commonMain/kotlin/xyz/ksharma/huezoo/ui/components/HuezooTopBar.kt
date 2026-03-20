@@ -89,7 +89,6 @@ fun HuezooTopBar(
     modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
     currencyAmount: Int? = null,
-    gemIcon: androidx.compose.ui.graphics.painter.Painter? = null,
 ) {
     val frostBrush = Brush.verticalGradient(
         colors = listOf(
@@ -128,8 +127,8 @@ fun HuezooTopBar(
             }
 
             // ── Right: currency pill ─────────────────────────────────────────
-            if (currencyAmount != null && gemIcon != null) {
-                CurrencyPill(amount = currencyAmount, icon = gemIcon)
+            if (currencyAmount != null) {
+                CurrencyPill(amount = currencyAmount)
             }
         }
     }
@@ -257,10 +256,7 @@ private fun BackChevron(modifier: Modifier = Modifier) {
 @Composable
 private fun HuezooTopBarHomePreview() {
     HuezooPreviewTheme {
-        HuezooTopBar(
-            currencyAmount = 1250,
-            gemIcon = previewGemPainter(),
-        )
+        HuezooTopBar(currencyAmount = 1250)
     }
 }
 
@@ -268,11 +264,7 @@ private fun HuezooTopBarHomePreview() {
 @Composable
 private fun HuezooTopBarBackPreview() {
     HuezooPreviewTheme {
-        HuezooTopBar(
-            onBackClick = {},
-            currencyAmount = 1250,
-            gemIcon = previewGemPainter(),
-        )
+        HuezooTopBar(onBackClick = {}, currencyAmount = 1250)
     }
 }
 

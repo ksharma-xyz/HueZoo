@@ -21,10 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import huezoo.composeapp.generated.resources.Res
-import huezoo.composeapp.generated.resources.ic_gem
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.ThresholdGame
@@ -49,7 +46,6 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val gemIcon = painterResource(Res.drawable.ic_gem)
 
     // Re-load every time HomeScreen becomes the active top entry (e.g. returning from a game).
     LifecycleResumeEffect(Unit) {
@@ -61,7 +57,6 @@ fun HomeScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             HuezooTopBar(
                 currencyAmount = 0,
-                gemIcon = gemIcon,
             )
 
             when (val state = uiState) {

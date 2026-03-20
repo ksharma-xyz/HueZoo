@@ -38,7 +38,7 @@ import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val ShelfHeight = 5.dp
 
-enum class HuezooButtonVariant { Primary, Confirm, Danger, Score, Try, Ghost }
+enum class HuezooButtonVariant { Primary, Confirm, Danger, Score, Try, Ghost, GhostDanger }
 
 private data class ButtonColors(
     val bg: Color,
@@ -78,6 +78,12 @@ private fun buttonColors(variant: HuezooButtonVariant): ButtonColors = when (var
         content = HuezooColors.AccentCyan, // transparent bg — fixed accent on dark surface
         shelf = HuezooColors.SurfaceL1,
         border = HuezooColors.AccentCyan,
+    )
+    HuezooButtonVariant.GhostDanger -> ButtonColors(
+        bg = Color.Transparent,
+        content = HuezooColors.AccentMagenta,
+        shelf = HuezooColors.ShelfMagenta,
+        border = HuezooColors.AccentMagenta,
     )
 }
 
