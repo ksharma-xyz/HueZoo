@@ -279,6 +279,57 @@ Proposed alternative: Threshold becomes a 10-tries-per-day format —
 - [ ] UX.13.3 Decide whether ΔE is shown in-game or only on Result screen
 - [ ] UX.13.4 Implement try-budget model if chosen (replaces current one-miss-end model)
 
+#### UX.14 — Game Goal Clarity & ΔE Education ⚠️ DESIGN DECISION NEEDED
+*Players need to understand what they're trying to achieve and what ΔE means as they progress.*
+
+**The goal of Threshold**: Survive as many rounds as possible while ΔE tightens each round.
+The ultimate goal is to reach the lowest possible ΔE (e.g. ΔE 0.3 = superhuman color vision).
+This needs to be communicated both in the UI and in game copy.
+
+**ΔE ranges and what they mean (reference):**
+| ΔE range | Human perception | Label idea |
+|---|---|---|
+| 5.0 – 10.0 | Easy to see — obvious difference | BEGINNER |
+| 3.0 – 5.0 | Visible but not trivial | TRAINING |
+| 2.0 – 3.0 | Requires focus | SHARP |
+| 1.0 – 2.0 | Hard — expert territory | EXPERT |
+| 0.5 – 1.0 | Very hard — professional colorist level | ELITE |
+| < 0.5 | Superhuman — near limits of human vision | SUPERHUMAN |
+
+**Design questions:**
+- Should a "ΔE goal" (e.g. reach ΔE 1.0) appear on the Home screen as a visible target?
+- Should each ΔE tier have a name displayed in the game HUD? (already partially in UX.7.2)
+- Is the "lifetime best ΔE" the core achievement metric shown on profile/home?
+
+- [ ] UX.14.1 Define ΔE tier labels and ΔE ranges for all tiers (inform UX.7.2 and home goal display)
+- [ ] UX.14.2 Add "Your lifetime best: ΔE X.X" prominently on Threshold game card (already partially done)
+- [ ] UX.14.3 On Result screen: show tier name achieved (e.g. "EXPERT — ΔE 1.7") below the ΔE number
+- [ ] UX.14.4 Consider adding "GOAL: reach ΔE 1.0" as a visible home screen challenge target
+
+#### UX.15 — ΔE Tiers, Levels, Gems & Scoring: Unified Design Pass ⚠️ TACKLE TOGETHER
+*These todos are deeply interconnected — changing one changes the others. Do them in one pass.*
+
+The following must be designed and implemented together so the numbers are consistent:
+1. **UX.13** — Threshold loop (round/try model, game-over trigger)
+2. **UX.14** — ΔE tier labels and target goals
+3. **UX.12** — Scoring formula, bonus gems, GameRewardEngine
+4. **UX.9** — Gem earn rates (+1 per correct, bonuses)
+5. **PlayerLevel** thresholds (Rookie 0–399 gems / Skilled 400–99,999 / Master 100,000+)
+6. **UX.11** — Confetti threshold (what score counts as "good"?)
+7. **UX.12.4** — Ads strategy (tied to attempt depletion + try-budget model)
+
+**Recommended approach**: Write `docs/GAME_DESIGN_MASTER.md` that locks all values in one place
+before touching any ViewModel or engine code. The doc should include:
+- ΔE starting value, step size per round, floors by difficulty
+- Score formula (how score maps to ΔE)
+- Gem earn rates
+- Level thresholds
+- Confetti cutoffs
+- Ads trigger conditions
+
+- [ ] UX.15.1 Write `docs/GAME_DESIGN_MASTER.md` — all numbers in one place before implementation
+- [ ] UX.15.2 Implement in one coordinated pass: GameRewardEngine + ΔE tiers + gem rates + level thresholds
+
 ### Phase DS.3 — Haptics
 - [ ] DS.3.1 `HapticType` enum in commonMain (Light, Medium, Heavy, Success, Error, Warning, Selection)
 - [ ] DS.3.2 `HapticEngine` interface in commonMain
