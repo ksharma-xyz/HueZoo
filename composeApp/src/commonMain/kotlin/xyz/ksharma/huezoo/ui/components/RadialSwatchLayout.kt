@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import xyz.ksharma.huezoo.ui.games.threshold.state.RoundPhase
+import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel

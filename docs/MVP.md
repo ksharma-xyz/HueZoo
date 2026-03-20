@@ -183,13 +183,13 @@ Paywall Sheet
 - [x] UX.2.2 Threshold card (blocked): show live "Resets in Xh Xm" countdown
 
 #### UX.3 — Already Played / Blocked States
-- [ ] UX.3.1 Daily already-played screen: show read-only ResultCard + countdown (not just plain text)
-- [ ] UX.3.2 Threshold blocked screen: show live reset countdown + styled "Back to Home" primary button
+- [x] UX.3.1 Daily already-played screen: styled "ALREADY PLAYED" + score + countdown + "BACK TO HOME" button
+- [x] UX.3.2 Threshold blocked screen: show live reset countdown + styled "Back to Home" primary button
 
 #### UX.4 — In-Game Feedback
-- [ ] UX.4.1 Correct tap: show brief "↓ ΔE X.X" label below badge for 600ms before next round
-- [ ] UX.4.2 Daily: show today's date under "Daily Challenge" title ("March 20 · Same for everyone")
-- [ ] UX.4.3 Daily final round (6/6): change instruction text to "Last one — make it count"
+- [x] UX.4.1 Correct tap: "↓ ΔE X.X — SHARPER" label via fixed feedback slot (graphicsLayer alpha, no layout shift)
+- [x] UX.4.2 Daily: show today's date under "DAILY CHALLENGE" title ("March 20 · Same for everyone")
+- [x] UX.4.3 Daily final round (6/6): feedback slot shows "Last one — make it count" on wrong tap
 
 #### UX.5 — New User / Onboarding
 - [ ] UX.5.1 First-launch ΔE info card on Home (dismissable, stored in SQLDelight `user_settings`)
@@ -225,6 +225,28 @@ Paywall Sheet
 - [ ] UX.9.3 HUD gem counter increments with a brief scale pulse (1.0 → 1.2 → 1.0, spring) when gems are added
 - [ ] UX.9.4 Persist gem total in SQLDelight `user_stats` table (accumulated lifetime gems)
 - [ ] UX.9.5 Result screen: show gems earned this session (e.g. "+32 💎 earned") below the stat cards
+
+#### UX.10 — Home Screen & Splash Redesign
+*Full redesign pass before ship — current design is functional but not polished enough.*
+- [ ] UX.10.1 **Home screen redesign** — new layout from Stitch design, replace GameCard grid with more visual identity. Tackle after UX.5 and UX.6 are done.
+- [ ] UX.10.2 **Splash screen** — animated intro (logo reveal, brand identity moment). Design + build after home screen is locked.
+- [ ] UX.10.3 **Game levels / player progression** — define level thresholds based on ΔE achieved and score. Wire level badges into Result screen and Home. Full scope TBD in a dedicated design doc.
+
+#### UX.11 — Result Screen Confetti Threshold
+*Confetti should only fire when the result is actually worth celebrating.*
+- [ ] UX.11.1 Define "good score" thresholds per game:
+  - Threshold: confetti if best ΔE < 2.0 (player reached HARD territory)
+  - Daily: confetti if all 6 rounds completed correctly (perfect run)
+- [ ] UX.11.2 Pass a `showConfetti: Boolean` flag to `ResultScreen` from the nav result; compute in ViewModel before navigating
+- [ ] UX.11.3 On bad/mediocre result: no confetti — keep the sting copy as the sole emotional beat
+
+#### UX.12 — Scoring, Game Levels & Bonus Gems (post-game)
+*Handle in one place — do not scatter across ViewModels.*
+- [ ] UX.12.1 Create `GameRewardEngine` (commonMain) — takes `Result` and returns `RewardSummary(bonusGems, levelUp, newLevel)`
+- [ ] UX.12.2 Define level thresholds and bonus gem amounts (separate design doc: `docs/GAME_LEVELS.md`)
+- [ ] UX.12.3 Bonus gems awarded on Result screen entry — animated "+N" float from stat card, added to total
+- [ ] UX.12.4 Ads strategy: show rewarded ad offer only if: (a) user is not paid, AND (b) score was good (≥ threshold), AND (c) ad not shown in last 24h. Never show after a bad result — that feels punishing.
+- [ ] UX.12.5 All reward/ad/level logic flows through `GameRewardEngine` — neither ViewModel nor Screen contains raw logic
 
 ### Phase DS.3 — Haptics
 - [ ] DS.3.1 `HapticType` enum in commonMain (Light, Medium, Heavy, Success, Error, Warning, Selection)

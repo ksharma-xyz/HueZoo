@@ -26,7 +26,7 @@ class DefaultDailyGameEngine(
 
     private companion object {
         const val TOTAL_ROUNDS = 6
-        const val SWATCH_COUNT = 3
+        const val SWATCH_COUNT = 6
         const val SEED_ROUND_MULTIPLIER = 10L
     }
 }

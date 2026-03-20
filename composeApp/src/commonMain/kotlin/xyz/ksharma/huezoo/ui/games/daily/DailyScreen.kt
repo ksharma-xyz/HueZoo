@@ -1,8 +1,9 @@
 package xyz.ksharma.huezoo.ui.games.daily
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,8 +19,11 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.datetime.DateTimeUnit
@@ -33,14 +37,15 @@ import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
+import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
 import xyz.ksharma.huezoo.ui.components.SkewedStatChip
-import xyz.ksharma.huezoo.ui.components.SwatchBlock
-import xyz.ksharma.huezoo.ui.components.SwatchBlockSize
-import xyz.ksharma.huezoo.ui.components.SwatchBlockState
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiState
+import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
+import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
+import xyz.ksharma.huezoo.ui.model.SwatchUiModel
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import kotlin.time.Clock
@@ -57,6 +62,7 @@ fun DailyScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
+        viewModel.onStart()
         viewModel.navEvent.collect { event ->
             when (event) {
                 is DailyNavEvent.NavigateToResult -> onResult(event.result)
@@ -73,7 +79,7 @@ fun DailyScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             HuezooTopBar(
                 onBackClick = onBack,
-                currencyAmount = 0,
+                currencyAmount = null,
             )
 
             when (val state = uiState) {
@@ -114,25 +120,27 @@ private fun DailyPlayingContent(
             .padding(HuezooSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-        ) {
-            SkewedStatChip(
-                label = "ROUND",
-                value = "${state.round}/${state.totalRounds}",
-                accentColor = HuezooColors.GameDaily,
-            )
-        }
+        SkewedStatChip(
+            label = "ROUND",
+            value = "${state.round}/${state.totalRounds}",
+            accentColor = HuezooColors.GameDaily,
+        )
 
-        Spacer(Modifier.height(HuezooSpacing.xl))
+        Spacer(Modifier.height(HuezooSpacing.xxl))
 
-        // UX.4.2 — Title + date subtitle
+        // Title — fades out during fold so layout stays stable (same technique as Threshold)
+        val titleAlpha by animateFloatAsState(
+            targetValue = if (state.roundPhase == RoundPhase.FoldingOut) 0f else 1f,
+            animationSpec = tween(durationMillis = 150),
+            label = "titleAlpha",
+        )
         Text(
             text = "DAILY CHALLENGE",
             style = MaterialTheme.typography.titleLarge,
             color = HuezooColors.AccentCyan,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center,
+            modifier = Modifier.graphicsLayer { alpha = titleAlpha },
         )
         Spacer(Modifier.height(HuezooSpacing.xs))
         Text(
@@ -140,32 +148,61 @@ private fun DailyPlayingContent(
             style = MaterialTheme.typography.labelMedium,
             color = HuezooColors.TextSecondary,
             textAlign = TextAlign.Center,
+            modifier = Modifier.graphicsLayer { alpha = titleAlpha },
         )
-
-        Spacer(Modifier.height(HuezooSpacing.xl))
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            state.swatches.forEachIndexed { index, swatch ->
-                SwatchBlock(
-                    color = swatch.color,
-                    state = swatch.displayState.toSwatchBlockState(),
-                    size = SwatchBlockSize.Medium,
-                    onClick = { onSwatchTap(index) },
-                )
-            }
-        }
 
         Spacer(Modifier.height(HuezooSpacing.lg))
 
-        // UX.4.3 — Last-round copy change
-        Text(
-            text = if (state.round == state.totalRounds) "Last one — make it count" else "Tap the odd one out",
-            style = MaterialTheme.typography.bodyMedium,
-            color = HuezooColors.TextSecondary,
-            textAlign = TextAlign.Center,
+        // ── Fixed-height feedback slot (same technique as Threshold) ──────────
+        // Both Text nodes are always in the tree; visibility via graphicsLayer alpha.
+        // The fixed height means nothing below ever shifts.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(FEEDBACK_SLOT_HEIGHT),
+            contentAlignment = Alignment.Center,
+        ) {
+            // Correct feedback (green)
+            val correctAlpha by animateFloatAsState(
+                targetValue = if (state.roundPhase == RoundPhase.Correct) 1f else 0f,
+                animationSpec = tween(durationMillis = 160),
+                label = "feedbackCorrectAlpha",
+            )
+            Text(
+                text = "↓ ΔE ${state.deltaE.fmt()} — SHARPER",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = HuezooColors.AccentGreen,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                modifier = Modifier.graphicsLayer { alpha = correctAlpha },
+            )
+
+            // Wrong feedback (magenta) — UX.4.3 last-round copy
+            val wrongAlpha by animateFloatAsState(
+                targetValue = if (state.roundPhase == RoundPhase.Wrong) 1f else 0f,
+                animationSpec = tween(durationMillis = 160),
+                label = "feedbackWrongAlpha",
+            )
+            Text(
+                text = if (state.round == state.totalRounds) "Last one — make it count" else "Wrong one!",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                color = HuezooColors.AccentMagenta,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.graphicsLayer { alpha = wrongAlpha },
+            )
+        }
+
+        Spacer(Modifier.height(HuezooSpacing.md))
+
+        // ── Radial swatch layout — same component as Threshold ────────────────
+        RadialSwatchLayout(
+            swatches = state.swatches,
+            roundPhase = state.roundPhase,
+            roundKey = state.roundGeneration,
+            layoutStyle = state.layoutStyle,
+            onSwatchTap = onSwatchTap,
         )
     }
 }
@@ -249,31 +286,33 @@ private fun countdownUntil(until: Instant) = produceState(initialValue = "") {
     }
 }
 
-private fun SwatchDisplayState.toSwatchBlockState(): SwatchBlockState = when (this) {
-    SwatchDisplayState.Default -> SwatchBlockState.Default
-    SwatchDisplayState.Correct -> SwatchBlockState.Correct
-    SwatchDisplayState.Wrong -> SwatchBlockState.Wrong
-    SwatchDisplayState.Revealed -> SwatchBlockState.Revealed
+/** Fixed height reserved for the in-game feedback message. Matches Threshold. */
+private val FEEDBACK_SLOT_HEIGHT = 28.dp
+
+private fun Float.fmt(): String {
+    val i = toInt()
+    val d = ((this - i) * 10).toInt()
+    return "$i.$d"
 }
 
 // ── Previews ─────────────────────────────────────────────────────────────────
 
+private val PREVIEW_BASE = HuezooColors.AccentCyan
+private val PREVIEW_ODD = HuezooColors.GameDaily
+
 @xyz.ksharma.huezoo.ui.preview.PreviewScreen
 @androidx.compose.runtime.Composable
-@kotlin.OptIn(kotlin.time.ExperimentalTime::class)
 private fun DailyPlayingPreview() {
     xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
         DailyPlayingContent(
             state = DailyUiState.Playing(
-                swatches = listOf(
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF1565C0)),
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF1565C0)),
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF1976D2)),
-                ),
+                swatches = List(5) { SwatchUiModel(PREVIEW_BASE) } +
+                    listOf(SwatchUiModel(PREVIEW_ODD)),
                 deltaE = 3.1f,
                 round = 2,
-                totalRounds = 5,
-                roundPhase = xyz.ksharma.huezoo.ui.games.daily.state.DailyRoundPhase.Idle,
+                totalRounds = 6,
+                roundPhase = RoundPhase.Idle,
+                layoutStyle = SwatchLayoutStyle.Flower,
             ),
             onSwatchTap = {},
         )
@@ -282,20 +321,36 @@ private fun DailyPlayingPreview() {
 
 @xyz.ksharma.huezoo.ui.preview.PreviewScreen
 @androidx.compose.runtime.Composable
-@kotlin.OptIn(kotlin.time.ExperimentalTime::class)
+private fun DailyCorrectPhasePreview() {
+    xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
+        DailyPlayingContent(
+            state = DailyUiState.Playing(
+                swatches = listOf(SwatchUiModel(PREVIEW_ODD, displayState = SwatchDisplayState.Correct)) +
+                    List(5) { SwatchUiModel(PREVIEW_BASE) },
+                deltaE = 2.0f,
+                round = 3,
+                totalRounds = 6,
+                roundPhase = RoundPhase.Correct,
+                layoutStyle = SwatchLayoutStyle.HexRing,
+            ),
+            onSwatchTap = {},
+        )
+    }
+}
+
+@xyz.ksharma.huezoo.ui.preview.PreviewScreen
+@androidx.compose.runtime.Composable
 private fun DailyLastRoundPreview() {
     xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
         DailyPlayingContent(
             state = DailyUiState.Playing(
-                swatches = listOf(
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF1565C0)),
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF1565C0)),
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF1976D2)),
-                ),
-                deltaE = 1.4f,
-                round = 5,
-                totalRounds = 5,
-                roundPhase = xyz.ksharma.huezoo.ui.games.daily.state.DailyRoundPhase.Idle,
+                swatches = List(5) { SwatchUiModel(PREVIEW_BASE) } +
+                    listOf(SwatchUiModel(PREVIEW_ODD)),
+                deltaE = 0.7f,
+                round = 6,
+                totalRounds = 6,
+                roundPhase = RoundPhase.Idle,
+                layoutStyle = SwatchLayoutStyle.DiamondHalo,
             ),
             onSwatchTap = {},
         )

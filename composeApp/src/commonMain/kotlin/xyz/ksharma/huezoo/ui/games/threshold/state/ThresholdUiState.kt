@@ -1,5 +1,6 @@
 package xyz.ksharma.huezoo.ui.games.threshold.state
 
+import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
 import kotlin.time.ExperimentalTime
@@ -38,19 +39,4 @@ sealed interface ThresholdUiState {
          */
         val roundGeneration: Int = 0,
     ) : ThresholdUiState
-}
-
-enum class RoundPhase {
-    /** Waiting for the player to tap a swatch. */
-    Idle,
-    /** Player tapped the correct swatch — show green feedback. */
-    Correct,
-    /** Player tapped the wrong swatch — show shake + sting. */
-    Wrong,
-    /**
-     * Flower is folding away before the next round's swatches are emitted.
-     * Interaction is disabled; the current swatch state (Correct / Revealed / Wrong) stays
-     * visible while the petals retract to the centre point.
-     */
-    FoldingOut,
 }
