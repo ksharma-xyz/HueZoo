@@ -14,8 +14,9 @@ interface ThresholdGameEngine {
     /**
      * Generates a round at the given [deltaE] difficulty.
      *
-     * Returns 3 swatches: 2 base colours and 1 odd colour shuffled into a random position.
-     * The random seed is different every call so positions change between rounds.
+     * Returns 6 swatches: 5 base colours and 1 odd colour shuffled into a random position.
+     * The 6 swatches map 1-to-1 to the petals of the flower layout (index 0 = top petal,
+     * then clockwise at 60° intervals). The random seed is different every call.
      */
     fun generateRound(baseColor: Color, deltaE: Float): GameRound
 

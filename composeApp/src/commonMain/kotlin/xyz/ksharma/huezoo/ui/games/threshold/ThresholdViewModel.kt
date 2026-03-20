@@ -141,6 +141,13 @@ class ThresholdViewModel(
             // Earn 2 gems per correct tap.
             totalGems = settingsRepository.addGems(GEMS_PER_CORRECT_TAP)
             delay(ANIMATION_CORRECT_MS)
+
+            // Signal the flower to fold away before the next round arrives.
+            (_uiState.value as? ThresholdUiState.Playing)?.let {
+                _uiState.value = it.copy(roundPhase = RoundPhase.FoldingOut)
+            }
+            delay(ANIMATION_FOLD_MS)
+
             roundCount++
             currentDeltaE = (currentDeltaE - ThresholdGameEngine.DELTA_E_STEP)
                 .coerceAtLeast(ThresholdGameEngine.MIN_DELTA_E)
@@ -171,7 +178,11 @@ class ThresholdViewModel(
             delay(ANIMATION_WRONG_MS)
 
             if (triesRemaining > 0) {
-                // Still has lives — reset ΔE, fresh color, keep cumulative round count.
+                // Still has lives — fold the current flower, then reset ΔE and load new round.
+                (_uiState.value as? ThresholdUiState.Playing)?.let {
+                    _uiState.value = it.copy(roundPhase = RoundPhase.FoldingOut)
+                }
+                delay(ANIMATION_FOLD_MS)
                 currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
                 baseColor = colorEngine.randomVividColor()
                 emitRound()
@@ -207,6 +218,8 @@ class ThresholdViewModel(
     private companion object {
         const val ANIMATION_CORRECT_MS = 350L
         const val ANIMATION_WRONG_MS = 850L
+        /** Time budget for the flower fold-out animation before the next round is emitted. */
+        const val ANIMATION_FOLD_MS = 520L
         const val GEMS_PER_CORRECT_TAP = 2
     }
 }

@@ -18,6 +18,7 @@ class DefaultThresholdGameEngine(
     }
 
     private companion object {
-        const val SWATCH_COUNT = 3
+        /** 6 swatches — one per petal in the flower layout. */
+        const val SWATCH_COUNT = 6
     }
 }

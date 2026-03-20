@@ -29,4 +29,17 @@ sealed interface ThresholdUiState {
     ) : ThresholdUiState
 }
 
-enum class RoundPhase { Idle, Correct, Wrong }
+enum class RoundPhase {
+    /** Waiting for the player to tap a swatch. */
+    Idle,
+    /** Player tapped the correct swatch — show green feedback. */
+    Correct,
+    /** Player tapped the wrong swatch — show shake + sting. */
+    Wrong,
+    /**
+     * Flower is folding away before the next round's swatches are emitted.
+     * Interaction is disabled; the current swatch state (Correct / Revealed / Wrong) stays
+     * visible while the petals retract to the centre point.
+     */
+    FoldingOut,
+}

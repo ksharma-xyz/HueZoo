@@ -1,11 +1,13 @@
 package xyz.ksharma.huezoo.ui.games.threshold
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,18 +26,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
+import xyz.ksharma.huezoo.ui.components.FlowerSwatchLayout
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.SkewedStatChip
-import xyz.ksharma.huezoo.ui.components.SwatchBlock
-import xyz.ksharma.huezoo.ui.components.SwatchBlockSize
-import xyz.ksharma.huezoo.ui.components.SwatchBlockState
 import xyz.ksharma.huezoo.ui.games.threshold.state.RoundPhase
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
@@ -123,76 +124,79 @@ private fun PlayingContent(
 
         Spacer(Modifier.height(HuezooSpacing.xxl))
 
-        // Instruction title
-        Text(
-            text = "IDENTIFY THE OUTLIER",
-            style = MaterialTheme.typography.titleLarge,
-            color = HuezooColors.AccentCyan,
-            fontWeight = FontWeight.ExtraBold,
-            textAlign = TextAlign.Center,
-        )
+        // Instruction title — fades out during fold so the eye follows the petals closing
+        AnimatedVisibility(
+            visible = state.roundPhase != RoundPhase.FoldingOut,
+            enter = fadeIn(tween(180)),
+            exit = fadeOut(tween(150)),
+        ) {
+            Text(
+                text = "IDENTIFY THE OUTLIER",
+                style = MaterialTheme.typography.titleLarge,
+                color = HuezooColors.AccentCyan,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+            )
+        }
 
         Spacer(Modifier.height(HuezooSpacing.md))
 
-        // Delta E chip — shows current sensitivity as a SkewedStatChip
+        // Delta E chip
         SkewedStatChip(
             label = "CURRENT ΔE",
             value = state.deltaE.fmt(),
             accentColor = HuezooColors.AccentCyan,
         )
 
-        // UX.4.1 — "↓ ΔE X.X" confirmation label during Correct phase
-        AnimatedVisibility(
-            visible = state.roundPhase == RoundPhase.Correct,
-            enter = fadeIn(tween(120)),
-            exit = fadeOut(tween(200)),
+        Spacer(Modifier.height(HuezooSpacing.lg))
+
+        // ── Fixed-height feedback slot ────────────────────────────────────────
+        // Height is always 28dp; content fades in/out inside it.
+        // Nothing outside this Box shifts when the message changes.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(FEEDBACK_SLOT_HEIGHT),
+            contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = "↓ ΔE ${state.deltaE.fmt()} — SHARPER",
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = HuezooColors.AccentGreen,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = HuezooSpacing.xs),
-            )
-        }
-
-        Spacer(Modifier.height(HuezooSpacing.xl))
-
-        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            val swatchCount = state.swatches.size
-            val spacing = HuezooSpacing.md
-            val adaptiveSize = ((maxWidth - spacing * (swatchCount - 1)) / swatchCount)
-                .coerceAtMost(SwatchBlockSize.Medium.sizeDp)
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(spacing),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                state.swatches.forEachIndexed { index, swatch ->
-                    SwatchBlock(
-                        color = swatch.color,
-                        state = swatch.displayState.toSwatchBlockState(),
-                        sizeDp = adaptiveSize,
-                        onClick = { onSwatchTap(index) },
+            val feedbackText: String? = when (state.roundPhase) {
+                RoundPhase.Correct -> "↓ ΔE ${state.deltaE.fmt()} — SHARPER"
+                RoundPhase.Wrong -> state.stingCopy
+                else -> null
+            }
+            val feedbackColor = when (state.roundPhase) {
+                RoundPhase.Correct -> HuezooColors.AccentGreen
+                else -> HuezooColors.AccentMagenta
+            }
+            AnimatedContent(
+                targetState = feedbackText,
+                transitionSpec = {
+                    fadeIn(tween(140)) togetherWith fadeOut(tween(180))
+                },
+                label = "feedbackSlot",
+            ) { text ->
+                if (text != null) {
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                        ),
+                        color = feedbackColor,
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
         }
 
-        Spacer(Modifier.height(HuezooSpacing.lg))
+        Spacer(Modifier.height(HuezooSpacing.md))
 
-        // During Wrong phase: sting copy appears below swatches
-        AnimatedVisibility(
-            visible = state.roundPhase == RoundPhase.Wrong && state.stingCopy != null,
-            enter = fadeIn(tween(200)),
-            exit = fadeOut(tween(300)),
-        ) {
-            Text(
-                text = state.stingCopy.orEmpty(),
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = HuezooColors.AccentMagenta,
-                textAlign = TextAlign.Center,
-            )
-        }
+        // ── Flower swatch layout ──────────────────────────────────────────────
+        FlowerSwatchLayout(
+            swatches = state.swatches,
+            roundPhase = state.roundPhase,
+            roundKey = state.round,
+            onSwatchTap = onSwatchTap,
+        )
     }
 }
 
@@ -270,20 +274,19 @@ private fun countdownUntil(until: Instant) = produceState(initialValue = "") {
     }
 }
 
+/** Fixed height reserved for the in-game feedback message. Never changes, so nothing shifts. */
+private val FEEDBACK_SLOT_HEIGHT = 28.dp
+
 private fun Float.fmt(): String {
     val i = toInt()
     val d = ((this - i) * 10).toInt()
     return "$i.$d"
 }
 
-private fun SwatchDisplayState.toSwatchBlockState(): SwatchBlockState = when (this) {
-    SwatchDisplayState.Default -> SwatchBlockState.Default
-    SwatchDisplayState.Correct -> SwatchBlockState.Correct
-    SwatchDisplayState.Wrong -> SwatchBlockState.Wrong
-    SwatchDisplayState.Revealed -> SwatchBlockState.Revealed
-}
-
 // ── Previews ─────────────────────────────────────────────────────────────────
+
+private val PREVIEW_PURPLE = androidx.compose.ui.graphics.Color(0xFF4CAF50)
+private val PREVIEW_ODD = androidx.compose.ui.graphics.Color(0xFF66BB6A)
 
 @xyz.ksharma.huezoo.ui.preview.PreviewScreen
 @androidx.compose.runtime.Composable
@@ -291,11 +294,8 @@ private fun ThresholdPlayingPreview() {
     xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
         PlayingContent(
             state = ThresholdUiState.Playing(
-                swatches = listOf(
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF4CAF50)),
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF4CAF50)),
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF66BB6A)),
-                ),
+                swatches = List(5) { xyz.ksharma.huezoo.ui.model.SwatchUiModel(PREVIEW_PURPLE) } +
+                    listOf(xyz.ksharma.huezoo.ui.model.SwatchUiModel(PREVIEW_ODD)),
                 deltaE = 2.4f,
                 round = 3,
                 attemptsRemaining = 4,
@@ -315,12 +315,10 @@ private fun ThresholdCorrectPhasePreview() {
             state = ThresholdUiState.Playing(
                 swatches = listOf(
                     xyz.ksharma.huezoo.ui.model.SwatchUiModel(
-                        androidx.compose.ui.graphics.Color(0xFF4CAF50),
+                        PREVIEW_PURPLE,
                         displayState = SwatchDisplayState.Correct,
                     ),
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF4CAF50)),
-                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFF4CAF50)),
-                ),
+                ) + List(5) { xyz.ksharma.huezoo.ui.model.SwatchUiModel(PREVIEW_PURPLE) },
                 deltaE = 2.4f,
                 round = 3,
                 attemptsRemaining = 4,
@@ -348,6 +346,9 @@ private fun ThresholdWrongPhasePreview() {
                         androidx.compose.ui.graphics.Color(0xFFF06292),
                         displayState = SwatchDisplayState.Revealed,
                     ),
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFFE91E63)),
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFFE91E63)),
+                    xyz.ksharma.huezoo.ui.model.SwatchUiModel(androidx.compose.ui.graphics.Color(0xFFE91E63)),
                 ),
                 deltaE = 1.8f,
                 round = 5,
@@ -368,7 +369,8 @@ private fun ThresholdBlockedPreview() {
     xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
         BlockedContent(
             state = ThresholdUiState.Blocked(
-                nextResetAt = kotlin.time.Clock.System.now().plus(kotlin.time.Duration.parse("2h30m")),
+                nextResetAt = kotlin.time.Clock.System.now()
+                    .plus(kotlin.time.Duration.parse("2h30m")),
                 attemptsUsed = 5,
                 maxAttempts = 5,
             ),
@@ -376,3 +378,4 @@ private fun ThresholdBlockedPreview() {
         )
     }
 }
+

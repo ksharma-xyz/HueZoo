@@ -135,3 +135,52 @@ class ParallelogramShape(private val skewFraction: Float = 0.25f) : Shape {
 
 /** Back button / kinetic chip — 25% height skew */
 val ParallelogramBack = ParallelogramShape(skewFraction = 0.25f)
+
+/**
+ * Petal shape — a symmetric teardrop / leaf with the pointed tip at the TOP of the bounding box
+ * and the widest, rounded part at the BOTTOM.
+ *
+ * Designed for the flower swatch layout:
+ * - Place each petal so its top-center (tip) sits at the flower's centre point.
+ * - Rotate each instance by 0°, 60°, 120°, 180°, 240°, 300° with
+ *   `transformOrigin = TransformOrigin(0.5f, 0f)` to fan the petals outward.
+ * - Animate `scaleY` 0 → 1 (same pivot) to "grow" the petal outward from the tip on unfold,
+ *   and 1 → 0 to "retract" it back to the tip on fold.
+ *
+ * The shape is drawn with two cubic bezier curves: one for the left edge and one for the right.
+ */
+class PetalShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(petalPath(size))
+
+    private fun petalPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        return Path().apply {
+            // Start at the tip (top-centre)
+            moveTo(cx, 0f)
+            // Right edge: from tip → sweeps out to the right → curves around the bottom
+            cubicTo(
+                w * 0.95f, h * 0.15f, // control 1 — right side, near top
+                w,          h * 0.60f, // control 2 — far right, mid-height
+                cx,         h,         // end — bottom centre (the round belly)
+            )
+            // Left edge: from bottom centre → sweeps back up the left side → returns to tip
+            cubicTo(
+                0f, h * 0.60f, // control 1 — far left, mid-height
+                w * 0.05f, h * 0.15f, // control 2 — left side, near top
+                cx, 0f,        // end — back to tip
+            )
+            close()
+        }
+    }
+}
+
+/** Default petal tile for the flower swatch layout. */
+val SwatchPetal = PetalShape()
+
