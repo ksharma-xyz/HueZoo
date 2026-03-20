@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -342,6 +343,7 @@ private fun HeroScore(
             style = MaterialTheme.typography.displayLarge.copy(
                 fontSize = 96.sp,
                 lineHeight = 96.sp,
+                fontStyle = FontStyle.Italic,
             ),
             color = HuezooColors.AccentCyan,
             textAlign = TextAlign.Center,
@@ -379,9 +381,8 @@ private fun StingReadout(
                     .padding(HuezooSpacing.md),
                 verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
             ) {
-                // ΔE value + inline badge label
+                // ΔE value + inline badge — badge aligns to the ΔE text baseline
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
                 ) {
                     androidx.compose.material3.Text(
@@ -389,20 +390,24 @@ private fun StingReadout(
                         style = MaterialTheme.typography.displayLarge.copy(
                             fontSize = 56.sp,
                             lineHeight = 56.sp,
+                            fontStyle = FontStyle.Italic,
                         ),
                         color = accentColor,
+                        modifier = Modifier.alignByBaseline(),
                     )
                     HuezooLabelSmall(
                         text = badgeText,
                         color = accentColor,
                         fontWeight = FontWeight.ExtraBold,
+                        modifier = Modifier.alignByBaseline(),
                     )
                 }
 
-                // Sting copy — width capped to 80% so ghost icon is visible
+                // Sting copy — left-aligned, capped to 80% width so the ghost icon stays visible
                 HuezooBodyMedium(
                     text = stingCopy,
                     color = HuezooColors.TextSecondary,
+                    textAlign = TextAlign.Start,
                     modifier = Modifier.fillMaxWidth(0.82f),
                 )
             }

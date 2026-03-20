@@ -12,7 +12,6 @@ import kotlinx.datetime.toLocalDateTime
 import xyz.ksharma.huezoo.data.repository.DailyRepository
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
-import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.ui.home.state.DailyCardData
 import xyz.ksharma.huezoo.ui.home.state.HomeUiEvent
@@ -68,7 +67,7 @@ class HomeViewModel(
                 is AttemptStatus.Exhausted -> ThresholdCardData(
                     personalBestDeltaE = thresholdBest?.bestDeltaE,
                     attemptsRemaining = 0,
-                    maxAttempts = ThresholdGameEngine.MAX_ATTEMPTS,
+                    maxAttempts = attemptStatus.maxAttempts,
                     isBlocked = true,
                 )
             }

@@ -9,24 +9,32 @@ import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.domain.game.model.PersonalBest
 import xyz.ksharma.huezoo.navigation.GameId
+import xyz.ksharma.huezoo.platform.PlatformOps
 import kotlin.time.Duration.Companion.hours
 
 class DefaultThresholdRepository(
     private val db: HuezooDatabase,
+    private val platformOps: PlatformOps,
 ) : ThresholdRepository {
+
+    private val maxAttempts: Int
+        get() = ThresholdGameEngine.maxAttempts(platformOps.isDebugBuild)
 
     override suspend fun getAttemptStatus(now: Instant): AttemptStatus = withContext(Dispatchers.Default) {
         val q = db.huezooDatabaseQueries
         q.deleteExpiredSessions(now.toString())
         val session = q.getActiveThresholdSession(now.toString()).executeAsOneOrNull()
         val attemptsUsed = session?.attempts_used?.toInt() ?: 0
-        if (attemptsUsed < ThresholdGameEngine.MAX_ATTEMPTS) {
+        if (attemptsUsed < maxAttempts) {
             AttemptStatus.Available(
                 attemptsUsed = attemptsUsed,
-                maxAttempts = ThresholdGameEngine.MAX_ATTEMPTS,
+                maxAttempts = maxAttempts,
             )
         } else {
-            AttemptStatus.Exhausted(nextResetAt = Instant.parse(session!!.next_reset_at))
+            AttemptStatus.Exhausted(
+                nextResetAt = Instant.parse(session!!.next_reset_at),
+                maxAttempts = maxAttempts,
+            )
         }
     }
 

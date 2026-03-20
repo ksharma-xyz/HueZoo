@@ -24,8 +24,10 @@ interface ThresholdGameEngine {
         const val DELTA_E_STEP = 0.3f
         const val MIN_DELTA_E = 0.1f
 
-        // TODO(debug): bump to 50 for dev/testing; wire to BuildConfig.DEBUG or a DebugConfig object
-        //  so release builds use the real limit (5) without manual edits.
-        const val MAX_ATTEMPTS = 50
+        const val MAX_ATTEMPTS_RELEASE = 5
+        const val MAX_ATTEMPTS_DEBUG = 50
+
+        fun maxAttempts(isDebug: Boolean) =
+            if (isDebug) MAX_ATTEMPTS_DEBUG else MAX_ATTEMPTS_RELEASE
     }
 }

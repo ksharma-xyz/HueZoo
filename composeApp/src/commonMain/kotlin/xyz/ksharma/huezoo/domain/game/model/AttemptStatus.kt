@@ -14,5 +14,6 @@ sealed interface AttemptStatus {
     /** All attempts used — locked until the window resets. */
     data class Exhausted(
         val nextResetAt: Instant,
+        val maxAttempts: Int,
     ) : AttemptStatus
 }

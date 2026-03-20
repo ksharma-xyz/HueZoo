@@ -59,13 +59,14 @@ class ThresholdViewModel(
 
     /**
      * Call when the screen enters composition (LaunchedEffect(Unit)).
-     * If the ViewModel is being reused after a completed game (roundPhase != Idle),
-     * start a fresh game rather than leaving the UI stuck on the end state.
+     * - Reused after a completed game (roundPhase != Idle) → start fresh.
+     * - Reused in Blocked state → re-check in case the debug reset cleared attempts.
      */
     fun onStart() {
-        val current = _uiState.value
-        if (current is ThresholdUiState.Playing && current.roundPhase != RoundPhase.Idle) {
-            loadGame()
+        when (val current = _uiState.value) {
+            is ThresholdUiState.Playing -> if (current.roundPhase != RoundPhase.Idle) loadGame()
+            is ThresholdUiState.Blocked -> loadGame()
+            else -> Unit
         }
     }
 
@@ -82,8 +83,8 @@ class ThresholdViewModel(
                 is AttemptStatus.Available -> startGame(status)
                 is AttemptStatus.Exhausted -> _uiState.value = ThresholdUiState.Blocked(
                     nextResetAt = status.nextResetAt,
-                    attemptsUsed = ThresholdGameEngine.MAX_ATTEMPTS,
-                    maxAttempts = ThresholdGameEngine.MAX_ATTEMPTS,
+                    attemptsUsed = status.maxAttempts,
+                    maxAttempts = status.maxAttempts,
                 )
             }
         }
