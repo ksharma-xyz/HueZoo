@@ -1,6 +1,9 @@
 package xyz.ksharma.huezoo.ui.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -13,6 +16,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,9 +50,28 @@ fun CurrencyPill(
     amount: Int,
     modifier: Modifier = Modifier,
 ) {
+    // Scale pulse when gems increase (skip first composition)
+    val pulseScale = remember { Animatable(1f) }
+    val prevAmount = remember { mutableIntStateOf(amount) }
+    LaunchedEffect(amount) {
+        if (amount != prevAmount.intValue) {
+            prevAmount.intValue = amount
+            pulseScale.snapTo(1f)
+            pulseScale.animateTo(
+                1.2f,
+                spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = 600f),
+            )
+            pulseScale.animateTo(1f, spring(stiffness = 400f))
+        }
+    }
+
     Box(
         modifier = modifier
-            .graphicsLayer { clip = false }
+            .graphicsLayer {
+                clip = false
+                scaleX = pulseScale.value
+                scaleY = pulseScale.value
+            }
             .shapedShadow(
                 shape = ParallelogramBack,
                 color = HuezooColors.AccentCyan.copy(alpha = GEM_SHADOW_ALPHA),

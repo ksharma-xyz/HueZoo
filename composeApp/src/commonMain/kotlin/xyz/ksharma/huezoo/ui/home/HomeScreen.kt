@@ -275,15 +275,17 @@ private fun StatsSection(
                     .background(HuezooColors.AccentCyan),
             )
             // Gems content
-            Row(
+            Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
                     .background(HuezooColors.SurfaceL2)
                     .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm + 4.dp),
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                contentAlignment = Alignment.BottomStart,
             ) {
+                // Gem spill illustration — behind text
+                GemSpillIllustration(modifier = Modifier.matchParentSize())
+
                 Row(verticalAlignment = Alignment.Bottom) {
                     HuezooDisplayMedium(
                         text = formatGems(totalGems),
@@ -1022,6 +1024,144 @@ private fun StaggeredCard(
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * A pile of faceted gem diamonds spilling in from the right — decorative illustration
+ * for the inventory card. Mirrors the craft level of [ThresholdScannerIllustration].
+ *
+ * Layout: one large hero gem + several medium/small gems scattered around it,
+ * all anchored to the right half so the left-side text stays readable.
+ */
+@Composable
+private fun GemSpillIllustration(modifier: Modifier = Modifier) {
+    val color = HuezooColors.AccentCyan
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val sw = 0.9.dp.toPx()
+
+        // ── Anchor point: right-center, slightly off-screen ─────────────────
+        val anchorX = w * 0.78f
+        val anchorY = h * 0.5f
+
+        // ── Soft radial glow behind the hero gem ────────────────────────────
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(color.copy(alpha = 0.09f), Color.Transparent),
+                center = Offset(anchorX, anchorY),
+                radius = h * 1.1f,
+            ),
+            radius = h * 1.1f,
+            center = Offset(anchorX, anchorY),
+        )
+
+        // ── Gem definitions: cx, cy (relative to anchor), size, rotation deg ─
+        data class GemSpec(val dx: Float, val dy: Float, val size: Float, val rotDeg: Float)
+
+        val specs = listOf(
+            GemSpec(0f,         0f,       h * 0.72f, 0f),     // hero — center
+            GemSpec(-h * 0.55f, h * 0.10f, h * 0.42f, -18f), // left-lower
+            GemSpec(-h * 0.30f, -h * 0.40f, h * 0.32f, 22f),  // upper-left
+            GemSpec( h * 0.28f, -h * 0.38f, h * 0.26f, -30f), // upper-right
+            GemSpec( h * 0.22f,  h * 0.35f, h * 0.22f, 14f),  // lower-right
+            GemSpec(-h * 0.65f, -h * 0.25f, h * 0.18f, 35f),  // far upper-left (tiny)
+            GemSpec( h * 0.08f, -h * 0.55f, h * 0.14f, -10f), // top micro
+        )
+
+        specs.forEachIndexed { idx, spec ->
+            val cx = anchorX + spec.dx
+            val cy = anchorY + spec.dy
+            val s = spec.size
+            // Skip gems that are mostly off-screen left (would overlap text)
+            if (cx + s < w * 0.38f) return@forEachIndexed
+            val alpha = when (idx) {
+                0 -> 0.18f  // hero — most visible
+                1 -> 0.13f
+                2 -> 0.11f
+                else -> 0.08f
+            }
+
+            // Build gem path centred at origin, then rotate + translate via withTransform
+            val rotRad = spec.rotDeg * PI.toFloat() / 180f
+            val cosR = cos(rotRad)
+            val sinR = sin(rotRad)
+
+            fun rotated(px: Float, py: Float): Offset {
+                return Offset(cx + px * cosR - py * sinR, cy + px * sinR + py * cosR)
+            }
+
+            // Gem silhouette: crown (upper trapezoid) + pavilion (lower triangle)
+            // Points: top, upper-right shoulder, lower-right hip, bottom, lower-left hip, upper-left shoulder
+            val top    = rotated(0f,         -s * 0.5f)
+            val upR    = rotated( s * 0.40f,  -s * 0.14f)
+            val loR    = rotated( s * 0.28f,   s * 0.12f)
+            val bot    = rotated(0f,           s * 0.5f)
+            val loL    = rotated(-s * 0.28f,   s * 0.12f)
+            val upL    = rotated(-s * 0.40f,  -s * 0.14f)
+
+            // Fill
+            val gemPath = Path().apply {
+                moveTo(top.x, top.y)
+                lineTo(upR.x, upR.y)
+                lineTo(loR.x, loR.y)
+                lineTo(bot.x, bot.y)
+                lineTo(loL.x, loL.y)
+                lineTo(upL.x, upL.y)
+                close()
+            }
+            drawPath(gemPath, color.copy(alpha = alpha))
+
+            // Outline
+            drawPath(gemPath, color.copy(alpha = alpha * 1.5f), style = Stroke(width = sw))
+
+            // Crown facet lines
+            val girL = rotated(-s * 0.20f, -s * 0.14f)
+            val girR = rotated( s * 0.20f, -s * 0.14f)
+            val facetAlpha = (alpha * 1.8f).coerceAtMost(0.45f)
+            drawLine(color.copy(facetAlpha), top, girL, sw * 0.8f)
+            drawLine(color.copy(facetAlpha), top, girR, sw * 0.8f)
+            drawLine(color.copy(facetAlpha), girL, girR, sw * 0.8f)
+
+            // Pavilion keel line (from girdle centre to bottom)
+            val girdleCentre = rotated(0f, -s * 0.14f)
+            drawLine(color.copy(alpha * 1.4f), girdleCentre, bot, sw * 0.7f)
+        }
+
+        // ── Sparkle crosses scattered around the pile ────────────────────────
+        data class Sparkle(val x: Float, val y: Float, val r: Float)
+        val sparkles = listOf(
+            Sparkle(anchorX - h * 0.42f, anchorY - h * 0.58f, h * 0.055f),
+            Sparkle(anchorX + h * 0.18f, anchorY - h * 0.50f, h * 0.040f),
+            Sparkle(anchorX + h * 0.35f, anchorY + h * 0.30f, h * 0.035f),
+            Sparkle(anchorX - h * 0.72f, anchorY + h * 0.20f, h * 0.030f),
+            Sparkle(anchorX - h * 0.10f, anchorY + h * 0.52f, h * 0.028f),
+        )
+        sparkles.forEach { (sx, sy, r) ->
+            if (sx < w * 0.42f) return@forEach  // stay out of text zone
+            val a = 0.20f
+            drawLine(color.copy(a), Offset(sx - r, sy), Offset(sx + r, sy), sw * 0.8f)
+            drawLine(color.copy(a), Offset(sx, sy - r), Offset(sx, sy + r), sw * 0.8f)
+            // Diagonal arms (×) at half length and lower alpha
+            val dr = r * 0.55f
+            drawLine(color.copy(a * 0.6f), Offset(sx - dr, sy - dr), Offset(sx + dr, sy + dr), sw * 0.6f)
+            drawLine(color.copy(a * 0.6f), Offset(sx - dr, sy + dr), Offset(sx + dr, sy - dr), sw * 0.6f)
+        }
+
+        // ── Horizontal scan line (matches Threshold card's aesthetic) ────────
+        val scanY = h * 0.68f
+        drawLine(
+            color.copy(alpha = 0.07f),
+            Offset(w * 0.45f, scanY),
+            Offset(w, scanY),
+            sw * 0.8f,
+        )
+        var tx = w * 0.50f
+        while (tx < w - 2.dp.toPx()) {
+            drawLine(color.copy(0.10f), Offset(tx, scanY - 2.5.dp.toPx()), Offset(tx, scanY + 2.5.dp.toPx()), sw * 0.7f)
+            tx += 16.dp.toPx()
+        }
+    }
+}
 
 private fun formatGems(gems: Int): String = when {
     gems >= 1_000 -> "${gems / 1_000},${(gems % 1_000).toString().padStart(3, '0')}"

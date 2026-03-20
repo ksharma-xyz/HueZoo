@@ -17,6 +17,7 @@ import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.domain.color.ColorEngine
 import xyz.ksharma.huezoo.domain.game.DailyGameEngine
 import xyz.ksharma.huezoo.domain.game.GameRewardRates
+import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
@@ -63,6 +64,9 @@ class DailyViewModel(
     /** Gems earned this session — participation + per-correct + perfect bonus. */
     private var sessionGems = 0
 
+    /** Gems from correct-round awards (DAILY_CORRECT_ROUND * correctRounds). */
+    private var sessionCorrectGems = 0
+
     private var roundGeneration = 0
     private var lastLayoutStyle: SwatchLayoutStyle? = null
 
@@ -95,6 +99,7 @@ class DailyViewModel(
         correctRounds = 0
         lastRoundDeltaE = 0f
         sessionGems = 0
+        sessionCorrectGems = 0
         roundGeneration = 0
         lastLayoutStyle = null
 
@@ -152,6 +157,7 @@ class DailyViewModel(
         viewModelScope.launch {
             settingsRepository.addGems(GameRewardRates.DAILY_CORRECT_ROUND)
             sessionGems += GameRewardRates.DAILY_CORRECT_ROUND
+            sessionCorrectGems += GameRewardRates.DAILY_CORRECT_ROUND
 
             delay(ANIMATION_CORRECT_MS)
             val isLastRound = roundIndex == gameEngine.totalRounds - 1
@@ -213,6 +219,11 @@ class DailyViewModel(
 
         repository.saveCompletion(date, cumulativeScore.toFloat())
         repository.savePersonalBest(lastRoundDeltaE, cumulativeScore)
+        val breakdown = buildList {
+            if (sessionCorrectGems > 0) add(GemAward("Correct rounds ×$correctRounds", sessionCorrectGems))
+            add(GemAward("Participation", GameRewardRates.DAILY_PARTICIPATION))
+            if (isPerfect) add(GemAward("Perfect run bonus", GameRewardRates.DAILY_PERFECT_BONUS))
+        }
         _navEvent.emit(
             DailyNavEvent.NavigateToResult(
                 Result(
@@ -221,6 +232,7 @@ class DailyViewModel(
                     roundsSurvived = correctRounds,
                     score = cumulativeScore,
                     gemsEarned = sessionGems,
+                    gemBreakdown = breakdown,
                 ),
             ),
         )

@@ -170,5 +170,54 @@ To test ViewModels: inject fake `ColorEngine`, `ThresholdRepository`, `DailyRepo
 
 1. **Threshold try count**: currently 5 free / 10 free (see `MAX_ATTEMPTS_RELEASE`). Confirm final value before monetization implementation.
 2. **Score for wrong Daily round**: currently 0. Alternative: partial credit (e.g. 20% of round score for "at least attempting"). TBD.
-3. **Confetti cutoff for Daily**: currently any score > 0. Future: only if ≥ 4/6 correct?
+3. **Confetti cutoff for Daily**: currently any gemsEarned > 0. Future: only if ≥ 4/6 correct?
 4. **Swatch size difficulty**: larger swatches = easier to see difference. Planned as an accessibility/difficulty setting. Implementation note: ΔE is the core difficulty lever; swatch size is a secondary modifier (1.0x default, 1.2x easier, 0.85x harder). Wire through `UserSettings` when implemented.
+
+---
+
+## Planned Screens (TODO)
+
+### Out of Tries — Refill Sheet
+
+Design reference: `docs/stitch_huezoo_prd_design_doc/huezoo_refill_out_of_tries/code.html`
+
+A bottom sheet / modal shown when the player's try budget is exhausted mid-session or on entry to Threshold when blocked.
+
+**Key elements:**
+- Header: "OUT OF TRIES" / "Energy Depleted" — AccentMagenta
+- Gem balance display (current inventory)
+- Two refill options (stacked):
+  1. **Gem refill** — e.g. 300 gems for 10 tries. Disabled + insufficient-gems warning when player can't afford it.
+  2. **Watch Ad** — free refill via rewarded video (always available). AccentCyan CTA.
+- Close button (top-right)
+- 3D shelf button styling matching existing `HuezooButton`
+
+**Implementation notes:**
+- Replace current `ThresholdUiState.Blocked` full-screen with a nav-modal version, or layer the sheet over the blocked screen.
+- Ad integration is future work — wire up the Watch Ad button with a stub callback for now.
+- Gem deduction should go through `SettingsRepository.addGems(-300)` (or a dedicated method).
+
+---
+
+### Levels & Progress Sheet
+
+Design reference: `docs/stitch_huezoo_prd_design_doc/huezoo_levels_progress/code.html`
+
+A bottom sheet accessible from the Home screen (tap the level badge / gem pill area) showing the full 5-tier progression system.
+
+**Key elements:**
+- Header: "LEVELS & PROGRESS" + current level badge ("LVL 1 — ROOKIE")
+- Scrollable level cards — one per tier, color-coded by `PlayerLevel.levelColor`:
+  - Rookie (Cyan) | Trained (Green) | Sharp (Magenta) | Elite (Yellow) | Master (Gold)
+  - Each card shows: level name, gem threshold, "what changes" section
+- Current level highlighted / expanded; locked tiers shown at reduced opacity
+- Progress bar: gems toward next tier
+- Close button (full-width primary) at bottom
+
+**"What changes" per level (to define):**
+- Threshold difficulty curve, reward multipliers, cosmetic unlocks (badge frame, aura) — TBD with monetization plan.
+
+**Implementation notes:**
+- `PlayerLevel.fromGems(n)` already exists — use it for current level + next threshold.
+- Trigger: tap on `CurrencyPill` in `HuezooTopBar` (or a dedicated level badge on Home).
+- Sheet state: `ModalBottomSheet` (M3) or a custom slide-up composable matching the app's design language.

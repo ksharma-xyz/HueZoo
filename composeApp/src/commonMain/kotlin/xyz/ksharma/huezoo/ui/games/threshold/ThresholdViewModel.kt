@@ -17,6 +17,7 @@ import xyz.ksharma.huezoo.domain.color.ColorEngine
 import xyz.ksharma.huezoo.domain.game.GameRewardRates
 import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
+import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
@@ -63,6 +64,12 @@ class ThresholdViewModel(
 
     /** Gems earned in this session — shown on Result screen. */
     private var sessionGems: Int = 0
+
+    /** Gems from correct taps (excluding milestones). */
+    private var sessionTapGems: Int = 0
+
+    /** Gems from milestone bonuses. */
+    private var sessionMilestoneGems: Int = 0
 
     /**
      * Milestones awarded in the *current try*.
@@ -121,6 +128,8 @@ class ThresholdViewModel(
         tapCount = 1
         bestDeltaE = null
         sessionGems = 0
+        sessionTapGems = 0
+        sessionMilestoneGems = 0
         triesRemaining = status.maxAttempts - status.attemptsUsed
         totalGems = settingsRepository.getGems()
         awardedMilestones.clear()
@@ -170,6 +179,8 @@ class ThresholdViewModel(
         viewModelScope.launch {
             totalGems = settingsRepository.addGems(gemsThisTap)
             sessionGems += gemsThisTap
+            sessionTapGems += GameRewardRates.THRESHOLD_CORRECT_TAP
+            sessionMilestoneGems += milestoneBonus
 
             delay(ANIMATION_CORRECT_MS)
             (_uiState.value as? ThresholdUiState.Playing)?.let {
@@ -220,6 +231,10 @@ class ThresholdViewModel(
                 val finalDeltaE = bestDeltaE ?: currentDeltaE
                 val score = colorEngine.scoreFromDeltaE(finalDeltaE)
                 repository.savePersonalBest(finalDeltaE, score)
+                val breakdown = buildList {
+                    if (sessionTapGems > 0) add(GemAward("Correct taps", sessionTapGems))
+                    if (sessionMilestoneGems > 0) add(GemAward("Milestone bonuses", sessionMilestoneGems))
+                }
                 _navEvent.emit(
                     ThresholdNavEvent.NavigateToResult(
                         Result(
@@ -228,6 +243,7 @@ class ThresholdViewModel(
                             roundsSurvived = tapCount - 1,
                             score = score,
                             gemsEarned = sessionGems,
+                            gemBreakdown = breakdown,
                         ),
                     ),
                 )

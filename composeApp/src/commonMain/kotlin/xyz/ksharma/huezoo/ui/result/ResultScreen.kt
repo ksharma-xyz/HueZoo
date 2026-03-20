@@ -71,6 +71,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.platform.PlatformOps
@@ -136,9 +137,9 @@ fun ResultScreen(
             }
         }
 
-        // Confetti overlay — only when player actually scored; 0 pts = no celebration
+        // Confetti overlay — only when gems were earned (0 gems = flatlined, no celebration)
         val readyState = uiState as? ResultUiState.Ready
-        if (readyState != null && readyState.score > 0) {
+        if (readyState != null && readyState.gemsEarned > 0) {
             ConfettiEffect(
                 identityColor = identityColor,
                 modifier = Modifier.fillMaxSize(),
@@ -211,11 +212,11 @@ private fun ReadyContent(
         launch { fadeIn.animateTo(1f, tween(300)) }
     }
 
-    // Count-up: 0 → final score
-    val displayScore = remember { Animatable(0f) }
-    LaunchedEffect(state.score) {
-        displayScore.animateTo(
-            state.score.toFloat(),
+    // Count-up: 0 → gemsEarned
+    val displayGems = remember { Animatable(0f) }
+    LaunchedEffect(state.gemsEarned) {
+        displayGems.animateTo(
+            state.gemsEarned.toFloat(),
             spring(stiffness = 80f, dampingRatio = Spring.DampingRatioNoBouncy),
         )
     }
@@ -254,10 +255,10 @@ private fun ReadyContent(
 
         Spacer(Modifier.height(HuezooSpacing.md))
 
-        // ── 2. Hero score — ambient radial glow behind ─────────────────────────
-        HeroScore(
-            score = displayScore.value.toInt(),
-            color = if (state.score == 0) HuezooColors.AccentMagenta else HuezooColors.AccentCyan,
+        // ── 2. Hero gems — animated count-up, AccentCyan ──────────────────────
+        HeroGems(
+            gems = displayGems.value.toInt(),
+            color = if (state.gemsEarned == 0) HuezooColors.AccentMagenta else HuezooColors.AccentCyan,
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -274,36 +275,48 @@ private fun ReadyContent(
 
         Spacer(Modifier.height(HuezooSpacing.sm))
 
-        // ── 4. Stat cards — stacked full-width, each with bottom shelf ─────────
+        // ── 4. Stat cards ─────────────────────────────────────────────────────
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
         ) {
-            StatBreakdownCard(
-                label = "SPECTRAL DRIFT",
-                value = "${((state.score / 5000f) * 100).toInt().coerceIn(0, 100)}%",
-                progress = (state.score / 5000f).coerceIn(0f, 1f),
-                accentColor = HuezooColors.AccentCyan,
-                icon = { WaveIcon(color = HuezooColors.AccentCyan) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-            StatBreakdownCard(
-                label = "CALIBRATION",
-                value = "${state.roundsSurvived}",
-                progress = (state.roundsSurvived / 15f).coerceIn(0f, 1f),
-                accentColor = HuezooColors.AccentYellow,
-                icon = { LightningIcon(color = HuezooColors.AccentYellow) },
-                modifier = Modifier.fillMaxWidth(),
-            )
+            // Card 1: Threshold → BEST ΔE / Daily → ROUNDS CORRECT
+            if (isDaily) {
+                StatBreakdownCard(
+                    label = "ROUNDS CORRECT",
+                    value = "${state.roundsSurvived} / 6",
+                    progress = (state.roundsSurvived / 6f).coerceIn(0f, 1f),
+                    accentColor = HuezooColors.AccentCyan,
+                    icon = { WaveIcon(color = HuezooColors.AccentCyan) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
+                StatBreakdownCard(
+                    label = "BEST ΔE",
+                    value = state.deltaE.fmt(),
+                    // Lower ΔE = better — invert so a low ΔE fills the bar more
+                    progress = (1f - (state.deltaE / 5f)).coerceIn(0f, 1f),
+                    accentColor = HuezooColors.AccentCyan,
+                    icon = { WaveIcon(color = HuezooColors.AccentCyan) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                StatBreakdownCard(
+                    label = "TAPS",
+                    value = "${state.roundsSurvived}",
+                    progress = (state.roundsSurvived / 15f).coerceIn(0f, 1f),
+                    accentColor = HuezooColors.AccentYellow,
+                    icon = { LightningIcon(color = HuezooColors.AccentYellow) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
 
-        // ── 4b. Gems earned this session ──────────────────────────────────────
-        if (state.gemsEarned > 0) {
+        // ── 5. Gem breakdown — staggered fade+slide per line item ─────────────
+        if (state.gemBreakdown.isNotEmpty()) {
             Spacer(Modifier.height(HuezooSpacing.sm))
-            HuezooBodyMedium(
-                text = "+${state.gemsEarned} gems earned",
-                color = HuezooColors.GemGreen,
-                textAlign = TextAlign.Center,
+            GemBreakdownCard(
+                items = state.gemBreakdown,
+                totalGems = state.gemsEarned,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -382,8 +395,8 @@ private fun MissionOutcomeBanner(
 }
 
 @Composable
-private fun HeroScore(
-    score: Int,
+private fun HeroGems(
+    gems: Int,
     color: Color = HuezooColors.AccentCyan,
     modifier: Modifier = Modifier,
 ) {
@@ -403,13 +416,9 @@ private fun HeroScore(
     Box(
         modifier = modifier
             .drawBehind {
-                // Soft radial ambient glow behind the score text (matches stitch bg-primary/5 blur-3xl)
                 drawCircle(
                     brush = Brush.radialGradient(
-                        colors = listOf(
-                            color.copy(alpha = 0.08f),
-                            Color.Transparent,
-                        ),
+                        colors = listOf(color.copy(alpha = 0.08f), Color.Transparent),
                         center = Offset(size.width / 2f, size.height / 2f),
                         radius = size.width * 0.9f,
                     ),
@@ -422,16 +431,24 @@ private fun HeroScore(
             },
         contentAlignment = Alignment.Center,
     ) {
-        androidx.compose.material3.Text(
-            text = "${score.formatWithCommas()} PTS",
-            style = MaterialTheme.typography.displayLarge.copy(
-                fontSize = 96.sp,
-                lineHeight = 96.sp,
-                fontStyle = FontStyle.Italic,
-            ),
-            color = color,
-            textAlign = TextAlign.Center,
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            androidx.compose.material3.Text(
+                text = "+${gems.formatWithCommas()}",
+                style = MaterialTheme.typography.displayLarge.copy(
+                    fontSize = 96.sp,
+                    lineHeight = 96.sp,
+                    fontStyle = FontStyle.Italic,
+                ),
+                color = color,
+                textAlign = TextAlign.Center,
+            )
+            HuezooLabelSmall(
+                text = "GEMS EARNED",
+                color = color.copy(alpha = 0.7f),
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 
@@ -571,6 +588,121 @@ private fun StatBreakdownCard(
                 progress = animatedProgress.value,
                 color = accentColor,
             )
+        }
+    }
+}
+
+/**
+ * Gem breakdown card — each line item slides in and fades up staggered.
+ * Base delay = 500ms (after hero count-up settles), then +120ms per item.
+ */
+@Composable
+private fun GemBreakdownCard(
+    items: List<GemAward>,
+    totalGems: Int,
+    modifier: Modifier = Modifier,
+) {
+    // One Animatable (0→1) per item — allocated once and never re-created
+    val itemAlphas = remember(items.size) { List(items.size) { Animatable(0f) } }
+    val itemSlides = remember(items.size) { List(items.size) { Animatable(16f) } }
+
+    LaunchedEffect(items) {
+        items.indices.forEach { i ->
+            launch {
+                delay(500L + i * 120L)
+                launch { itemAlphas[i].animateTo(1f, tween(300)) }
+                launch { itemSlides[i].animateTo(0f, tween(300, easing = EaseOutCubic)) }
+            }
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .background(HuezooColors.SurfaceL1, CardShape)
+            .rimLight(cornerRadius = 16.dp)
+            .padding(HuezooSpacing.md),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
+            // Header row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                HuezooLabelSmall(
+                    text = "GEM BREAKDOWN",
+                    color = HuezooColors.TextSecondary,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+                HuezooLabelSmall(
+                    text = "GEMS",
+                    color = HuezooColors.TextSecondary,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+            }
+
+            // Divider
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(HuezooColors.SurfaceL3),
+            )
+
+            // Staggered line items
+            items.forEachIndexed { i, award ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            alpha = itemAlphas[i].value
+                            translationY = itemSlides[i].value
+                        },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    HuezooBodyMedium(
+                        text = award.label,
+                        color = HuezooColors.TextPrimary,
+                    )
+                    HuezooBodyMedium(
+                        text = "+${award.amount}",
+                        color = HuezooColors.AccentCyan,
+                    )
+                }
+            }
+
+            // Total row — visible after all items have appeared
+            val totalAlpha = remember { Animatable(0f) }
+            LaunchedEffect(items) {
+                delay(500L + items.size * 120L + 200L)
+                totalAlpha.animateTo(1f, tween(300))
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(HuezooColors.SurfaceL3)
+                    .graphicsLayer { alpha = totalAlpha.value },
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer { alpha = totalAlpha.value },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                HuezooLabelSmall(
+                    text = "TOTAL",
+                    color = HuezooColors.TextPrimary,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+                HuezooLabelSmall(
+                    text = "+$totalGems",
+                    color = HuezooColors.AccentCyan,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+            }
         }
     }
 }
@@ -935,6 +1067,11 @@ private fun ResultThresholdFailurePreview() {
                 roundsSurvived = 4,
                 isNewPersonalBest = false,
                 personalBestDeltaE = 1.2f,
+                gemsEarned = 18,
+                gemBreakdown = listOf(
+                    xyz.ksharma.huezoo.navigation.GemAward("Correct taps", 8),
+                    xyz.ksharma.huezoo.navigation.GemAward("Milestone bonuses", 10),
+                ),
             ),
             onPlayAgain = {},
             onShare = {},
@@ -954,6 +1091,11 @@ private fun ResultThresholdElitePreview() {
                 roundsSurvived = 11,
                 isNewPersonalBest = true,
                 personalBestDeltaE = 0.8f,
+                gemsEarned = 57,
+                gemBreakdown = listOf(
+                    xyz.ksharma.huezoo.navigation.GemAward("Correct taps", 22),
+                    xyz.ksharma.huezoo.navigation.GemAward("Milestone bonuses", 35),
+                ),
             ),
             onPlayAgain = {},
             onShare = {},
@@ -970,9 +1112,14 @@ private fun ResultDailyCompletePreview() {
                 gameId = xyz.ksharma.huezoo.navigation.GameId.DAILY,
                 deltaE = 2.1f,
                 score = 476,
-                roundsSurvived = 1,
+                roundsSurvived = 4,
                 isNewPersonalBest = false,
                 personalBestDeltaE = null,
+                gemsEarned = 23,
+                gemBreakdown = listOf(
+                    xyz.ksharma.huezoo.navigation.GemAward("Correct rounds ×4", 20),
+                    xyz.ksharma.huezoo.navigation.GemAward("Participation", 3),
+                ),
             ),
             onPlayAgain = {},
             onShare = {},
