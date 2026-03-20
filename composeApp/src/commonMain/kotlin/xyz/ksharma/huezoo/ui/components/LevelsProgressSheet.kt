@@ -32,6 +32,7 @@ import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val LevelShelfOffset = 4.dp
@@ -70,7 +71,7 @@ fun LevelsProgressSheet(
                     modifier = Modifier
                         .width(4.dp)
                         .height(24.dp)
-                        .background(HuezooColors.AccentCyan, RoundedCornerShape(2.dp)),
+                        .background(LocalPlayerAccentColor.current, RoundedCornerShape(2.dp)),
                 )
                 Spacer(Modifier.width(HuezooSpacing.md))
                 HuezooTitleLarge(

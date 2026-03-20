@@ -32,6 +32,8 @@ import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerShelfColor
 import xyz.ksharma.huezoo.ui.theme.PillShape
 import xyz.ksharma.huezoo.ui.theme.onColor
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
@@ -47,11 +49,15 @@ private data class ButtonColors(
     val border: Color = Color.Transparent,
 )
 
-private fun buttonColors(variant: HuezooButtonVariant): ButtonColors = when (variant) {
+private fun buttonColors(
+    variant: HuezooButtonVariant,
+    levelAccentColor: Color = HuezooColors.AccentCyan,
+    levelShelfColor: Color = HuezooColors.ShelfCyan,
+): ButtonColors = when (variant) {
     HuezooButtonVariant.Primary -> ButtonColors(
-        bg = HuezooColors.AccentCyan,
-        content = HuezooColors.AccentCyan.onColor, // dark — cyan is bright (contrast ~13:1)
-        shelf = HuezooColors.ShelfCyan,
+        bg = levelAccentColor,
+        content = levelAccentColor.onColor,
+        shelf = levelShelfColor,
     )
     HuezooButtonVariant.Confirm -> ButtonColors(
         bg = HuezooColors.ActionConfirm,
@@ -75,9 +81,9 @@ private fun buttonColors(variant: HuezooButtonVariant): ButtonColors = when (var
     )
     HuezooButtonVariant.Ghost -> ButtonColors(
         bg = Color.Transparent,
-        content = HuezooColors.AccentCyan, // transparent bg — fixed accent on dark surface
+        content = levelAccentColor,
         shelf = HuezooColors.SurfaceL1,
-        border = HuezooColors.AccentCyan,
+        border = levelAccentColor,
     )
     HuezooButtonVariant.GhostDanger -> ButtonColors(
         bg = Color.Transparent,
@@ -126,7 +132,9 @@ fun HuezooButton(
         label = "buttonPress",
     )
 
-    val colors = buttonColors(variant)
+    val playerAccent = LocalPlayerAccentColor.current
+    val playerShelf = LocalPlayerShelfColor.current
+    val colors = buttonColors(variant, playerAccent, playerShelf)
     val resolvedBg = if (enabled) colors.bg else HuezooColors.SurfaceL3
     val resolvedContent = if (enabled) colors.content else HuezooColors.TextDisabled
     val resolvedShelf = if (enabled) colors.shelf else HuezooColors.SurfaceL2

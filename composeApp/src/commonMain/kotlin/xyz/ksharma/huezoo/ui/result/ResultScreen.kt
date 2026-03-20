@@ -91,6 +91,7 @@ import xyz.ksharma.huezoo.ui.theme.shapedShadow
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -255,10 +256,10 @@ private fun ReadyContent(
 
         Spacer(Modifier.height(HuezooSpacing.md))
 
-        // ── 2. Hero gems — animated count-up, AccentCyan ──────────────────────
+        // ── 2. Hero gems — animated count-up, level accent ────────────────────
         HeroGems(
             gems = displayGems.value.toInt(),
-            color = if (state.gemsEarned == 0) HuezooColors.AccentMagenta else HuezooColors.AccentCyan,
+            color = if (state.gemsEarned == 0) HuezooColors.AccentMagenta else LocalPlayerAccentColor.current,
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -281,13 +282,14 @@ private fun ReadyContent(
             verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
         ) {
             // Card 1: Threshold → BEST ΔE / Daily → ROUNDS CORRECT
+            val statAccent = LocalPlayerAccentColor.current
             if (isDaily) {
                 StatBreakdownCard(
                     label = "ROUNDS CORRECT",
                     value = "${state.roundsSurvived} / 6",
                     progress = (state.roundsSurvived / 6f).coerceIn(0f, 1f),
-                    accentColor = HuezooColors.AccentCyan,
-                    icon = { WaveIcon(color = HuezooColors.AccentCyan) },
+                    accentColor = statAccent,
+                    icon = { WaveIcon(color = statAccent) },
                     modifier = Modifier.fillMaxWidth(),
                 )
             } else {
@@ -296,8 +298,8 @@ private fun ReadyContent(
                     value = state.deltaE.fmt(),
                     // Lower ΔE = better — invert so a low ΔE fills the bar more
                     progress = (1f - (state.deltaE / 5f)).coerceIn(0f, 1f),
-                    accentColor = HuezooColors.AccentCyan,
-                    icon = { WaveIcon(color = HuezooColors.AccentCyan) },
+                    accentColor = statAccent,
+                    icon = { WaveIcon(color = statAccent) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 StatBreakdownCard(
@@ -666,7 +668,7 @@ private fun GemBreakdownCard(
                     )
                     HuezooBodyMedium(
                         text = "+${award.amount}",
-                        color = HuezooColors.AccentCyan,
+                        color = LocalPlayerAccentColor.current,
                     )
                 }
             }
@@ -699,7 +701,7 @@ private fun GemBreakdownCard(
                 )
                 HuezooLabelSmall(
                     text = "+$totalGems",
-                    color = HuezooColors.AccentCyan,
+                    color = LocalPlayerAccentColor.current,
                     fontWeight = FontWeight.ExtraBold,
                 )
             }
@@ -845,6 +847,7 @@ private fun LightningIcon(color: Color, modifier: Modifier = Modifier) {
 /** Solid filled right-pointing triangle — used as a play icon on the PLAY AGAIN button. */
 @Composable
 private fun PlayIcon(modifier: Modifier = Modifier) {
+    val iconColor = LocalPlayerAccentColor.current.onColor
     androidx.compose.foundation.Canvas(modifier = modifier.size(16.dp)) {
         val path = Path().apply {
             moveTo(0f, 0f)
@@ -852,7 +855,7 @@ private fun PlayIcon(modifier: Modifier = Modifier) {
             lineTo(0f, size.height)
             close()
         }
-        drawPath(path, HuezooColors.AccentCyan.onColor)
+        drawPath(path, iconColor)
     }
 }
 

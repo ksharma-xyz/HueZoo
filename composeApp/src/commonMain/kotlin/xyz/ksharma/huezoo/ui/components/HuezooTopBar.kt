@@ -49,6 +49,7 @@ import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
@@ -167,6 +168,7 @@ private fun TopBarHelpButton(
         label = "helpScale",
     )
 
+    val accent = LocalPlayerAccentColor.current
     Box(
         modifier = modifier
             .size(BackButtonHeight) // square — same height as back button
@@ -176,7 +178,7 @@ private fun TopBarHelpButton(
             }
             .shapedShadow(
                 shape = ParallelogramBack,
-                color = HuezooColors.AccentCyan.copy(alpha = BACK_SHADOW_ALPHA),
+                color = accent.copy(alpha = BACK_SHADOW_ALPHA),
                 offsetX = BackShadowOffsetX,
                 offsetY = BackShadowOffsetY,
             )
@@ -194,7 +196,7 @@ private fun TopBarHelpButton(
         Text(
             text = "?",
             style = MaterialTheme.typography.titleMedium,
-            color = HuezooColors.AccentCyan,
+            color = accent,
             fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
         )
     }
@@ -217,7 +219,7 @@ private fun HuezooWordmark(modifier: Modifier = Modifier) {
         style = MaterialTheme.typography.headlineLarge.copy(
             fontStyle = FontStyle.Italic,
         ),
-        color = HuezooColors.AccentCyan,
+        color = LocalPlayerAccentColor.current,
         modifier = modifier,
     )
 }
@@ -252,6 +254,7 @@ private fun TopBarBackButton(
         label = "backScale",
     )
 
+    val accent = LocalPlayerAccentColor.current
     Box(
         modifier = modifier
             .size(width = BackButtonWidth, height = BackButtonHeight)
@@ -261,7 +264,7 @@ private fun TopBarBackButton(
             }
             .shapedShadow(
                 shape = ParallelogramBack,
-                color = HuezooColors.AccentCyan.copy(alpha = BACK_SHADOW_ALPHA),
+                color = accent.copy(alpha = BACK_SHADOW_ALPHA),
                 offsetX = BackShadowOffsetX,
                 offsetY = BackShadowOffsetY,
             )
@@ -286,7 +289,7 @@ private fun TopBarBackButton(
  */
 @Composable
 private fun BackChevron(modifier: Modifier = Modifier) {
-    val strokeColor = HuezooColors.AccentCyan
+    val strokeColor = LocalPlayerAccentColor.current
     androidx.compose.foundation.Canvas(
         modifier = modifier.size(BackChevronSize),
     ) {
@@ -360,6 +363,6 @@ private fun previewGemPainter(): androidx.compose.ui.graphics.painter.Painter =
                 androidx.compose.ui.graphics.vector.PathNode.LineTo(15f, 7f),
                 androidx.compose.ui.graphics.vector.PathNode.Close,
             ),
-            fill = androidx.compose.ui.graphics.SolidColor(HuezooColors.AccentCyan),
+            fill = androidx.compose.ui.graphics.SolidColor(LocalPlayerAccentColor.current),
         ).build(),
     )

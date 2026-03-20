@@ -20,12 +20,13 @@ enum class PlayerLevel(
     val displayName: String,
     val minGems: Int,
     val levelColor: Color,
+    val shelfColor: Color,
 ) {
-    Rookie(displayName = "ROOKIE", minGems = 0, levelColor = HuezooColors.AccentCyan),
-    Trained(displayName = "TRAINED", minGems = 150, levelColor = HuezooColors.AccentGreen),
-    Sharp(displayName = "SHARP", minGems = 750, levelColor = HuezooColors.AccentMagenta),
-    Elite(displayName = "ELITE", minGems = 5_000, levelColor = HuezooColors.AccentYellow),
-    Master(displayName = "MASTER", minGems = 50_000, levelColor = Color(0xFFFFB800)),
+    Rookie(displayName = "ROOKIE", minGems = 0, levelColor = HuezooColors.AccentCyan, shelfColor = HuezooColors.ShelfCyan),
+    Trained(displayName = "TRAINED", minGems = 150, levelColor = HuezooColors.AccentGreen, shelfColor = HuezooColors.ShelfGreen),
+    Sharp(displayName = "SHARP", minGems = 750, levelColor = HuezooColors.AccentMagenta, shelfColor = HuezooColors.ShelfMagenta),
+    Elite(displayName = "ELITE", minGems = 5_000, levelColor = HuezooColors.AccentYellow, shelfColor = HuezooColors.ShelfYellow),
+    Master(displayName = "MASTER", minGems = 50_000, levelColor = Color(0xFFFFB800), shelfColor = HuezooColors.ShelfMaster),
     ;
 
     companion object {

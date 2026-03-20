@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerShelfColor
 import xyz.ksharma.huezoo.ui.theme.SquircleMedium
 
 private val IconButtonSize = 48.dp
@@ -51,7 +53,11 @@ enum class HuezooIconButtonVariant {
 
 private data class IconButtonColors(val bg: Color, val shelf: Color)
 
-private fun iconButtonColors(variant: HuezooIconButtonVariant): IconButtonColors = when (variant) {
+private fun iconButtonColors(
+    variant: HuezooIconButtonVariant,
+    levelAccentColor: Color = HuezooColors.AccentCyan,
+    levelShelfColor: Color = HuezooColors.ShelfCyan,
+): IconButtonColors = when (variant) {
     HuezooIconButtonVariant.Dismiss -> IconButtonColors(
         bg = HuezooColors.ActionDismiss,
         shelf = HuezooColors.ShelfDismiss,
@@ -65,8 +71,8 @@ private fun iconButtonColors(variant: HuezooIconButtonVariant): IconButtonColors
         shelf = HuezooColors.SurfaceL1,
     )
     HuezooIconButtonVariant.Info -> IconButtonColors(
-        bg = HuezooColors.AccentCyan,
-        shelf = HuezooColors.ShelfCyan,
+        bg = levelAccentColor,
+        shelf = levelShelfColor,
     )
 }
 
@@ -106,7 +112,9 @@ fun HuezooIconButton(
         label = "iconBtnPress",
     )
 
-    val colors = iconButtonColors(variant)
+    val playerAccent = LocalPlayerAccentColor.current
+    val playerShelf = LocalPlayerShelfColor.current
+    val colors = iconButtonColors(variant, playerAccent, playerShelf)
     val resolvedBg = if (enabled) colors.bg else HuezooColors.SurfaceL3
     val resolvedShelf = if (enabled) colors.shelf else HuezooColors.SurfaceL2
     val shelfPx = with(LocalDensity.current) { IconButtonShelf.toPx() }

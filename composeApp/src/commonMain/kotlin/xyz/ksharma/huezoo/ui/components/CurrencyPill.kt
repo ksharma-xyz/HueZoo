@@ -30,6 +30,7 @@ import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
@@ -65,6 +66,7 @@ fun CurrencyPill(
         }
     }
 
+    val accent = LocalPlayerAccentColor.current
     Box(
         modifier = modifier
             .graphicsLayer {
@@ -74,7 +76,7 @@ fun CurrencyPill(
             }
             .shapedShadow(
                 shape = ParallelogramBack,
-                color = HuezooColors.AccentCyan.copy(alpha = GEM_SHADOW_ALPHA),
+                color = accent.copy(alpha = GEM_SHADOW_ALPHA),
                 offsetX = GemShadowOffset,
                 offsetY = GemShadowOffset,
             )
@@ -98,14 +100,14 @@ fun CurrencyPill(
             ) { displayAmount ->
                 HuezooHeadlineMedium(
                     text = formatNumber(displayAmount),
-                    color = HuezooColors.AccentCyan,
+                    color = accent,
                     fontWeight = FontWeight.ExtraBold,
                 )
             }
             // Label — small, static
             HuezooLabelSmall(
                 text = "GEMS",
-                color = HuezooColors.AccentCyan.copy(alpha = 0.7f),
+                color = accent.copy(alpha = 0.7f),
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(bottom = 2.sp.value.dp),
             )

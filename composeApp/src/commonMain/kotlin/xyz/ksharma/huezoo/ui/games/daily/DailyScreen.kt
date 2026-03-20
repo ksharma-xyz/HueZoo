@@ -51,6 +51,7 @@ import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -82,7 +83,7 @@ fun DailyScreen(
     AmbientGlowBackground(
         modifier = modifier,
         primaryColor = HuezooColors.GameDaily,
-        secondaryColor = HuezooColors.AccentCyan,
+        secondaryColor = LocalPlayerAccentColor.current,
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             HuezooTopBar(
@@ -146,7 +147,7 @@ private fun DailyPlayingContent(
         Text(
             text = "DAILY CHALLENGE",
             style = MaterialTheme.typography.titleLarge,
-            color = HuezooColors.AccentCyan,
+            color = LocalPlayerAccentColor.current,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer { alpha = titleAlpha },

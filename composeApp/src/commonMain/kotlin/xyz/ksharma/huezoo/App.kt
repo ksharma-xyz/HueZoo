@@ -3,11 +3,17 @@ package xyz.ksharma.huezoo
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
+import org.koin.compose.koinInject
+import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Home
@@ -19,16 +25,32 @@ import xyz.ksharma.huezoo.ui.games.daily.DailyScreen
 import xyz.ksharma.huezoo.ui.games.threshold.ThresholdScreen
 import xyz.ksharma.huezoo.ui.home.HomeScreen
 import xyz.ksharma.huezoo.ui.leaderboard.LeaderboardScreen
+import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.result.ResultScreen
 import xyz.ksharma.huezoo.ui.splash.SplashScreen
 import xyz.ksharma.huezoo.ui.theme.HuezooTheme
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerShelfColor
+import androidx.compose.runtime.CompositionLocalProvider
 
 @Composable
 fun App() {
+    val settingsRepository: SettingsRepository = koinInject()
+
     HuezooTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             val backStack = remember { mutableStateListOf<Any>(Splash) }
 
+            // Re-read gems whenever the back stack changes (returning from a game screen).
+            // PlayerLevel is derived from gems — drives the UI accent color everywhere.
+            var gems by remember { mutableIntStateOf(0) }
+            LaunchedEffect(backStack.size) { gems = settingsRepository.getGems() }
+            val level = PlayerLevel.fromGems(gems)
+
+            CompositionLocalProvider(
+                LocalPlayerAccentColor provides level.levelColor,
+                LocalPlayerShelfColor provides level.shelfColor,
+            ) {
             NavDisplay(
                 backStack = backStack,
                 onBack = { if (backStack.size > 1) backStack.removeLast() },
@@ -95,6 +117,7 @@ fun App() {
                     }
                 },
             )
+            } // CompositionLocalProvider
         }
     }
 }

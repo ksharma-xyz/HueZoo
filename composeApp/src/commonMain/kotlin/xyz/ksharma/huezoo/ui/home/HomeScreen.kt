@@ -87,6 +87,7 @@ import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.rimLight
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -278,12 +279,12 @@ private fun StatsSection(
                 .height(IntrinsicSize.Min)
                 .shapedShadow(RectangleShape, ShelfColor, ShelfOffset, ShelfOffset),
         ) {
-            // Cyan accent bar
+            // Level-color accent bar
             Box(
                 modifier = Modifier
                     .width(CyanAccentBarWidth)
                     .fillMaxHeight()
-                    .background(HuezooColors.AccentCyan),
+                    .background(LocalPlayerAccentColor.current),
             )
             // Gems content — tappable to open Levels & Progress sheet
             Box(
@@ -311,7 +312,7 @@ private fun StatsSection(
                     Spacer(Modifier.width(HuezooSpacing.xs))
                     HuezooLabelSmall(
                         text = "GEMS",
-                        color = HuezooColors.AccentCyan,
+                        color = LocalPlayerAccentColor.current,
                         fontWeight = FontWeight.ExtraBold,
                         modifier = Modifier.alignByBaseline(),
                     )
@@ -424,10 +425,11 @@ private fun ThresholdHeroCard(
         Column(modifier = Modifier.fillMaxWidth().padding(HuezooSpacing.lg)) {
             // Active mission dot
             Row(verticalAlignment = Alignment.CenterVertically) {
+                val accentForDot = LocalPlayerAccentColor.current
                 Canvas(modifier = Modifier.size(10.dp)) {
                     drawCircle(
                         color = if (enabled) {
-                            HuezooColors.AccentCyan.copy(alpha = pulseAlpha)
+                            accentForDot.copy(alpha = pulseAlpha)
                         } else {
                             HuezooColors.TextDisabled
                         },
@@ -437,7 +439,7 @@ private fun ThresholdHeroCard(
                 Spacer(Modifier.width(HuezooSpacing.sm))
                 HuezooLabelSmall(
                     text = if (enabled) "ACTIVE MISSION" else "MISSION LOCKED",
-                    color = if (enabled) HuezooColors.AccentCyan else HuezooColors.TextDisabled,
+                    color = if (enabled) LocalPlayerAccentColor.current else HuezooColors.TextDisabled,
                     fontWeight = FontWeight.ExtraBold,
                 )
             }
@@ -523,7 +525,7 @@ private fun ThresholdScannerIllustration(
     modifier: Modifier = Modifier,
 ) {
     val baseColor = HuezooColors.GameThreshold
-    val accentColor = HuezooColors.AccentCyan
+    val accentColor = LocalPlayerAccentColor.current
     val dimFactor = if (enabled) 1f else 0.35f
 
     Canvas(modifier = modifier) {
@@ -933,7 +935,7 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .background(HuezooColors.SurfaceL2, cardShape)
-            .border(1.5.dp, HuezooColors.AccentCyan.copy(alpha = 0.28f), cardShape)
+            .border(1.5.dp, LocalPlayerAccentColor.current.copy(alpha = 0.28f), cardShape)
             .clip(cardShape),
     ) {
         Row(
@@ -948,9 +950,10 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
+            val deltaEAccent = LocalPlayerAccentColor.current
             HuezooLabelSmall(
                 text = "WHAT IS ΔE?",
-                color = HuezooColors.AccentCyan,
+                color = deltaEAccent,
                 fontWeight = FontWeight.ExtraBold,
             )
             Canvas(
@@ -962,14 +965,14 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
                 val w = size.width
                 val h = size.height
                 drawLine(
-                    HuezooColors.AccentCyan.copy(alpha = 0.7f),
+                    deltaEAccent.copy(alpha = 0.7f),
                     Offset(w * 0.15f, h * 0.38f),
                     Offset(w * 0.50f, h * 0.65f),
                     sw,
                     StrokeCap.Round,
                 )
                 drawLine(
-                    HuezooColors.AccentCyan.copy(alpha = 0.7f),
+                    deltaEAccent.copy(alpha = 0.7f),
                     Offset(w * 0.50f, h * 0.65f),
                     Offset(w * 0.85f, h * 0.38f),
                     sw,
@@ -1051,7 +1054,7 @@ private fun StaggeredCard(
  */
 @Composable
 private fun GemSpillIllustration(modifier: Modifier = Modifier) {
-    val color = HuezooColors.AccentCyan
+    val color = LocalPlayerAccentColor.current
     Canvas(modifier = modifier) {
         val w = size.width
         val h = size.height

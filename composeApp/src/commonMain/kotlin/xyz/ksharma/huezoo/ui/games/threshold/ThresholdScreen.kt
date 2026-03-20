@@ -46,6 +46,7 @@ import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -140,10 +141,11 @@ private fun PlayingContent(
             animationSpec = tween(durationMillis = 150),
             label = "titleAlpha",
         )
+        val accent = LocalPlayerAccentColor.current
         Text(
             text = "IDENTIFY THE OUTLIER",
             style = MaterialTheme.typography.titleLarge,
-            color = HuezooColors.AccentCyan,
+            color = accent,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer { alpha = titleAlpha },
@@ -155,7 +157,7 @@ private fun PlayingContent(
         SkewedStatChip(
             label = "CURRENT ΔE",
             value = state.deltaE.fmt(),
-            accentColor = HuezooColors.AccentCyan,
+            accentColor = accent,
         )
 
         Spacer(Modifier.height(HuezooSpacing.lg))

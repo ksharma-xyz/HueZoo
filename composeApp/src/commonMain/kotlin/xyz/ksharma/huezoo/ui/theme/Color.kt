@@ -41,6 +41,7 @@ object HuezooColors {
     val ShelfYellow = Color(0xFFB8A000)
     val ShelfGreen = Color(0xFF00A86A)
     val ShelfPurple = Color(0xFF6B3DAD)
+    val ShelfMaster = Color(0xFFBB8800)  // darker amber shelf for Master level
 
     // ── Game-action button colors ─────────────────────────────────────────────
     val ActionConfirm = Color(0xFF22C55E) // green — confirm / correct
