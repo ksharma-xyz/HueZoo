@@ -1,5 +1,6 @@
 package xyz.ksharma.huezoo.ui.model
 
+import androidx.compose.ui.graphics.Color
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 
 /**
