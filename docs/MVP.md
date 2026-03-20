@@ -425,6 +425,8 @@ Files: `domain/color/Lab.kt`, `domain/color/ColorMath.kt`, `domain/color/ColorEn
 - [ ] 8.6 `LeaderboardScreen` — ranked list, your entry highlighted
 - [ ] 8.7 Submit flow: name input sheet (stored locally after first entry) → push to Firebase
 - [ ] 8.8 Security rules: public read, anon-auth write, max 1 entry per UID
+- [ ] 8.9 **Player rank**: query player's position in leaderboard after submission; store in local DB; expose via `SettingsRepository.getRank(): Int?`; wire into `HomeUiState.Ready.rank` so the RANK stat box on the Home screen shows the real value (currently shows "—" as placeholder)
+- [ ] 8.10 **Streak tracking** (wire with Firebase): compute consecutive daily completions from DB; expose as `SettingsRepository.getStreak(): Int`; wire into `HomeUiState.Ready.streak` (currently defaults to 0)
 
 ### Phase 9 — Polish & Ship
 - [ ] 9.1 App icon (all sizes) + splash screen

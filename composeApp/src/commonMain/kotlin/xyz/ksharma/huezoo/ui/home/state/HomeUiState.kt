@@ -14,6 +14,10 @@ sealed interface HomeUiState {
         val isPaid: Boolean,
         val totalGems: Int,
         val playerLevel: PlayerLevel,
+        /** Consecutive days the player has completed the Daily Challenge. 0 until tracking is wired (UX.8). */
+        val streak: Int = 0,
+        /** Global rank — null until Leaderboard / Firebase is integrated. */
+        val rank: Int? = null,
     ) : HomeUiState
 }
 
