@@ -14,8 +14,6 @@ sealed interface HomeUiState {
         val isPaid: Boolean,
         val totalGems: Int,
         val playerLevel: PlayerLevel,
-        /** True until the user dismisses the first-launch ΔE info card. */
-        val showDeltaECard: Boolean,
     ) : HomeUiState
 }
 

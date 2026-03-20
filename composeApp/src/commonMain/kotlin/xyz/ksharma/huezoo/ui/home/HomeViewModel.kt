@@ -41,7 +41,6 @@ class HomeViewModel(
         when (event) {
             HomeUiEvent.ScreenResumed -> load()
             HomeUiEvent.DebugResetTapped -> debugReset()
-            HomeUiEvent.DismissDeltaECard -> dismissDeltaECard()
             else -> Unit // Navigation events handled directly in the screen composable.
         }
     }
@@ -50,15 +49,6 @@ class HomeViewModel(
         viewModelScope.launch {
             settingsRepository.resetAll()
             load()
-        }
-    }
-
-    private fun dismissDeltaECard() {
-        viewModelScope.launch {
-            settingsRepository.dismissDeltaECard()
-            (_uiState.value as? HomeUiState.Ready)?.let {
-                _uiState.value = it.copy(showDeltaECard = false)
-            }
         }
     }
 
@@ -72,7 +62,6 @@ class HomeViewModel(
             val dailyChallenge = dailyRepository.getChallenge(today)
             val isPaid = settingsRepository.isPaid()
             val totalGems = settingsRepository.getGems()
-            val showDeltaECard = !settingsRepository.hasDismissedDeltaECard()
 
             val tz = TimeZone.currentSystemDefault()
             val thresholdCard = when (attemptStatus) {
@@ -110,7 +99,6 @@ class HomeViewModel(
                 isPaid = isPaid,
                 totalGems = totalGems,
                 playerLevel = PlayerLevel.fromGems(totalGems),
-                showDeltaECard = showDeltaECard,
             )
         }
     }
