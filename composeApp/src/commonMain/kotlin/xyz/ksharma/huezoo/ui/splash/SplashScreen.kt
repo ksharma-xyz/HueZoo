@@ -71,15 +71,15 @@ fun SplashScreen(
 
         // Tube-light flicker on ZOO — bloom pulses in sync via snapTo
         listOf(
-            true  to 80L,
+            true to 80L,
             false to 55L,
-            true  to 50L,
+            true to 50L,
             false to 75L,
-            true  to 110L,
+            true to 110L,
             false to 40L,
-            true  to 65L,
+            true to 65L,
             false to 90L,
-            true  to 0L,   // stays lit
+            true to 0L, // stays lit
         ).forEach { (lit, holdMs) ->
             zooFilled = lit
             zooGlowAlpha.snapTo(if (lit) 1f else 0f)
@@ -171,7 +171,7 @@ private fun ZooBloom(
     Canvas(modifier = modifier.fillMaxSize()) {
         val zga = glowAlpha()
         if (zga > 0f) {
-            val cx = size.width / 2f + 54.dp.toPx()  // right-biased behind ZOO
+            val cx = size.width / 2f + 54.dp.toPx() // right-biased behind ZOO
             val cy = size.height / 2f
             drawCircle(
                 brush = Brush.radialGradient(
@@ -201,7 +201,9 @@ private fun SplashUnlitPreview() {
             contentAlignment = Alignment.Center,
         ) {
             val base = MaterialTheme.typography.displayLarge.copy(
-                fontSize = 96.sp, lineHeight = 100.sp, fontStyle = FontStyle.Italic,
+                fontSize = 96.sp,
+                lineHeight = 100.sp,
+                fontStyle = FontStyle.Italic,
             )
             Row(verticalAlignment = Alignment.Bottom) {
                 Text("HUE", style = base, color = HuezooColors.AccentCyan)
@@ -221,7 +223,9 @@ private fun SplashLitPreview() {
         ) {
             ZooBloom(glowAlpha = { 1f })
             val base = MaterialTheme.typography.displayLarge.copy(
-                fontSize = 96.sp, lineHeight = 100.sp, fontStyle = FontStyle.Italic,
+                fontSize = 96.sp,
+                lineHeight = 100.sp,
+                fontStyle = FontStyle.Italic,
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(verticalAlignment = Alignment.Bottom) {

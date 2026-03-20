@@ -177,8 +177,8 @@ private fun EyeIcon(
         val h = size.height
         val cx = w / 2f
         val cy = h / 2f
-        val rx = w * 0.48f   // horizontal radius of the almond
-        val ry = h * 0.28f   // vertical radius
+        val rx = w * 0.48f // horizontal radius of the almond
+        val ry = h * 0.28f // vertical radius
         val stroke = w * 0.055f
 
         // Outer almond (eye outline) — two cubic arcs
@@ -238,4 +238,3 @@ private fun EyeStrainNoticePreview() {
         EyeStrainNoticeScreen(onDismiss = {})
     }
 }
-

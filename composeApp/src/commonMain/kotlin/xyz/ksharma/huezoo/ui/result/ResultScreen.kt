@@ -71,8 +71,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.GameId
+import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
@@ -84,6 +84,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.result.state.ResultUiState
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.onColor
 import xyz.ksharma.huezoo.ui.theme.rimLight
@@ -91,7 +92,6 @@ import xyz.ksharma.huezoo.ui.theme.shapedShadow
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
-import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime

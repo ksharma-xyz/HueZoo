@@ -6,4 +6,3 @@ sealed interface SettingsUiEvent {
     data object ResetAllConfirmed : SettingsUiEvent
     data object ResetAllDismissed : SettingsUiEvent
 }
-

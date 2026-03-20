@@ -7,4 +7,3 @@ data class SettingsUiState(
     /** Controls the "RESET ALL — ARE YOU SURE?" confirmation card. */
     val showResetConfirm: Boolean = false,
 )
-

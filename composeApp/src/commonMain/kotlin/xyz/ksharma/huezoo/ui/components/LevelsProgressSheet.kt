@@ -169,8 +169,18 @@ private fun LevelCard(
                 .drawBehind {
                     // Neon top-left rim (neo-brutalist inset highlight)
                     val stroke = 1.5.dp.toPx()
-                    drawLine(levelColor.copy(alpha = 0.7f), Offset(0f, stroke / 2f), Offset(size.width, stroke / 2f), stroke)
-                    drawLine(levelColor.copy(alpha = 0.7f), Offset(stroke / 2f, 0f), Offset(stroke / 2f, size.height), stroke)
+                    drawLine(
+                        levelColor.copy(alpha = 0.7f),
+                        Offset(0f, stroke / 2f),
+                        Offset(size.width, stroke / 2f),
+                        stroke,
+                    )
+                    drawLine(
+                        levelColor.copy(alpha = 0.7f),
+                        Offset(stroke / 2f, 0f),
+                        Offset(stroke / 2f, size.height),
+                        stroke,
+                    )
                     // Subtle accent bar along the entire top
                     drawRect(
                         color = levelColor.copy(alpha = 0.35f),

@@ -18,9 +18,9 @@ object GameRewardRates {
     const val THRESHOLD_CORRECT_TAP = 2
 
     /** Awarded once per try the first time ΔE drops below each boundary. */
-    const val THRESHOLD_MILESTONE_SHARP = 5    // ΔE < 2.0
-    const val THRESHOLD_MILESTONE_EXPERT = 10  // ΔE < 1.0
-    const val THRESHOLD_MILESTONE_ELITE = 25   // ΔE < 0.5
+    const val THRESHOLD_MILESTONE_SHARP = 5 // ΔE < 2.0
+    const val THRESHOLD_MILESTONE_EXPERT = 10 // ΔE < 1.0
+    const val THRESHOLD_MILESTONE_ELITE = 25 // ΔE < 0.5
 
     /** ΔE boundaries for milestone bonuses (descending — evaluated in order). */
     val THRESHOLD_MILESTONES: List<Pair<Float, Int>> = listOf(

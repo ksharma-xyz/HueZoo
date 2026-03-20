@@ -68,7 +68,6 @@ import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
-import xyz.ksharma.huezoo.ui.components.LevelsProgressSheet
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooDisplayMedium
@@ -77,6 +76,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTitleLarge
 import xyz.ksharma.huezoo.ui.components.HuezooTitleSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
+import xyz.ksharma.huezoo.ui.components.LevelsProgressSheet
 import xyz.ksharma.huezoo.ui.home.state.DailyCardData
 import xyz.ksharma.huezoo.ui.home.state.HomeUiEvent
 import xyz.ksharma.huezoo.ui.home.state.HomeUiState
@@ -85,9 +85,9 @@ import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.rimLight
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
-import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -561,7 +561,7 @@ private fun ThresholdScannerIllustration(
 
         // ── 2. Concentric range arcs ─────────────────────────────────────────
         val arcRadii = listOf(70.0, 115.0, 165.0, 222.0, 285.0).map { it.dp.toPx() }
-        val arcStart = 140f   // degrees — leftward-facing sweep
+        val arcStart = 140f // degrees — leftward-facing sweep
         val arcSweep = 185f
 
         arcRadii.forEachIndexed { i, r ->
@@ -605,7 +605,7 @@ private fun ThresholdScannerIllustration(
             baseColor.copy(crossAlpha),
             Offset(cx, cy + gapR),
             Offset(cx, h + 20.dp.toPx()),
-            sw
+            sw,
         )
         // Vertical arm going up
         drawLine(baseColor.copy(crossAlpha), Offset(cx, 0f), Offset(cx, cy - gapR), sw)
@@ -619,7 +619,7 @@ private fun ThresholdScannerIllustration(
             start = Offset(cx, cy),
             end = Offset(
                 (cx + sweepLen * cos(sweepRad)).toFloat(),
-                (cy + sweepLen * sin(sweepRad)).toFloat()
+                (cy + sweepLen * sin(sweepRad)).toFloat(),
             ),
             strokeWidth = sw * 1.6f,
         )
@@ -629,7 +629,7 @@ private fun ThresholdScannerIllustration(
             start = Offset(cx, cy),
             end = Offset(
                 (cx + sweepLen * cos(ghostRad)).toFloat(),
-                (cy + sweepLen * sin(ghostRad)).toFloat()
+                (cy + sweepLen * sin(ghostRad)).toFloat(),
             ),
             strokeWidth = sw,
         )
@@ -637,7 +637,11 @@ private fun ThresholdScannerIllustration(
         // ── 5. Center focal diamond + cyan dot ────────────────────────────────
         val d = 9.dp.toPx()
         val diamond = Path().apply {
-            moveTo(cx, cy - d); lineTo(cx + d, cy); lineTo(cx, cy + d); lineTo(cx - d, cy); close()
+            moveTo(cx, cy - d)
+            lineTo(cx + d, cy)
+            lineTo(cx, cy + d)
+            lineTo(cx - d, cy)
+            close()
         }
         drawPath(diamond, baseColor.copy(0.45f * dimFactor), style = Stroke(sw * 1.5f))
         drawCircle(accentColor.copy(0.80f * dimFactor), 2.5.dp.toPx(), Offset(cx, cy))
@@ -663,7 +667,7 @@ private fun ThresholdScannerIllustration(
                 drawRect(
                     blipColor.copy(blipAlpha),
                     Offset(bx - bSz / 2f, by - bSz / 2f),
-                    Size(bSz, bSz)
+                    Size(bSz, bSz),
                 )
             }
         }
@@ -675,10 +679,10 @@ private fun ThresholdScannerIllustration(
 
         data class Corner(val x: Float, val y: Float, val dx: Float, val dy: Float)
         listOf(
-            Corner(0f, 0f, 1f, 1f),               // top-left
-            Corner(w, 0f, -1f, 1f),               // top-right
-            Corner(0f, h, 1f, -1f),               // bottom-left
-            Corner(w, h, -1f, -1f),               // bottom-right
+            Corner(0f, 0f, 1f, 1f), // top-left
+            Corner(w, 0f, -1f, 1f), // top-right
+            Corner(0f, h, 1f, -1f), // bottom-left
+            Corner(w, h, -1f, -1f), // bottom-right
         ).forEach { (x, y, dx, dy) ->
             drawLine(baseColor.copy(bAlpha), Offset(x, y), Offset(x + dx * bLen, y), bSw)
             drawLine(baseColor.copy(bAlpha), Offset(x, y), Offset(x, y + dy * bLen), bSw)
@@ -998,9 +1002,9 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
             ) {
                 HuezooBodyMedium(
                     text = "ΔE is how different two colors look to your eyes.\n\nThink of it like " +
-                            "this — ΔE 10 is like red vs blue, obvious.\nΔE 1 is like two blues " +
-                            "that look almost the same.\n\nThe lower the number, the sneakier " +
-                            "the odd color is.",
+                        "this — ΔE 10 is like red vs blue, obvious.\nΔE 1 is like two blues " +
+                        "that look almost the same.\n\nThe lower the number, the sneakier " +
+                        "the odd color is.",
                     color = HuezooColors.TextSecondary,
                 )
                 Spacer(Modifier.height(HuezooSpacing.md))
@@ -1040,7 +1044,7 @@ private fun StaggeredCard(
         visible = visible,
         modifier = modifier,
         enter = fadeIn(tween(CARD_ANIM_DURATION_MS)) +
-                slideInVertically(tween(CARD_ANIM_DURATION_MS)) { it / SLIDE_FRACTION },
+            slideInVertically(tween(CARD_ANIM_DURATION_MS)) { it / SLIDE_FRACTION },
     ) {
         content()
     }
@@ -1082,13 +1086,13 @@ private fun GemSpillIllustration(modifier: Modifier = Modifier) {
         data class GemSpec(val dx: Float, val dy: Float, val size: Float, val rotDeg: Float)
 
         val specs = listOf(
-            GemSpec(0f,         0f,       h * 0.72f, 0f),     // hero — center
+            GemSpec(0f, 0f, h * 0.72f, 0f), // hero — center
             GemSpec(-h * 0.55f, h * 0.10f, h * 0.42f, -18f), // left-lower
-            GemSpec(-h * 0.30f, -h * 0.40f, h * 0.32f, 22f),  // upper-left
-            GemSpec( h * 0.28f, -h * 0.38f, h * 0.26f, -30f), // upper-right
-            GemSpec( h * 0.22f,  h * 0.35f, h * 0.22f, 14f),  // lower-right
-            GemSpec(-h * 0.65f, -h * 0.25f, h * 0.18f, 35f),  // far upper-left (tiny)
-            GemSpec( h * 0.08f, -h * 0.55f, h * 0.14f, -10f), // top micro
+            GemSpec(-h * 0.30f, -h * 0.40f, h * 0.32f, 22f), // upper-left
+            GemSpec(h * 0.28f, -h * 0.38f, h * 0.26f, -30f), // upper-right
+            GemSpec(h * 0.22f, h * 0.35f, h * 0.22f, 14f), // lower-right
+            GemSpec(-h * 0.65f, -h * 0.25f, h * 0.18f, 35f), // far upper-left (tiny)
+            GemSpec(h * 0.08f, -h * 0.55f, h * 0.14f, -10f), // top micro
         )
 
         specs.forEachIndexed { idx, spec ->
@@ -1098,7 +1102,7 @@ private fun GemSpillIllustration(modifier: Modifier = Modifier) {
             // Skip gems that are mostly off-screen left (would overlap text)
             if (cx + s < w * 0.38f) return@forEachIndexed
             val alpha = when (idx) {
-                0 -> 0.18f  // hero — most visible
+                0 -> 0.18f // hero — most visible
                 1 -> 0.13f
                 2 -> 0.11f
                 else -> 0.08f
@@ -1115,12 +1119,12 @@ private fun GemSpillIllustration(modifier: Modifier = Modifier) {
 
             // Gem silhouette: crown (upper trapezoid) + pavilion (lower triangle)
             // Points: top, upper-right shoulder, lower-right hip, bottom, lower-left hip, upper-left shoulder
-            val top    = rotated(0f,         -s * 0.5f)
-            val upR    = rotated( s * 0.40f,  -s * 0.14f)
-            val loR    = rotated( s * 0.28f,   s * 0.12f)
-            val bot    = rotated(0f,           s * 0.5f)
-            val loL    = rotated(-s * 0.28f,   s * 0.12f)
-            val upL    = rotated(-s * 0.40f,  -s * 0.14f)
+            val top = rotated(0f, -s * 0.5f)
+            val upR = rotated(s * 0.40f, -s * 0.14f)
+            val loR = rotated(s * 0.28f, s * 0.12f)
+            val bot = rotated(0f, s * 0.5f)
+            val loL = rotated(-s * 0.28f, s * 0.12f)
+            val upL = rotated(-s * 0.40f, -s * 0.14f)
 
             // Fill
             val gemPath = Path().apply {
@@ -1139,7 +1143,7 @@ private fun GemSpillIllustration(modifier: Modifier = Modifier) {
 
             // Crown facet lines
             val girL = rotated(-s * 0.20f, -s * 0.14f)
-            val girR = rotated( s * 0.20f, -s * 0.14f)
+            val girR = rotated(s * 0.20f, -s * 0.14f)
             val facetAlpha = (alpha * 1.8f).coerceAtMost(0.45f)
             drawLine(color.copy(facetAlpha), top, girL, sw * 0.8f)
             drawLine(color.copy(facetAlpha), top, girR, sw * 0.8f)
@@ -1160,7 +1164,7 @@ private fun GemSpillIllustration(modifier: Modifier = Modifier) {
             Sparkle(anchorX - h * 0.10f, anchorY + h * 0.52f, h * 0.028f),
         )
         sparkles.forEach { (sx, sy, r) ->
-            if (sx < w * 0.42f) return@forEach  // stay out of text zone
+            if (sx < w * 0.42f) return@forEach // stay out of text zone
             val a = 0.20f
             drawLine(color.copy(a), Offset(sx - r, sy), Offset(sx + r, sy), sw * 0.8f)
             drawLine(color.copy(a), Offset(sx, sy - r), Offset(sx, sy + r), sw * 0.8f)
