@@ -136,8 +136,9 @@ fun ResultScreen(
             }
         }
 
-        // Confetti overlay — non-intercepting (Canvas captures no touches)
-        if (uiState is ResultUiState.Ready) {
+        // Confetti overlay — only when player actually scored; 0 pts = no celebration
+        val readyState = uiState as? ResultUiState.Ready
+        if (readyState != null && readyState.score > 0) {
             ConfettiEffect(
                 identityColor = identityColor,
                 modifier = Modifier.fillMaxSize(),
@@ -240,9 +241,15 @@ private fun ReadyContent(
         Spacer(Modifier.height(HuezooSpacing.sm))
 
         // ── 1. Outcome banner — full-width, colored shelf ──────────────────────
+        val bannerText = when {
+            state.score == 0 -> "MISSION OUTCOME: FLATLINED"
+            isDaily -> "MISSION OUTCOME: COMPLETE"
+            else -> "MISSION OUTCOME: FAILURE"
+        }
+        val bannerColor = if (state.score == 0) HuezooColors.AccentMagenta else accentColor
         MissionOutcomeBanner(
-            text = if (isDaily) "MISSION OUTCOME: COMPLETE" else "MISSION OUTCOME: FAILURE",
-            color = accentColor,
+            text = bannerText,
+            color = bannerColor,
         )
 
         Spacer(Modifier.height(HuezooSpacing.md))
@@ -250,6 +257,7 @@ private fun ReadyContent(
         // ── 2. Hero score — ambient radial glow behind ─────────────────────────
         HeroScore(
             score = displayScore.value.toInt(),
+            color = if (state.score == 0) HuezooColors.AccentMagenta else HuezooColors.AccentCyan,
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -365,6 +373,7 @@ private fun MissionOutcomeBanner(
 @Composable
 private fun HeroScore(
     score: Int,
+    color: Color = HuezooColors.AccentCyan,
     modifier: Modifier = Modifier,
 ) {
     val scale = remember { Animatable(0.6f) }
@@ -387,7 +396,7 @@ private fun HeroScore(
                 drawCircle(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            HuezooColors.AccentCyan.copy(alpha = 0.08f),
+                            color.copy(alpha = 0.08f),
                             Color.Transparent,
                         ),
                         center = Offset(size.width / 2f, size.height / 2f),
@@ -409,7 +418,7 @@ private fun HeroScore(
                 lineHeight = 96.sp,
                 fontStyle = FontStyle.Italic,
             ),
-            color = HuezooColors.AccentCyan,
+            color = color,
             textAlign = TextAlign.Center,
         )
     }
