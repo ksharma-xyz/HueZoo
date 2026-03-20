@@ -17,6 +17,8 @@ object HuezooColors {
     val AccentYellow = Color(0xFFFFE600)
     val AccentPurple = Color(0xFF9B5DE5)
     val AccentGreen = Color(0xFF00F5A0)
+    val AccentOrange = Color(0xFFFF7A00)   // Sharp level — vivid orange  (hue ≈ 29°)
+    val AccentPink = Color(0xFFFF3D9E)     // Elite level — hot pink      (hue ≈ 330°)
 
     // Text
     val TextPrimary = Color(0xFFFFFFFF)
@@ -41,6 +43,8 @@ object HuezooColors {
     val ShelfYellow = Color(0xFFB8A000)
     val ShelfGreen = Color(0xFF00A86A)
     val ShelfPurple = Color(0xFF6B3DAD)
+    val ShelfOrange = Color(0xFFCC6200)    // shelf for AccentOrange
+    val ShelfPink = Color(0xFFCC1A7A)      // shelf for AccentPink
     val ShelfMaster = Color(0xFFBB8800) // darker amber shelf for Master level
 
     // ── Game-action button colors ─────────────────────────────────────────────

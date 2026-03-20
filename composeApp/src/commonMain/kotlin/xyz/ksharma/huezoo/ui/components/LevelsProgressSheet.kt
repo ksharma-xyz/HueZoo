@@ -167,25 +167,19 @@ private fun LevelCard(
                 .shapedShadow(RectangleShape, shelfColor, LevelShelfOffset, LevelShelfOffset)
                 .background(HuezooColors.SurfaceL3)
                 .drawBehind {
-                    // Neon top-left rim (neo-brutalist inset highlight)
-                    val stroke = 1.5.dp.toPx()
-                    drawLine(
-                        levelColor.copy(alpha = 0.7f),
-                        Offset(0f, stroke / 2f),
-                        Offset(size.width, stroke / 2f),
-                        stroke,
-                    )
-                    drawLine(
-                        levelColor.copy(alpha = 0.7f),
-                        Offset(stroke / 2f, 0f),
-                        Offset(stroke / 2f, size.height),
-                        stroke,
-                    )
-                    // Subtle accent bar along the entire top
+                    // Full 4-sided neon border — thicker on current level for extra pop
+                    val borderStroke = if (isCurrentLevel) 3.dp.toPx() else 2.dp.toPx()
+                    val borderAlpha = if (isCurrentLevel) 0.85f else 0.50f
                     drawRect(
-                        color = levelColor.copy(alpha = 0.35f),
+                        color = levelColor.copy(alpha = borderAlpha),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = borderStroke),
+                    )
+                    // Solid accent fill on the top edge
+                    val accentHeight = if (isCurrentLevel) 4.dp.toPx() else 3.dp.toPx()
+                    drawRect(
+                        color = levelColor.copy(alpha = if (isCurrentLevel) 0.55f else 0.35f),
                         topLeft = Offset(0f, 0f),
-                        size = Size(size.width, 2.dp.toPx()),
+                        size = Size(size.width, accentHeight),
                     )
                 }
                 .padding(HuezooSpacing.md),
@@ -349,9 +343,9 @@ private fun LevelProgressInCard(
 private fun gemRangeLabel(level: PlayerLevel): String {
     val next = PlayerLevel.entries.getOrNull(level.ordinal + 1)
     return if (next != null) {
-        "${formatGems(level.minGems)} – ${formatGems(next.minGems - 1)} gems"
+        "${formatGems(level.minGems)} – ${formatGems(next.minGems - 1)} GEMS"
     } else {
-        "${formatGems(level.minGems)}+ gems"
+        "${formatGems(level.minGems)}+ GEMS"
     }
 }
 
@@ -367,27 +361,27 @@ private fun formatGems(n: Int): String = when {
 private fun levelPerks(level: PlayerLevel): List<Pair<String, String>> = when (level) {
     PlayerLevel.Rookie -> listOf(
         "Difficulty" to "Standard",
-        "Rewards" to "1.0× gems",
+        "Rewards" to "1.0× GEMS",
         "Badge" to "Default",
     )
     PlayerLevel.Trained -> listOf(
         "Difficulty" to "Wider gamut",
-        "Rewards" to "1.0× gems",
+        "Rewards" to "1.0× GEMS",
         "Badge" to "Glow frame",
     )
     PlayerLevel.Sharp -> listOf(
         "Difficulty" to "Subtle shifts",
-        "Rewards" to "1.2× gems",
+        "Rewards" to "1.2× GEMS",
         "Badge" to "Neon aura",
     )
     PlayerLevel.Elite -> listOf(
         "Difficulty" to "Near-invisible",
-        "Rewards" to "1.5× gems",
+        "Rewards" to "1.5× GEMS",
         "Badge" to "Elite insignia",
     )
     PlayerLevel.Master -> listOf(
         "Difficulty" to "Chromatic limits",
-        "Rewards" to "2.0× gems",
+        "Rewards" to "2.0× GEMS",
         "Badge" to "Master crown",
     )
 }

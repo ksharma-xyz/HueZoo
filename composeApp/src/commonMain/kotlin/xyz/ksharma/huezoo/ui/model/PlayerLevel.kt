@@ -21,36 +21,43 @@ enum class PlayerLevel(
     val minGems: Int,
     val levelColor: Color,
     val shelfColor: Color,
+    /** Hue (0–360°) of this level's accent color — used to exclude that hue zone from game swatches. */
+    val levelHue: Float,
 ) {
     Rookie(
         displayName = "ROOKIE",
         minGems = 0,
         levelColor = HuezooColors.AccentCyan,
         shelfColor = HuezooColors.ShelfCyan,
+        levelHue = 186f,
     ),
     Trained(
         displayName = "TRAINED",
         minGems = 150,
         levelColor = HuezooColors.AccentGreen,
         shelfColor = HuezooColors.ShelfGreen,
+        levelHue = 159f,
     ),
     Sharp(
         displayName = "SHARP",
         minGems = 750,
-        levelColor = HuezooColors.AccentMagenta,
-        shelfColor = HuezooColors.ShelfMagenta,
+        levelColor = HuezooColors.AccentOrange,
+        shelfColor = HuezooColors.ShelfOrange,
+        levelHue = 29f,
     ),
     Elite(
         displayName = "ELITE",
         minGems = 5_000,
-        levelColor = HuezooColors.AccentYellow,
-        shelfColor = HuezooColors.ShelfYellow,
+        levelColor = HuezooColors.AccentPink,
+        shelfColor = HuezooColors.ShelfPink,
+        levelHue = 330f,
     ),
     Master(
         displayName = "MASTER",
         minGems = 50_000,
         levelColor = Color(0xFFFFB800),
         shelfColor = HuezooColors.ShelfMaster,
+        levelHue = 43f,
     ),
     ;
 
