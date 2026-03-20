@@ -577,7 +577,12 @@ private fun ThresholdScannerIllustration(
         // Horizontal arm going left
         drawLine(baseColor.copy(crossAlpha), Offset(0f, cy), Offset(cx - gapR, cy), sw)
         // Vertical arm going down
-        drawLine(baseColor.copy(crossAlpha), Offset(cx, cy + gapR), Offset(cx, h + 20.dp.toPx()), sw)
+        drawLine(
+            baseColor.copy(crossAlpha),
+            Offset(cx, cy + gapR),
+            Offset(cx, h + 20.dp.toPx()),
+            sw
+        )
         // Vertical arm going up
         drawLine(baseColor.copy(crossAlpha), Offset(cx, 0f), Offset(cx, cy - gapR), sw)
 
@@ -588,14 +593,20 @@ private fun ThresholdScannerIllustration(
         drawLine(
             color = baseColor.copy(0.30f * dimFactor),
             start = Offset(cx, cy),
-            end = Offset((cx + sweepLen * cos(sweepRad)).toFloat(), (cy + sweepLen * sin(sweepRad)).toFloat()),
+            end = Offset(
+                (cx + sweepLen * cos(sweepRad)).toFloat(),
+                (cy + sweepLen * sin(sweepRad)).toFloat()
+            ),
             strokeWidth = sw * 1.6f,
         )
         val ghostRad = (sweepDeg - 14.0) * PI / 180.0
         drawLine(
             color = baseColor.copy(0.10f * dimFactor),
             start = Offset(cx, cy),
-            end = Offset((cx + sweepLen * cos(ghostRad)).toFloat(), (cy + sweepLen * sin(ghostRad)).toFloat()),
+            end = Offset(
+                (cx + sweepLen * cos(ghostRad)).toFloat(),
+                (cy + sweepLen * sin(ghostRad)).toFloat()
+            ),
             strokeWidth = sw,
         )
 
@@ -609,6 +620,7 @@ private fun ThresholdScannerIllustration(
 
         // ── 6. Data blips on arcs ─────────────────────────────────────────────
         data class Blip(val arcIdx: Int, val angleDeg: Float)
+
         val blips = listOf(
             Blip(2, 148f), Blip(2, 182f), Blip(2, 225f), Blip(2, 275f), Blip(2, 318f),
             Blip(3, 155f), Blip(3, 200f), Blip(3, 260f), Blip(3, 310f),
@@ -624,7 +636,11 @@ private fun ThresholdScannerIllustration(
                 val isAccent = angleDeg in 180f..200f || angleDeg in 300f..320f
                 val blipColor = if (isAccent) accentColor else baseColor
                 val blipAlpha = if (isAccent) 0.60f * dimFactor else 0.35f * dimFactor
-                drawRect(blipColor.copy(blipAlpha), Offset(bx - bSz / 2f, by - bSz / 2f), Size(bSz, bSz))
+                drawRect(
+                    blipColor.copy(blipAlpha),
+                    Offset(bx - bSz / 2f, by - bSz / 2f),
+                    Size(bSz, bSz)
+                )
             }
         }
 
@@ -632,6 +648,7 @@ private fun ThresholdScannerIllustration(
         val bLen = 12.dp.toPx()
         val bAlpha = 0.22f * dimFactor
         val bSw = sw * 1.8f
+
         data class Corner(val x: Float, val y: Float, val dx: Float, val dy: Float)
         listOf(
             Corner(0f, 0f, 1f, 1f),               // top-left
@@ -955,7 +972,10 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
                 ),
             ) {
                 HuezooBodyMedium(
-                    text = "ΔE measures color difference.\nLower = colors are more similar = harder to spot the odd one out.",
+                    text = "ΔE is how different two colors look to your eyes.\n\nThink of it like " +
+                            "this — ΔE 10 is like red vs blue, obvious. ΔE 1 is like two blues " +
+                            "that look almost the same. The lower the number, the sneakier " +
+                            "the odd color is.",
                     color = HuezooColors.TextSecondary,
                 )
                 Spacer(Modifier.height(HuezooSpacing.sm))
