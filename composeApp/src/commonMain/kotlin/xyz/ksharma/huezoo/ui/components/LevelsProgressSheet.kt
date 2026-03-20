@@ -58,15 +58,13 @@ fun LevelsProgressSheet(
     val currentLevel = PlayerLevel.fromGems(currentGems)
 
     HuezooBottomSheet(onDismissRequest = onDismiss) {
+        // ── Sticky header — never scrolls away ────────────────────────────────
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
                 .padding(horizontal = HuezooSpacing.lg)
-                .navigationBarsPadding()
-                .padding(bottom = HuezooSpacing.xl),
+                .padding(bottom = HuezooSpacing.sm),
         ) {
-            // ── Header ────────────────────────────────────────────────────────
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
@@ -74,7 +72,7 @@ fun LevelsProgressSheet(
                         .height(24.dp)
                         .background(HuezooColors.AccentCyan, RoundedCornerShape(2.dp)),
                 )
-                Spacer(Modifier.width(HuezooSpacing.sm))
+                Spacer(Modifier.width(HuezooSpacing.md))
                 HuezooTitleLarge(
                     text = "LEVELS & PROGRESS",
                     color = HuezooColors.TextPrimary,
@@ -84,11 +82,12 @@ fun LevelsProgressSheet(
 
             Spacer(Modifier.height(HuezooSpacing.xs))
 
-            // Tricolor gradient divider: Cyan → Magenta → Gold (matching the 3 tier accents)
+            // Tricolor gradient divider: Cyan → Magenta → Gold
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(2.dp)
+                    .graphicsLayer { alpha = 0.5f }
                     .background(
                         Brush.horizontalGradient(
                             colors = listOf(
@@ -97,13 +96,20 @@ fun LevelsProgressSheet(
                                 HuezooColors.AccentYellow,
                             ),
                         ),
-                    )
-                    .graphicsLayer { alpha = 0.5f },
+                    ),
             )
+        }
 
-            Spacer(Modifier.height(HuezooSpacing.lg))
-
-            // ── Level cards ───────────────────────────────────────────────────
+        // ── Scrollable cards + close button ───────────────────────────────────
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = HuezooSpacing.lg)
+                .navigationBarsPadding()
+                .padding(top = HuezooSpacing.md)
+                .padding(bottom = HuezooSpacing.xl),
+        ) {
             PlayerLevel.entries.forEachIndexed { index, level ->
                 val isCurrentLevel = level == currentLevel
                 val isLocked = level.ordinal > currentLevel.ordinal
@@ -123,7 +129,6 @@ fun LevelsProgressSheet(
 
             Spacer(Modifier.height(HuezooSpacing.xl))
 
-            // ── Close button ──────────────────────────────────────────────────
             HuezooButton(
                 text = "CLOSE",
                 onClick = onDismiss,
