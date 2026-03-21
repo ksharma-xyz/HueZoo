@@ -180,15 +180,19 @@ private fun ReadyContent(
         Column(modifier = Modifier.padding(horizontal = HuezooSpacing.md)) {
             Spacer(Modifier.height(HuezooSpacing.md))
 
-            // Greeting
-            val greeting = if (state.userName != null) "WELCOME BACK, ${state.userName.uppercase()}." else "WELCOME, AGENT."
+            // Greeting — two-level: small dim label + large accent name
             HuezooLabelSmall(
-                text = greeting,
-                color = HuezooColors.TextDisabled,
+                text = "WELCOME,",
+                color = HuezooColors.TextSecondary,
                 fontWeight = FontWeight.SemiBold,
             )
+            HuezooHeadlineSmall(
+                text = if (state.userName != null) state.userName.uppercase() else "AGENT",
+                color = LocalPlayerAccentColor.current,
+                fontWeight = FontWeight.ExtraBold,
+            )
 
-            Spacer(Modifier.height(HuezooSpacing.sm))
+            Spacer(Modifier.height(HuezooSpacing.md))
 
             StaggeredCard(index = 0) {
                 StatsSection(
