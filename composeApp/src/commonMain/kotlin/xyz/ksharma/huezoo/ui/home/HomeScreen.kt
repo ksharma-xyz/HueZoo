@@ -180,6 +180,16 @@ private fun ReadyContent(
         Column(modifier = Modifier.padding(horizontal = HuezooSpacing.md)) {
             Spacer(Modifier.height(HuezooSpacing.md))
 
+            // Greeting
+            val greeting = if (state.userName != null) "WELCOME BACK, ${state.userName.uppercase()}." else "WELCOME, AGENT."
+            HuezooLabelSmall(
+                text = greeting,
+                color = HuezooColors.TextDisabled,
+                fontWeight = FontWeight.SemiBold,
+            )
+
+            Spacer(Modifier.height(HuezooSpacing.sm))
+
             StaggeredCard(index = 0) {
                 StatsSection(
                     totalGems = state.totalGems,
@@ -192,6 +202,15 @@ private fun ReadyContent(
             Spacer(Modifier.height(HuezooSpacing.lg))
 
             StaggeredCard(index = 1) {
+                PlayerDeltaECard(
+                    bestDeltaE = state.threshold.personalBestDeltaE,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
+            Spacer(Modifier.height(HuezooSpacing.lg))
+
+            StaggeredCard(index = 2) {
                 ThresholdHeroCard(
                     data = state.threshold,
                     playerLevel = state.playerLevel,
@@ -202,7 +221,7 @@ private fun ReadyContent(
 
             Spacer(Modifier.height(HuezooSpacing.lg))
 
-            StaggeredCard(index = 2) {
+            StaggeredCard(index = 3) {
                 DailyCompactCard(
                     data = state.daily,
                     challengeName = challengeName,
@@ -213,7 +232,7 @@ private fun ReadyContent(
 
             Spacer(Modifier.height(HuezooSpacing.md))
 
-            StaggeredCard(index = 3) {
+            StaggeredCard(index = 4) {
                 LeaderboardCompactCard(
                     rank = state.rank,
                     modifier = Modifier.fillMaxWidth(),
@@ -747,8 +766,10 @@ private fun DailyCompactCard(
     modifier: Modifier = Modifier,
 ) {
     val countdown = data.nextPuzzleAt?.let { countdownUntil(it, prefix = "Next in ") }
+    val bestText = data.personalBestScore?.let { "BEST SCORE: $it" }
     val subtitleText = when {
         data.isCompletedToday -> countdown ?: "Completed today"
+        bestText != null -> bestText
         else -> "Available now"
     }
 
@@ -913,6 +934,84 @@ private fun DrawScope.drawLeaderboardBars(color: Color) {
     }
 }
 
+// ── Player ΔE hype card ───────────────────────────────────────────────────────
+
+/**
+ * Hero-style card that anchors the entire app around the ΔE concept.
+ *
+ * For first-time players: explains what ΔE is and sets the goal.
+ * For returning players: displays their personal best and motivates them to go lower.
+ */
+@Composable
+private fun PlayerDeltaECard(
+    bestDeltaE: Float?,
+    modifier: Modifier = Modifier,
+) {
+    val accent = LocalPlayerAccentColor.current
+    val cardShape = RoundedCornerShape(HuezooSize.CornerCard)
+    val hasPlayed = bestDeltaE != null
+
+    Box(
+        modifier = modifier
+            .background(HuezooColors.SurfaceL2, cardShape)
+            .rimLight(cornerRadius = HuezooSize.CornerCard)
+            .border(1.dp, accent.copy(alpha = 0.20f), cardShape)
+            .padding(HuezooSpacing.md),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
+            HuezooLabelSmall(
+                text = if (hasPlayed) "YOUR ΔE — COLOR VISION SCORE" else "WHAT'S YOUR ΔE?",
+                color = accent,
+                fontWeight = FontWeight.ExtraBold,
+            )
+
+            if (hasPlayed) {
+                // Show personal best prominently
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                ) {
+                    androidx.compose.material3.Text(
+                        text = "ΔE ${bestDeltaE!!.fmtHome()}",
+                        style = androidx.compose.material3.MaterialTheme.typography.displayMedium,
+                        color = accent,
+                    )
+                    HuezooLabelSmall(
+                        text = "PERSONAL BEST",
+                        color = HuezooColors.TextDisabled,
+                        modifier = Modifier.padding(bottom = HuezooSpacing.xs),
+                    )
+                }
+                HuezooBodyMedium(
+                    text = "ΔE measures how different two colors look to your eyes. " +
+                        "The lower your ΔE, the more precisely you can see color. " +
+                        "Can you push it lower?",
+                    color = HuezooColors.TextSecondary,
+                )
+            } else {
+                HuezooBodyMedium(
+                    text = "ΔE measures how different two colors look to your eyes — " +
+                        "like a score for your color vision.\n\n" +
+                        "Your goal: spot the odd color and push your ΔE as low as possible. " +
+                        "Most people can't see below ΔE 1.0. Can you?",
+                    color = HuezooColors.TextSecondary,
+                )
+                HuezooBodyMedium(
+                    text = "Gems are your XP — they track how far your perception has come " +
+                        "and unlock higher player levels.",
+                    color = HuezooColors.TextDisabled,
+                )
+            }
+        }
+    }
+}
+
+private fun Float.fmtHome(): String {
+    val i = toInt()
+    val d = ((this - i) * 10).toInt()
+    return "$i.$d"
+}
+
 // ── ΔE info card ─────────────────────────────────────────────────────────────
 
 @Composable
@@ -988,11 +1087,22 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
                 ),
             ) {
                 HuezooBodyMedium(
-                    text = "ΔE is how different two colors look to your eyes.\n\nThink of it like " +
-                        "this — ΔE 10 is like red vs blue, obvious.\nΔE 1 is like two blues " +
-                        "that look almost the same.\n\nThe lower the number, the sneakier " +
-                        "the odd color is.",
+                    text = "ΔE (Delta-E) measures how different two colors look to the human eye. " +
+                        "Unlike raw RGB math, ΔE is perceptual — it accounts for how our eyes " +
+                        "actually see color.\n\n" +
+                        "ΔE 10 → red vs blue — instantly obvious\n" +
+                        "ΔE 3  → clearly different if side by side\n" +
+                        "ΔE 1  → just noticeable to a trained eye\n" +
+                        "ΔE 0.5 → near the limit of human vision\n\n" +
+                        "Huezoo uses CIEDE2000 — the international color science standard used by " +
+                        "paint manufacturers, display calibrators, and medical imaging. " +
+                        "Your score here reflects real perceptual precision.",
                     color = HuezooColors.TextSecondary,
+                )
+                Spacer(Modifier.height(HuezooSpacing.md))
+                HuezooBodyMedium(
+                    text = "Reference: ISO 11664-6 / CIE 142-2001 (CIEDE2000).",
+                    color = HuezooColors.TextDisabled,
                 )
                 Spacer(Modifier.height(HuezooSpacing.md))
                 Row(

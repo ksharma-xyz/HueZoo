@@ -30,6 +30,8 @@ class SettingsViewModel(
             SettingsUiEvent.ResetAllTapped -> _uiState.update { it.copy(showResetConfirm = true) }
             SettingsUiEvent.ResetAllDismissed -> _uiState.update { it.copy(showResetConfirm = false) }
             SettingsUiEvent.ResetAllConfirmed -> resetAll()
+            is SettingsUiEvent.NameInputChanged -> _uiState.update { it.copy(nameInput = event.value) }
+            SettingsUiEvent.SaveNameTapped -> saveName()
         }
     }
 
@@ -37,11 +39,14 @@ class SettingsViewModel(
         viewModelScope.launch {
             val isPaid = settingsRepository.isPaid()
             val gems = settingsRepository.getGems()
+            val userName = settingsRepository.getUserName()
             _uiState.update {
                 it.copy(
                     isPaid = isPaid,
                     gems = gems,
                     isDebugBuild = platformOps.isDebugBuild,
+                    userName = userName,
+                    nameInput = userName ?: "",
                 )
             }
         }
@@ -52,6 +57,15 @@ class SettingsViewModel(
             val newPaid = !_uiState.value.isPaid
             settingsRepository.setPaid(newPaid)
             _uiState.update { it.copy(isPaid = newPaid) }
+        }
+    }
+
+    private fun saveName() {
+        val name = _uiState.value.nameInput.trim()
+        if (name.isBlank()) return
+        viewModelScope.launch {
+            settingsRepository.setUserName(name)
+            _uiState.update { it.copy(userName = name) }
         }
     }
 

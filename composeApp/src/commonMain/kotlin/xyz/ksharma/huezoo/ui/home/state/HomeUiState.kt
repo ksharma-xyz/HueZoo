@@ -14,6 +14,8 @@ sealed interface HomeUiState {
         val isPaid: Boolean,
         val totalGems: Int,
         val playerLevel: PlayerLevel,
+        /** Player's display name — null until set in Settings. */
+        val userName: String? = null,
         /** Consecutive days the player has completed the Daily Challenge. 0 until tracking is wired (UX.8). */
         val streak: Int = 0,
         /** Global rank — null until Leaderboard / Firebase is integrated. */
@@ -37,4 +39,6 @@ data class DailyCardData(
     val todayScore: Float?,
     /** Non-null when completed today — the Instant at which the next puzzle unlocks (midnight local). */
     val nextPuzzleAt: Instant? = null,
+    /** All-time best score (maps to highest number of correct rounds). */
+    val personalBestScore: Int? = null,
 )

@@ -16,6 +16,12 @@ interface SettingsRepository {
     /** Mark the health notice as seen so it is not shown again on next launch. */
     suspend fun setSeenHealthNotice()
 
+    /** Returns the player's display name, or null if not yet set. */
+    suspend fun getUserName(): String?
+
+    /** Persists the player's display name. */
+    suspend fun setUserName(name: String)
+
     /** Debug only — wipes all game data (sessions, daily, personal bests, settings). */
     suspend fun resetAll()
 }

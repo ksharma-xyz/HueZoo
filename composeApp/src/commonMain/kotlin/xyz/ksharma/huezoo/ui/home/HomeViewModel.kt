@@ -52,8 +52,10 @@ class HomeViewModel(
             val attemptStatus = thresholdRepository.getAttemptStatus(now)
             val thresholdBest = thresholdRepository.getPersonalBest()
             val dailyChallenge = dailyRepository.getChallenge(today)
+            val dailyPersonalBest = dailyRepository.getPersonalBest()
             val isPaid = settingsRepository.isPaid()
             val totalGems = settingsRepository.getGems()
+            val userName = settingsRepository.getUserName()
 
             val tz = TimeZone.currentSystemDefault()
             val thresholdCard = when (attemptStatus) {
@@ -83,6 +85,7 @@ class HomeViewModel(
                 isCompletedToday = isCompletedToday,
                 todayScore = dailyChallenge?.score,
                 nextPuzzleAt = nextPuzzleAt,
+                personalBestScore = dailyPersonalBest?.bestScore,
             )
 
             _uiState.value = HomeUiState.Ready(
@@ -91,6 +94,7 @@ class HomeViewModel(
                 isPaid = isPaid,
                 totalGems = totalGems,
                 playerLevel = PlayerLevel.fromGems(totalGems),
+                userName = userName,
             )
         }
     }

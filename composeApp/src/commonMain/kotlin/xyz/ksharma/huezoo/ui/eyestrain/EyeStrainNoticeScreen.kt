@@ -88,26 +88,28 @@ fun EyeStrainNoticeScreen(
             // ── Notice copy ───────────────────────────────────────────────────
             // Broken into two tonal blocks so each idea has room to land.
             NoticeBlock(
-                headline = "This game trains your eyes.",
-                body = "You'll be spotting tiny colour differences. " +
-                    "Think of it like a workout — the more you play, the sharper you get.",
+                headline = "It's a game for your eyes.",
+                body = "Each round tests how clearly you can see and differentiate colors. " +
+                    "The goal: spot the one swatch that looks even slightly different. " +
+                    "The better your eyes, the smaller the difference you'll catch.",
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            NoticeBlock(
+                headline = "Your color vision can improve.",
+                body = "Like any skill, the more you practice, the sharper you get. " +
+                    "Players who train regularly reach ΔE scores below 1.0 — " +
+                    "a level most people can't even perceive.",
             )
 
             Spacer(Modifier.height(20.dp))
 
             NoticeBlock(
                 headline = "Take breaks when you need to.",
-                body = "Extended play can cause eye fatigue. " +
-                    "Stop any time you feel discomfort, and come back when you're ready. " +
+                body = "Extended sessions can cause eye fatigue. " +
+                    "Stop any time you feel discomfort, rest, and come back sharper. " +
                     "There's no penalty for pausing.",
-            )
-
-            Spacer(Modifier.height(20.dp))
-
-            NoticeBlock(
-                headline = "Play at your own pace.",
-                body = "Rushing won't help — your eyes need a moment to really see the difference. " +
-                    "Slow and steady gets the lower ΔE.",
             )
 
             Spacer(Modifier.weight(1f))

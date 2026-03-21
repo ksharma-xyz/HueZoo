@@ -40,6 +40,16 @@ class DefaultSettingsRepository(
         Unit
     }
 
+    override suspend fun getUserName(): String? = withContext(Dispatchers.Default) {
+        db.huezooDatabaseQueries.getSetting(KEY_USER_NAME).executeAsOneOrNull()
+            ?.takeIf { it.isNotBlank() }
+    }
+
+    override suspend fun setUserName(name: String) = withContext(Dispatchers.Default) {
+        db.huezooDatabaseQueries.setSetting(KEY_USER_NAME, name.trim())
+        Unit
+    }
+
     override suspend fun resetAll() = withContext(Dispatchers.Default) {
         val q = db.huezooDatabaseQueries
         q.deleteAllThresholdSessions()
@@ -53,5 +63,6 @@ class DefaultSettingsRepository(
         const val KEY_IS_PAID = "is_paid"
         const val KEY_TOTAL_GEMS = "total_gems"
         const val KEY_HEALTH_NOTICE_SEEN = "health_notice_seen"
+        const val KEY_USER_NAME = "user_name"
     }
 }

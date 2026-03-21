@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -57,6 +60,46 @@ fun SettingsScreen(
                     .navigationBarsPadding(),
             ) {
                 Spacer(Modifier.height(HuezooSpacing.lg))
+
+                // ── PROFILE ───────────────────────────────────────────────────
+                SettingsSectionLabel("PROFILE")
+                Spacer(Modifier.height(HuezooSpacing.sm))
+
+                SettingsPanel {
+                    SettingsRow(
+                        label = "Display Name",
+                        description = if (state.userName != null) {
+                            "Currently: ${state.userName}"
+                        } else {
+                            "Set a name to personalize your experience."
+                        },
+                    )
+                    Spacer(Modifier.height(HuezooSpacing.sm))
+                    OutlinedTextField(
+                        value = state.nameInput,
+                        onValueChange = { viewModel.onUiEvent(SettingsUiEvent.NameInputChanged(it)) },
+                        placeholder = { Text("Enter your name", color = HuezooColors.TextDisabled) },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HuezooColors.AccentCyan,
+                            unfocusedBorderColor = HuezooColors.SurfaceL4,
+                            focusedTextColor = HuezooColors.TextPrimary,
+                            unfocusedTextColor = HuezooColors.TextPrimary,
+                            cursorColor = HuezooColors.AccentCyan,
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(HuezooSpacing.sm))
+                    HuezooButton(
+                        text = "SAVE NAME",
+                        onClick = { viewModel.onUiEvent(SettingsUiEvent.SaveNameTapped) },
+                        enabled = state.nameInput.isNotBlank(),
+                        variant = HuezooButtonVariant.Primary,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+
+                Spacer(Modifier.height(HuezooSpacing.xl))
 
                 // ── HEALTH ────────────────────────────────────────────────────
                 SettingsSectionLabel("HEALTH")

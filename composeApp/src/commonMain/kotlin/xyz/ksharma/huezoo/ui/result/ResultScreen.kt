@@ -138,9 +138,9 @@ fun ResultScreen(
             }
         }
 
-        // Confetti overlay — only when gems were earned (0 gems = flatlined, no celebration)
+        // Confetti overlay — gems earned OR new personal best
         val readyState = uiState as? ResultUiState.Ready
-        if (readyState != null && readyState.gemsEarned > 0) {
+        if (readyState != null && (readyState.gemsEarned > 0 || readyState.isNewPersonalBest)) {
             ConfettiEffect(
                 identityColor = identityColor,
                 modifier = Modifier.fillMaxSize(),
@@ -265,6 +265,26 @@ private fun ReadyContent(
 
         Spacer(Modifier.height(HuezooSpacing.sm))
 
+        // ── NEW PERSONAL BEST banner ──────────────────────────────────────────
+        if (state.isNewPersonalBest) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(HuezooColors.AccentYellow.copy(alpha = 0.15f), BannerShape)
+                    .border(1.dp, HuezooColors.AccentYellow.copy(alpha = 0.6f), BannerShape)
+                    .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+                contentAlignment = Alignment.Center,
+            ) {
+                HuezooLabelSmall(
+                    text = "★  NEW PERSONAL BEST",
+                    color = HuezooColors.AccentYellow,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Spacer(Modifier.height(HuezooSpacing.sm))
+        }
+
         // ── 3. ΔE sting readout ───────────────────────────────────────────────
         StingReadout(
             deltaE = state.deltaE,
@@ -293,21 +313,32 @@ private fun ReadyContent(
                     modifier = Modifier.fillMaxWidth(),
                 )
             } else {
+                // Show session ΔE — this is the best ΔE correctly detected this session
                 StatBreakdownCard(
-                    label = "BEST ΔE",
-                    value = state.deltaE.fmt(),
+                    label = "SESSION ΔE",
+                    value = "ΔE ${state.deltaE.fmt()}",
                     // Lower ΔE = better — invert so a low ΔE fills the bar more
                     progress = (1f - (state.deltaE / 5f)).coerceIn(0f, 1f),
                     accentColor = statAccent,
                     icon = { WaveIcon(color = statAccent) },
                     modifier = Modifier.fillMaxWidth(),
                 )
+                // Show all-time personal best ΔE if available
+                val lifetimeBest = state.personalBestDeltaE
+                StatBreakdownCard(
+                    label = "ALL-TIME BEST ΔE",
+                    value = if (lifetimeBest != null) "ΔE ${lifetimeBest.fmt()}" else "—",
+                    progress = if (lifetimeBest != null) (1f - (lifetimeBest / 5f)).coerceIn(0f, 1f) else 0f,
+                    accentColor = HuezooColors.AccentYellow,
+                    icon = { LightningIcon(color = HuezooColors.AccentYellow) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
                 StatBreakdownCard(
                     label = "TAPS",
                     value = "${state.roundsSurvived}",
                     progress = (state.roundsSurvived / 15f).coerceIn(0f, 1f),
-                    accentColor = HuezooColors.AccentYellow,
-                    icon = { LightningIcon(color = HuezooColors.AccentYellow) },
+                    accentColor = HuezooColors.AccentMagenta,
+                    icon = { LightningIcon(color = HuezooColors.AccentMagenta) },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

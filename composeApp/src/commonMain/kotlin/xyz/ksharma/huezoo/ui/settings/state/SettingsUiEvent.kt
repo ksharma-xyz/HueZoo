@@ -5,4 +5,6 @@ sealed interface SettingsUiEvent {
     data object ResetAllTapped : SettingsUiEvent
     data object ResetAllConfirmed : SettingsUiEvent
     data object ResetAllDismissed : SettingsUiEvent
+    data class NameInputChanged(val value: String) : SettingsUiEvent
+    data object SaveNameTapped : SettingsUiEvent
 }
