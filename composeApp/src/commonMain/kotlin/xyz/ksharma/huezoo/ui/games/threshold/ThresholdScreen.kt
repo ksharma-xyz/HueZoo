@@ -5,6 +5,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -120,7 +122,8 @@ private fun PlayingContent(
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
             .padding(HuezooSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -229,7 +232,7 @@ private fun PlayingContent(
 
         // Flex gap — pushes swatch toward centre/slightly below rather than
         // cramming it directly under the feedback line.
-        Spacer(Modifier.weight(0.3f))
+        Spacer(Modifier.height(HuezooSpacing.md))
 
         // ── Radial swatch layout ──────────────────────────────────────────────
         RadialSwatchLayout(
@@ -238,7 +241,6 @@ private fun PlayingContent(
             roundKey = state.roundGeneration,
             layoutStyle = state.layoutStyle,
             onSwatchTap = onSwatchTap,
-            modifier = Modifier.weight(1f),
         )
 
         Spacer(Modifier.height(HuezooSpacing.md))
