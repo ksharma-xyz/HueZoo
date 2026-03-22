@@ -136,8 +136,6 @@ private fun PlayingContent(
                 text = "IDENTIFY  THE  OUTLIER",
                 color = accent,
                 fontWeight = FontWeight.ExtraBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f).padding(end = HuezooSpacing.sm),
             )
 
