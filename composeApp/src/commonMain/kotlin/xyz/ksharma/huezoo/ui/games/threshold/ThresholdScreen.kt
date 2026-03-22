@@ -131,23 +131,17 @@ private fun PlayingContent(
 
         Spacer(Modifier.height(HuezooSpacing.lg))
 
-        // ── Hero row: TAP · ΔE badge · TRIES ─────────────────────────────────
-        // TAP and TRIES are navigational context — plain type, no chip shape.
-        // DeltaEBadge is the hero: difficulty colour + count-up animation.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(horizontalAlignment = Alignment.Start) {
-                HuezooLabelSmall(text = "TAP", color = HuezooColors.TextSecondary)
-                HuezooDisplaySmall(text = state.tap.toString(), color = HuezooColors.TextPrimary)
-            }
-
-            DeltaEBadge(deltaE = state.deltaE)
-
-            Column(horizontalAlignment = Alignment.End) {
-                HuezooLabelSmall(text = "TRIES", color = HuezooColors.TextSecondary)
+        // ── Hero block: ΔE badge centred, TRIES LEFT pinned to the end ──────
+        Box(modifier = Modifier.fillMaxWidth()) {
+            DeltaEBadge(
+                deltaE = state.deltaE,
+                modifier = Modifier.align(Alignment.Center),
+            )
+            Column(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                horizontalAlignment = Alignment.End,
+            ) {
+                HuezooLabelSmall(text = "TRIES LEFT", color = HuezooColors.TextSecondary)
                 HuezooDisplaySmall(
                     text = state.attemptsRemaining.toString(),
                     color = HuezooColors.AccentMagenta,
