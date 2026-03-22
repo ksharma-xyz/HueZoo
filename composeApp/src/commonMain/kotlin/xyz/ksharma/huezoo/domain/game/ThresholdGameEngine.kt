@@ -25,10 +25,8 @@ interface ThresholdGameEngine {
         const val DELTA_E_STEP = 0.3f
         const val MIN_DELTA_E = 0.1f
 
-        const val MAX_ATTEMPTS_RELEASE = 10
-        const val MAX_ATTEMPTS_DEBUG = 50
+        const val MAX_ATTEMPTS = 5
 
-        fun maxAttempts(isDebug: Boolean) =
-            if (isDebug) MAX_ATTEMPTS_DEBUG else MAX_ATTEMPTS_RELEASE
+        fun maxAttempts(isDebug: Boolean) = MAX_ATTEMPTS
     }
 }
