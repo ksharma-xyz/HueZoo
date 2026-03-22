@@ -132,6 +132,19 @@ private fun LeaderboardContent(
 
             Spacer(Modifier.height(HuezooSpacing.xs))
 
+            // Activation Protocol section label
+            HuezooLabelSmall(
+                text = "ACTIVATION PROTOCOL",
+                color = HuezooColors.TextDisabled,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
+            )
+
+            // Activation protocol box
+            ActivationProtocolCard(modifier = Modifier.fillMaxWidth())
+
+            Spacer(Modifier.height(HuezooSpacing.xs))
+
             // Perception Tiers section label
             HuezooLabelSmall(
                 text = "PERCEPTION TIERS",
@@ -154,17 +167,6 @@ private fun LeaderboardContent(
             }
 
             Spacer(Modifier.height(HuezooSpacing.xs))
-
-            // Activation Protocol section label
-            HuezooLabelSmall(
-                text = "ACTIVATION PROTOCOL",
-                color = HuezooColors.TextDisabled,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
-            )
-
-            // Activation protocol box
-            ActivationProtocolCard(modifier = Modifier.fillMaxWidth())
 
             // Share button
             val shareText = if (personalBestDeltaE != null && tier != null) {
