@@ -95,6 +95,7 @@ fun App() {
                                 HomeScreen(
                                     onNavigate = { backStack.add(it) },
                                     onSettingsTap = { backStack.add(Settings) },
+                                    onLeaderboardTap = { backStack.add(Leaderboard) },
                                 )
                             }
 
@@ -146,7 +147,11 @@ fun App() {
                             }
 
                             is Leaderboard -> NavEntry(destination) {
-                                LeaderboardScreen(onBack = { backStack.removeLast() })
+                                val platformOps: xyz.ksharma.huezoo.platform.PlatformOps = koinInject()
+                                LeaderboardScreen(
+                                    onBack = { backStack.removeLast() },
+                                    onShare = { text -> platformOps.shareText(text) },
+                                )
                             }
 
                             else -> NavEntry(destination) {}
