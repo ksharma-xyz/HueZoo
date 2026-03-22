@@ -359,6 +359,32 @@ identity upgrade — the whole interface changes allegiance, not just a badge.
 - [x] UX.19.1 **Drop-out save**: `handleCorrectTap` saves personal best inside the existing animation coroutine using `withContext(NonCancellable)` before any `delay()` — survives back-press/viewModelScope cancellation mid-animation
 - [x] UX.19.2 **Wrong-tap counts**: reaching a ΔE level on a wrong tap saves it as personal best candidate when `bestDeltaE != null` (guards against recording trivial 5.0 start value); `storedBestDeltaE` tracked from session start for comparison
 
+#### UX.20 — Share Personal Best from PerceptionTiersSheet ⬜
+
+*Full-width share button inside the bottom sheet that opens when the personal best card is tapped on Home.*
+
+- [ ] UX.20.1 Add a full-width, shelf-shadow share button at the bottom of `PerceptionTiersSheet` (inside the scrollable sheet content, pinned above the nav bar). Design ref: `stitch_huezoo_prd_design_doc/code.html` shelf-shadow-primary button style.
+- [ ] UX.20.2 Share text: `"My best ΔE is {deltaE} — {tierLabel}. Can you beat it? huezoo.app"` (if ranked), or `"I scored {rounds}/6 on today's Huezoo Daily. Can you beat it? huezoo.app"` for Daily variant.
+- [ ] UX.20.3 Unranked state: button still present but copy adapts — `"I'm training my eye on Huezoo. How sharp are yours? huezoo.app"`.
+- [ ] UX.20.4 Use platform-specific share icon (iOS: `ic_ios_share`, Android: `ic_share`) matching ResultScreen pattern.
+
+---
+
+#### UX.21 — 3D Shelf-Press UX for All Interactive Buttons ⬜
+
+*`PriceButton` (UNLOCK FOREVER) has a physical 3D press feel — all primary buttons should match.*
+
+**How the shelf-press works (from `PriceButton.kt`):**
+Two overlapping boxes: a darker "shelf" box permanently offset 6 dp downward, and a colored "face" box on top. On press, `pressProgress` animates 0 → 1 in 80 ms (instant snap); the face translates `pressProgress × shelfPx` downward to sit flush on the shelf — as if physically pressed in. On release, a `spring(DampingRatioMediumBouncy)` bounces the face back, overshooting slightly before settling — the physical rebound feel.
+
+- [x] UX.21.1 Migrate `HuezooButton` to two-layer face/shelf architecture — shelf is now a stationary sibling Box; `shapedShadow` removed from button rendering.
+- [x] UX.21.2 `UpgradeCta` (GET FULL ACCESS) migrated from scale-squish to vertical shelf-press (5 dp shelf, `HuezooColors.ShelfPrice`).
+- [x] UX.21.3 Ghost + GhostDanger `HuezooButton` variants inherit the shelf-press fix automatically — shelf color was already defined per-variant (`SurfaceL1` / `ShelfMagenta`).
+- [x] UX.21.4 `ShareIconButton` migrated to two-layer shelf-press — `shapedShadow` replaced with explicit shelf Box, `clip = false` removed.
+- [ ] UX.21.5 Define `ShelfPress` as a reusable `Modifier` extension or composable wrapper so future buttons inherit the behaviour without boilerplate. Candidate signature: `Modifier.shelfPress(shelfHeight: Dp, shelfColor: Color, shape: Shape)`.
+
+---
+
 #### UX.15 — Settings / About Screen ⬜
 - [ ] UX.15.1 **About screen** (or bottom sheet) — app version, legal links (Privacy Policy, Terms of Use), acknowledgements
 - [ ] UX.15.2 **Health & Eye Strain notice** — persistent, always accessible from About. Balanced copy (see UX.5.3): *"This game exercises colour perception. Take breaks. Stop if you feel eye strain or discomfort."* No alarmist language (App Store / Play Store content guidelines require factual, non-fear-based health copy).
@@ -383,12 +409,22 @@ Planned future entry points:
 - [ ] 7.3a Wire real IAP in `UpgradeScreen.onPurchase` (currently TODO stub)
 - [ ] 7.3b Fetch price string from store at runtime (currently hardcoded "$2.99")
 - [ ] 7.3c Add Result screen entry point for upgrade CTA (after out-of-tries game)
+- [ ] 7.3d `UpgradeScreen` feature tile "◉ LEADERBOARD / Global rank" is already shown — confirms leaderboard is a paid perk. Ensure copy stays consistent with 7.8 in-app gating copy.
 - [ ] 7.4 AdMob setup — rewarded ad for +1 try (Android + iOS)
 - [ ] 7.5 IAP setup — one-time "Unlimited" product (Google Play Billing + StoreKit 2)
 - [ ] 7.6 Persist `is_paid = true` in SQLDelight `user_settings` on purchase
 - [ ] 7.7 If paid: hide ads, remove attempt cap, show "Unlimited" badge on Threshold card
+- [ ] 7.8 **Leaderboard gating** — Global Leaderboard is a paid-only feature. Gate entry from Home screen:
+  - Home: Leaderboard icon/button should show a lock badge or "PRO" label when user is free tier
+  - Tapping it while free → navigate to `UpgradeScreen` instead of `LeaderboardScreen` (or show a bottom sheet upsell first)
+  - `LeaderboardScreen` itself: if somehow reached while free, show a full-screen "This feature requires Full Access" state with `UpgradeCta`
+  - Copy framing: *"Global Leaderboard — Full Access Only"* / *"Compete globally. Unlock Full Access to submit your score and see where you rank."*
 
 ### Phase 8 — Firebase Leaderboard ⬜
+
+> **Paid-only feature.** All Phase 8 items are behind the `isPaid` flag from Phase 7 (item 7.8). Do not expose leaderboard UI to free users.
+
+- [ ] 8.0 Gate leaderboard navigation behind `isPaid` (see 7.8) before wiring any Firebase code
 - [ ] 8.1 Firebase project setup, enable Realtime DB + Anonymous Auth
 - [ ] 8.2 Firebase config — Android `google-services.json`, iOS `GoogleService-Info.plist`
 - [ ] 8.3 Add `firebase-gitlive` KMP SDK to `libs.versions.toml`

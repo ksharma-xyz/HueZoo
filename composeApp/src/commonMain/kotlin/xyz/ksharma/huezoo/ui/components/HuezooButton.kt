@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -36,7 +38,6 @@ import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerShelfColor
 import xyz.ksharma.huezoo.ui.theme.PillShape
 import xyz.ksharma.huezoo.ui.theme.onColor
-import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val ShelfHeight = 5.dp
 
@@ -142,21 +143,20 @@ fun HuezooButton(
 
     val shelfPx = with(LocalDensity.current) { ShelfHeight.toPx() }
 
-    // Reserve bottom space so the shadow doesn't get clipped by the parent
+    // Outer box reserves bottom space so the shelf doesn't get clipped by the parent
     Box(modifier = modifier.padding(bottom = ShelfHeight)) {
-        // Face — shapedShadow draws the shelf; face slides into it on press
+        // Shelf — stationary; face presses into it on touch
         Box(
             modifier = Modifier
-                .graphicsLayer {
-                    translationY = pressProgress * shelfPx
-                    clip = false // let the shadow render outside the layer bounds
-                }
-                .shapedShadow(
-                    shape = PillShape,
-                    color = resolvedShelf,
-                    offsetX = 0.dp,
-                    offsetY = ShelfHeight,
-                )
+                .matchParentSize()
+                .offset(y = ShelfHeight)
+                .background(resolvedShelf, PillShape),
+        )
+        // Face — fills the outer Box width, slides down to meet the shelf on press
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer { translationY = pressProgress * shelfPx }
                 .then(
                     if (resolvedBorder != Color.Transparent) {
                         Modifier.border(HuezooSize.BorderThin, resolvedBorder, PillShape)

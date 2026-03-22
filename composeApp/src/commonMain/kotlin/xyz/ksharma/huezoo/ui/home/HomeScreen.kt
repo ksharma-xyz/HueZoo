@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -57,6 +58,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -1421,40 +1423,48 @@ private fun UpgradeCta(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.96f else 1f,
-        animationSpec = spring(
+    val pressProgress by animateFloatAsState(
+        targetValue = if (isPressed) 1f else 0f,
+        animationSpec = if (isPressed) tween(80) else spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium,
+            stiffness = Spring.StiffnessMediumLow,
         ),
-        label = "upgradeCtaScale",
+        label = "upgradeCtaPress",
     )
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .graphicsLayer { scaleX = scale; scaleY = scale }
-            .shapedShadow(
-                shape = ParallelogramBack,
-                color = HuezooColors.PriceGreen.copy(alpha = 0.35f),
-                offsetX = 4.dp,
-                offsetY = 4.dp,
-            )
-            .clip(ParallelogramBack)
-            .background(HuezooColors.PriceGreen)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        HuezooLabelSmall(
-            text = "GET FULL ACCESS",
-            color = HuezooColors.SurfaceL0,
-            fontWeight = FontWeight.ExtraBold,
+    val shelfHeight = 5.dp
+    val shelfPx = with(LocalDensity.current) { shelfHeight.toPx() }
+
+    Box(modifier = modifier.fillMaxWidth().padding(bottom = shelfHeight)) {
+        // Shelf — stationary dark-green ledge the face presses into
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .offset(y = shelfHeight)
+                .clip(ParallelogramBack)
+                .background(HuezooColors.ShelfPrice),
         )
+        // Face — slides down on press, springs back on release
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .graphicsLayer { translationY = pressProgress * shelfPx }
+                .clip(ParallelogramBack)
+                .background(HuezooColors.PriceGreen)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            HuezooLabelSmall(
+                text = "GET FULL ACCESS",
+                color = HuezooColors.SurfaceL0,
+                fontWeight = FontWeight.ExtraBold,
+            )
+        }
     }
 }
 

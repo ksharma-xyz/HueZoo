@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -811,21 +812,20 @@ private fun ShareIconButton(
     val shelfPx = with(LocalDensity.current) { ShareButtonShelfHeight.toPx() }
 
     Box(modifier = modifier.padding(bottom = ShareButtonShelfHeight)) {
+        // Shelf — stationary magenta ledge the face presses into
         Box(
             modifier = Modifier
                 .size(ShareButtonSize)
-                .graphicsLayer {
-                    translationY = pressProgress * shelfPx
-                    clip = false
-                }
-                .shapedShadow(
-                    ShareButtonShape,
-                    HuezooColors.ShelfMagenta,
-                    offsetX = 0.dp,
-                    offsetY = ShareButtonShelfHeight,
-                )
+                .offset(y = ShareButtonShelfHeight)
+                .clip(ShareButtonShape)
+                .background(HuezooColors.ShelfMagenta),
+        )
+        // Face — slides down on press, springs back on release
+        Box(
+            modifier = Modifier
+                .size(ShareButtonSize)
+                .graphicsLayer { translationY = pressProgress * shelfPx }
                 .border(1.dp, HuezooColors.AccentMagenta, ShareButtonShape)
-                .background(Color.Transparent, ShareButtonShape)
                 .clip(ShareButtonShape)
                 .clickable(
                     interactionSource = interactionSource,
