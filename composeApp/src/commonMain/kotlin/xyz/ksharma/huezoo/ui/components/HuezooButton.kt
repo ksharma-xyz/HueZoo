@@ -43,6 +43,17 @@ private val ShelfHeight = 5.dp
 
 enum class HuezooButtonVariant { Primary, Confirm, Danger, Score, Try, Ghost, GhostDanger }
 
+/**
+ * Controls how a [HuezooButton] sizes itself horizontally.
+ *
+ * - [Fill] — fills the available container width. Use for primary CTAs and bottom-of-screen actions.
+ * - [Wrap] — wraps to label width. Use for inline or secondary actions placed in a Row.
+ *
+ * Width is orthogonal to [HuezooButtonVariant] (which controls colour/purpose).
+ * The caller still controls the button's position and constraints via [Modifier].
+ */
+enum class HuezooButtonWidth { Fill, Wrap }
+
 private data class ButtonColors(
     val bg: Color,
     val content: Color,
@@ -115,6 +126,7 @@ fun HuezooButton(
     modifier: Modifier = Modifier,
     variant: HuezooButtonVariant = HuezooButtonVariant.Primary,
     enabled: Boolean = true,
+    width: HuezooButtonWidth = HuezooButtonWidth.Fill,
     leadingIcon: (@Composable () -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -152,10 +164,10 @@ fun HuezooButton(
                 .offset(y = ShelfHeight)
                 .background(resolvedShelf, PillShape),
         )
-        // Face — fills the outer Box width, slides down to meet the shelf on press
+        // Face — fills or wraps based on width intent; slides down to meet shelf on press
         Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .then(if (width == HuezooButtonWidth.Fill) Modifier.fillMaxWidth() else Modifier)
                 .graphicsLayer { translationY = pressProgress * shelfPx }
                 .then(
                     if (resolvedBorder != Color.Transparent) {
