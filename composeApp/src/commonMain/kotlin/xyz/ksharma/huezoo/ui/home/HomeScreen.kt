@@ -233,7 +233,9 @@ private fun ReadyContent(
             StaggeredCard(index = 2) {
                 ThresholdHeroCard(
                     data = state.threshold,
+                    isPaid = state.isPaid,
                     onEnterGame = onThresholdTap,
+                    onUpgradeTap = onSettingsTap,
                 )
             }
 
@@ -413,7 +415,9 @@ private fun StatBox(
 @Composable
 private fun ThresholdHeroCard(
     data: ThresholdCardData,
+    isPaid: Boolean,
     onEnterGame: () -> Unit,
+    onUpgradeTap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val triesText = when {
@@ -477,7 +481,7 @@ private fun ThresholdHeroCard(
             Spacer(Modifier.height(HuezooSpacing.sm))
 
             HuezooBodyMedium(
-                text = "Analyze chromatic anomalies. Detect the odd color — precision test for the elite observer.",
+                text = "Analyze chromatic anomalies.\nDetect the odd color — precision test for the elite observer.",
                 color = HuezooColors.TextSecondary,
                 maxLines = 3,
             )
@@ -503,13 +507,43 @@ private fun ThresholdHeroCard(
 
             Spacer(Modifier.height(HuezooSpacing.md))
 
-            // CTA button — only this navigates (card is not tappable at root level)
-            HuezooButton(
-                text = if (enabled) "ENTER SIMULATION" else "NO TRIES LEFT",
-                onClick = onEnterGame,
-                enabled = enabled,
-                variant = if (enabled) HuezooButtonVariant.Primary else HuezooButtonVariant.GhostDanger,
-            )
+            if (enabled) {
+                HuezooButton(
+                    text = "ENTER SIMULATION",
+                    onClick = onEnterGame,
+                    variant = HuezooButtonVariant.Primary,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
+                // Blocked — show disabled state + upgrade/ad options
+                HuezooButton(
+                    text = "NO TRIES LEFT",
+                    onClick = {},
+                    enabled = false,
+                    variant = HuezooButtonVariant.GhostDanger,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                if (!isPaid) {
+                    Spacer(Modifier.height(HuezooSpacing.sm))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                    ) {
+                        HuezooButton(
+                            text = "GET FULL ACCESS",
+                            onClick = onUpgradeTap,
+                            variant = HuezooButtonVariant.Primary,
+                            modifier = Modifier.weight(1f),
+                        )
+                        HuezooButton(
+                            text = "WATCH AD",
+                            onClick = { /* TODO: rewarded ad integration */ },
+                            variant = HuezooButtonVariant.Ghost,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
 
         }
     }
