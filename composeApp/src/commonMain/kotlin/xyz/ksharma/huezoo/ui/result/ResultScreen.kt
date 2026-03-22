@@ -316,16 +316,8 @@ private fun ReadyContent(
                 )
             }
 
-            // Threshold-only: session ΔE + all-time best
+            // Threshold-only: all-time best ΔE (session ΔE already shown in StingReadout)
             if (!isDaily) {
-                StatBreakdownCard(
-                    label = "SESSION ΔE",
-                    value = "ΔE ${state.deltaE.fmt()}",
-                    progress = (1f - (state.deltaE / 5f)).coerceIn(0f, 1f),
-                    accentColor = statAccent,
-                    icon = { WaveIcon(color = statAccent) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
                 val lifetimeBest = state.personalBestDeltaE
                 StatBreakdownCard(
                     label = "ALL-TIME BEST ΔE",
