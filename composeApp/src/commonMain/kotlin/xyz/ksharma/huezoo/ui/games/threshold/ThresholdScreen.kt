@@ -43,6 +43,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
 import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
+import xyz.ksharma.huezoo.ui.components.HuezooTitleMedium
 import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
 import xyz.ksharma.huezoo.ui.components.ThresholdHelpSheet
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
@@ -125,21 +126,16 @@ private fun PlayingContent(
         Spacer(Modifier.height(HuezooSpacing.lg))
 
         val accent = LocalPlayerAccentColor.current
-        // ── Lives hearts — bottom of screen ──────────────────────────────────
-        // Label left, hearts tightly clustered right.
-        // Solid heart = life remaining, outline = life lost.
-        // Color matches the player accent (same as title, back button).
+        // ── Header row: title left, lives hearts right ────────────────────────
+        // Hearts are self-explanatory — no "LIVES" label needed.
+        // Solid = life remaining, outline = life lost. Both use player accent.
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(bottom = HuezooSpacing.md),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = "IDENTIFY  THE  OUTLIER",
-                style = MaterialTheme.typography.titleSmall,
+            HuezooTitleMedium(
+                text = "IDENTIFY THE OUTLIER",
                 color = accent,
                 fontWeight = FontWeight.ExtraBold,
             )
