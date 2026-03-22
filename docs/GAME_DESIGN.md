@@ -44,7 +44,9 @@ Tap     = one correct answer within a try
 - `TAP X` — correct-tap count in the current try
 - `X TRIES LEFT` — remaining tries in the 8-hour window
 
-**Attempt window**: 5 tries / 8 hours (free). Paid = unlimited.
+**Attempt window**:
+- **Free**: 10 tries per 8-hour window. When exhausted, player waits for the cooldown before a fresh batch.
+- **Paid**: 10 tries per batch, no cooldown. When a batch is exhausted the session is cleared immediately and a fresh batch begins — paid users always return to `Available`. The result screen still fires after each batch (try-tracking is local to the ViewModel, not re-fetched from the DB).
 
 ---
 
