@@ -78,6 +78,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooTitleLarge
 import xyz.ksharma.huezoo.ui.components.HuezooTitleSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.LevelsProgressSheet
+import xyz.ksharma.huezoo.ui.components.PerceptionTiersSheet
 import xyz.ksharma.huezoo.ui.home.state.DailyCardData
 import xyz.ksharma.huezoo.ui.home.state.HomeUiEvent
 import xyz.ksharma.huezoo.ui.home.state.HomeUiState
@@ -121,6 +122,7 @@ private val CHALLENGE_NAMES = listOf(
 fun HomeScreen(
     onNavigate: (Any) -> Unit,
     onSettingsTap: () -> Unit,
+    onLeaderboardTap: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
@@ -140,6 +142,7 @@ fun HomeScreen(
                 onThresholdTap = { onNavigate(ThresholdGame) },
                 onDailyTap = { onNavigate(DailyGame) },
                 onSettingsTap = onSettingsTap,
+                onLeaderboardTap = onLeaderboardTap,
             )
         }
     }
@@ -152,14 +155,22 @@ private fun ReadyContent(
     onThresholdTap: () -> Unit,
     onDailyTap: () -> Unit,
     onSettingsTap: () -> Unit,
+    onLeaderboardTap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showLevelsSheet by remember { mutableStateOf(false) }
+    var showPerceptionSheet by remember { mutableStateOf(false) }
 
     if (showLevelsSheet) {
         LevelsProgressSheet(
             currentGems = state.totalGems,
             onDismiss = { showLevelsSheet = false },
+        )
+    }
+    if (showPerceptionSheet) {
+        PerceptionTiersSheet(
+            personalBestDeltaE = state.threshold.personalBestDeltaE,
+            onDismiss = { showPerceptionSheet = false },
         )
     }
     val challengeName = remember {
@@ -213,6 +224,7 @@ private fun ReadyContent(
             StaggeredCard(index = 1) {
                 PlayerDeltaECard(
                     bestDeltaE = state.threshold.personalBestDeltaE,
+                    onClick = { showPerceptionSheet = true },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -254,7 +266,8 @@ private fun ReadyContent(
 
             StaggeredCard(index = 4) {
                 LeaderboardCompactCard(
-                    rank = state.rank,
+                    personalBestDeltaE = state.threshold.personalBestDeltaE,
+                    onClick = { onLeaderboardTap() },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -544,7 +557,6 @@ private fun ThresholdHeroCard(
                     }
                 }
             }
-
         }
     }
 }
@@ -838,23 +850,46 @@ private fun DailyCompactCard(
 }
 
 /**
- * Global Leaderboard compact card — full width, stubbed until Firebase.
+ * Global Leaderboard compact card — shows player's estimated rank tier.
  */
 @Composable
 private fun LeaderboardCompactCard(
-    rank: Int?,
+    personalBestDeltaE: Float?,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val rankLabel = personalBestDeltaE?.let { estimatedRankLabel(it) } ?: "N/A"
+    val rankDescription = personalBestDeltaE?.let { estimatedRankDescription(it) } ?: "Play Threshold to rank"
     CompactCard(
         label = "GLOBAL LEADERBOARD",
-        title = if (rank != null) "RANK #$rank" else "TOP 5% WORLDWIDE",
-        subtitle = "Claim weekly rewards",
+        title = rankLabel,
+        subtitle = rankDescription,
         accentColor = HuezooColors.AccentYellow,
-        enabled = false,
-        onClick = {},
+        enabled = true,
+        onClick = onClick,
         iconDraw = { color -> drawLeaderboardBars(color) },
         modifier = modifier,
     )
+}
+
+private fun estimatedRankLabel(deltaE: Float): String = when {
+    deltaE < 0.5f -> "TOP 1%"
+    deltaE < 1.0f -> "TOP 5%"
+    deltaE < 1.5f -> "TOP 10%"
+    deltaE < 2.0f -> "TOP 20%"
+    deltaE < 3.0f -> "TOP 40%"
+    deltaE < 4.0f -> "TOP 60%"
+    else -> "TOP 80%"
+}
+
+private fun estimatedRankDescription(deltaE: Float): String = when {
+    deltaE < 0.5f -> "Near human limits"
+    deltaE < 1.0f -> "Professional colorist"
+    deltaE < 1.5f -> "Trained eye"
+    deltaE < 2.0f -> "Designer / photographer"
+    deltaE < 3.0f -> "Above average"
+    deltaE < 4.0f -> "Average untrained"
+    else -> "Just starting out"
 }
 
 /**
@@ -1003,6 +1038,7 @@ private fun DrawScope.drawLeaderboardBars(color: Color) {
 @Composable
 private fun PlayerDeltaECard(
     bestDeltaE: Float?,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val accent = LocalPlayerAccentColor.current
@@ -1013,6 +1049,11 @@ private fun PlayerDeltaECard(
         modifier = modifier
             .background(HuezooColors.SurfaceL2, cardShape)
             .rimLight(cornerRadius = HuezooSize.CornerCard)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick,
+            )
             // Right-side accent bar drawn as a custom drawBehind
             .drawBehind {
                 val barWidth = 3.dp.toPx()
@@ -1349,7 +1390,6 @@ private fun levelProgressFraction(level: PlayerLevel, totalGems: Int): Float {
     return (progress / range).coerceIn(0f, 1f)
 }
 
-
 @OptIn(ExperimentalTime::class)
 @Composable
 private fun countdownUntil(until: Instant, prefix: String): String {
@@ -1394,6 +1434,7 @@ private fun HomeReadyPreview() {
             onThresholdTap = {},
             onDailyTap = {},
             onSettingsTap = {},
+            onLeaderboardTap = {},
         )
     }
 }
@@ -1420,6 +1461,7 @@ private fun HomeBlockedPreview() {
             onThresholdTap = {},
             onDailyTap = {},
             onSettingsTap = {},
+            onLeaderboardTap = {},
         )
     }
 }
