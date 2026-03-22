@@ -214,11 +214,19 @@ private fun ReadyContent(
 
             Spacer(Modifier.height(HuezooSpacing.lg))
 
+            LevelProgressBar(
+                fraction = levelProgressFraction(state.playerLevel, state.totalGems),
+                currentLevel = state.playerLevel,
+                totalGems = state.totalGems,
+                accentColor = state.playerLevel.levelColor,
+                modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
+            )
+
+            Spacer(Modifier.height(HuezooSpacing.sm))
+
             StaggeredCard(index = 2) {
                 ThresholdHeroCard(
                     data = state.threshold,
-                    playerLevel = state.playerLevel,
-                    totalGems = state.totalGems,
                     onEnterGame = onThresholdTap,
                 )
             }
@@ -399,8 +407,6 @@ private fun StatBox(
 @Composable
 private fun ThresholdHeroCard(
     data: ThresholdCardData,
-    playerLevel: PlayerLevel,
-    totalGems: Int,
     onEnterGame: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -418,9 +424,6 @@ private fun ThresholdHeroCard(
         animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
         label = "pulseAlpha",
     )
-
-    val progressFraction = levelProgressFraction(playerLevel, totalGems)
-    val nextLevelName = nextLevelName(playerLevel)
 
     Box(
         modifier = modifier
@@ -502,14 +505,6 @@ private fun ThresholdHeroCard(
                 variant = if (enabled) HuezooButtonVariant.Primary else HuezooButtonVariant.GhostDanger,
             )
 
-            Spacer(Modifier.height(HuezooSpacing.lg))
-
-            LevelProgressBar(
-                fraction = progressFraction,
-                currentLevel = playerLevel,
-                nextLevelName = nextLevelName,
-                accentColor = playerLevel.levelColor,
-            )
         }
     }
 }
@@ -724,10 +719,13 @@ private fun ThresholdScannerIllustration(
 private fun LevelProgressBar(
     fraction: Float,
     currentLevel: PlayerLevel,
-    nextLevelName: String?,
+    totalGems: Int,
     accentColor: Color,
     modifier: Modifier = Modifier,
 ) {
+    val nextLevel = PlayerLevel.entries.getOrNull(currentLevel.ordinal + 1)
+    val rightLabel = nextLevel?.let { "${formatGems(totalGems)} / ${formatGems(it.minGems)}" }
+
     Column(modifier = modifier.fillMaxWidth()) {
         Box(
             modifier = Modifier
@@ -748,8 +746,8 @@ private fun LevelProgressBar(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             HuezooLabelSmall(text = currentLevel.displayName, color = accentColor)
-            if (nextLevelName != null) {
-                HuezooLabelSmall(text = nextLevelName, color = HuezooColors.TextDisabled)
+            if (rightLabel != null) {
+                HuezooLabelSmall(text = rightLabel, color = HuezooColors.TextDisabled)
             }
         }
     }
@@ -946,6 +944,12 @@ private fun DrawScope.drawLeaderboardBars(color: Color) {
  * For first-time players: explains what ΔE is and sets the goal.
  * For returning players: displays their personal best and motivates them to go lower.
  */
+/**
+ * Compact ΔE personal-best card.
+ *
+ * Layout: left = label + subtitle | right = big ΔE value (or "N/A")
+ * Visual: right-side only accent border (3 dp vertical bar), no outer border on other sides.
+ */
 @Composable
 private fun PlayerDeltaECard(
     bestDeltaE: Float?,
@@ -955,58 +959,50 @@ private fun PlayerDeltaECard(
     val cardShape = RoundedCornerShape(HuezooSize.CornerCard)
     val hasPlayed = bestDeltaE != null
 
-    Box(
+    Row(
         modifier = modifier
             .background(HuezooColors.SurfaceL2, cardShape)
             .rimLight(cornerRadius = HuezooSize.CornerCard)
-            .border(1.dp, accent.copy(alpha = 0.20f), cardShape)
-            .padding(HuezooSpacing.md),
+            // Right-side accent bar drawn as a custom drawBehind
+            .drawBehind {
+                val barWidth = 3.dp.toPx()
+                val cornerPx = HuezooSize.CornerCard.toPx()
+                drawLine(
+                    color = accent,
+                    start = Offset(size.width - barWidth / 2f, cornerPx),
+                    end = Offset(size.width - barWidth / 2f, size.height - cornerPx),
+                    strokeWidth = barWidth,
+                    cap = StrokeCap.Round,
+                )
+            }
+            .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
+        // Left: label + subtitle
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
             HuezooLabelSmall(
-                text = if (hasPlayed) "YOUR ΔE — COLOR VISION SCORE" else "WHAT'S YOUR ΔE?",
+                text = "PERSONAL BEST ΔE",
                 color = accent,
                 fontWeight = FontWeight.ExtraBold,
             )
-
-            if (hasPlayed) {
-                // Show personal best prominently
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-                ) {
-                    androidx.compose.material3.Text(
-                        text = "ΔE ${bestDeltaE!!.fmtHome()}",
-                        style = androidx.compose.material3.MaterialTheme.typography.displayMedium,
-                        color = accent,
-                    )
-                    HuezooLabelSmall(
-                        text = "PERSONAL BEST",
-                        color = HuezooColors.TextDisabled,
-                        modifier = Modifier.padding(bottom = HuezooSpacing.xs),
-                    )
-                }
-                HuezooBodyMedium(
-                    text = "ΔE measures how different two colors look to your eyes. " +
-                        "The lower your ΔE, the more precisely you can see color. " +
-                        "Can you push it lower?",
-                    color = HuezooColors.TextSecondary,
-                )
-            } else {
-                HuezooBodyMedium(
-                    text = "ΔE measures how different two colors look to your eyes — " +
-                        "like a score for your color vision.\n\n" +
-                        "Your goal: spot the odd color and push your ΔE as low as possible. " +
-                        "Most people can't see below ΔE 1.0. Can you?",
-                    color = HuezooColors.TextSecondary,
-                )
-                HuezooBodyMedium(
-                    text = "Gems are your XP — they track how far your perception has come " +
-                        "and unlock higher player levels.",
-                    color = HuezooColors.TextDisabled,
-                )
-            }
+            HuezooLabelSmall(
+                text = if (hasPlayed) "Lower is sharper color vision" else "Play Threshold to set a score",
+                color = HuezooColors.TextDisabled,
+            )
         }
+
+        // Right: big value
+        androidx.compose.material3.Text(
+            text = if (hasPlayed) bestDeltaE!!.fmtHome() else "N/A",
+            style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
+            color = if (hasPlayed) accent else HuezooColors.TextDisabled,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(start = HuezooSpacing.md),
+        )
     }
 }
 
@@ -1303,8 +1299,6 @@ private fun levelProgressFraction(level: PlayerLevel, totalGems: Int): Float {
     return (progress / range).coerceIn(0f, 1f)
 }
 
-private fun nextLevelName(level: PlayerLevel): String? =
-    PlayerLevel.entries.getOrNull(level.ordinal + 1)?.displayName
 
 @OptIn(ExperimentalTime::class)
 @Composable
