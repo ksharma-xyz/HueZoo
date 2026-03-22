@@ -333,14 +333,6 @@ private fun ReadyContent(
                     icon = { LightningIcon(color = HuezooColors.AccentYellow) },
                     modifier = Modifier.fillMaxWidth(),
                 )
-                StatBreakdownCard(
-                    label = "TAPS",
-                    value = "${state.roundsSurvived}",
-                    progress = (state.roundsSurvived / 15f).coerceIn(0f, 1f),
-                    accentColor = HuezooColors.AccentMagenta,
-                    icon = { LightningIcon(color = HuezooColors.AccentMagenta) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
             }
         }
 
