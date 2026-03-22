@@ -29,10 +29,16 @@ Tap     = one correct answer within a try
 - Show sting copy
 - Burn 1 try — ΔE resets to 5.0, new base color, continue
 - Milestones reset (each try earns milestones independently)
+- **Personal best update**: if the player has at least one correct tap this session (`bestDeltaE != null`), the *attempted* `currentDeltaE` is saved as a personal best candidate — reaching a level counts even if you fail it. Guards against recording the trivial 5.0 start value when someone taps wrong on their very first round.
 
 **Session end** (all tries exhausted):
-- Navigate to Result with `bestDeltaE` = lowest ΔE survived across all tries
+- Navigate to Result with `bestDeltaE` = lowest ΔE reached (correctly identified or attempted after at least one correct tap) across all tries
 - Score = `1000 / bestDeltaE` (floored at ΔE 0.3 → max score ≈ 3333)
+
+**Personal best persistence**:
+- Saved **eagerly on every correct tap** (inside `withContext(NonCancellable)`) — survives back-press/drop-out mid-session
+- Saved on wrong tap (see above) — the reached level counts, not just the last correctly passed level
+- DB write uses the repo's own `isNewBest` guard (`deltaE < current.best_delta_e`) so only genuine improvements are persisted
 
 **HUD labels**:
 - `TAP X` — correct-tap count in the current try
@@ -176,7 +182,7 @@ To test ViewModels: inject fake `ColorEngine`, `ThresholdRepository`, `DailyRepo
 |---|---|
 | THE GOAL | Six swatches appear — one has a slightly different hue. Tap the outlier. |
 | TAPS | Each correct tap makes the colour difference smaller by ΔE 0.3. The longer your streak, the harder it gets. |
-| TRIES | One wrong tap ends the current try — ΔE resets to 5.0 and a new run begins. You get 10 tries per session. Your best ΔE across all tries is your result. |
+| TRIES | One wrong tap ends the current try — ΔE resets to 5.0 and a new run begins. You get 10 tries per session. Your best ΔE reached across all tries is your result — reaching a level counts even if you miss it. |
 | WHAT IS ΔE? | ΔE measures colour difference. ΔE 5.0 = easy / ΔE 2.0 = trained / ΔE 1.0 = expert / ΔE 0.5 = near human limits. |
 | GEMS | +2 per tap. Milestone bonuses: ΔE < 2.0 → +5 / ΔE < 1.0 → +10 / ΔE < 0.5 → +25. Reset each try. |
 
