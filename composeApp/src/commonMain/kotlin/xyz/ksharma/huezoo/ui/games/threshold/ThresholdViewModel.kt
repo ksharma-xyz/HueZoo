@@ -152,6 +152,7 @@ class ThresholdViewModel(
         sessionWrongTaps = 0
         triesRemaining = status.maxAttempts - status.attemptsUsed
         awardedMilestones.clear()
+        println("[DEBUG_DELTA] SESSION START — startingΔE=$currentDeltaE triesRemaining=$triesRemaining storedBestΔE=$storedBestDeltaE")
         emitRound()
     }
 
@@ -184,10 +185,12 @@ class ThresholdViewModel(
     }
 
     private fun handleCorrectTap(state: ThresholdUiState.Playing) {
+        val prevBestDeltaE = bestDeltaE
         bestDeltaE = bestDeltaE?.let { minOf(it, currentDeltaE) } ?: currentDeltaE
 
         val sessionBest = bestDeltaE!!
         val isNewAllTimeBest = storedBestDeltaE == null || sessionBest < storedBestDeltaE!!
+        println("[DEBUG_DELTA] CORRECT tap=$tapCount currentΔE=$currentDeltaE bestΔE(prev=$prevBestDeltaE → now=$sessionBest) isNewAllTimeBest=$isNewAllTimeBest")
         if (isNewAllTimeBest) storedBestDeltaE = sessionBest
 
         val milestoneBonus = checkAndAwardMilestone(currentDeltaE)
@@ -220,8 +223,10 @@ class ThresholdViewModel(
             delay(ANIMATION_FOLD_MS)
 
             tapCount++
+            val prevDeltaE = currentDeltaE
             currentDeltaE = (currentDeltaE - ThresholdGameEngine.DELTA_E_STEP)
                 .coerceAtLeast(ThresholdGameEngine.MIN_DELTA_E)
+            println("[DEBUG_DELTA] NEXT ROUND tap=$tapCount ΔE: $prevDeltaE → $currentDeltaE (step=${ThresholdGameEngine.DELTA_E_STEP})")
             baseColor = colorEngine.randomVividColorExcluding(playerLevel.levelHue)
             emitRound()
         }
@@ -263,6 +268,7 @@ class ThresholdViewModel(
             // Accumulate this try's stats before tapCount resets
             sessionCorrectTaps += tapCount - 1
             sessionWrongTaps++
+            println("[DEBUG_DELTA] WRONG failedAtΔE=$currentDeltaE tap=$tapCount bestΔE=$bestDeltaE triesRemaining=$triesRemaining sessionCorrect=$sessionCorrectTaps sessionWrong=$sessionWrongTaps")
 
             delay(ANIMATION_WRONG_MS)
 
@@ -275,11 +281,13 @@ class ThresholdViewModel(
                 delay(ANIMATION_FOLD_MS)
                 currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
                 tapCount = 1
+                println("[DEBUG_DELTA] NEW TRY — reset ΔE=$currentDeltaE triesRemaining=$triesRemaining")
                 baseColor = colorEngine.randomVividColorExcluding(playerLevel.levelHue)
                 emitRound()
             } else {
                 // All tries spent — navigate to result
                 val finalDeltaE = bestDeltaE ?: currentDeltaE
+                println("[DEBUG_DELTA] SESSION END — finalΔE=$finalDeltaE bestΔE=$bestDeltaE fallback(currentΔE)=${bestDeltaE == null} correctRounds=$sessionCorrectTaps totalRounds=${sessionCorrectTaps + sessionWrongTaps}")
                 repository.savePersonalBest(finalDeltaE)
                 val breakdown = buildList {
                     if (sessionTapGems > 0) add(GemAward("Correct taps", sessionTapGems))
