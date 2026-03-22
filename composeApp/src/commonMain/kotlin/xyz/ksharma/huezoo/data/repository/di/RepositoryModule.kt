@@ -9,7 +9,7 @@ import xyz.ksharma.huezoo.data.repository.impl.DefaultSettingsRepository
 import xyz.ksharma.huezoo.data.repository.impl.DefaultThresholdRepository
 
 val repositoryModule = module {
-    single<ThresholdRepository> { DefaultThresholdRepository(db = get(), platformOps = get()) }
+    single<ThresholdRepository> { DefaultThresholdRepository(db = get(), platformOps = get(), settingsRepository = get()) }
     single<DailyRepository> { DefaultDailyRepository(db = get()) }
     single<SettingsRepository> { DefaultSettingsRepository(db = get()) }
 }

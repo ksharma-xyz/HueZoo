@@ -3,6 +3,7 @@ package xyz.ksharma.huezoo.data.repository.impl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import xyz.ksharma.huezoo.data.db.HuezooDatabase
+import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
 import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
@@ -17,6 +18,7 @@ import kotlin.time.Instant
 class DefaultThresholdRepository(
     private val db: HuezooDatabase,
     private val platformOps: PlatformOps,
+    private val settingsRepository: SettingsRepository,
 ) : ThresholdRepository {
 
     private val maxAttempts: Int
@@ -27,13 +29,17 @@ class DefaultThresholdRepository(
         q.deleteExpiredSessions(now.toString())
         val session = q.getActiveThresholdSession(now.toString()).executeAsOneOrNull()
         val attemptsUsed = session?.attempts_used?.toInt() ?: 0
-        if (attemptsUsed < maxAttempts) {
-            AttemptStatus.Available(
+        when {
+            attemptsUsed < maxAttempts -> AttemptStatus.Available(
                 attemptsUsed = attemptsUsed,
                 maxAttempts = maxAttempts,
             )
-        } else {
-            AttemptStatus.Exhausted(
+            settingsRepository.isPaid() -> {
+                // Paid users: no cooldown — clear the exhausted session and give a fresh batch.
+                q.deleteAllThresholdSessions()
+                AttemptStatus.Available(attemptsUsed = 0, maxAttempts = maxAttempts)
+            }
+            else -> AttemptStatus.Exhausted(
                 nextResetAt = Instant.parse(session!!.next_reset_at),
                 maxAttempts = maxAttempts,
             )
