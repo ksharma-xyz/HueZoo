@@ -68,14 +68,14 @@ fun App() {
                             is Splash -> NavEntry(destination) {
                                 SplashScreen(
                                     onFinished = {
-                                        backStack.removeLast() // drop Splash — can't go back to it
                                         scope.launch {
                                             val next = if (settingsRepository.hasSeenHealthNotice()) {
                                                 Home
                                             } else {
                                                 EyeStrainNotice
                                             }
-                                            backStack.add(next)
+                                            // Replace Splash in-place — never leaves the backstack empty
+                                            backStack[backStack.lastIndex] = next
                                         }
                                     },
                                 )
@@ -86,8 +86,8 @@ fun App() {
                                     onDismiss = {
                                         scope.launch {
                                             settingsRepository.setSeenHealthNotice()
-                                            backStack.removeLast() // drop EyeStrainNotice
-                                            backStack.add(Home)
+                                            // Replace EyeStrainNotice in-place — never leaves the backstack empty
+                                            backStack[backStack.lastIndex] = Home
                                         }
                                     },
                                 )
