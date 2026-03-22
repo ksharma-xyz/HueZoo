@@ -226,6 +226,46 @@ Show a brief walkthrough on the very first app open, before the Home screen:
 
 ---
 
+## Implemented Screens
+
+### Levels & Progress Sheet ✅
+
+`LevelsProgressSheet.kt` — tap the gem inventory panel on Home.
+
+5 tier cards (color-coded by `PlayerLevel.levelColor`), progress bar toward next tier, gem threshold labels. Current level full opacity; future tiers dimmed. Close button at bottom.
+
+---
+
+### Local Leaderboard (Pre-Firebase) ✅
+
+`LeaderboardScreen.kt` + `LeaderboardViewModel.kt` — tap the Leaderboard card on Home.
+
+Estimated percentile rank derived locally from personal best ΔE using `PERCEPTION_TIERS` in `ui/model/PerceptionTier.kt`. Goes live with real Firebase data in Phase 8.
+
+**Perception tiers** (7 buckets, `estimatedPerceptionTier(deltaE: Float)`):
+
+| Rank label | Description | ΔE range |
+|---|---|---|
+| TOP 1% | Near human limits | < 0.5 |
+| TOP 5% | Professional colorist | 0.5 – 1.0 |
+| TOP 10% | Trained eye | 1.0 – 1.5 |
+| TOP 20% | Designer / photographer | 1.5 – 2.0 |
+| TOP 40% | Above average | 2.0 – 3.0 |
+| TOP 60% | Average untrained eye | 3.0 – 4.0 |
+| TOP 80% | Just starting out | > 4.0 |
+
+**Screen layout**: pulsing `SIGNAL OFFLINE` row (AccentMagenta) → sonar Canvas animation → `AgentClassificationCard` (ranked or UNRANKED) → tier rows (player's tier highlighted) → `ActivationProtocolCard` (500-agent threshold, leaderboard goes live when reached) → `BROADCAST SIGNAL` share button.
+
+---
+
+### Perception Tiers Sheet ✅
+
+`PerceptionTiersSheet.kt` — tap the **Personal Best ΔE** card on Home.
+
+Shows the full ΔE perception tier ladder as a bottom sheet. Works for both ranked and unranked players. Displays "YOUR CLASSIFICATION" banner (tier + rank label + ΔE value, or UNRANKED state), all 7 tier rows, and a CIEDE2000 footer note.
+
+---
+
 ## Planned Screens (TODO)
 
 ### Out of Tries — Refill Sheet
@@ -243,32 +283,9 @@ A bottom sheet / modal shown when the player's try budget is exhausted mid-sessi
 - Close button (top-right)
 - 3D shelf button styling matching existing `HuezooButton`
 
+**Note:** "GET FULL ACCESS" and "WATCH AD" stub buttons already appear on the Home screen `ThresholdHeroCard` when the player is out of tries and unpaid. Full sheet + ad integration still outstanding.
+
 **Implementation notes:**
 - Replace current `ThresholdUiState.Blocked` full-screen with a nav-modal version, or layer the sheet over the blocked screen.
 - Ad integration is future work — wire up the Watch Ad button with a stub callback for now.
 - Gem deduction should go through `SettingsRepository.addGems(-300)` (or a dedicated method).
-
----
-
-### Levels & Progress Sheet
-
-Design reference: `docs/stitch_huezoo_prd_design_doc/huezoo_levels_progress/code.html`
-
-A bottom sheet accessible from the Home screen (tap the level badge / gem pill area) showing the full 5-tier progression system.
-
-**Key elements:**
-- Header: "LEVELS & PROGRESS" + current level badge ("LVL 1 — ROOKIE")
-- Scrollable level cards — one per tier, color-coded by `PlayerLevel.levelColor`:
-  - Rookie (Cyan) | Trained (Green) | Sharp (Magenta) | Elite (Yellow) | Master (Gold)
-  - Each card shows: level name, gem threshold, "what changes" section
-- Current level highlighted / expanded; locked tiers shown at reduced opacity
-- Progress bar: gems toward next tier
-- Close button (full-width primary) at bottom
-
-**"What changes" per level (to define):**
-- Threshold difficulty curve, reward multipliers, cosmetic unlocks (badge frame, aura) — TBD with monetization plan.
-
-**Implementation notes:**
-- `PlayerLevel.fromGems(n)` already exists — use it for current level + next threshold.
-- Trigger: tap on `CurrencyPill` in `HuezooTopBar` (or a dedicated level badge on Home).
-- Sheet state: `ModalBottomSheet` (M3) or a custom slide-up composable matching the app's design language.

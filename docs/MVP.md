@@ -336,6 +336,28 @@ identity upgrade — the whole interface changes allegiance, not just a badge.
 - [x] UX.16.9 `LevelsProgressSheet` — header accent bar
 - [x] UX.16.10 Verified: correct/wrong/revealed/DeltaEBadge colors unchanged; `PlayerLevel` cards keep tier colors
 
+#### UX.17 — Local Leaderboard (Pre-Firebase) ✅
+
+*Estimated percentile rank from personal best ΔE — shown while Firebase leaderboard is offline.*
+
+- [x] UX.17.1 `PerceptionTier` shared model — 7 tiers (TOP 1% ΔE < 0.5 → TOP 80% ΔE > 4.0), `estimatedPerceptionTier()` pure function in `ui/model/PerceptionTier.kt`
+- [x] UX.17.2 `LeaderboardViewModel` — loads personal best ΔE from `ThresholdRepository`
+- [x] UX.17.3 `LeaderboardScreen` — signal-offline aesthetic: pulsing `SIGNAL OFFLINE` indicator (AccentMagenta), sonar Canvas animation (3 staggered rings + sweep arm), `AgentClassificationCard` (tier color + rank label + ΔE, or UNRANKED), 7 `TierRow`s with colored vertical bars (player's tier highlighted), `ActivationProtocolCard` (500-agent threshold dotted progress bar), `BROADCAST SIGNAL` share button
+- [x] UX.17.4 Home screen `LeaderboardCompactCard` — shows estimated rank label; tapping navigates to `LeaderboardScreen`
+- [x] UX.17.5 Paid threshold — no cooldown; when 10-try batch exhausted `DefaultThresholdRepository.getAttemptStatus()` deletes the session and returns `Available(0, maxAttempts)` so paid users always return to playable state (try count still tracked locally in ViewModel for result screen)
+
+#### UX.18 — Perception Tiers Sheet ✅
+
+*ΔE perception tier ladder shown on tap of the personal best card — works for both ranked and unranked players.*
+
+- [x] UX.18.1 `PerceptionTiersSheet` — `HuezooBottomSheet` with: "YOUR CLASSIFICATION" banner (ranked: tier color + rank label + description + ΔE value; unranked: UNRANKED state), all 7 perception tier rows (colored vertical bar + label + description + ΔE range, current tier highlighted with `SurfaceL4` background), CIEDE2000 footer note
+- [x] UX.18.2 `PlayerDeltaECard` on Home is tappable → opens `PerceptionTiersSheet`; sheet shows even when personal best is N/A
+
+#### UX.19 — Personal Best Integrity ✅
+
+- [x] UX.19.1 **Drop-out save**: `handleCorrectTap` saves personal best inside the existing animation coroutine using `withContext(NonCancellable)` before any `delay()` — survives back-press/viewModelScope cancellation mid-animation
+- [x] UX.19.2 **Wrong-tap counts**: reaching a ΔE level on a wrong tap saves it as personal best candidate when `bestDeltaE != null` (guards against recording trivial 5.0 start value); `storedBestDeltaE` tracked from session start for comparison
+
 #### UX.15 — Settings / About Screen ⬜
 - [ ] UX.15.1 **About screen** (or bottom sheet) — app version, legal links (Privacy Policy, Terms of Use), acknowledgements
 - [ ] UX.15.2 **Health & Eye Strain notice** — persistent, always accessible from About. Balanced copy (see UX.5.3): *"This game exercises colour perception. Take breaks. Stop if you feel eye strain or discomfort."* No alarmist language (App Store / Play Store content guidelines require factual, non-fear-based health copy).
@@ -360,7 +382,7 @@ identity upgrade — the whole interface changes allegiance, not just a badge.
 - [ ] 8.7 Submit flow: name input sheet → push to Firebase
 - [ ] 8.8 Security rules: public read, anon-auth write, max 1 entry per UID
 - [ ] 8.9 Player rank: query position after submission; wire into `HomeUiState.Ready.rank` (currently "—")
-- [ ] 8.10 Streak tracking: consecutive daily completions; wire into `HomeUiState.Ready.streak` (currently 0)
+- [x] 8.10 Streak tracking: consecutive daily completions; `getStreak()` implemented in `DefaultDailyRepository` (HashSet walk-backward), wired into `HomeUiState.Ready.streak`
 
 ### Phase 9 — Polish & Ship ⬜
 - [ ] 9.1 App icon (all sizes) + splash screen
