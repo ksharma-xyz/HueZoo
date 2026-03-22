@@ -29,6 +29,10 @@ SELECT * FROM daily_challenge WHERE date = ?;
 upsertDailyChallenge:
 INSERT OR REPLACE INTO daily_challenge(date, score, completed) VALUES (?, ?, ?);
 
+-- Returns all completed dates descending — used to calculate streak.
+getCompletedDates:
+SELECT date FROM daily_challenge WHERE completed = 1 ORDER BY date DESC;
+
 -- Threshold session queries (8-hour rolling window)
 getActiveThresholdSession:
 SELECT * FROM threshold_session WHERE next_reset_at > ? LIMIT 1;

@@ -15,4 +15,10 @@ interface DailyRepository {
     suspend fun getPersonalBest(): PersonalBest?
 
     suspend fun savePersonalBest(deltaE: Float, score: Int)
+
+    /**
+     * Counts consecutive completed days ending on [today].
+     * Walks backwards from [today] until it finds a day with no completed record.
+     */
+    suspend fun getStreak(today: LocalDate): Int
 }

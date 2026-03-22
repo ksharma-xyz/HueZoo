@@ -2,7 +2,9 @@ package xyz.ksharma.huezoo.data.repository.impl
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
 import xyz.ksharma.huezoo.data.db.HuezooDatabase
 import xyz.ksharma.huezoo.data.repository.DailyRepository
 import xyz.ksharma.huezoo.domain.game.model.DailyChallenge
@@ -46,6 +48,19 @@ class DefaultDailyRepository(
             q.upsertPersonalBest(GameId.DAILY, deltaE.toDouble(), score.toLong(), null)
         }
         Unit
+    }
+
+    override suspend fun getStreak(today: LocalDate): Int = withContext(Dispatchers.Default) {
+        val completedDates = db.huezooDatabaseQueries.getCompletedDates()
+            .executeAsList()
+            .mapTo(HashSet()) { LocalDate.parse(it) }
+        var streak = 0
+        var checkDate = today
+        while (completedDates.contains(checkDate)) {
+            streak++
+            checkDate = checkDate.minus(1, DateTimeUnit.DAY)
+        }
+        streak
     }
 
     private companion object {

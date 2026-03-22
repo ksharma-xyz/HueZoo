@@ -53,6 +53,7 @@ class HomeViewModel(
             val thresholdBest = thresholdRepository.getPersonalBest()
             val dailyChallenge = dailyRepository.getChallenge(today)
             val dailyPersonalBest = dailyRepository.getPersonalBest()
+            val streak = dailyRepository.getStreak(today)
             val isPaid = settingsRepository.isPaid()
             val totalGems = settingsRepository.getGems()
             val userName = settingsRepository.getUserName()
@@ -95,6 +96,7 @@ class HomeViewModel(
                 totalGems = totalGems,
                 playerLevel = PlayerLevel.fromGems(totalGems),
                 userName = userName,
+                streak = streak,
             )
         }
     }
