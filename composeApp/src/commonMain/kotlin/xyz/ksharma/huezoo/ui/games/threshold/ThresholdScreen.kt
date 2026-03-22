@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -219,26 +220,36 @@ private fun PlayingContent(
         )
 
         // ── Tries dots — lives UI at the bottom ───────────────────────────────
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.navigationBarsPadding().padding(bottom = HuezooSpacing.md),
+        // Single SpaceBetween row: label left, dots evenly spread right.
+        // Empty dots use a magenta outline so all 5 slots stay visible on the
+        // dark background — prevents the row from looking like it shrinks.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(bottom = HuezooSpacing.md),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             HuezooLabelSmall(text = "TRIES LEFT", color = HuezooColors.TextSecondary)
-            Spacer(Modifier.height(HuezooSpacing.xs))
-            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
-                repeat(state.maxAttempts) { index ->
-                    val isRemaining = index < state.attemptsRemaining
-                    val dotColor by animateColorAsState(
-                        targetValue = if (isRemaining) HuezooColors.AccentMagenta else HuezooColors.SurfaceL3,
-                        animationSpec = tween(300),
-                        label = "triesDot_$index",
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(TRIES_DOT_SIZE)
-                            .background(dotColor, CircleShape),
-                    )
-                }
+            repeat(state.maxAttempts) { index ->
+                val isRemaining = index < state.attemptsRemaining
+                val dotColor by animateColorAsState(
+                    targetValue = if (isRemaining) HuezooColors.AccentMagenta
+                    else HuezooColors.AccentMagenta.copy(alpha = 0f),
+                    animationSpec = tween(300),
+                    label = "triesDot_$index",
+                )
+                Box(
+                    modifier = Modifier
+                        .size(TRIES_DOT_SIZE)
+                        .border(
+                            width = 1.5.dp,
+                            color = HuezooColors.AccentMagenta.copy(alpha = 0.4f),
+                            shape = CircleShape,
+                        )
+                        .background(dotColor, CircleShape),
+                )
             }
         }
     }
