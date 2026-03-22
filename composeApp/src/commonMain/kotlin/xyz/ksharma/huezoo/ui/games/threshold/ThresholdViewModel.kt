@@ -169,6 +169,7 @@ class ThresholdViewModel(
             totalGems = totalGems,
             layoutStyle = pickLayoutStyle(),
             roundGeneration = roundGeneration,
+            sessionBestDeltaE = bestDeltaE,
         )
     }
 

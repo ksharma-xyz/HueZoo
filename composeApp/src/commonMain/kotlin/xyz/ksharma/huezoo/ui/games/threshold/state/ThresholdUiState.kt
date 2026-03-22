@@ -38,5 +38,10 @@ sealed interface ThresholdUiState {
          * always triggered, even when [round] doesn't change (i.e. after a wrong tap).
          */
         val roundGeneration: Int = 0,
+        /**
+         * Best (lowest) ΔE correctly identified in this session so far.
+         * Null until the player lands their first correct tap.
+         */
+        val sessionBestDeltaE: Float? = null,
     ) : ThresholdUiState
 }
