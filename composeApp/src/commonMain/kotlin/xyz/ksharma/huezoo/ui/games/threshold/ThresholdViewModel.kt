@@ -3,8 +3,10 @@ package xyz.ksharma.huezoo.ui.games.threshold
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -59,6 +61,9 @@ class ThresholdViewModel(
 
     /** Best (lowest) ΔE survived across all tries in this session. */
     private var bestDeltaE: Float? = null
+
+    /** Stored all-time personal best at session start — used for eager-save comparison. */
+    private var storedBestDeltaE: Float? = null
 
     /** Lifetime gem total (kept in sync with DB). */
     private var totalGems: Int = 0
@@ -129,6 +134,7 @@ class ThresholdViewModel(
     private suspend fun startSession(status: AttemptStatus.Available) {
         totalGems = settingsRepository.getGems()
         playerLevel = PlayerLevel.fromGems(totalGems)
+        storedBestDeltaE = repository.getPersonalBest()?.bestDeltaE
         baseColor = colorEngine.randomVividColorExcluding(playerLevel.levelHue)
         currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
         tapCount = 1
@@ -172,6 +178,10 @@ class ThresholdViewModel(
     private fun handleCorrectTap(state: ThresholdUiState.Playing) {
         bestDeltaE = bestDeltaE?.let { minOf(it, currentDeltaE) } ?: currentDeltaE
 
+        val sessionBest = bestDeltaE!!
+        val isNewAllTimeBest = storedBestDeltaE == null || sessionBest < storedBestDeltaE!!
+        if (isNewAllTimeBest) storedBestDeltaE = sessionBest
+
         val milestoneBonus = checkAndAwardMilestone(currentDeltaE)
         val gemsThisTap = GameRewardRates.THRESHOLD_CORRECT_TAP + milestoneBonus
 
@@ -182,6 +192,14 @@ class ThresholdViewModel(
             roundPhase = RoundPhase.Correct,
         )
         viewModelScope.launch {
+            // Save personal best FIRST, before any animation delays, using NonCancellable so
+            // the DB write survives even if the user backs out and viewModelScope is cancelled.
+            if (isNewAllTimeBest) {
+                withContext(NonCancellable) {
+                    repository.savePersonalBest(sessionBest, colorEngine.scoreFromDeltaE(sessionBest))
+                }
+            }
+
             totalGems = settingsRepository.addGems(gemsThisTap)
             sessionGems += gemsThisTap
             sessionTapGems += GameRewardRates.THRESHOLD_CORRECT_TAP
