@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -127,16 +128,17 @@ private fun PlayingContent(
 
         val accent = LocalPlayerAccentColor.current
         // ── Header row: title left, lives hearts right ────────────────────────
-        Row(
+        // FlowRow so the title can wrap to a second line at large font scales
+        // while hearts always sit at the trailing end of the first line.
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.Center,
         ) {
             HuezooTitleMedium(
                 text = "IDENTIFY  THE  OUTLIER",
                 color = accent,
                 fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.weight(1f).padding(end = HuezooSpacing.sm),
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
