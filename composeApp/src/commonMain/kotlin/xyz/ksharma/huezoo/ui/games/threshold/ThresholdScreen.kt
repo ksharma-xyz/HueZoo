@@ -1,7 +1,9 @@
 package xyz.ksharma.huezoo.ui.games.threshold
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +41,6 @@ import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
-import xyz.ksharma.huezoo.ui.components.HuezooDisplaySmall
 import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
 import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
 import xyz.ksharma.huezoo.ui.components.ThresholdHelpSheet
@@ -131,23 +134,8 @@ private fun PlayingContent(
 
         Spacer(Modifier.height(HuezooSpacing.lg))
 
-        // ── Hero block: ΔE badge centred, TRIES LEFT pinned to the end ──────
-        Box(modifier = Modifier.fillMaxWidth()) {
-            DeltaEBadge(
-                deltaE = state.deltaE,
-                modifier = Modifier.align(Alignment.Center),
-            )
-            Column(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                horizontalAlignment = Alignment.End,
-            ) {
-                HuezooLabelSmall(text = "TRIES LEFT", color = HuezooColors.TextSecondary)
-                HuezooDisplaySmall(
-                    text = state.attemptsRemaining.toString(),
-                    color = HuezooColors.AccentMagenta,
-                )
-            }
-        }
+        // ── ΔE hero — full centre focus, no competing elements ───────────────
+        DeltaEBadge(deltaE = state.deltaE)
 
         Spacer(Modifier.height(HuezooSpacing.xs))
 
@@ -217,9 +205,7 @@ private fun PlayingContent(
             )
         }
 
-        Spacer(Modifier.height(HuezooSpacing.md))
-
-        // ── Radial swatch layout (shape changes every round) ──────────────────
+        // ── Radial swatch layout — takes all remaining vertical space ─────────
         RadialSwatchLayout(
             swatches = state.swatches,
             roundPhase = state.roundPhase,
@@ -229,7 +215,32 @@ private fun PlayingContent(
             roundKey = state.roundGeneration,
             layoutStyle = state.layoutStyle,
             onSwatchTap = onSwatchTap,
+            modifier = Modifier.weight(1f),
         )
+
+        // ── Tries dots — lives UI at the bottom ───────────────────────────────
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.navigationBarsPadding().padding(bottom = HuezooSpacing.md),
+        ) {
+            HuezooLabelSmall(text = "TRIES LEFT", color = HuezooColors.TextSecondary)
+            Spacer(Modifier.height(HuezooSpacing.xs))
+            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
+                repeat(state.maxAttempts) { index ->
+                    val isRemaining = index < state.attemptsRemaining
+                    val dotColor by animateColorAsState(
+                        targetValue = if (isRemaining) HuezooColors.AccentMagenta else HuezooColors.SurfaceL3,
+                        animationSpec = tween(300),
+                        label = "triesDot_$index",
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(TRIES_DOT_SIZE)
+                            .background(dotColor, CircleShape),
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -309,6 +320,9 @@ private fun countdownUntil(until: Instant) = produceState(initialValue = "") {
 
 /** Fixed height reserved for the in-game feedback message. Never changes, so nothing shifts. */
 private val FEEDBACK_SLOT_HEIGHT = 28.dp
+
+/** Diameter of each try-remaining dot in the lives indicator. */
+private val TRIES_DOT_SIZE = 10.dp
 
 private fun Float.fmt(): String {
     val i = toInt()

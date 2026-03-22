@@ -61,6 +61,9 @@ class ThresholdViewModel(
     /** How many tries remain in the current 8-hour window. */
     private var triesRemaining = 0
 
+    /** Total tries allowed in the current 8-hour window — set once on session start. */
+    private var maxAttempts = 0
+
     private var currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
     private var oddIndex = 0
     private var baseColor: Color = Color.Unspecified
@@ -151,6 +154,7 @@ class ThresholdViewModel(
         sessionCorrectTaps = 0
         sessionWrongTaps = 0
         triesRemaining = status.maxAttempts - status.attemptsUsed
+        maxAttempts = status.maxAttempts
         awardedMilestones.clear()
         println("[DEBUG_DELTA] SESSION START — startingΔE=$currentDeltaE triesRemaining=$triesRemaining storedBestΔE=$storedBestDeltaE")
         emitRound()
@@ -165,6 +169,7 @@ class ThresholdViewModel(
             deltaE = currentDeltaE,
             tap = tapCount,
             attemptsRemaining = triesRemaining,
+            maxAttempts = maxAttempts,
             roundPhase = RoundPhase.Idle,
             totalGems = totalGems,
             layoutStyle = pickLayoutStyle(),

@@ -24,6 +24,7 @@ sealed interface ThresholdUiState {
         /** 1-based correct-tap counter within the current try. Shown in HUD as "TAP X". */
         val tap: Int,
         val attemptsRemaining: Int,
+        val maxAttempts: Int = 5,
         val roundPhase: RoundPhase,
         /** Ego-sting shown during Wrong phase; null otherwise. */
         val stingCopy: String? = null,
