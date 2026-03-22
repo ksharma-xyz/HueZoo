@@ -410,19 +410,28 @@ private fun MissionOutcomeBanner(
     color: Color,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .shapedShadow(BannerShape, color.darken(0.5f), offsetX = 0.dp, offsetY = 6.dp)
-            .background(color, BannerShape)
-            .padding(horizontal = HuezooSpacing.lg, vertical = HuezooSpacing.sm),
-        contentAlignment = Alignment.Center,
+            .background(color.copy(alpha = 0.12f), BannerShape)
+            .border(1.dp, color.copy(alpha = 0.4f), BannerShape),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Left accent strip
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .height(36.dp)
+                .background(color),
+        )
         HuezooLabelSmall(
             text = text,
-            color = color.onColor,
+            color = color,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center,
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = HuezooSpacing.sm),
         )
     }
 }
