@@ -58,8 +58,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import huezoo.composeapp.generated.resources.Res
-import huezoo.composeapp.generated.resources.ic_share
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
@@ -69,6 +67,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
+import xyz.ksharma.huezoo.platform.shareIconRes
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import xyz.ksharma.huezoo.navigation.GameId
@@ -198,7 +197,7 @@ private fun ReadyContent(
     val identityColor = if (isDaily) HuezooColors.GameDaily else HuezooColors.GameThreshold
     val accentColor = if (isDaily) identityColor else HuezooColors.AccentMagenta
     val sting = stingData(state.gameId, state.deltaE, state.roundsSurvived)
-    val shareIcon = painterResource(Res.drawable.ic_share)
+    val shareIcon = painterResource(shareIconRes())
 
     // Slide-up entrance: content rises from 60dp below + fades in
     val slideUp = remember { Animatable(60f) }
@@ -357,8 +356,8 @@ private fun ReadyContent(
         Spacer(Modifier.height(HuezooSpacing.md))
 
         // ── 5. Buttons ────────────────────────────────────────────────────────
-        // Daily: "BACK TO HOME" (always). Threshold: "PLAY AGAIN" enabled only if
-        // canPlayAgain — otherwise shows disabled "NO TRIES LEFT" variant.
+        // "PLAY AGAIN" for both game types when playable; "NO TRIES LEFT" ghost
+        // variant for Threshold when exhausted. Daily PLAY AGAIN navigates home.
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -367,7 +366,7 @@ private fun ReadyContent(
             ) {
                 HuezooButton(
                     text = when {
-                        isDaily -> "BACK TO HOME"
+                        isDaily -> "PLAY AGAIN"
                         state.canPlayAgain -> "PLAY AGAIN"
                         else -> "NO TRIES LEFT"
                     },
