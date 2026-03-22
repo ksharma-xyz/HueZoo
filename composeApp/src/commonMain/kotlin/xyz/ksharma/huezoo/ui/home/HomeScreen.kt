@@ -539,25 +539,21 @@ private fun ThresholdHeroCard(
                     modifier = Modifier.fillMaxWidth(),
                 )
             } else {
-                // Blocked — show NO TRIES LEFT + WATCH AD side by side
-                Row(
+                // Blocked — label + watch-ad button
+                HuezooLabelSmall(
+                    text = "NO TRIES LEFT",
+                    color = HuezooColors.AccentMagenta,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-                ) {
-                    HuezooButton(
-                        text = "NO TRIES LEFT",
-                        onClick = {},
-                        enabled = false,
-                        variant = HuezooButtonVariant.GhostDanger,
-                        modifier = Modifier.weight(1f),
-                    )
-                    HuezooButton(
-                        text = "WATCH AD",
-                        onClick = { /* TODO: rewarded ad integration */ },
-                        variant = HuezooButtonVariant.Ghost,
-                        modifier = Modifier.weight(1f),
-                    )
-                }
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+                Spacer(Modifier.height(HuezooSpacing.sm))
+                HuezooButton(
+                    text = "WATCH AD — EARN +1 TRY",
+                    onClick = { /* TODO: rewarded ad integration */ },
+                    variant = HuezooButtonVariant.Ghost,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         }
     }
