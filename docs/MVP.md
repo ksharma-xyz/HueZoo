@@ -195,7 +195,7 @@ Open app
 - [x] 5.1 `DailyViewModel` — loads `seededColorForDate(today)` as base; fixed ΔE curve [4.0, 3.0, 2.0, 1.5, 1.0, 0.7]
 - [x] 5.2 6 rounds always played — wrong tap reveals correct swatch and advances (does not end game)
 - [x] 5.3 Block replay: `AlreadyPlayed` state if `completed = 1` for today
-- [x] 5.4 Save score + mark completed in SQLDelight on finish
+- [x] 5.4 Mark completed in SQLDelight on finish (score system removed — gems + rounds are the only metrics)
 - [x] 5.5 Gem earn: +5 per correct round, +3 participation, +20 perfect-run bonus (all 6 correct)
 - [x] 5.6 `?` help button in top bar → `DailyHelpSheet` bottom sheet
 
@@ -204,13 +204,13 @@ Open app
 - [x] 6.2 Hero: `+N GEMS` animated count-up (AccentCyan, italic display font)
 - [x] 6.3 `GemBreakdownCard` — per-line staggered fade+slide (500ms base delay, +120ms per item)
 - [x] 6.4 Stat cards: BEST ΔE + TAPS (Threshold) / ROUNDS CORRECT (Daily)
-- [x] 6.5 `StingReadout` — ΔE value + tier badge + sting copy (varies by game + ΔE range)
-- [x] 6.6 Outcome banner: "MISSION OUTCOME: COMPLETE / FAILURE / FLATLINED"
+- [x] 6.5 `StingReadout` — ΔE value + tier badge + sting copy; **Daily: rounds-based tiers** (6=PERFECT RUN, 4-5=STRONG SIGNAL, 2-3=DRIFTING, 0-1=SIGNAL LOST); **Threshold: ΔE-based tiers**
+- [x] 6.6 Outcome banner: "MISSION OUTCOME: COMPLETE / FAILURE / FLATLINED" (FLATLINED when `roundsSurvived == 0`)
 - [x] 6.7 Confetti fires when `gemsEarned > 0`; zero-gem result shows danger (AccentMagenta hero)
 - [x] 6.8 [Play Again] — enabled only if `canPlayAgain`; shows "NO TRIES LEFT" ghost-danger when exhausted
 - [x] 6.9 [Share] → `platformOps.shareText()`
 - [x] 6.10 Daily: "Next puzzle in Xh Xm" countdown below buttons
-- [ ] 6.11 "NEW PERSONAL BEST" badge — `isNewPersonalBest` is in `ResultUiState.Ready` but not yet surfaced in the UI
+- [x] 6.11 "NEW PERSONAL BEST" banner — shown when `isNewPersonalBest`; Daily compares `roundsSurvived >= bestRounds`; Threshold compares `abs(deltaE - bestDeltaE) < 0.005`
 
 ### Phase UX — Pending Items
 
@@ -246,9 +246,10 @@ Open app
 
 #### UX.11 — Out of Tries Refill Sheet ⬜
 *Replace current full-screen Blocked state with a monetisation-ready modal.*
-- [ ] UX.11.1 **Refill bottom sheet** — two options: gem refill (300 gems for 10 tries, disabled + warning if insufficient) + Watch Ad (free, always available stub). Design ref: `docs/stitch_huezoo_prd_design_doc/huezoo_refill_out_of_tries/`
-- [ ] UX.11.2 Gem deduction via `SettingsRepository.addGems(-300)` on gem refill
-- [ ] UX.11.3 Wire Watch Ad button stub (no-op until AdMob Phase 7)
+- [ ] UX.11.1 **Refill bottom sheet** — two options: gem refill + Watch Ad (free, always available stub). Design ref: `docs/stitch_huezoo_prd_design_doc/huezoo_refill_out_of_tries/`
+- [ ] UX.11.2 **Gem refill design** — decide cost and how many tries unlocked per refill (e.g. 150 gems = 3 extra tries, or 300 gems = 5 extra tries). Gem cost must feel meaningful but not punishing — draft in GAME_DESIGN.md before implementing.
+- [ ] UX.11.3 Gem deduction via `SettingsRepository.addGems(-N)` on gem refill; disable button with warning if insufficient gems
+- [ ] UX.11.4 Wire Watch Ad button stub (no-op until AdMob Phase 7); free tier only — paid users bypass entirely via `isPaid()` check in `DefaultThresholdRepository`
 
 #### UX.12 — Streak System ⬜
 - [ ] UX.12.1 Track consecutive correct taps in `ThresholdViewModel` (`correctStreak: Int`)
@@ -364,7 +365,7 @@ identity upgrade — the whole interface changes allegiance, not just a badge.
 - [ ] UX.15.3 Privacy Policy link (required by both stores)
 
 ### Phase 7 — Monetization ⬜
-- [ ] 7.1 Attempt counter on Threshold card ("X of 10 tries used this window")
+- [ ] 7.1 Attempt counter on Threshold card ("X of 5 tries used this window")
 - [ ] 7.2 Out of Tries refill sheet (see UX.11) — replaces blocked screen
 - [ ] 7.3 `PaywallSheet` — "Unlock Forever — $2" primary CTA + "Watch Ad (+1 try)" ghost secondary
 - [ ] 7.4 AdMob setup — rewarded ad for +1 try (Android + iOS)
@@ -397,6 +398,8 @@ identity upgrade — the whole interface changes allegiance, not just a badge.
 - [ ] T.2 `PlayerLevel.fromGems()` — pure function; test all tier boundaries
 - [ ] T.3 `ThresholdViewModel` — inject fake `ColorEngine`, `ThresholdRepository`, `SettingsRepository`; drive via `onUiEvent()`; verify `sessionGems`, milestone bonuses, try budget exhaustion
 - [ ] T.4 `DailyViewModel` — inject fakes; verify correct/wrong round handling, participation gem, perfect bonus, 6-round-always rule
+  - [ ] T.4a **ΔE shown in result = highest ΔE among correctly answered rounds** — e.g. if rounds 1 (ΔE 4.5) and 3 (ΔE 2.2) are correct and rounds 2/4/5/6 are wrong, result must show ΔE 4.5 (not last-round ΔE). Test 0-correct edge case (ΔE = 0.0) and all-correct case.
+  - [ ] T.4b **Personal best = rounds survived** — `savePersonalBest` only writes when `roundsSurvived > stored bestRounds`; verify tie does not overwrite.
 - [ ] T.5 `ColorMath` — `deltaE()` round-trip tests against known CIEDE2000 reference values
 
 ### Phase L — Font Licenses ⬜ (before App Store submission)
