@@ -1,8 +1,18 @@
 package xyz.ksharma.huezoo.ui.upgrade
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,44 +21,76 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
-import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
+import xyz.ksharma.huezoo.ui.components.HuezooDisplayLarge
+import xyz.ksharma.huezoo.ui.components.HuezooDisplayMedium
+import xyz.ksharma.huezoo.ui.components.HuezooHeadlineMedium
+import xyz.ksharma.huezoo.ui.components.HuezooLabelLarge
 import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
-import xyz.ksharma.huezoo.ui.components.HuezooTitleLarge
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.PriceButton
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewScreen
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
+import xyz.ksharma.huezoo.ui.theme.shapedShadow
+
+private val HeroSize = 200.dp
+private val TileHeight = 88.dp
+private const val RING_ALPHA_PEAK = 0.45f
+private const val RING_PERIOD_MS = 2200
+private const val RING_STAGGER_MS = 733
 
 /**
- * Paywall screen — the single entry point for all purchase flows.
+ * Paywall screen — single entry point for all purchase CTAs.
  *
  * Navigation entrypoints:
- *  • Home screen (GET FULL ACCESS button below Threshold card, shown when blocked + free)
- *  • Result screen (future: upsell after out-of-tries game)
- *  • Any future placement that needs to drive upgrade
+ *  • Home screen: GET FULL ACCESS CTA below Threshold card (blocked + free)
+ *  • Future: result screen upsell after out-of-tries game
  *
- * Always use this screen for purchase CTAs — never inline a [PriceButton] in another screen.
+ * Always navigate here for upgrade — never inline [PriceButton] elsewhere.
  *
- * TODO: Wire [onPurchase] to real in-app purchase (Google Play Billing / StoreKit 2).
- *       Price string should come from the store, not hardcoded.
+ * TODO: Wire onPurchase to real IAP (Google Play Billing / StoreKit 2).
+ *       Fetch price string from store at runtime — currently hardcoded.
  */
 @Composable
 fun UpgradeScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // Entrance: slide up + fade in
+    val offsetY = remember { Animatable(80f) }
+    val alpha = remember { Animatable(0f) }
+
+    LaunchedEffect(Unit) {
+        launch {
+            offsetY.animateTo(
+                0f,
+                spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = 180f),
+            )
+        }
+        launch { alpha.animateTo(1f, tween(400)) }
+    }
+
     AmbientGlowBackground(
         modifier = modifier,
         primaryColor = HuezooColors.PriceGreen,
@@ -59,56 +101,131 @@ fun UpgradeScreen(
                 .fillMaxSize()
                 .navigationBarsPadding(),
         ) {
-            HuezooTopBar(
-                onBackClick = onBack,
-                currencyAmount = null,
-            )
+            HuezooTopBar(onBackClick = onBack, currencyAmount = null)
 
+            // Scrollable body
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = HuezooSpacing.lg),
+                    .graphicsLayer {
+                        translationY = offsetY.value
+                        this.alpha = alpha.value
+                    }
+                    .padding(horizontal = HuezooSpacing.md),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(Modifier.height(HuezooSpacing.xxl))
+                Spacer(Modifier.height(HuezooSpacing.md))
 
-                HuezooLabelSmall(
-                    text = "FULL ACCESS",
-                    color = HuezooColors.PriceGreen,
-                    fontWeight = FontWeight.ExtraBold,
-                )
+                // ── Animated hero ─────────────────────────────────────────────
+                Box(
+                    modifier = Modifier.size(HeroSize),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    PulsingDiamondRings(color = HuezooColors.PriceGreen)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        HuezooDisplayLarge(
+                            text = "∞",
+                            color = HuezooColors.PriceGreen,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+                        HuezooLabelSmall(
+                            text = "UNLIMITED",
+                            color = HuezooColors.PriceGreen,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+                    }
+                }
 
-                Spacer(Modifier.height(HuezooSpacing.sm))
+                Spacer(Modifier.height(HuezooSpacing.md))
 
-                HuezooTitleLarge(
+                // ── Headline ──────────────────────────────────────────────────
+                HuezooHeadlineMedium(
                     text = "Train Without Limits",
                     color = HuezooColors.TextPrimary,
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center,
                 )
 
-                Spacer(Modifier.height(HuezooSpacing.sm))
+                Spacer(Modifier.height(HuezooSpacing.xs))
 
-                HuezooBodyMedium(
-                    text = "Free players get 5 Threshold tries per day. Full access removes that limit — play as many sessions as you want.",
+                HuezooLabelSmall(
+                    text = "Free tier: 5 Threshold tries per day.\nFull access removes the cap — play as much as you want.",
                     color = HuezooColors.TextSecondary,
                     textAlign = TextAlign.Center,
                 )
 
                 Spacer(Modifier.height(HuezooSpacing.xxl))
 
-                FeatureList()
+                // ── Feature tiles — 2×2 parallelogram grid ────────────────────
+                Column(verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                    ) {
+                        FeatureTile(
+                            symbol = "∞",
+                            title = "UNLIMITED",
+                            subtitle = "Threshold tries",
+                            accentColor = HuezooColors.AccentCyan,
+                            modifier = Modifier.weight(1f).height(TileHeight),
+                        )
+                        FeatureTile(
+                            symbol = "◈",
+                            title = "DAILY",
+                            subtitle = "Always free",
+                            accentColor = HuezooColors.GameDaily,
+                            modifier = Modifier.weight(1f).height(TileHeight),
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                    ) {
+                        FeatureTile(
+                            symbol = "◉",
+                            title = "LEADERBOARD",
+                            subtitle = "Global rank",
+                            accentColor = HuezooColors.GameThreshold,
+                            modifier = Modifier.weight(1f).height(TileHeight),
+                        )
+                        FeatureTile(
+                            symbol = "+",
+                            title = "ALL MODES",
+                            subtitle = "Future included",
+                            accentColor = HuezooColors.AccentYellow,
+                            modifier = Modifier.weight(1f).height(TileHeight),
+                        )
+                    }
+                }
 
                 Spacer(Modifier.height(HuezooSpacing.xxl))
             }
 
-            // Purchase CTA — pinned at bottom above nav bar
+            // ── Pinned price + purchase CTA ───────────────────────────────────
             Column(
-                modifier = Modifier.padding(horizontal = HuezooSpacing.lg),
+                modifier = Modifier
+                    .graphicsLayer { this.alpha = alpha.value }
+                    .padding(horizontal = HuezooSpacing.md),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                // Price displayed separately — large and prominent
+                HuezooDisplayLarge(
+                    text = "$2.99", // TODO: fetch from store
+                    color = HuezooColors.PriceGreen,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+
+                HuezooLabelSmall(
+                    text = "ONE-TIME PURCHASE · NO SUBSCRIPTION",
+                    color = HuezooColors.TextDisabled,
+                    textAlign = TextAlign.Center,
+                )
+
+                Spacer(Modifier.height(HuezooSpacing.sm))
+
                 PriceButton(
-                    price = "GET FULL ACCESS — $2.99", // TODO: fetch price from store
+                    price = "UNLOCK FOREVER",
                     onClick = { /* TODO: trigger IAP purchase */ },
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -116,7 +233,7 @@ fun UpgradeScreen(
                 Spacer(Modifier.height(HuezooSpacing.sm))
 
                 HuezooLabelSmall(
-                    text = "One-time purchase · No subscription · Supports indie dev",
+                    text = "Supports indie development ♥",
                     color = HuezooColors.TextDisabled,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
@@ -128,48 +245,122 @@ fun UpgradeScreen(
     }
 }
 
-// ── Feature list ─────────────────────────────────────────────────────────────
+// ── Animated hero ─────────────────────────────────────────────────────────────
 
-private val FEATURES = listOf(
-    "Unlimited Threshold sessions per day" to "Free tier: 5 tries. Full access: unlimited.",
-    "Daily Challenge" to "Always free for everyone.",
-    "Leaderboard & personal bests" to "Track your ΔE improvement over time.",
-    "All future game modes" to "New modes added — no extra charge.",
-)
-
+/**
+ * Three concentric diamond rings that pulse outward with [color], staggered
+ * 733 ms apart to create a continuous ripple. Ring alpha fades to 0 as it
+ * expands so the motion feels like energy radiating from the center.
+ */
 @Composable
-private fun FeatureList(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(HuezooColors.SurfaceL2, RoundedCornerShape(16.dp))
-            .border(1.dp, HuezooColors.SurfaceL4, RoundedCornerShape(16.dp))
-            .padding(HuezooSpacing.lg),
-        verticalArrangement = Arrangement.spacedBy(HuezooSpacing.lg),
-    ) {
-        FEATURES.forEach { (title, subtitle) ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
-                verticalAlignment = Alignment.Top,
-            ) {
-                HuezooLabelSmall(
-                    text = "✓",
-                    color = HuezooColors.PriceGreen,
-                    fontWeight = FontWeight.ExtraBold,
-                )
-                Column {
-                    HuezooLabelSmall(
-                        text = title,
-                        color = HuezooColors.TextPrimary,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Spacer(Modifier.height(2.dp))
-                    HuezooLabelSmall(
-                        text = subtitle,
-                        color = HuezooColors.TextSecondary,
-                    )
-                }
+private fun PulsingDiamondRings(
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    val infinite = rememberInfiniteTransition(label = "diamondRings")
+
+    val p1 by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = RING_PERIOD_MS),
+            repeatMode = RepeatMode.Restart,
+            initialStartOffset = StartOffset(0),
+        ),
+        label = "ring1",
+    )
+    val p2 by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = RING_PERIOD_MS),
+            repeatMode = RepeatMode.Restart,
+            initialStartOffset = StartOffset(RING_STAGGER_MS),
+        ),
+        label = "ring2",
+    )
+    val p3 by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = RING_PERIOD_MS),
+            repeatMode = RepeatMode.Restart,
+            initialStartOffset = StartOffset(RING_STAGGER_MS * 2),
+        ),
+        label = "ring3",
+    )
+
+    Canvas(modifier = modifier.fillMaxSize()) {
+        val maxRadius = size.minDimension / 2f
+
+        listOf(p1, p2, p3).forEach { progress ->
+            val radius = maxRadius * progress
+            val ringAlpha = RING_ALPHA_PEAK * (1f - progress)
+            val strokePx = (2.5f - progress * 1.5f).coerceAtLeast(0.5f) * density
+
+            val cx = center.x
+            val cy = center.y
+            val path = Path().apply {
+                moveTo(cx, cy - radius)
+                lineTo(cx + radius, cy)
+                lineTo(cx, cy + radius)
+                lineTo(cx - radius, cy)
+                close()
             }
+            drawPath(
+                path = path,
+                color = color.copy(alpha = ringAlpha),
+                style = Stroke(width = strokePx),
+            )
+        }
+    }
+}
+
+// ── Feature tile ──────────────────────────────────────────────────────────────
+
+/**
+ * Parallelogram feature tile — same shape language as the top-bar back button
+ * and SkewedStatChip. Each tile has a symbol, a bold title, and a subtitle.
+ * [accentColor] tints the shadow and symbol to give each tile its own identity.
+ */
+@Composable
+private fun FeatureTile(
+    symbol: String,
+    title: String,
+    subtitle: String,
+    accentColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .shapedShadow(
+                shape = ParallelogramBack,
+                color = accentColor.copy(alpha = 0.25f),
+                offsetX = 4.dp,
+                offsetY = 4.dp,
+            )
+            .clip(ParallelogramBack)
+            .background(HuezooColors.SurfaceL2),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            HuezooDisplayMedium(
+                text = symbol,
+                color = accentColor,
+                fontWeight = FontWeight.ExtraBold,
+            )
+            HuezooLabelLarge(
+                text = title,
+                color = HuezooColors.TextPrimary,
+                fontWeight = FontWeight.ExtraBold,
+            )
+            HuezooLabelSmall(
+                text = subtitle,
+                color = HuezooColors.TextSecondary,
+            )
         }
     }
 }

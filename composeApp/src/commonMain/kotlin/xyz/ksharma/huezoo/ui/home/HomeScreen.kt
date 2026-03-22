@@ -3,7 +3,9 @@ package xyz.ksharma.huezoo.ui.home
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -16,6 +18,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -89,6 +92,7 @@ import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.rimLight
+import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 import kotlin.math.PI
 import kotlin.math.cos
@@ -253,15 +257,9 @@ private fun ReadyContent(
             }
 
             if (state.threshold.isBlocked && !state.isPaid) {
-                Spacer(Modifier.height(HuezooSpacing.sm))
-                HuezooButton(
-                    text = "GET FULL ACCESS",
-                    onClick = onUpgradeTap,
-                    variant = HuezooButtonVariant.Primary,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = HuezooSpacing.lg),
-                )
+                Spacer(Modifier.height(HuezooSpacing.md))
+                UpgradeCta(onClick = onUpgradeTap)
+                Spacer(Modifier.height(HuezooSpacing.xs))
             }
 
             Spacer(Modifier.height(HuezooSpacing.lg))
@@ -1406,6 +1404,58 @@ private fun countdownUntil(until: Instant, prefix: String): String {
         }
     }
     return text
+}
+
+// ── Upgrade CTA ──────────────────────────────────────────────────────────────
+
+/**
+ * Full-width parallelogram "GET FULL ACCESS" button, styled to match the
+ * top-bar back button and SkewedStatChip — same shape, same shadow pattern.
+ *
+ * Placed below ThresholdHeroCard when the user is blocked (free tier, no tries left).
+ */
+@Composable
+private fun UpgradeCta(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "upgradeCtaScale",
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .shapedShadow(
+                shape = ParallelogramBack,
+                color = HuezooColors.PriceGreen.copy(alpha = 0.35f),
+                offsetX = 4.dp,
+                offsetY = 4.dp,
+            )
+            .clip(ParallelogramBack)
+            .background(HuezooColors.PriceGreen)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        HuezooLabelSmall(
+            text = "GET FULL ACCESS",
+            color = HuezooColors.SurfaceL0,
+            fontWeight = FontWeight.ExtraBold,
+        )
+    }
 }
 
 // ── Previews ─────────────────────────────────────────────────────────────────
