@@ -180,7 +180,7 @@ private fun ReadyContent(
         Column(modifier = Modifier.padding(horizontal = HuezooSpacing.md)) {
             Spacer(Modifier.height(HuezooSpacing.md))
 
-            // Greeting — two-level: small dim label + large accent name
+            // Greeting — tapping name navigates to Settings to set/update it
             HuezooLabelSmall(
                 text = "WELCOME,",
                 color = HuezooColors.TextSecondary,
@@ -190,6 +190,11 @@ private fun ReadyContent(
                 text = if (state.userName != null) state.userName.uppercase() else "AGENT",
                 color = LocalPlayerAccentColor.current,
                 fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onSettingsTap,
+                ),
             )
 
             Spacer(Modifier.height(HuezooSpacing.md))
