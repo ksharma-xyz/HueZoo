@@ -245,9 +245,19 @@ private fun ReadyContent(
             StaggeredCard(index = 2) {
                 ThresholdHeroCard(
                     data = state.threshold,
-                    isPaid = state.isPaid,
                     onEnterGame = onThresholdTap,
-                    onUpgradeTap = onSettingsTap,
+                )
+            }
+
+            if (state.threshold.isBlocked && !state.isPaid) {
+                Spacer(Modifier.height(HuezooSpacing.sm))
+                HuezooButton(
+                    text = "GET FULL ACCESS",
+                    onClick = onSettingsTap,
+                    variant = HuezooButtonVariant.Primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = HuezooSpacing.lg),
                 )
             }
 
@@ -428,9 +438,7 @@ private fun StatBox(
 @Composable
 private fun ThresholdHeroCard(
     data: ThresholdCardData,
-    isPaid: Boolean,
     onEnterGame: () -> Unit,
-    onUpgradeTap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val triesText = when {
@@ -528,33 +536,24 @@ private fun ThresholdHeroCard(
                     modifier = Modifier.fillMaxWidth(),
                 )
             } else {
-                // Blocked — show disabled state + upgrade/ad options
-                HuezooButton(
-                    text = "NO TRIES LEFT",
-                    onClick = {},
-                    enabled = false,
-                    variant = HuezooButtonVariant.GhostDanger,
+                // Blocked — show NO TRIES LEFT + WATCH AD side by side
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                )
-                if (!isPaid) {
-                    Spacer(Modifier.height(HuezooSpacing.sm))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-                    ) {
-                        HuezooButton(
-                            text = "GET FULL ACCESS",
-                            onClick = onUpgradeTap,
-                            variant = HuezooButtonVariant.Primary,
-                            modifier = Modifier.weight(1f),
-                        )
-                        HuezooButton(
-                            text = "WATCH AD",
-                            onClick = { /* TODO: rewarded ad integration */ },
-                            variant = HuezooButtonVariant.Ghost,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
+                    horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                ) {
+                    HuezooButton(
+                        text = "NO TRIES LEFT",
+                        onClick = {},
+                        enabled = false,
+                        variant = HuezooButtonVariant.GhostDanger,
+                        modifier = Modifier.weight(1f),
+                    )
+                    HuezooButton(
+                        text = "WATCH AD",
+                        onClick = { /* TODO: rewarded ad integration */ },
+                        variant = HuezooButtonVariant.Ghost,
+                        modifier = Modifier.weight(1f),
+                    )
                 }
             }
         }
