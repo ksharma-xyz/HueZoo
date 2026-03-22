@@ -53,14 +53,14 @@ class DailyViewModel(
     private var roundIndex = 0
     private var oddIndex = 0
 
-    /** Cumulative score from correct rounds only. */
-    private var cumulativeScore = 0
-
     /** Number of rounds answered correctly (0–6). */
     private var correctRounds = 0
 
-    /** ΔE of the last round played (for personal best tracking). */
+    /** ΔE of the last round generated (used to evaluate the current round). */
     private var lastRoundDeltaE = 0f
+
+    /** Highest ΔE among rounds the player answered correctly (shown in result / personal best). */
+    private var highestCorrectDeltaE = 0f
 
     /** Gems earned this session — participation + per-correct + perfect bonus. */
     private var sessionGems = 0
@@ -99,9 +99,9 @@ class DailyViewModel(
     private fun loadGame() {
         roundIndex = 0
         oddIndex = 0
-        cumulativeScore = 0
         correctRounds = 0
         lastRoundDeltaE = 0f
+        highestCorrectDeltaE = 0f
         sessionGems = 0
         sessionCorrectGems = 0
         roundGeneration = 0
@@ -111,7 +111,7 @@ class DailyViewModel(
             val date = today
             val existing = repository.getChallenge(date)
             if (existing?.completed == true) {
-                _uiState.value = DailyUiState.AlreadyPlayed(score = existing.score)
+                _uiState.value = DailyUiState.AlreadyPlayed
             } else {
                 val gems = settingsRepository.getGems()
                 playerLevel = PlayerLevel.fromGems(gems)
@@ -150,8 +150,8 @@ class DailyViewModel(
     }
 
     private fun handleCorrectTap(state: DailyUiState.Playing) {
-        cumulativeScore += colorEngine.scoreFromDeltaE(lastRoundDeltaE)
         correctRounds++
+        if (lastRoundDeltaE > highestCorrectDeltaE) highestCorrectDeltaE = lastRoundDeltaE
 
         _uiState.value = state.copy(
             swatches = state.swatches.mapIndexed { i, s ->
@@ -222,8 +222,8 @@ class DailyViewModel(
             sessionGems += GameRewardRates.DAILY_PERFECT_BONUS
         }
 
-        repository.saveCompletion(date, cumulativeScore.toFloat())
-        repository.savePersonalBest(lastRoundDeltaE, cumulativeScore)
+        repository.saveCompletion(date)
+        repository.savePersonalBest(highestCorrectDeltaE, correctRounds)
         val breakdown = buildList {
             if (sessionCorrectGems > 0) add(GemAward("Correct rounds ×$correctRounds", sessionCorrectGems))
             add(GemAward("Participation", GameRewardRates.DAILY_PARTICIPATION))
@@ -233,9 +233,8 @@ class DailyViewModel(
             DailyNavEvent.NavigateToResult(
                 Result(
                     gameId = GameId.DAILY,
-                    deltaE = lastRoundDeltaE,
+                    deltaE = highestCorrectDeltaE,
                     roundsSurvived = correctRounds,
-                    score = cumulativeScore,
                     gemsEarned = sessionGems,
                     gemBreakdown = breakdown,
                 ),

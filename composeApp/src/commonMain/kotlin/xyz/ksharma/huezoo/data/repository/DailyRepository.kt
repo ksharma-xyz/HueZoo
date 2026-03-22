@@ -9,12 +9,13 @@ interface DailyRepository {
     /** Returns today's record if the player has already played, null otherwise. */
     suspend fun getChallenge(date: LocalDate): DailyChallenge?
 
-    /** Marks today's challenge as completed with the given score. */
-    suspend fun saveCompletion(date: LocalDate, score: Float)
+    /** Marks today's challenge as completed. */
+    suspend fun saveCompletion(date: LocalDate)
 
     suspend fun getPersonalBest(): PersonalBest?
 
-    suspend fun savePersonalBest(deltaE: Float, score: Int)
+    /** Saves personal best if [roundsSurvived] exceeds the stored best. */
+    suspend fun savePersonalBest(deltaE: Float, roundsSurvived: Int)
 
     /**
      * Counts consecutive completed days ending on [today].

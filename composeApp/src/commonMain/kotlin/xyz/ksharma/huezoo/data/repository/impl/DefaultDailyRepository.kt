@@ -19,14 +19,13 @@ class DefaultDailyRepository(
         db.huezooDatabaseQueries.getDailyChallenge(date.toString()).executeAsOneOrNull()?.let {
             DailyChallenge(
                 date = LocalDate.parse(it.date),
-                score = it.score.toFloat(),
                 completed = it.completed != 0L,
             )
         }
     }
 
-    override suspend fun saveCompletion(date: LocalDate, score: Float) = withContext(Dispatchers.Default) {
-        db.huezooDatabaseQueries.upsertDailyChallenge(date.toString(), score.toDouble(), COMPLETED)
+    override suspend fun saveCompletion(date: LocalDate) = withContext(Dispatchers.Default) {
+        db.huezooDatabaseQueries.upsertDailyChallenge(date.toString(), COMPLETED)
         Unit
     }
 
@@ -35,17 +34,17 @@ class DefaultDailyRepository(
             PersonalBest(
                 gameId = it.game_id,
                 bestDeltaE = it.best_delta_e?.toFloat(),
-                bestScore = it.best_score?.toInt(),
+                bestRounds = it.best_rounds?.toInt(),
             )
         }
     }
 
-    override suspend fun savePersonalBest(deltaE: Float, score: Int) = withContext(Dispatchers.Default) {
+    override suspend fun savePersonalBest(deltaE: Float, roundsSurvived: Int) = withContext(Dispatchers.Default) {
         val q = db.huezooDatabaseQueries
         val current = q.getPersonalBest(GameId.DAILY).executeAsOneOrNull()
-        val isNewBest = current?.best_score == null || score > current.best_score
+        val isNewBest = current?.best_rounds == null || roundsSurvived > current.best_rounds
         if (isNewBest) {
-            q.upsertPersonalBest(GameId.DAILY, deltaE.toDouble(), score.toLong(), null)
+            q.upsertPersonalBest(GameId.DAILY, deltaE.toDouble(), roundsSurvived.toLong(), null)
         }
         Unit
     }

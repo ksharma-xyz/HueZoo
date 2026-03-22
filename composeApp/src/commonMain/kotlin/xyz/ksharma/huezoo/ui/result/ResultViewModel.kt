@@ -49,13 +49,12 @@ class ResultViewModel(
             }
 
             // savePersonalBest runs before navigation, so the DB already holds the new best.
-            // If this session IS the new best, personalBestDeltaE == navResult.deltaE (threshold)
-            // or bestScore == navResult.score (daily). Detect by comparing the stored value.
+            // Detect by comparing the freshly-stored value against this session's result.
             val isNewPersonalBest = when (navResult.gameId) {
                 GameId.THRESHOLD -> best?.bestDeltaE?.let {
                     kotlin.math.abs(it - navResult.deltaE) < 0.005f
                 } ?: true
-                GameId.DAILY -> best?.bestScore?.let { navResult.score >= it } ?: true
+                GameId.DAILY -> best?.bestRounds?.let { navResult.roundsSurvived >= it } ?: true
                 else -> false
             }
 
@@ -63,7 +62,6 @@ class ResultViewModel(
                 gameId = navResult.gameId,
                 deltaE = navResult.deltaE,
                 roundsSurvived = navResult.roundsSurvived,
-                score = navResult.score,
                 isNewPersonalBest = isNewPersonalBest,
                 personalBestDeltaE = best?.bestDeltaE,
                 gemsEarned = navResult.gemsEarned,

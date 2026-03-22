@@ -18,7 +18,6 @@ import kotlin.test.assertTrue
  * - [DefaultColorEngine.randomVividColor]: output is within vivid bounds (sat/lig ranges).
  * - [DefaultColorEngine.generateOddSwatch]: actual CIEDE2000 ΔE is within tolerance of target.
  * - [DefaultColorEngine.seededColorForDate]: same date → same color; different dates → different colors.
- * - [DefaultColorEngine.scoreFromDeltaE]: monotonically decreasing, floor capped correctly.
  * - [FakeColorEngine]: implements [ColorEngine] and returns configured values.
  *
  * ## Design note
@@ -142,45 +141,16 @@ class ColorEngineTest {
         assertEquals(result1, result2, "Daily color must be stable — same for all users on same day")
     }
 
-    // ─── scoreFromDeltaE ──────────────────────────────────────────────────────
-
-    @Test
-    fun `scoreFromDeltaE decreases as deltaE increases`() {
-        val scores = listOf(0.5f, 1.0f, 2.0f, 3.0f, 5.0f).map { seededEngine.scoreFromDeltaE(it) }
-        for (i in 0 until scores.size - 1) {
-            assertTrue(
-                scores[i] >= scores[i + 1],
-                "Score should decrease as ΔE increases: ${scores[i]} < ${scores[i + 1]}",
-            )
-        }
-    }
-
-    @Test
-    fun `scoreFromDeltaE floors at minimum delta E`() {
-        // Very small ΔE (below floor) should produce same score as the floor value
-        val scoreAtFloor = seededEngine.scoreFromDeltaE(DefaultColorEngine.SCORE_MIN_DELTA_E)
-        val scoreBelowFloor = seededEngine.scoreFromDeltaE(0.01f)
-        assertEquals(scoreAtFloor, scoreBelowFloor)
-    }
-
-    @Test
-    fun `scoreFromDeltaE gives reasonable score at deltaE 1`() {
-        val score = seededEngine.scoreFromDeltaE(1.0f)
-        assertEquals(1000, score)   // 1000 / 1.0 = 1000
-    }
-
-    @Test
-    fun `scoreFromDeltaE gives reasonable score at deltaE 2`() {
-        val score = seededEngine.scoreFromDeltaE(2.0f)
-        assertEquals(500, score)    // 1000 / 2.0 = 500
-    }
-
     // ─── FakeColorEngine contract ─────────────────────────────────────────────
 
     @Test
-    fun `FakeColorEngine implements ColorEngine and returns configured values`() {
-        val fake: ColorEngine = FakeColorEngine(score = 999)
-        assertEquals(999, fake.scoreFromDeltaE(1.0f))
+    fun `FakeColorEngine implements ColorEngine and returns configured colors`() {
+        val fake: ColorEngine = FakeColorEngine(
+            vividColor = androidx.compose.ui.graphics.Color.Red,
+            oddSwatch = androidx.compose.ui.graphics.Color.Blue,
+        )
+        assertEquals(androidx.compose.ui.graphics.Color.Red, fake.randomVividColor())
+        assertEquals(androidx.compose.ui.graphics.Color.Blue, fake.generateOddSwatch(androidx.compose.ui.graphics.Color.Red, 1.0f))
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

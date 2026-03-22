@@ -153,11 +153,11 @@ fun ResultScreen(
 
 private data class StingData(val badge: String, val copy: String)
 
-private fun stingData(gameId: String, deltaE: Float, score: Int): StingData = when {
+private fun stingData(gameId: String, deltaE: Float, roundsSurvived: Int): StingData = when {
     gameId == GameId.DAILY -> when {
-        score > 800 -> StingData("PERFECT RUN", "Perfect run. You see what others miss.")
-        score > 500 -> StingData("STRONG SIGNAL", "Strong calibration. Above average perception.")
-        score > 200 -> StingData("DRIFTING", "Not bad. Keep training your eye.")
+        roundsSurvived == 6 -> StingData("PERFECT RUN", "Perfect run. You see what others miss.")
+        roundsSurvived >= 4 -> StingData("STRONG SIGNAL", "Strong calibration. Above average perception.")
+        roundsSurvived >= 2 -> StingData("DRIFTING", "Not bad. Keep training your eye.")
         else -> StingData("SIGNAL LOST", "Try again tomorrow. Your eye will sharpen.")
     }
     deltaE < 0.5f -> StingData("SUPERHUMAN", "Superhuman. This shouldn't be possible.")
@@ -197,7 +197,7 @@ private fun ReadyContent(
     val isDaily = state.gameId == GameId.DAILY
     val identityColor = if (isDaily) HuezooColors.GameDaily else HuezooColors.GameThreshold
     val accentColor = if (isDaily) identityColor else HuezooColors.AccentMagenta
-    val sting = stingData(state.gameId, state.deltaE, state.score)
+    val sting = stingData(state.gameId, state.deltaE, state.roundsSurvived)
     val shareIcon = painterResource(Res.drawable.ic_share)
 
     // Slide-up entrance: content rises from 60dp below + fades in
@@ -244,11 +244,11 @@ private fun ReadyContent(
 
         // ── 1. Outcome banner — full-width, colored shelf ──────────────────────
         val bannerText = when {
-            state.score == 0 -> "MISSION OUTCOME: FLATLINED"
+            state.roundsSurvived == 0 -> "MISSION OUTCOME: FLATLINED"
             isDaily -> "MISSION OUTCOME: COMPLETE"
             else -> "MISSION OUTCOME: FAILURE"
         }
-        val bannerColor = if (state.score == 0) HuezooColors.AccentMagenta else accentColor
+        val bannerColor = if (state.roundsSurvived == 0) HuezooColors.AccentMagenta else accentColor
         MissionOutcomeBanner(
             text = bannerText,
             color = bannerColor,
@@ -1097,7 +1097,6 @@ private fun ResultThresholdFailurePreview() {
             state = xyz.ksharma.huezoo.ui.result.state.ResultUiState.Ready(
                 gameId = xyz.ksharma.huezoo.navigation.GameId.THRESHOLD,
                 deltaE = 1.4f,
-                score = 714,
                 roundsSurvived = 4,
                 isNewPersonalBest = false,
                 personalBestDeltaE = 1.2f,
@@ -1121,7 +1120,6 @@ private fun ResultThresholdElitePreview() {
             state = xyz.ksharma.huezoo.ui.result.state.ResultUiState.Ready(
                 gameId = xyz.ksharma.huezoo.navigation.GameId.THRESHOLD,
                 deltaE = 0.8f,
-                score = 1250,
                 roundsSurvived = 11,
                 isNewPersonalBest = true,
                 personalBestDeltaE = 0.8f,
@@ -1145,7 +1143,6 @@ private fun ResultDailyCompletePreview() {
             state = xyz.ksharma.huezoo.ui.result.state.ResultUiState.Ready(
                 gameId = xyz.ksharma.huezoo.navigation.GameId.DAILY,
                 deltaE = 2.1f,
-                score = 476,
                 roundsSurvived = 4,
                 isNewPersonalBest = false,
                 personalBestDeltaE = null,

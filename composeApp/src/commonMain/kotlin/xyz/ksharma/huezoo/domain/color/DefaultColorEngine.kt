@@ -135,11 +135,6 @@ class DefaultColorEngine(private val random: Random = Random.Default) : ColorEng
         return hslToColor(hue, saturation, lightness)
     }
 
-    // ─── Scoring ──────────────────────────────────────────────────────────────
-
-    override fun scoreFromDeltaE(de: Float): Int =
-        (SCORE_BASE / de.coerceAtLeast(SCORE_MIN_DELTA_E)).toInt()
-
     // ─── Companion: constants ─────────────────────────────────────────────────
 
     companion object {
@@ -169,10 +164,6 @@ class DefaultColorEngine(private val random: Random = Random.Default) : ColorEng
         internal const val DAILY_SAT_RANGE = 0.30f // → 1.0
         internal const val DAILY_LIG_MIN = 0.35f
         internal const val DAILY_LIG_RANGE = 0.30f // → 0.65
-
-        // Score formula
-        internal const val SCORE_BASE = 1000f
-        internal const val SCORE_MIN_DELTA_E = 0.3f
 
         /** One LCG step — returns value in [0, LCG_MAX]. */
         internal fun lcgHash(seed: Long, multiplier: Long, increment: Long): Long =

@@ -10,7 +10,6 @@ sealed interface ResultUiState {
         val gameId: String,
         val deltaE: Float,
         val roundsSurvived: Int,
-        val score: Int,
         val isNewPersonalBest: Boolean,
         val personalBestDeltaE: Float?,
         /** Gems earned in this session — shown as "+N gems" on the result screen. */

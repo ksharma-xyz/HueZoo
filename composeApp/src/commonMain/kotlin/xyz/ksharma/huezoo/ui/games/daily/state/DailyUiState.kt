@@ -9,7 +9,7 @@ sealed interface DailyUiState {
     data object Loading : DailyUiState
 
     /** Player already completed today's challenge. */
-    data class AlreadyPlayed(val score: Float) : DailyUiState
+    data object AlreadyPlayed : DailyUiState
 
     data class Playing(
         val swatches: List<SwatchUiModel>,

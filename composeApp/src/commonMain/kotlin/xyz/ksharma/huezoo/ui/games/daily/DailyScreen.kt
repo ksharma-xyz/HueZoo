@@ -248,13 +248,6 @@ private fun AlreadyPlayedContent(
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(HuezooSpacing.sm))
-        Text(
-            text = "Today's score: ${state.score.toInt()}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = HuezooColors.TextSecondary,
-            textAlign = TextAlign.Center,
-        )
         Spacer(Modifier.height(HuezooSpacing.xl))
         if (countdown.isNotEmpty()) {
             Text(
@@ -373,7 +366,7 @@ private fun DailyLastRoundPreview() {
 private fun DailyAlreadyPlayedPreview() {
     xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
         AlreadyPlayedContent(
-            state = DailyUiState.AlreadyPlayed(score = 740f),
+            state = DailyUiState.AlreadyPlayed,
             onBack = {},
         )
     }

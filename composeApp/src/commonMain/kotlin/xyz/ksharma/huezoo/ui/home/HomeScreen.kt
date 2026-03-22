@@ -830,7 +830,7 @@ private fun DailyCompactCard(
     modifier: Modifier = Modifier,
 ) {
     val countdown = data.nextPuzzleAt?.let { countdownUntil(it, prefix = "Next in ") }
-    val bestText = data.personalBestScore?.let { "BEST SCORE: $it" }
+    val bestText = data.personalBestRounds?.let { "BEST: $it / 6 ROUNDS" }
     val subtitleText = when {
         data.isCompletedToday -> countdown ?: "Completed today"
         bestText != null -> bestText
@@ -1424,7 +1424,7 @@ private fun HomeReadyPreview() {
                     maxAttempts = 5,
                     isBlocked = false,
                 ),
-                daily = DailyCardData(isCompletedToday = false, todayScore = null),
+                daily = DailyCardData(isCompletedToday = false),
                 isPaid = false,
                 totalGems = 1250,
                 playerLevel = PlayerLevel.Rookie,
@@ -1451,7 +1451,7 @@ private fun HomeBlockedPreview() {
                     maxAttempts = 5,
                     isBlocked = true,
                 ),
-                daily = DailyCardData(isCompletedToday = true, todayScore = 740f),
+                daily = DailyCardData(isCompletedToday = true, personalBestRounds = 5),
                 isPaid = true,
                 totalGems = 2450,
                 playerLevel = PlayerLevel.Sharp,

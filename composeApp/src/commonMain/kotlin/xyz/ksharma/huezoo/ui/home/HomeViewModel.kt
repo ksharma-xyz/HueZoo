@@ -84,9 +84,8 @@ class HomeViewModel(
             }
             val dailyCard = DailyCardData(
                 isCompletedToday = isCompletedToday,
-                todayScore = dailyChallenge?.score,
                 nextPuzzleAt = nextPuzzleAt,
-                personalBestScore = dailyPersonalBest?.bestScore,
+                personalBestRounds = dailyPersonalBest?.bestRounds,
             )
 
             _uiState.value = HomeUiState.Ready(

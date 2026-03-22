@@ -36,9 +36,8 @@ data class ThresholdCardData(
 @OptIn(ExperimentalTime::class)
 data class DailyCardData(
     val isCompletedToday: Boolean,
-    val todayScore: Float?,
     /** Non-null when completed today — the Instant at which the next puzzle unlocks (midnight local). */
     val nextPuzzleAt: Instant? = null,
-    /** All-time best score (maps to highest number of correct rounds). */
-    val personalBestScore: Int? = null,
+    /** All-time best number of rounds correct (0–6). */
+    val personalBestRounds: Int? = null,
 )

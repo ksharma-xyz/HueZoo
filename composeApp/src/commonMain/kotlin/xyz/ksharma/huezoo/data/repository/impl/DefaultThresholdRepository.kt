@@ -64,17 +64,17 @@ class DefaultThresholdRepository(
             PersonalBest(
                 gameId = it.game_id,
                 bestDeltaE = it.best_delta_e?.toFloat(),
-                bestScore = it.best_score?.toInt(),
+                bestRounds = null,
             )
         }
     }
 
-    override suspend fun savePersonalBest(deltaE: Float, score: Int) = withContext(Dispatchers.Default) {
+    override suspend fun savePersonalBest(deltaE: Float) = withContext(Dispatchers.Default) {
         val q = db.huezooDatabaseQueries
         val current = q.getPersonalBest(GameId.THRESHOLD).executeAsOneOrNull()
         val isNewBest = current?.best_delta_e == null || deltaE < current.best_delta_e
         if (isNewBest) {
-            q.upsertPersonalBest(GameId.THRESHOLD, deltaE.toDouble(), score.toLong(), null)
+            q.upsertPersonalBest(GameId.THRESHOLD, deltaE.toDouble(), null, null)
         }
         Unit
     }

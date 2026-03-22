@@ -4,5 +4,6 @@ package xyz.ksharma.huezoo.domain.game.model
 data class PersonalBest(
     val gameId: String,
     val bestDeltaE: Float?,
-    val bestScore: Int?,
+    /** Daily only — highest number of rounds correct in a single session. Null for Threshold. */
+    val bestRounds: Int?,
 )

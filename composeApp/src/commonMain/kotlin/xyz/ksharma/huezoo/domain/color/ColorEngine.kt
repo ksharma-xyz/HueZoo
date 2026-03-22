@@ -61,18 +61,4 @@ interface ColorEngine {
      */
     fun seededColorForDate(date: LocalDate): Color
 
-    /**
-     * Converts a final ΔE into an integer score for display.
-     *
-     * Lower ΔE = harder = higher score. Score floor is capped so even a
-     * perfect round produces a finite number.
-     *
-     * | ΔE   | Score   |
-     * |------|---------|
-     * | 5.0  |   200   |
-     * | 2.0  |   500   |
-     * | 1.0  | 1,000   |
-     * | 0.3  | 3,333   |
-     */
-    fun scoreFromDeltaE(de: Float): Int
 }

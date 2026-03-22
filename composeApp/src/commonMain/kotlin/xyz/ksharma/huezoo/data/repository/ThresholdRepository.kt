@@ -19,5 +19,6 @@ interface ThresholdRepository {
 
     suspend fun getPersonalBest(): PersonalBest?
 
-    suspend fun savePersonalBest(deltaE: Float, score: Int)
+    /** Saves personal best if [deltaE] is lower than the stored best. */
+    suspend fun savePersonalBest(deltaE: Float)
 }

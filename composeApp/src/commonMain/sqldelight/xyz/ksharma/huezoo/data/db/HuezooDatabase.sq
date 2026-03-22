@@ -1,6 +1,5 @@
 CREATE TABLE daily_challenge (
     date TEXT NOT NULL PRIMARY KEY,
-    score REAL NOT NULL,
     completed INTEGER NOT NULL DEFAULT 0
 );
 
@@ -13,7 +12,7 @@ CREATE TABLE threshold_session (
 CREATE TABLE personal_best (
     game_id TEXT NOT NULL PRIMARY KEY,
     best_delta_e REAL,
-    best_score INTEGER,
+    best_rounds INTEGER,
     rank INTEGER
 );
 
@@ -27,7 +26,7 @@ getDailyChallenge:
 SELECT * FROM daily_challenge WHERE date = ?;
 
 upsertDailyChallenge:
-INSERT OR REPLACE INTO daily_challenge(date, score, completed) VALUES (?, ?, ?);
+INSERT OR REPLACE INTO daily_challenge(date, completed) VALUES (?, ?);
 
 -- Returns all completed dates descending — used to calculate streak.
 getCompletedDates:
@@ -48,7 +47,7 @@ getPersonalBest:
 SELECT * FROM personal_best WHERE game_id = ?;
 
 upsertPersonalBest:
-INSERT OR REPLACE INTO personal_best(game_id, best_delta_e, best_score, rank) VALUES (?, ?, ?, ?);
+INSERT OR REPLACE INTO personal_best(game_id, best_delta_e, best_rounds, rank) VALUES (?, ?, ?, ?);
 
 -- Settings queries
 getSetting:

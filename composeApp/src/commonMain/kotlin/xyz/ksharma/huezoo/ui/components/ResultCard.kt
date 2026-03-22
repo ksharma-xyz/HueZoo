@@ -50,7 +50,7 @@ private val FrameInset = 5.dp
  *
  * Animations (baked in):
  * - Slide up 60dp + scale 0.9 → 1.0 spring entrance
- * - Count-up for [score] and [deltaE] via spring
+ * - Count-up for [gemsEarned] and [deltaE] via spring
  *
  * [identityColor] fills the outer frame and tints the top accent band.
  * [percentileText] e.g. "Better than 94% of players" — pass null to hide.
@@ -59,7 +59,7 @@ private val FrameInset = 5.dp
 fun ResultCard(
     gameTitle: String,
     deltaE: Float,
-    score: Int,
+    gemsEarned: Int,
     roundsSurvived: Int,
     identityColor: Color,
     modifier: Modifier = Modifier,
@@ -87,13 +87,13 @@ fun ResultCard(
     }
 
     // ── Count-up ──────────────────────────────────────────────────────────────
-    val displayScore = remember { Animatable(0f) }
+    val displayGems = remember { Animatable(0f) }
     val displayDeltaE = remember { Animatable(0f) }
 
-    LaunchedEffect(score, deltaE) {
+    LaunchedEffect(gemsEarned, deltaE) {
         launch {
-            displayScore.animateTo(
-                score.toFloat(),
+            displayGems.animateTo(
+                gemsEarned.toFloat(),
                 spring(stiffness = COUNTUP_STIFFNESS, dampingRatio = Spring.DampingRatioNoBouncy),
             )
         }
@@ -105,7 +105,7 @@ fun ResultCard(
         }
     }
 
-    val scoreInt = displayScore.value.toInt()
+    val gemsInt = displayGems.value.toInt()
     val deInt = displayDeltaE.value.toInt()
     val deDec = ((displayDeltaE.value - deInt.toFloat()) * DECIMAL_SCALE).toInt()
     val formattedDeltaE = "$deInt.$deDec"
@@ -193,7 +193,7 @@ fun ResultCard(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
-                            ResultStatColumn(label = "SCORE", value = "$scoreInt")
+                            ResultStatColumn(label = "GEMS", value = "+$gemsInt")
                             ResultStatColumn(
                                 label = "ROUNDS",
                                 value = "$roundsSurvived",
@@ -235,7 +235,7 @@ private fun ResultCardThresholdPreview() {
         ResultCard(
             gameTitle = "The Threshold",
             deltaE = 1.2f,
-            score = 840,
+            gemsEarned = 840,
             roundsSurvived = 12,
             identityColor = HuezooColors.GameThreshold,
             percentileText = "Better than 94% of players",
@@ -250,7 +250,7 @@ private fun ResultCardDailyPreview() {
         ResultCard(
             gameTitle = "Daily Challenge",
             deltaE = 2.4f,
-            score = 510,
+            gemsEarned = 510,
             roundsSurvived = 4,
             identityColor = HuezooColors.GameDaily,
         )

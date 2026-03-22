@@ -196,7 +196,7 @@ class ThresholdViewModel(
             // the DB write survives even if the user backs out and viewModelScope is cancelled.
             if (isNewAllTimeBest) {
                 withContext(NonCancellable) {
-                    repository.savePersonalBest(sessionBest, colorEngine.scoreFromDeltaE(sessionBest))
+                    repository.savePersonalBest(sessionBest)
                 }
             }
 
@@ -246,7 +246,7 @@ class ThresholdViewModel(
             // mid-animation doesn't lose the write.
             if (isReachPersonalBest) {
                 withContext(NonCancellable) {
-                    repository.savePersonalBest(attemptedDeltaE, colorEngine.scoreFromDeltaE(attemptedDeltaE))
+                    repository.savePersonalBest(attemptedDeltaE)
                 }
             }
 
@@ -269,8 +269,7 @@ class ThresholdViewModel(
             } else {
                 // All tries spent — navigate to result
                 val finalDeltaE = bestDeltaE ?: currentDeltaE
-                val score = colorEngine.scoreFromDeltaE(finalDeltaE)
-                repository.savePersonalBest(finalDeltaE, score)
+                repository.savePersonalBest(finalDeltaE)
                 val breakdown = buildList {
                     if (sessionTapGems > 0) add(GemAward("Correct taps", sessionTapGems))
                     if (sessionMilestoneGems > 0) add(GemAward("Milestone bonuses", sessionMilestoneGems))
@@ -281,7 +280,6 @@ class ThresholdViewModel(
                             gameId = GameId.THRESHOLD,
                             deltaE = finalDeltaE,
                             roundsSurvived = tapCount - 1,
-                            score = score,
                             gemsEarned = sessionGems,
                             gemBreakdown = breakdown,
                         ),
