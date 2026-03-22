@@ -219,6 +219,7 @@ private fun ReadyContent(
                 currentLevel = state.playerLevel,
                 totalGems = state.totalGems,
                 accentColor = state.playerLevel.levelColor,
+                onClick = { showLevelsSheet = true },
                 modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
             )
 
@@ -721,12 +722,22 @@ private fun LevelProgressBar(
     currentLevel: PlayerLevel,
     totalGems: Int,
     accentColor: Color,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val nextLevel = PlayerLevel.entries.getOrNull(currentLevel.ordinal + 1)
     val rightLabel = nextLevel?.let { "${formatGems(totalGems)} / ${formatGems(it.minGems)}" }
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick,
+            )
+            .padding(vertical = HuezooSpacing.sm),
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
