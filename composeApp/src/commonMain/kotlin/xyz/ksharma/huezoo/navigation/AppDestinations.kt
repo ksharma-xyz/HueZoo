@@ -22,6 +22,10 @@ data class Result(
     val gameId: String,
     val deltaE: Float,
     val roundsSurvived: Int,
+    /** Correct rounds/taps across the full session (all tries for Threshold, all rounds for Daily). */
+    val correctRounds: Int = 0,
+    /** Total rounds/taps played across the full session. */
+    val totalRounds: Int = 0,
     val gemsEarned: Int = 0,
     val gemBreakdown: List<GemAward> = emptyList(),
 )

@@ -52,6 +52,12 @@ class ThresholdViewModel(
     /** Correct-tap counter within the current try. Resets to 1 on each new try. */
     private var tapCount = 1
 
+    /** Correct taps accumulated across ALL tries this session. */
+    private var sessionCorrectTaps = 0
+
+    /** Wrong taps accumulated across ALL tries this session (one per try used). */
+    private var sessionWrongTaps = 0
+
     /** How many tries remain in the current 8-hour window. */
     private var triesRemaining = 0
 
@@ -142,6 +148,8 @@ class ThresholdViewModel(
         sessionGems = 0
         sessionTapGems = 0
         sessionMilestoneGems = 0
+        sessionCorrectTaps = 0
+        sessionWrongTaps = 0
         triesRemaining = status.maxAttempts - status.attemptsUsed
         awardedMilestones.clear()
         emitRound()
@@ -252,6 +260,9 @@ class ThresholdViewModel(
 
             repository.recordAttempt(Clock.System.now())
             triesRemaining--
+            // Accumulate this try's stats before tapCount resets
+            sessionCorrectTaps += tapCount - 1
+            sessionWrongTaps++
 
             delay(ANIMATION_WRONG_MS)
 
@@ -280,6 +291,8 @@ class ThresholdViewModel(
                             gameId = GameId.THRESHOLD,
                             deltaE = finalDeltaE,
                             roundsSurvived = tapCount - 1,
+                            correctRounds = sessionCorrectTaps,
+                            totalRounds = sessionCorrectTaps + sessionWrongTaps,
                             gemsEarned = sessionGems,
                             gemBreakdown = breakdown,
                         ),

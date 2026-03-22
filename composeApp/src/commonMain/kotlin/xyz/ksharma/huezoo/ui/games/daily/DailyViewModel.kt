@@ -235,6 +235,8 @@ class DailyViewModel(
                     gameId = GameId.DAILY,
                     deltaE = highestCorrectDeltaE,
                     roundsSurvived = correctRounds,
+                    correctRounds = correctRounds,
+                    totalRounds = gameEngine.totalRounds,
                     gemsEarned = sessionGems,
                     gemBreakdown = breakdown,
                 ),

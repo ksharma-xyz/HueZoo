@@ -62,6 +62,8 @@ class ResultViewModel(
                 gameId = navResult.gameId,
                 deltaE = navResult.deltaE,
                 roundsSurvived = navResult.roundsSurvived,
+                correctRounds = navResult.correctRounds,
+                totalRounds = navResult.totalRounds,
                 isNewPersonalBest = isNewPersonalBest,
                 personalBestDeltaE = best?.bestDeltaE,
                 gemsEarned = navResult.gemsEarned,

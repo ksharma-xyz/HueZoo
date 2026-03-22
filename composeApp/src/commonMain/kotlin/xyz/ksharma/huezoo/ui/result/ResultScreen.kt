@@ -301,29 +301,31 @@ private fun ReadyContent(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
         ) {
-            // Card 1: Threshold → BEST ΔE / Daily → ROUNDS CORRECT
             val statAccent = LocalPlayerAccentColor.current
-            if (isDaily) {
+
+            // Rounds correct — shown for both game types
+            if (state.totalRounds > 0) {
+                val roundsLabel = if (isDaily) "ROUNDS CORRECT" else "CORRECT ROUNDS"
                 StatBreakdownCard(
-                    label = "ROUNDS CORRECT",
-                    value = "${state.roundsSurvived} / 6",
-                    progress = (state.roundsSurvived / 6f).coerceIn(0f, 1f),
+                    label = roundsLabel,
+                    value = "${state.correctRounds} / ${state.totalRounds}",
+                    progress = (state.correctRounds.toFloat() / state.totalRounds).coerceIn(0f, 1f),
                     accentColor = statAccent,
                     icon = { WaveIcon(color = statAccent) },
                     modifier = Modifier.fillMaxWidth(),
                 )
-            } else {
-                // Show session ΔE — this is the best ΔE correctly detected this session
+            }
+
+            // Threshold-only: session ΔE + all-time best
+            if (!isDaily) {
                 StatBreakdownCard(
                     label = "SESSION ΔE",
                     value = "ΔE ${state.deltaE.fmt()}",
-                    // Lower ΔE = better — invert so a low ΔE fills the bar more
                     progress = (1f - (state.deltaE / 5f)).coerceIn(0f, 1f),
                     accentColor = statAccent,
                     icon = { WaveIcon(color = statAccent) },
                     modifier = Modifier.fillMaxWidth(),
                 )
-                // Show all-time personal best ΔE if available
                 val lifetimeBest = state.personalBestDeltaE
                 StatBreakdownCard(
                     label = "ALL-TIME BEST ΔE",
