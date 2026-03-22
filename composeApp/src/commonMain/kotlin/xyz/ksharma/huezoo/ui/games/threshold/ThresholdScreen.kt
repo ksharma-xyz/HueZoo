@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import xyz.ksharma.huezoo.ui.theme.HeartLife
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -219,10 +219,10 @@ private fun PlayingContent(
             modifier = Modifier.weight(1f),
         )
 
-        // ── Tries dots — lives UI at the bottom ───────────────────────────────
-        // Single SpaceBetween row: label left, dots evenly spread right.
-        // Empty dots use a magenta outline so all 5 slots stay visible on the
-        // dark background — prevents the row from looking like it shrinks.
+        // ── Lives hearts — bottom of screen ──────────────────────────────────
+        // Label left, hearts tightly clustered right.
+        // Solid heart = life remaining, outline = life lost.
+        // Color matches the player accent (same as title, back button).
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -231,25 +231,26 @@ private fun PlayingContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            HuezooLabelSmall(text = "TRIES LEFT", color = HuezooColors.TextSecondary)
-            repeat(state.maxAttempts) { index ->
-                val isRemaining = index < state.attemptsRemaining
-                val dotColor by animateColorAsState(
-                    targetValue = if (isRemaining) HuezooColors.AccentMagenta
-                    else HuezooColors.AccentMagenta.copy(alpha = 0f),
-                    animationSpec = tween(300),
-                    label = "triesDot_$index",
-                )
-                Box(
-                    modifier = Modifier
-                        .size(TRIES_DOT_SIZE)
-                        .border(
-                            width = 1.5.dp,
-                            color = HuezooColors.AccentMagenta.copy(alpha = 0.4f),
-                            shape = CircleShape,
-                        )
-                        .background(dotColor, CircleShape),
-                )
+            HuezooLabelSmall(text = "LIVES", color = HuezooColors.TextSecondary)
+            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
+                repeat(state.maxAttempts) { index ->
+                    val isRemaining = index < state.attemptsRemaining
+                    val fillColor by animateColorAsState(
+                        targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
+                        animationSpec = tween(300),
+                        label = "lifeHeart_$index",
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(HEART_SIZE)
+                            .border(
+                                width = 1.5.dp,
+                                color = accent.copy(alpha = 0.4f),
+                                shape = HeartLife,
+                            )
+                            .background(fillColor, HeartLife),
+                    )
+                }
             }
         }
     }
@@ -332,8 +333,8 @@ private fun countdownUntil(until: Instant) = produceState(initialValue = "") {
 /** Fixed height reserved for the in-game feedback message. Never changes, so nothing shifts. */
 private val FEEDBACK_SLOT_HEIGHT = 28.dp
 
-/** Diameter of each try-remaining dot in the lives indicator. */
-private val TRIES_DOT_SIZE = 10.dp
+/** Size of each heart in the lives indicator. */
+private val HEART_SIZE = 14.dp
 
 private fun Float.fmt(): String {
     val i = toInt()

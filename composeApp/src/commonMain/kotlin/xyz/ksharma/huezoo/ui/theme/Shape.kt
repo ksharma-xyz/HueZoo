@@ -221,3 +221,40 @@ class DiamondShape : Shape {
 
 /** Default diamond tile for the DiamondHalo layout. */
 val DiamondSwatch = DiamondShape()
+
+/**
+ * Classic heart shape — two circular lobes at the top, pointed tip at the bottom.
+ *
+ * Used for the lives indicator on the Threshold game screen.
+ * Combine with [androidx.compose.foundation.background] for a solid heart and
+ * [androidx.compose.foundation.border] for an outline-only heart.
+ */
+class HeartShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(heartPath(size))
+
+    private fun heartPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        return Path().apply {
+            moveTo(cx, h) // bottom tip
+            // Left side — sweeps up through left lobe
+            cubicTo(cx * 0.2f, h * 0.75f, 0f, h * 0.45f, 0f, h * 0.30f)
+            // Left lobe top arc → center notch
+            cubicTo(0f, h * 0.05f, cx * 0.50f, 0f, cx, h * 0.25f)
+            // Center notch → right lobe top arc
+            cubicTo(cx * 1.50f, 0f, w, h * 0.05f, w, h * 0.30f)
+            // Right side — sweeps back down to tip
+            cubicTo(w, h * 0.45f, cx * 1.80f, h * 0.75f, cx, h)
+            close()
+        }
+    }
+}
+
+/** Heart shape for the Threshold lives indicator. */
+val HeartLife = HeartShape()
