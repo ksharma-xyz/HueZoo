@@ -125,15 +125,48 @@ private fun PlayingContent(
         Spacer(Modifier.height(HuezooSpacing.lg))
 
         val accent = LocalPlayerAccentColor.current
-        Text(
-            text = "IDENTIFY THE OUTLIER",
-            style = MaterialTheme.typography.titleLarge,
-            color = accent,
-            fontWeight = FontWeight.ExtraBold,
-            textAlign = TextAlign.Center,
-        )
+        // ── Lives hearts — bottom of screen ──────────────────────────────────
+        // Label left, hearts tightly clustered right.
+        // Solid heart = life remaining, outline = life lost.
+        // Color matches the player accent (same as title, back button).
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(bottom = HuezooSpacing.md),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "IDENTIFY  THE  OUTLIER",
+                style = MaterialTheme.typography.titleSmall,
+                color = accent,
+                fontWeight = FontWeight.ExtraBold,
+            )
 
-        Spacer(Modifier.height(HuezooSpacing.lg))
+            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
+                repeat(state.maxAttempts) { index ->
+                    val isRemaining = index < state.attemptsRemaining
+                    val fillColor by animateColorAsState(
+                        targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
+                        animationSpec = tween(300),
+                        label = "lifeHeart_$index",
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(HEART_SIZE)
+                            .border(
+                                width = 1.5.dp,
+                                color = accent.copy(alpha = 0.4f),
+                                shape = HeartLife,
+                            )
+                            .background(fillColor, HeartLife),
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(HuezooSpacing.sm))
 
         // ── ΔE hero — full centre focus, no competing elements ───────────────
         DeltaEBadge(deltaE = state.deltaE)
@@ -219,40 +252,6 @@ private fun PlayingContent(
             modifier = Modifier.weight(1f),
         )
 
-        // ── Lives hearts — bottom of screen ──────────────────────────────────
-        // Label left, hearts tightly clustered right.
-        // Solid heart = life remaining, outline = life lost.
-        // Color matches the player accent (same as title, back button).
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(bottom = HuezooSpacing.md),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            HuezooLabelSmall(text = "LIVES", color = HuezooColors.TextSecondary)
-            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
-                repeat(state.maxAttempts) { index ->
-                    val isRemaining = index < state.attemptsRemaining
-                    val fillColor by animateColorAsState(
-                        targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
-                        animationSpec = tween(300),
-                        label = "lifeHeart_$index",
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(HEART_SIZE)
-                            .border(
-                                width = 1.5.dp,
-                                color = accent.copy(alpha = 0.4f),
-                                shape = HeartLife,
-                            )
-                            .background(fillColor, HeartLife),
-                    )
-                }
-            }
-        }
     }
 }
 
