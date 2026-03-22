@@ -122,6 +122,7 @@ private val CHALLENGE_NAMES = listOf(
 fun HomeScreen(
     onNavigate: (Any) -> Unit,
     onSettingsTap: () -> Unit,
+    onUpgradeTap: () -> Unit,
     onLeaderboardTap: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel(),
@@ -142,6 +143,7 @@ fun HomeScreen(
                 onThresholdTap = { onNavigate(ThresholdGame) },
                 onDailyTap = { onNavigate(DailyGame) },
                 onSettingsTap = onSettingsTap,
+                onUpgradeTap = onUpgradeTap,
                 onLeaderboardTap = onLeaderboardTap,
             )
         }
@@ -155,6 +157,7 @@ private fun ReadyContent(
     onThresholdTap: () -> Unit,
     onDailyTap: () -> Unit,
     onSettingsTap: () -> Unit,
+    onUpgradeTap: () -> Unit,
     onLeaderboardTap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -253,7 +256,7 @@ private fun ReadyContent(
                 Spacer(Modifier.height(HuezooSpacing.sm))
                 HuezooButton(
                     text = "GET FULL ACCESS",
-                    onClick = onSettingsTap,
+                    onClick = onUpgradeTap,
                     variant = HuezooButtonVariant.Primary,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1433,6 +1436,7 @@ private fun HomeReadyPreview() {
             onThresholdTap = {},
             onDailyTap = {},
             onSettingsTap = {},
+            onUpgradeTap = {},
             onLeaderboardTap = {},
         )
     }
@@ -1460,6 +1464,7 @@ private fun HomeBlockedPreview() {
             onThresholdTap = {},
             onDailyTap = {},
             onSettingsTap = {},
+            onUpgradeTap = {},
             onLeaderboardTap = {},
         )
     }

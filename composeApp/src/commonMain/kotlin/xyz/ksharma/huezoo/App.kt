@@ -26,6 +26,7 @@ import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.navigation.Settings
 import xyz.ksharma.huezoo.navigation.Splash
 import xyz.ksharma.huezoo.navigation.ThresholdGame
+import xyz.ksharma.huezoo.navigation.Upgrade
 import xyz.ksharma.huezoo.ui.eyestrain.EyeStrainNoticeScreen
 import xyz.ksharma.huezoo.ui.games.daily.DailyScreen
 import xyz.ksharma.huezoo.ui.games.threshold.ThresholdScreen
@@ -35,6 +36,7 @@ import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.result.ResultScreen
 import xyz.ksharma.huezoo.ui.settings.SettingsScreen
 import xyz.ksharma.huezoo.ui.splash.SplashScreen
+import xyz.ksharma.huezoo.ui.upgrade.UpgradeScreen
 import xyz.ksharma.huezoo.ui.theme.HuezooTheme
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerShelfColor
@@ -95,6 +97,7 @@ fun App() {
                                 HomeScreen(
                                     onNavigate = { backStack.add(it) },
                                     onSettingsTap = { backStack.add(Settings) },
+                                    onUpgradeTap = { backStack.add(Upgrade) },
                                     onLeaderboardTap = { backStack.add(Leaderboard) },
                                 )
                             }
@@ -103,6 +106,12 @@ fun App() {
                                 SettingsScreen(
                                     onBack = { backStack.removeLast() },
                                     onViewHealthNotice = { backStack.add(EyeStrainNotice) },
+                                )
+                            }
+
+                            is Upgrade -> NavEntry(destination) {
+                                UpgradeScreen(
+                                    onBack = { backStack.removeLast() },
                                 )
                             }
 

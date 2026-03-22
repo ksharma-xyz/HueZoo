@@ -32,6 +32,9 @@ data object Leaderboard
 @Serializable
 data object Settings
 
+@Serializable
+data object Upgrade
+
 sealed interface GameId {
     companion object {
         const val THRESHOLD = "threshold"

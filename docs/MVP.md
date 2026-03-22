@@ -365,9 +365,24 @@ identity upgrade — the whole interface changes allegiance, not just a badge.
 - [ ] UX.15.3 Privacy Policy link (required by both stores)
 
 ### Phase 7 — Monetization ⬜
+
+#### Upgrade screen (single paywall screen — `ui/upgrade/UpgradeScreen.kt`)
+The app has one dedicated paywall screen (`Upgrade` nav destination) reachable from multiple
+entry points. All purchase CTAs must navigate here — never inline a `PriceButton` in another screen.
+
+Current entry points:
+- Home screen: GET FULL ACCESS button (below Threshold card, shown when blocked + free)
+
+Planned future entry points:
+- Result screen: upsell after out-of-tries game end
+- Any future placement requiring upgrade CTA
+
 - [ ] 7.1 Attempt counter on Threshold card ("X of 5 tries used this window")
 - [ ] 7.2 Out of Tries refill sheet (see UX.11) — replaces blocked screen
-- [ ] 7.3 `PaywallSheet` — "Unlock Forever — $2" primary CTA + "Watch Ad (+1 try)" ghost secondary
+- [x] 7.3 `UpgradeScreen` — dedicated paywall screen with feature list + `PriceButton` ✅
+- [ ] 7.3a Wire real IAP in `UpgradeScreen.onPurchase` (currently TODO stub)
+- [ ] 7.3b Fetch price string from store at runtime (currently hardcoded "$2.99")
+- [ ] 7.3c Add Result screen entry point for upgrade CTA (after out-of-tries game)
 - [ ] 7.4 AdMob setup — rewarded ad for +1 try (Android + iOS)
 - [ ] 7.5 IAP setup — one-time "Unlimited" product (Google Play Billing + StoreKit 2)
 - [ ] 7.6 Persist `is_paid = true` in SQLDelight `user_settings` on purchase
