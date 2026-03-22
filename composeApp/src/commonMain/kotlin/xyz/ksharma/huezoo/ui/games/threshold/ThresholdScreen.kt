@@ -36,8 +36,10 @@ import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
+import xyz.ksharma.huezoo.ui.components.DeltaEBadge
+import xyz.ksharma.huezoo.ui.components.HuezooDisplaySmall
+import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
 import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
-import xyz.ksharma.huezoo.ui.components.SkewedStatChip
 import xyz.ksharma.huezoo.ui.components.ThresholdHelpSheet
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
@@ -116,31 +118,8 @@ private fun PlayingContent(
             .padding(HuezooSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-        ) {
-            SkewedStatChip(
-                label = "TAP",
-                value = state.tap.toString(),
-                accentColor = HuezooColors.GameThreshold,
-            )
-            SkewedStatChip(
-                label = "TRIES",
-                value = state.attemptsRemaining.toString(),
-                accentColor = HuezooColors.AccentMagenta,
-            )
-        }
+        Spacer(Modifier.height(HuezooSpacing.lg))
 
-        Spacer(Modifier.height(HuezooSpacing.xxl))
-
-        // Instruction title — fades out during fold without collapsing its layout space.
-        // graphicsLayer alpha is render-only: the Text stays in the tree at full size
-        // so nothing below it shifts when it becomes invisible.
-        val titleAlpha by animateFloatAsState(
-            targetValue = if (state.roundPhase == RoundPhase.FoldingOut) 0f else 1f,
-            animationSpec = tween(durationMillis = 150),
-            label = "titleAlpha",
-        )
         val accent = LocalPlayerAccentColor.current
         Text(
             text = "IDENTIFY THE OUTLIER",
@@ -148,17 +127,53 @@ private fun PlayingContent(
             color = accent,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center,
-            modifier = Modifier.graphicsLayer { alpha = titleAlpha },
         )
 
-        Spacer(Modifier.height(HuezooSpacing.md))
+        Spacer(Modifier.height(HuezooSpacing.lg))
 
-        // Delta E chip
-        SkewedStatChip(
-            label = "CURRENT ΔE",
-            value = state.deltaE.fmt(),
-            accentColor = accent,
+        // ── Hero row: TAP · ΔE badge · TRIES ─────────────────────────────────
+        // TAP and TRIES are navigational context — plain type, no chip shape.
+        // DeltaEBadge is the hero: difficulty colour + count-up animation.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(horizontalAlignment = Alignment.Start) {
+                HuezooLabelSmall(text = "TAP", color = HuezooColors.TextSecondary)
+                HuezooDisplaySmall(text = state.tap.toString(), color = HuezooColors.TextPrimary)
+            }
+
+            DeltaEBadge(deltaE = state.deltaE)
+
+            Column(horizontalAlignment = Alignment.End) {
+                HuezooLabelSmall(text = "TRIES", color = HuezooColors.TextSecondary)
+                HuezooDisplaySmall(
+                    text = state.attemptsRemaining.toString(),
+                    color = HuezooColors.AccentMagenta,
+                )
+            }
+        }
+
+        Spacer(Modifier.height(HuezooSpacing.xs))
+
+        // SESSION BEST — fades in after first correct tap, stays for the session
+        val bestAlpha by animateFloatAsState(
+            targetValue = if (state.sessionBestDeltaE != null) 1f else 0f,
+            animationSpec = tween(durationMillis = 400),
+            label = "bestDeltaEAlpha",
         )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.graphicsLayer { alpha = bestAlpha },
+        ) {
+            HuezooLabelSmall(text = "SESSION BEST", color = HuezooColors.TextSecondary)
+            HuezooLabelSmall(
+                text = state.sessionBestDeltaE?.fmt() ?: "--",
+                color = HuezooColors.AccentGreen,
+            )
+        }
 
         Spacer(Modifier.height(HuezooSpacing.lg))
 
