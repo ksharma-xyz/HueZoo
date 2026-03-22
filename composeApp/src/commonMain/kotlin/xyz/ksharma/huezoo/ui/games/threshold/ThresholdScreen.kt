@@ -123,21 +123,22 @@ private fun PlayingContent(
             .padding(HuezooSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(HuezooSpacing.lg))
+        Spacer(Modifier.height(HuezooSpacing.sm))
 
         val accent = LocalPlayerAccentColor.current
         // ── Header row: title left, lives hearts right ────────────────────────
-        // Hearts are self-explanatory — no "LIVES" label needed.
-        // Solid = life remaining, outline = life lost. Both use player accent.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             HuezooTitleMedium(
-                text = "IDENTIFY THE OUTLIER",
+                text = "IDENTIFY  THE  OUTLIER",
                 color = accent,
                 fontWeight = FontWeight.ExtraBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f).padding(end = HuezooSpacing.sm),
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
@@ -162,12 +163,12 @@ private fun PlayingContent(
             }
         }
 
-        Spacer(Modifier.height(HuezooSpacing.sm))
+        // ── ΔE hero — generous space above so it feels like a stage ──────────
+        Spacer(Modifier.height(HuezooSpacing.xl))
 
-        // ── ΔE hero — full centre focus, no competing elements ───────────────
         DeltaEBadge(deltaE = state.deltaE)
 
-        Spacer(Modifier.height(HuezooSpacing.xs))
+        Spacer(Modifier.height(HuezooSpacing.sm))
 
         // SESSION BEST — fades in after first correct tap, stays for the session
         val bestAlpha by animateFloatAsState(
@@ -187,23 +188,15 @@ private fun PlayingContent(
             )
         }
 
-        Spacer(Modifier.height(HuezooSpacing.lg))
+        Spacer(Modifier.height(HuezooSpacing.md))
 
         // ── Fixed-height feedback slot ────────────────────────────────────────
-        // Rules:
-        //   • Box height is ALWAYS exactly FEEDBACK_SLOT_HEIGHT — never grows, never shrinks.
-        //   • Both Text nodes live in the layout tree permanently (no AnimatedVisibility /
-        //     AnimatedContent) so the Box never re-measures due to children entering or leaving.
-        //   • Visibility is controlled by graphicsLayer { alpha } which is a pure render pass —
-        //     it has zero effect on layout or measurement.
-        //   • maxLines = 1 on the sting copy stops long strings from ever requesting extra height.
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(FEEDBACK_SLOT_HEIGHT),
             contentAlignment = Alignment.Center,
         ) {
-            // Correct feedback (green) ─────────────────────────────────────────
             val correctAlpha by animateFloatAsState(
                 targetValue = if (state.roundPhase == RoundPhase.Correct) 1f else 0f,
                 animationSpec = tween(durationMillis = 160),
@@ -218,7 +211,6 @@ private fun PlayingContent(
                 modifier = Modifier.graphicsLayer { alpha = correctAlpha },
             )
 
-            // Wrong feedback / sting (magenta) ────────────────────────────────
             val wrongAlpha by animateFloatAsState(
                 targetValue = if (state.roundPhase == RoundPhase.Wrong) 1f else 0f,
                 animationSpec = tween(durationMillis = 160),
@@ -235,19 +227,21 @@ private fun PlayingContent(
             )
         }
 
-        // ── Radial swatch layout — takes all remaining vertical space ─────────
+        // Flex gap — pushes swatch toward centre/slightly below rather than
+        // cramming it directly under the feedback line.
+        Spacer(Modifier.weight(0.3f))
+
+        // ── Radial swatch layout ──────────────────────────────────────────────
         RadialSwatchLayout(
             swatches = state.swatches,
             roundPhase = state.roundPhase,
-            // roundGeneration increments on EVERY emitRound() call (correct + wrong-reset),
-            // so the unfold animation always triggers — unlike state.round which only
-            // increments on correct taps.
             roundKey = state.roundGeneration,
             layoutStyle = state.layoutStyle,
             onSwatchTap = onSwatchTap,
             modifier = Modifier.weight(1f),
         )
 
+        Spacer(Modifier.height(HuezooSpacing.md))
     }
 }
 
