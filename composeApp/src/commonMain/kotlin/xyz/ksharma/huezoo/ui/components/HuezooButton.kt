@@ -29,6 +29,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import xyz.ksharma.huezoo.platform.haptics.HapticType
+import xyz.ksharma.huezoo.platform.haptics.LocalHapticEngine
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
@@ -129,6 +131,7 @@ fun HuezooButton(
     width: HuezooButtonWidth = HuezooButtonWidth.Fill,
     leadingIcon: (@Composable () -> Unit)? = null,
 ) {
+    val haptic = LocalHapticEngine.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -182,7 +185,10 @@ fun HuezooButton(
                     interactionSource = interactionSource,
                     indication = null,
                     enabled = enabled,
-                    onClick = onClick,
+                    onClick = {
+                        haptic.perform(HapticType.ButtonTap)
+                        onClick()
+                    },
                 )
                 .padding(horizontal = HuezooSpacing.lg, vertical = 14.dp),
             contentAlignment = Alignment.Center,

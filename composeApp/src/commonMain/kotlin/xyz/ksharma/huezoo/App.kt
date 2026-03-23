@@ -11,6 +11,8 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import org.koin.compose.koinInject
 import xyz.ksharma.huezoo.navigation.DailyGame
+import xyz.ksharma.huezoo.platform.haptics.HapticEngine
+import xyz.ksharma.huezoo.platform.haptics.LocalHapticEngine
 import xyz.ksharma.huezoo.navigation.EyeStrainNotice
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Home
@@ -38,6 +40,7 @@ import xyz.ksharma.huezoo.ui.theme.LocalPlayerShelfColor
 @Composable
 fun App() {
     val playerState: PlayerState = koinInject()
+    val hapticEngine: HapticEngine = koinInject()
 
     HuezooTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -50,6 +53,7 @@ fun App() {
             CompositionLocalProvider(
                 LocalPlayerAccentColor provides level.levelColor,
                 LocalPlayerShelfColor provides level.shelfColor,
+                LocalHapticEngine provides hapticEngine,
             ) {
                 NavDisplay(
                     backStack = backStack,

@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import xyz.ksharma.huezoo.platform.haptics.HapticType
+import xyz.ksharma.huezoo.platform.haptics.LocalHapticEngine
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
@@ -51,12 +53,14 @@ fun CurrencyPill(
     amount: Int,
     modifier: Modifier = Modifier,
 ) {
-    // Scale pulse when gems increase (skip first composition)
+    // Scale pulse + haptic tick when gems increase (skip first composition)
+    val haptic = LocalHapticEngine.current
     val pulseScale = remember { Animatable(1f) }
     val prevAmount = remember { mutableIntStateOf(amount) }
     LaunchedEffect(amount) {
         if (amount != prevAmount.intValue) {
             prevAmount.intValue = amount
+            haptic.perform(HapticType.GemEarned)
             pulseScale.snapTo(1f)
             pulseScale.animateTo(
                 1.2f,
