@@ -23,6 +23,8 @@ import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiState
+import xyz.ksharma.huezoo.platform.haptics.HapticEngine
+import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.model.PlayerState
 import xyz.ksharma.huezoo.ui.model.RoundPhase
@@ -39,6 +41,7 @@ class DailyViewModel(
     private val settingsRepository: SettingsRepository,
     private val colorEngine: ColorEngine,
     private val playerState: PlayerState,
+    private val hapticEngine: HapticEngine,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<DailyUiState>(DailyUiState.Loading)
@@ -153,6 +156,8 @@ class DailyViewModel(
     }
 
     private fun handleCorrectTap(state: DailyUiState.Playing) {
+        hapticEngine.perform(HapticType.CorrectTap)
+
         correctRounds++
         if (lastRoundDeltaE > highestCorrectDeltaE) highestCorrectDeltaE = lastRoundDeltaE
 
@@ -184,6 +189,8 @@ class DailyViewModel(
     }
 
     private fun handleWrongTap(state: DailyUiState.Playing, tappedIndex: Int) {
+        hapticEngine.perform(HapticType.WrongTap)
+
         // Wrong tap: reveal correct swatch, show feedback, then advance to next round.
         // Daily never ends early — all 6 rounds are always played.
         _uiState.value = state.copy(
@@ -223,6 +230,7 @@ class DailyViewModel(
         // Perfect bonus — all 6 rounds correct
         val isPerfect = correctRounds == gameEngine.totalRounds
         if (isPerfect) {
+            hapticEngine.perform(HapticType.PerfectRun)
             val gemsAfterPerfect = settingsRepository.addGems(GameRewardRates.DAILY_PERFECT_BONUS)
             playerState.updateGems(gemsAfterPerfect)
             sessionGems += GameRewardRates.DAILY_PERFECT_BONUS

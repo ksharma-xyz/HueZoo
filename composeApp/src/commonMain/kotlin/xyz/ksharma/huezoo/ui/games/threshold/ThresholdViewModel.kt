@@ -25,6 +25,8 @@ import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
+import xyz.ksharma.huezoo.platform.haptics.HapticEngine
+import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.model.PlayerState
 import xyz.ksharma.huezoo.ui.model.RoundPhase
@@ -41,6 +43,7 @@ class ThresholdViewModel(
     private val colorEngine: ColorEngine,
     private val settingsRepository: SettingsRepository,
     private val playerState: PlayerState,
+    private val hapticEngine: HapticEngine,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ThresholdUiState>(ThresholdUiState.Loading)
@@ -205,6 +208,8 @@ class ThresholdViewModel(
         val milestoneBonus = checkAndAwardMilestone(currentDeltaE)
         val gemsThisTap = GameRewardRates.THRESHOLD_CORRECT_TAP + milestoneBonus
 
+        hapticEngine.perform(HapticType.CorrectTap)
+
         _uiState.value = state.copy(
             swatches = state.swatches.mapIndexed { i, s ->
                 if (i == oddIndex) s.copy(displayState = SwatchDisplayState.Correct) else s
@@ -212,6 +217,11 @@ class ThresholdViewModel(
             roundPhase = RoundPhase.Correct,
         )
         viewModelScope.launch {
+            // Milestone thud lands 200 ms after the CorrectTap snap — layered, not simultaneous.
+            if (milestoneBonus > 0) {
+                delay(MILESTONE_HAPTIC_DELAY_MS)
+                hapticEngine.perform(HapticType.MilestoneHit)
+            }
             // Save personal best FIRST, before any animation delays, using NonCancellable so
             // the DB write survives even if the user backs out and viewModelScope is cancelled.
             if (isNewAllTimeBest) {
@@ -243,6 +253,8 @@ class ThresholdViewModel(
     }
 
     private fun handleWrongTap(state: ThresholdUiState.Playing, tappedIndex: Int) {
+        hapticEngine.perform(HapticType.WrongTap)
+
         val sting = wrongStingCopy(currentDeltaE)
         _uiState.value = state.copy(
             swatches = state.swatches.mapIndexed { i, s ->
@@ -296,6 +308,7 @@ class ThresholdViewModel(
                 emitRound()
             } else {
                 // All tries spent — navigate to result
+                hapticEngine.perform(HapticType.GameOver)
                 val finalDeltaE = bestDeltaE ?: currentDeltaE
                 println("[DEBUG_DELTA] SESSION END — finalΔE=$finalDeltaE bestΔE=$bestDeltaE fallback(currentΔE)=${bestDeltaE == null} correctRounds=$sessionCorrectTaps totalRounds=${sessionCorrectTaps + sessionWrongTaps}")
                 repository.savePersonalBest(finalDeltaE)
@@ -348,5 +361,6 @@ class ThresholdViewModel(
         const val ANIMATION_CORRECT_MS = 750L
         const val ANIMATION_WRONG_MS = 850L
         const val ANIMATION_FOLD_MS = 520L
+        const val MILESTONE_HAPTIC_DELAY_MS = 200L
     }
 }
