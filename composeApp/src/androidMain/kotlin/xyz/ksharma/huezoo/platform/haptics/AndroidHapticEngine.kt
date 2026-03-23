@@ -38,7 +38,6 @@ class AndroidHapticEngine(context: Context) : HapticEngine {
 
     @Suppress("NewApi") // guarded by perform()'s SDK_INT >= O check
     private fun effectFor(type: HapticType): VibrationEffect = when (type) {
-
         HapticType.Selection -> predefined(VibrationEffect.EFFECT_TICK)
             ?: VibrationEffect.createOneShot(20, 40)
 
@@ -55,7 +54,8 @@ class AndroidHapticEngine(context: Context) : HapticEngine {
             ?: VibrationEffect.createWaveform(
                 longArrayOf(0, 50, 100, 50),
                 intArrayOf(0, 200, 0, 180),
-                /* repeat= */ -1,
+                /* repeat= */
+                -1,
             )
 
         HapticType.MilestoneHit ->
@@ -65,14 +65,16 @@ class AndroidHapticEngine(context: Context) : HapticEngine {
             VibrationEffect.createWaveform(
                 longArrayOf(0, 60, 150, 100),
                 intArrayOf(0, 255, 0, 200),
-                /* repeat= */ -1,
+                /* repeat= */
+                -1,
             )
 
         HapticType.GameOver ->
             VibrationEffect.createWaveform(
                 longArrayOf(0, 100, 80, 60),
                 intArrayOf(0, 255, 0, 150),
-                /* repeat= */ -1,
+                /* repeat= */
+                -1,
             )
     }
 

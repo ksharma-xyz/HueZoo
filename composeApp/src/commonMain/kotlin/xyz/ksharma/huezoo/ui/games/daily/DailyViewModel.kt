@@ -21,11 +21,11 @@ import xyz.ksharma.huezoo.domain.game.SessionResultCache
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.SessionResult
+import xyz.ksharma.huezoo.platform.haptics.HapticEngine
+import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiState
-import xyz.ksharma.huezoo.platform.haptics.HapticEngine
-import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.model.PlayerState
 import xyz.ksharma.huezoo.ui.model.RoundPhase

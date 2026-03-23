@@ -60,5 +60,4 @@ interface ColorEngine {
      * function of (year, month, day) — no server call required.
      */
     fun seededColorForDate(date: LocalDate): Color
-
 }

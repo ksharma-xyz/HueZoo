@@ -4,7 +4,6 @@ import platform.Foundation.NSTimer
 import platform.UIKit.UIImpactFeedbackGenerator
 import platform.UIKit.UIImpactFeedbackStyleHeavy
 import platform.UIKit.UIImpactFeedbackStyleLight
-import platform.UIKit.UIImpactFeedbackStyleMedium
 import platform.UIKit.UIImpactFeedbackStyleSoft
 import platform.UIKit.UINotificationFeedbackGenerator
 import platform.UIKit.UINotificationFeedbackTypeError
@@ -55,7 +54,6 @@ class IosHapticEngine : HapticEngine {
                 UIImpactFeedbackGenerator(UIImpactFeedbackStyleHeavy).impactOccurred()
 
             HapticType.PerfectRun -> {
-
                 // Beat 1: heavy thud — immediately
                 UIImpactFeedbackGenerator(UIImpactFeedbackStyleHeavy).impactOccurred()
                 // Beat 2: success notification — 150 ms later, non-blocking via NSTimer
