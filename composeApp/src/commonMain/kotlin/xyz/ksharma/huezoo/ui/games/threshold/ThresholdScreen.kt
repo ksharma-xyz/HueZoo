@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
@@ -74,14 +75,23 @@ fun ThresholdScreen(
         ThresholdHelpSheet(onDismiss = { showHelp = false })
     }
 
+    // Collect nav events. A fresh subscriber on config-change will start collecting
+    // future events — the SharedFlow buffer handles any in-flight event safely.
     LaunchedEffect(Unit) {
-        viewModel.onStart()
         viewModel.navEvent.collect { event ->
             when (event) {
                 ThresholdNavEvent.NavigateToResult -> onResult()
                 ThresholdNavEvent.NavigateBack -> onBack()
             }
         }
+    }
+
+    // Re-check attempt status only when blocked (e.g. cooldown expired while backgrounded).
+    // LifecycleResumeEffect fires on every RESUME — safe because onResume() never resets
+    // active gameplay; viewModelScope coroutines survive config changes on their own.
+    LifecycleResumeEffect(Unit) {
+        viewModel.onResume()
+        onPauseOrDispose {}
     }
 
     AmbientGlowBackground(

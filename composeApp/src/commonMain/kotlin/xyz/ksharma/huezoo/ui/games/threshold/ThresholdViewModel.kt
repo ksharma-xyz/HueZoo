@@ -117,12 +117,18 @@ class ThresholdViewModel(
         loadGame()
     }
 
-    fun onStart() {
-        when (val current = _uiState.value) {
-            is ThresholdUiState.Playing -> if (current.roundPhase != RoundPhase.Idle) loadGame()
-            is ThresholdUiState.Blocked -> loadGame()
-            else -> Unit
-        }
+    /**
+     * Called on every screen RESUME (including after config changes / rotation).
+     *
+     * Only re-checks attempt status when the screen is already showing [ThresholdUiState.Blocked]
+     * — e.g. the user waited for the 8-hour cooldown to expire while the app was backgrounded.
+     *
+     * Active gameplay is never touched here: [viewModelScope] coroutines survive config changes,
+     * so in-flight animations and state mutations continue uninterrupted without any help from
+     * the screen lifecycle.
+     */
+    fun onResume() {
+        if (_uiState.value is ThresholdUiState.Blocked) loadGame()
     }
 
     fun onUiEvent(event: ThresholdUiEvent) {

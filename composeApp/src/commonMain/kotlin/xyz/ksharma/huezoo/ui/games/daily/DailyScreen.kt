@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.datetime.DateTimeUnit
@@ -69,14 +70,21 @@ fun DailyScreen(
         DailyHelpSheet(onDismiss = { showHelp = false })
     }
 
+    // Collect nav events. Fresh subscriber on config-change starts collecting future events.
     LaunchedEffect(Unit) {
-        viewModel.onStart()
         viewModel.navEvent.collect { event ->
             when (event) {
                 DailyNavEvent.NavigateToResult -> onResult()
                 DailyNavEvent.NavigateBack -> onBack()
             }
         }
+    }
+
+    // Re-check today's challenge status only when already showing AlreadyPlayed
+    // (e.g. day changed while app was backgrounded). Never resets active gameplay.
+    LifecycleResumeEffect(Unit) {
+        viewModel.onResume()
+        onPauseOrDispose {}
     }
 
     AmbientGlowBackground(

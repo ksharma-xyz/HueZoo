@@ -87,12 +87,17 @@ class DailyViewModel(
         loadGame()
     }
 
-    fun onStart() {
-        when (val current = _uiState.value) {
-            is DailyUiState.AlreadyPlayed -> loadGame()
-            is DailyUiState.Playing -> if (current.roundPhase != RoundPhase.Idle) loadGame()
-            else -> Unit
-        }
+    /**
+     * Called on every screen RESUME (including after config changes / rotation).
+     *
+     * Only re-checks today's challenge status when already showing [DailyUiState.AlreadyPlayed]
+     * — e.g. the user completed the daily, went to another app, and returned (day may have changed).
+     *
+     * Active gameplay is never touched here: [viewModelScope] coroutines survive config changes,
+     * so round state and animations continue uninterrupted.
+     */
+    fun onResume() {
+        if (_uiState.value is DailyUiState.AlreadyPlayed) loadGame()
     }
 
     fun onUiEvent(event: DailyUiEvent) {
