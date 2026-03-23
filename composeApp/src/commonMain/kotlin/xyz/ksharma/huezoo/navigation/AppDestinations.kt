@@ -1,34 +1,35 @@
 package xyz.ksharma.huezoo.navigation
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object Splash
+data object Splash : NavKey
 
 @Serializable
-data object EyeStrainNotice
+data object EyeStrainNotice : NavKey
 
 @Serializable
-data object Home
+data object Home : NavKey
 
 @Serializable
-data object ThresholdGame
+data object ThresholdGame : NavKey
 
 @Serializable
-data object DailyGame
+data object DailyGame : NavKey
 
 /** Nav destination for the result screen — carries only the game type for identity/color setup. */
 @Serializable
-data class Result(val gameId: String)
+data class Result(val gameId: String) : NavKey
 
 @Serializable
-data object Leaderboard
+data object Leaderboard : NavKey
 
 @Serializable
-data object Settings
+data object Settings : NavKey
 
 @Serializable
-data object Upgrade
+data object Upgrade : NavKey
 
 sealed interface GameId {
     companion object {
