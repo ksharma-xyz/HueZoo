@@ -5,19 +5,21 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.data.repository.DailyRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
+import xyz.ksharma.huezoo.domain.game.SessionResultCache
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.navigation.GameId
-import xyz.ksharma.huezoo.navigation.Result
+import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.ui.result.state.ResultUiState
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 class ResultViewModel(
-    private val navResult: Result,
+    private val sessionResultCache: SessionResultCache,
     private val thresholdRepository: ThresholdRepository,
     private val dailyRepository: DailyRepository,
 ) : ViewModel() {
@@ -26,52 +28,52 @@ class ResultViewModel(
     val uiState: StateFlow<ResultUiState> = _uiState.asStateFlow()
 
     init {
-        load()
+        // Collect reactively so "play again" sessions trigger a fresh load automatically,
+        // even when this ViewModel instance is reused by the DI container.
+        viewModelScope.launch {
+            sessionResultCache.result.filterNotNull().collect { result ->
+                load(result)
+            }
+        }
     }
 
-    private fun load() {
-        viewModelScope.launch {
-            println("[DEBUG_RESULT] load() navDeltaE=${navResult.deltaE} gameId=${navResult.gameId} rounds=${navResult.roundsSurvived}/${navResult.totalRounds}")
-            val best = when (navResult.gameId) {
-                GameId.THRESHOLD -> thresholdRepository.getPersonalBest()
-                GameId.DAILY -> dailyRepository.getPersonalBest()
-                else -> null
-            }
-
-            // UX.6.1: For Threshold only, check whether the player has attempts remaining.
-            // Daily is once-per-day so Play Again never applies.
-            val canPlayAgain = if (navResult.gameId == GameId.THRESHOLD) {
-                when (val status = thresholdRepository.getAttemptStatus(Clock.System.now())) {
-                    is AttemptStatus.Available -> status.maxAttempts - status.attemptsUsed > 0
-                    is AttemptStatus.Exhausted -> false
-                }
-            } else {
-                false
-            }
-
-            // savePersonalBest runs before navigation, so the DB already holds the new best.
-            // Detect by comparing the freshly-stored value against this session's result.
-            val isNewPersonalBest = when (navResult.gameId) {
-                GameId.THRESHOLD -> best?.bestDeltaE?.let {
-                    kotlin.math.abs(it - navResult.deltaE) < 0.005f
-                } ?: true
-                GameId.DAILY -> best?.bestRounds?.let { navResult.roundsSurvived >= it } ?: true
-                else -> false
-            }
-
-            println("[DEBUG_RESULT] dbBest=${best?.bestDeltaE} isNewPersonalBest=$isNewPersonalBest")
-            _uiState.value = ResultUiState.Ready(
-                gameId = navResult.gameId,
-                deltaE = navResult.deltaE,
-                roundsSurvived = navResult.roundsSurvived,
-                correctRounds = navResult.correctRounds,
-                totalRounds = navResult.totalRounds,
-                isNewPersonalBest = isNewPersonalBest,
-                personalBestDeltaE = best?.bestDeltaE,
-                gemsEarned = navResult.gemsEarned,
-                gemBreakdown = navResult.gemBreakdown,
-                canPlayAgain = canPlayAgain,
-            )
+    private suspend fun load(sessionResult: SessionResult) {
+        println("[DEBUG_RESULT] load() deltaE=${sessionResult.deltaE} gameId=${sessionResult.gameId} rounds=${sessionResult.roundsSurvived}/${sessionResult.totalRounds}")
+        val best = when (sessionResult.gameId) {
+            GameId.THRESHOLD -> thresholdRepository.getPersonalBest()
+            GameId.DAILY -> dailyRepository.getPersonalBest()
+            else -> null
         }
+
+        val canPlayAgain = if (sessionResult.gameId == GameId.THRESHOLD) {
+            when (val status = thresholdRepository.getAttemptStatus(Clock.System.now())) {
+                is AttemptStatus.Available -> status.maxAttempts - status.attemptsUsed > 0
+                is AttemptStatus.Exhausted -> false
+            }
+        } else {
+            false
+        }
+
+        val isNewPersonalBest = when (sessionResult.gameId) {
+            GameId.THRESHOLD -> best?.bestDeltaE?.let {
+                kotlin.math.abs(it - sessionResult.deltaE) < 0.005f
+            } ?: true
+            GameId.DAILY -> best?.bestRounds?.let { sessionResult.roundsSurvived >= it } ?: true
+            else -> false
+        }
+
+        println("[DEBUG_RESULT] dbBest=${best?.bestDeltaE} isNewPersonalBest=$isNewPersonalBest")
+        _uiState.value = ResultUiState.Ready(
+            gameId = sessionResult.gameId,
+            deltaE = sessionResult.deltaE,
+            roundsSurvived = sessionResult.roundsSurvived,
+            correctRounds = sessionResult.correctRounds,
+            totalRounds = sessionResult.totalRounds,
+            isNewPersonalBest = isNewPersonalBest,
+            personalBestDeltaE = best?.bestDeltaE,
+            gemsEarned = sessionResult.gemsEarned,
+            gemBreakdown = sessionResult.gemBreakdown,
+            canPlayAgain = canPlayAgain,
+        )
     }
 }

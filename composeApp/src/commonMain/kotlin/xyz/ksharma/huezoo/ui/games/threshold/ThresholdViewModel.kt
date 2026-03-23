@@ -17,11 +17,12 @@ import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
 import xyz.ksharma.huezoo.domain.color.ColorEngine
 import xyz.ksharma.huezoo.domain.game.GameRewardRates
+import xyz.ksharma.huezoo.domain.game.SessionResultCache
 import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
-import xyz.ksharma.huezoo.navigation.Result
+import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
@@ -44,6 +45,7 @@ class ThresholdViewModel(
     private val settingsRepository: SettingsRepository,
     private val playerState: PlayerState,
     private val hapticEngine: HapticEngine,
+    private val sessionResultCache: SessionResultCache,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ThresholdUiState>(ThresholdUiState.Loading)
@@ -299,19 +301,18 @@ class ThresholdViewModel(
                     if (sessionTapGems > 0) add(GemAward("Correct taps", sessionTapGems))
                     if (sessionMilestoneGems > 0) add(GemAward("Milestone bonuses", sessionMilestoneGems))
                 }
-                _navEvent.emit(
-                    ThresholdNavEvent.NavigateToResult(
-                        Result(
-                            gameId = GameId.THRESHOLD,
-                            deltaE = finalDeltaE,
-                            roundsSurvived = tapCount - 1,
-                            correctRounds = sessionCorrectTaps,
-                            totalRounds = sessionCorrectTaps + sessionWrongTaps,
-                            gemsEarned = sessionGems,
-                            gemBreakdown = breakdown,
-                        ),
+                sessionResultCache.set(
+                    SessionResult(
+                        gameId = GameId.THRESHOLD,
+                        deltaE = finalDeltaE,
+                        roundsSurvived = tapCount - 1,
+                        correctRounds = sessionCorrectTaps,
+                        totalRounds = sessionCorrectTaps + sessionWrongTaps,
+                        gemsEarned = sessionGems,
+                        gemBreakdown = breakdown,
                     ),
                 )
+                _navEvent.emit(ThresholdNavEvent.NavigateToResult)
             }
         }
     }
