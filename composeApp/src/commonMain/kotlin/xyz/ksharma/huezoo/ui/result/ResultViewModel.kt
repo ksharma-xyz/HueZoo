@@ -31,6 +31,7 @@ class ResultViewModel(
 
     private fun load() {
         viewModelScope.launch {
+            println("[DEBUG_RESULT] load() navDeltaE=${navResult.deltaE} gameId=${navResult.gameId} rounds=${navResult.roundsSurvived}/${navResult.totalRounds}")
             val best = when (navResult.gameId) {
                 GameId.THRESHOLD -> thresholdRepository.getPersonalBest()
                 GameId.DAILY -> dailyRepository.getPersonalBest()
@@ -58,6 +59,7 @@ class ResultViewModel(
                 else -> false
             }
 
+            println("[DEBUG_RESULT] dbBest=${best?.bestDeltaE} isNewPersonalBest=$isNewPersonalBest")
             _uiState.value = ResultUiState.Ready(
                 gameId = navResult.gameId,
                 deltaE = navResult.deltaE,

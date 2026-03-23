@@ -267,24 +267,7 @@ class ThresholdViewModel(
             roundPhase = RoundPhase.Wrong,
             stingCopy = sting,
         )
-        // Capture before the launch — currentDeltaE is the level the player just attempted.
-        // If they've correctly tapped at least once (bestDeltaE != null), reaching this level
-        // counts toward personal best even if they failed the round. Guards against saving
-        // the trivial 5.0 starting value when someone taps wrong with no correct taps at all.
-        val attemptedDeltaE = currentDeltaE
-        val isReachPersonalBest = bestDeltaE != null &&
-            (storedBestDeltaE == null || attemptedDeltaE < storedBestDeltaE!!)
-        if (isReachPersonalBest) storedBestDeltaE = attemptedDeltaE
-
         viewModelScope.launch {
-            // Persist "reached" personal best before any delay — NonCancellable so a back-press
-            // mid-animation doesn't lose the write.
-            if (isReachPersonalBest) {
-                withContext(NonCancellable) {
-                    repository.savePersonalBest(attemptedDeltaE)
-                }
-            }
-
             repository.recordAttempt(Clock.System.now())
             triesRemaining--
             // Accumulate this try's stats before tapCount resets

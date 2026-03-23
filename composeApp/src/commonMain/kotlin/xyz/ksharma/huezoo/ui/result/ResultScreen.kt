@@ -107,7 +107,10 @@ fun ResultScreen(
     onPlayAgain: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ResultViewModel = koinViewModel(parameters = { parametersOf(result) }),
+    viewModel: ResultViewModel = koinViewModel(
+        key = "${result.gameId}_${result.deltaE}_${result.totalRounds}",
+        parameters = { parametersOf(result) },
+    ),
 ) {
     val platformOps: PlatformOps = koinInject()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
