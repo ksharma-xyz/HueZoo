@@ -101,11 +101,9 @@ fun App() {
                                 ThresholdScreen(
                                     // Remove the game screen before pushing Result so the
                                     // backstack becomes [Home, Result] — not [Home, Game, Result].
-                                    // This prevents the stuck ViewModel from being resurfaced
-                                    // when the user presses Back from the Result screen.
-                                    onResult = { result ->
+                                    onResult = {
                                         backStack.removeLast()
-                                        backStack.add(result)
+                                        backStack.add(Result(GameId.THRESHOLD))
                                     },
                                     onBack = { backStack.removeLast() },
                                 )
@@ -113,9 +111,9 @@ fun App() {
 
                             is DailyGame -> NavEntry(destination) {
                                 DailyScreen(
-                                    onResult = { result ->
+                                    onResult = {
                                         backStack.removeLast()
-                                        backStack.add(result)
+                                        backStack.add(Result(GameId.DAILY))
                                     },
                                     onBack = { backStack.removeLast() },
                                 )
@@ -123,7 +121,7 @@ fun App() {
 
                             is Result -> NavEntry(destination) {
                                 ResultScreen(
-                                    result = destination,
+                                    gameId = destination.gameId,
                                     onPlayAgain = {
                                         backStack.removeLast() // remove Result
                                         // Daily is once-per-day — go Home instead of replaying.

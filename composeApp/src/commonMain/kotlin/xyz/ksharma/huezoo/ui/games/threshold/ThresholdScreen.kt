@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
-import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
@@ -63,7 +62,7 @@ import kotlin.time.Instant
 
 @Composable
 fun ThresholdScreen(
-    onResult: (Result) -> Unit,
+    onResult: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ThresholdViewModel = koinViewModel(),
@@ -79,7 +78,7 @@ fun ThresholdScreen(
         viewModel.onStart()
         viewModel.navEvent.collect { event ->
             when (event) {
-                is ThresholdNavEvent.NavigateToResult -> onResult(event.result)
+                ThresholdNavEvent.NavigateToResult -> onResult()
                 ThresholdNavEvent.NavigateBack -> onBack()
             }
         }

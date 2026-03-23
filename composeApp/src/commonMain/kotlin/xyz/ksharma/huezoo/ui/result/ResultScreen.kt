@@ -70,10 +70,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import xyz.ksharma.huezoo.platform.shareIconRes
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
-import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
@@ -103,18 +101,15 @@ private val CardShelfHeight = 4.dp
 
 @Composable
 fun ResultScreen(
-    result: Result,
+    gameId: String,
     onPlayAgain: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ResultViewModel = koinViewModel(
-        key = "${result.gameId}_${result.deltaE}_${result.totalRounds}",
-        parameters = { parametersOf(result) },
-    ),
+    viewModel: ResultViewModel = koinViewModel(),
 ) {
     val platformOps: PlatformOps = koinInject()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isDaily = result.gameId == GameId.DAILY
+    val isDaily = gameId == GameId.DAILY
     val identityColor = if (isDaily) HuezooColors.GameDaily else HuezooColors.GameThreshold
     val glowColor = if (isDaily) identityColor else HuezooColors.AccentMagenta
 

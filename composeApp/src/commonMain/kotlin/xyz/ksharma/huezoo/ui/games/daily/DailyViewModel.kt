@@ -17,9 +17,10 @@ import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.domain.color.ColorEngine
 import xyz.ksharma.huezoo.domain.game.DailyGameEngine
 import xyz.ksharma.huezoo.domain.game.GameRewardRates
+import xyz.ksharma.huezoo.domain.game.SessionResultCache
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
-import xyz.ksharma.huezoo.navigation.Result
+import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiState
@@ -42,6 +43,7 @@ class DailyViewModel(
     private val colorEngine: ColorEngine,
     private val playerState: PlayerState,
     private val hapticEngine: HapticEngine,
+    private val sessionResultCache: SessionResultCache,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<DailyUiState>(DailyUiState.Loading)
@@ -243,19 +245,18 @@ class DailyViewModel(
             add(GemAward("Participation", GameRewardRates.DAILY_PARTICIPATION))
             if (isPerfect) add(GemAward("Perfect run bonus", GameRewardRates.DAILY_PERFECT_BONUS))
         }
-        _navEvent.emit(
-            DailyNavEvent.NavigateToResult(
-                Result(
-                    gameId = GameId.DAILY,
-                    deltaE = highestCorrectDeltaE,
-                    roundsSurvived = correctRounds,
-                    correctRounds = correctRounds,
-                    totalRounds = gameEngine.totalRounds,
-                    gemsEarned = sessionGems,
-                    gemBreakdown = breakdown,
-                ),
+        sessionResultCache.set(
+            SessionResult(
+                gameId = GameId.DAILY,
+                deltaE = highestCorrectDeltaE,
+                roundsSurvived = correctRounds,
+                correctRounds = correctRounds,
+                totalRounds = gameEngine.totalRounds,
+                gemsEarned = sessionGems,
+                gemBreakdown = breakdown,
             ),
         )
+        _navEvent.emit(DailyNavEvent.NavigateToResult)
     }
 
     private companion object {

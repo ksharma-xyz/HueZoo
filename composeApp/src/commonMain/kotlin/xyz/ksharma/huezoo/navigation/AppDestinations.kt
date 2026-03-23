@@ -17,18 +17,9 @@ data object ThresholdGame
 @Serializable
 data object DailyGame
 
+/** Nav destination for the result screen — carries only the game type for identity/color setup. */
 @Serializable
-data class Result(
-    val gameId: String,
-    val deltaE: Float,
-    val roundsSurvived: Int,
-    /** Correct rounds/taps across the full session (all tries for Threshold, all rounds for Daily). */
-    val correctRounds: Int = 0,
-    /** Total rounds/taps played across the full session. */
-    val totalRounds: Int = 0,
-    val gemsEarned: Int = 0,
-    val gemBreakdown: List<GemAward> = emptyList(),
-)
+data class Result(val gameId: String)
 
 @Serializable
 data object Leaderboard

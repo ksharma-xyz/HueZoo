@@ -34,7 +34,6 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
-import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DailyHelpSheet
 import xyz.ksharma.huezoo.ui.components.HuezooButton
@@ -58,7 +57,7 @@ import kotlin.time.Instant
 
 @Composable
 fun DailyScreen(
-    onResult: (Result) -> Unit,
+    onResult: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DailyViewModel = koinViewModel(),
@@ -74,7 +73,7 @@ fun DailyScreen(
         viewModel.onStart()
         viewModel.navEvent.collect { event ->
             when (event) {
-                is DailyNavEvent.NavigateToResult -> onResult(event.result)
+                DailyNavEvent.NavigateToResult -> onResult()
                 DailyNavEvent.NavigateBack -> onBack()
             }
         }

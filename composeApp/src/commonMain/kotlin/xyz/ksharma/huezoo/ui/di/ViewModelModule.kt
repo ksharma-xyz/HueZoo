@@ -1,9 +1,7 @@
 package xyz.ksharma.huezoo.ui.di
 
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.ui.eyestrain.EyeStrainViewModel
 import xyz.ksharma.huezoo.ui.games.daily.DailyViewModel
 import xyz.ksharma.huezoo.ui.games.threshold.ThresholdViewModel
@@ -21,11 +19,5 @@ val viewModelModule = module {
     viewModelOf(::DailyViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::LeaderboardViewModel)
-    viewModel { params ->
-        ResultViewModel(
-            navResult = params.get<Result>(),
-            thresholdRepository = get(),
-            dailyRepository = get(),
-        )
-    }
+    viewModelOf(::ResultViewModel)
 }
