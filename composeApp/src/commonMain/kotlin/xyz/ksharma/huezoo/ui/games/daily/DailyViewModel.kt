@@ -24,6 +24,7 @@ import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiState
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
+import xyz.ksharma.huezoo.ui.model.PlayerState
 import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
@@ -37,6 +38,7 @@ class DailyViewModel(
     private val repository: DailyRepository,
     private val settingsRepository: SettingsRepository,
     private val colorEngine: ColorEngine,
+    private val playerState: PlayerState,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<DailyUiState>(DailyUiState.Loading)
@@ -114,6 +116,7 @@ class DailyViewModel(
                 _uiState.value = DailyUiState.AlreadyPlayed
             } else {
                 val gems = settingsRepository.getGems()
+                playerState.updateGems(gems)
                 playerLevel = PlayerLevel.fromGems(gems)
                 emitRound(colorEngine.randomVividColorExcluding(playerLevel.levelHue))
             }
@@ -160,7 +163,8 @@ class DailyViewModel(
             roundPhase = RoundPhase.Correct,
         )
         viewModelScope.launch {
-            settingsRepository.addGems(GameRewardRates.DAILY_CORRECT_ROUND)
+            val gemsAfterTap = settingsRepository.addGems(GameRewardRates.DAILY_CORRECT_ROUND)
+            playerState.updateGems(gemsAfterTap)
             sessionGems += GameRewardRates.DAILY_CORRECT_ROUND
             sessionCorrectGems += GameRewardRates.DAILY_CORRECT_ROUND
 
@@ -212,13 +216,15 @@ class DailyViewModel(
         val date = today
 
         // Participation bonus — always awarded for completing all 6 rounds
-        settingsRepository.addGems(GameRewardRates.DAILY_PARTICIPATION)
+        val gemsAfterParticipation = settingsRepository.addGems(GameRewardRates.DAILY_PARTICIPATION)
+        playerState.updateGems(gemsAfterParticipation)
         sessionGems += GameRewardRates.DAILY_PARTICIPATION
 
         // Perfect bonus — all 6 rounds correct
         val isPerfect = correctRounds == gameEngine.totalRounds
         if (isPerfect) {
-            settingsRepository.addGems(GameRewardRates.DAILY_PERFECT_BONUS)
+            val gemsAfterPerfect = settingsRepository.addGems(GameRewardRates.DAILY_PERFECT_BONUS)
+            playerState.updateGems(gemsAfterPerfect)
             sessionGems += GameRewardRates.DAILY_PERFECT_BONUS
         }
 

@@ -26,6 +26,7 @@ import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
+import xyz.ksharma.huezoo.ui.model.PlayerState
 import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
@@ -39,6 +40,7 @@ class ThresholdViewModel(
     private val repository: ThresholdRepository,
     private val colorEngine: ColorEngine,
     private val settingsRepository: SettingsRepository,
+    private val playerState: PlayerState,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ThresholdUiState>(ThresholdUiState.Loading)
@@ -142,6 +144,7 @@ class ThresholdViewModel(
 
     private suspend fun startSession(status: AttemptStatus.Available) {
         totalGems = settingsRepository.getGems()
+        playerState.updateGems(totalGems)
         playerLevel = PlayerLevel.fromGems(totalGems)
         storedBestDeltaE = repository.getPersonalBest()?.bestDeltaE
         baseColor = colorEngine.randomVividColorExcluding(playerLevel.levelHue)
@@ -218,6 +221,7 @@ class ThresholdViewModel(
             }
 
             totalGems = settingsRepository.addGems(gemsThisTap)
+            playerState.updateGems(totalGems)
             sessionGems += gemsThisTap
             sessionTapGems += GameRewardRates.THRESHOLD_CORRECT_TAP
             sessionMilestoneGems += milestoneBonus

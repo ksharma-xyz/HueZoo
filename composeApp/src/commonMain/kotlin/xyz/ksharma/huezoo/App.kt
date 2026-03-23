@@ -4,19 +4,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.EyeStrainNotice
 import xyz.ksharma.huezoo.navigation.GameId
@@ -33,6 +26,7 @@ import xyz.ksharma.huezoo.ui.games.threshold.ThresholdScreen
 import xyz.ksharma.huezoo.ui.home.HomeScreen
 import xyz.ksharma.huezoo.ui.leaderboard.LeaderboardScreen
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
+import xyz.ksharma.huezoo.ui.model.PlayerState
 import xyz.ksharma.huezoo.ui.result.ResultScreen
 import xyz.ksharma.huezoo.ui.settings.SettingsScreen
 import xyz.ksharma.huezoo.ui.splash.SplashScreen
@@ -43,18 +37,15 @@ import xyz.ksharma.huezoo.ui.theme.LocalPlayerShelfColor
 
 @Composable
 fun App() {
-    val settingsRepository: SettingsRepository = koinInject()
+    val playerState: PlayerState = koinInject()
 
     HuezooTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             val backStack = remember { mutableStateListOf<Any>(Splash) }
-            val scope = rememberCoroutineScope()
 
-            // Re-read gems whenever the back stack changes (returning from a game screen).
-            // PlayerLevel is derived from gems — drives the UI accent color everywhere.
-            var gems by remember { mutableIntStateOf(0) }
-            LaunchedEffect(backStack.size) { gems = settingsRepository.getGems() }
-            val level = PlayerLevel.fromGems(gems)
+            // playerState.gems is Compose snapshot state — reading it here means App recomposes
+            // whenever any ViewModel calls playerState.updateGems(), keeping the accent color live.
+            val level = PlayerLevel.fromGems(playerState.gems)
 
             CompositionLocalProvider(
                 LocalPlayerAccentColor provides level.levelColor,
@@ -67,29 +58,16 @@ fun App() {
                         when (destination) {
                             is Splash -> NavEntry(destination) {
                                 SplashScreen(
-                                    onFinished = {
-                                        scope.launch {
-                                            val next = if (settingsRepository.hasSeenHealthNotice()) {
-                                                Home
-                                            } else {
-                                                EyeStrainNotice
-                                            }
-                                            // Replace Splash in-place — never leaves the backstack empty
-                                            backStack[backStack.lastIndex] = next
-                                        }
-                                    },
+                                    // Replace Splash in-place — never leaves the backstack empty
+                                    onNavigateToHome = { backStack[backStack.lastIndex] = Home },
+                                    onNavigateToEyeStrain = { backStack[backStack.lastIndex] = EyeStrainNotice },
                                 )
                             }
 
                             is EyeStrainNotice -> NavEntry(destination) {
                                 EyeStrainNoticeScreen(
-                                    onDismiss = {
-                                        scope.launch {
-                                            settingsRepository.setSeenHealthNotice()
-                                            // Replace EyeStrainNotice in-place — never leaves the backstack empty
-                                            backStack[backStack.lastIndex] = Home
-                                        }
-                                    },
+                                    // Replace EyeStrainNotice in-place — never leaves the backstack empty
+                                    onNavigateToHome = { backStack[backStack.lastIndex] = Home },
                                 )
                             }
 

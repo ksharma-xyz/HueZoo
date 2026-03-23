@@ -89,14 +89,17 @@ fun SettingsScreen(
                         ),
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    Spacer(Modifier.height(HuezooSpacing.sm))
-                    HuezooButton(
-                        text = "SAVE NAME",
-                        onClick = { viewModel.onUiEvent(SettingsUiEvent.SaveNameTapped) },
-                        enabled = state.nameInput.isNotBlank(),
-                        variant = HuezooButtonVariant.Primary,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    val nameChanged = state.nameInput.isNotBlank() &&
+                        state.nameInput.trim() != state.userName?.trim()
+                    if (nameChanged) {
+                        Spacer(Modifier.height(HuezooSpacing.sm))
+                        HuezooButton(
+                            text = "SAVE NAME",
+                            onClick = { viewModel.onUiEvent(SettingsUiEvent.SaveNameTapped) },
+                            variant = HuezooButtonVariant.Primary,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
 
                 Spacer(Modifier.height(HuezooSpacing.xl))

@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewScreen
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
@@ -57,9 +58,20 @@ import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
  */
 @Composable
 fun SplashScreen(
-    onFinished: () -> Unit,
+    onNavigateToHome: () -> Unit,
+    onNavigateToEyeStrain: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: SplashViewModel = koinViewModel(),
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.navEvent.collect { event ->
+            when (event) {
+                SplashNavEvent.NavigateToHome -> onNavigateToHome()
+                SplashNavEvent.NavigateToEyeStrain -> onNavigateToEyeStrain()
+            }
+        }
+    }
+
     var zooFilled by remember { mutableStateOf(false) }
     val zooGlowAlpha = remember { Animatable(0f) }
     val taglineAlpha = remember { Animatable(0f) }
@@ -95,7 +107,7 @@ fun SplashScreen(
         // Fade out → navigate
         launch { zooGlowAlpha.animateTo(0f, tween(400)) }
         screenAlpha.animateTo(0f, tween(500))
-        onFinished()
+        viewModel.onSplashFinished()
     }
 
     Box(

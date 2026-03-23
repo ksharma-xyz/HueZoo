@@ -111,7 +111,7 @@ fun ThresholdScreen(
                 )
             }
         }
-    }
+    } // AmbientGlowBackground
 }
 
 @Composable

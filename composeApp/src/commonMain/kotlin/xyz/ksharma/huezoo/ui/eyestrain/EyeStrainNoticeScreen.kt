@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
@@ -47,9 +49,14 @@ import xyz.ksharma.huezoo.ui.theme.HuezooColors
  */
 @Composable
 fun EyeStrainNoticeScreen(
-    onDismiss: () -> Unit,
+    onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: EyeStrainViewModel = koinViewModel(),
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.navEvent.collect { onNavigateToHome() }
+    }
+
     AmbientGlowBackground(
         modifier = modifier,
         primaryColor = HuezooColors.AccentCyan,
@@ -117,7 +124,7 @@ fun EyeStrainNoticeScreen(
             // ── Dismiss ───────────────────────────────────────────────────────
             HuezooButton(
                 text = "GOT IT — LET'S PLAY",
-                onClick = onDismiss,
+                onClick = { viewModel.onGotIt() },
                 variant = HuezooButtonVariant.Primary,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -237,6 +244,6 @@ private fun EyeIcon(
 @Composable
 private fun EyeStrainNoticePreview() {
     HuezooPreviewTheme {
-        EyeStrainNoticeScreen(onDismiss = {})
+        EyeStrainNoticeScreen(onNavigateToHome = {})
     }
 }
