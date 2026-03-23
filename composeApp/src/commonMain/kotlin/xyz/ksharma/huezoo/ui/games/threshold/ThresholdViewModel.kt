@@ -23,11 +23,11 @@ import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.SessionResult
+import xyz.ksharma.huezoo.platform.haptics.HapticEngine
+import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
-import xyz.ksharma.huezoo.platform.haptics.HapticEngine
-import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.model.PlayerState
 import xyz.ksharma.huezoo.ui.model.RoundPhase
@@ -164,7 +164,9 @@ class ThresholdViewModel(
         triesRemaining = status.maxAttempts - status.attemptsUsed
         maxAttempts = status.maxAttempts
         awardedMilestones.clear()
-        println("[DEBUG_DELTA] SESSION START — startingΔE=$currentDeltaE triesRemaining=$triesRemaining storedBestΔE=$storedBestDeltaE")
+        println(
+            "[DEBUG_DELTA] SESSION START — startingΔE=$currentDeltaE triesRemaining=$triesRemaining storedBestΔE=$storedBestDeltaE",
+        )
         emitRound()
     }
 
@@ -204,7 +206,9 @@ class ThresholdViewModel(
 
         val sessionBest = bestDeltaE!!
         val isNewAllTimeBest = storedBestDeltaE == null || sessionBest < storedBestDeltaE!!
-        println("[DEBUG_DELTA] CORRECT tap=$tapCount currentΔE=$currentDeltaE bestΔE(prev=$prevBestDeltaE → now=$sessionBest) isNewAllTimeBest=$isNewAllTimeBest")
+        println(
+            "[DEBUG_DELTA] CORRECT tap=$tapCount currentΔE=$currentDeltaE bestΔE(prev=$prevBestDeltaE → now=$sessionBest) isNewAllTimeBest=$isNewAllTimeBest",
+        )
         if (isNewAllTimeBest) storedBestDeltaE = sessionBest
 
         val milestoneBonus = checkAndAwardMilestone(currentDeltaE)
@@ -248,7 +252,9 @@ class ThresholdViewModel(
             val prevDeltaE = currentDeltaE
             currentDeltaE = (currentDeltaE - ThresholdGameEngine.DELTA_E_STEP)
                 .coerceAtLeast(ThresholdGameEngine.MIN_DELTA_E)
-            println("[DEBUG_DELTA] NEXT ROUND tap=$tapCount ΔE: $prevDeltaE → $currentDeltaE (step=${ThresholdGameEngine.DELTA_E_STEP})")
+            println(
+                "[DEBUG_DELTA] NEXT ROUND tap=$tapCount ΔE: $prevDeltaE → $currentDeltaE (step=${ThresholdGameEngine.DELTA_E_STEP})",
+            )
             baseColor = colorEngine.randomVividColorExcluding(playerLevel.levelHue)
             emitRound()
         }
@@ -275,7 +281,9 @@ class ThresholdViewModel(
             // Accumulate this try's stats before tapCount resets
             sessionCorrectTaps += tapCount - 1
             sessionWrongTaps++
-            println("[DEBUG_DELTA] WRONG failedAtΔE=$currentDeltaE tap=$tapCount bestΔE=$bestDeltaE triesRemaining=$triesRemaining sessionCorrect=$sessionCorrectTaps sessionWrong=$sessionWrongTaps")
+            println(
+                "[DEBUG_DELTA] WRONG failedAtΔE=$currentDeltaE tap=$tapCount bestΔE=$bestDeltaE triesRemaining=$triesRemaining sessionCorrect=$sessionCorrectTaps sessionWrong=$sessionWrongTaps",
+            )
 
             delay(ANIMATION_WRONG_MS)
 
@@ -295,7 +303,9 @@ class ThresholdViewModel(
                 // All tries spent — navigate to result
                 hapticEngine.perform(HapticType.GameOver)
                 val finalDeltaE = bestDeltaE ?: currentDeltaE
-                println("[DEBUG_DELTA] SESSION END — finalΔE=$finalDeltaE bestΔE=$bestDeltaE fallback(currentΔE)=${bestDeltaE == null} correctRounds=$sessionCorrectTaps totalRounds=${sessionCorrectTaps + sessionWrongTaps}")
+                println(
+                    "[DEBUG_DELTA] SESSION END — finalΔE=$finalDeltaE bestΔE=$bestDeltaE fallback(currentΔE)=${bestDeltaE == null} correctRounds=$sessionCorrectTaps totalRounds=${sessionCorrectTaps + sessionWrongTaps}",
+                )
                 repository.savePersonalBest(finalDeltaE)
                 val breakdown = buildList {
                     if (sessionTapGems > 0) add(GemAward("Correct taps", sessionTapGems))

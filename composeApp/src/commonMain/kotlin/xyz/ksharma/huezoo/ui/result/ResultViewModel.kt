@@ -38,7 +38,9 @@ class ResultViewModel(
     }
 
     private suspend fun load(sessionResult: SessionResult) {
-        println("[DEBUG_RESULT] load() deltaE=${sessionResult.deltaE} gameId=${sessionResult.gameId} rounds=${sessionResult.roundsSurvived}/${sessionResult.totalRounds}")
+        println(
+            "[DEBUG_RESULT] load() deltaE=${sessionResult.deltaE} gameId=${sessionResult.gameId} rounds=${sessionResult.roundsSurvived}/${sessionResult.totalRounds}",
+        )
         val best = when (sessionResult.gameId) {
             GameId.THRESHOLD -> thresholdRepository.getPersonalBest()
             GameId.DAILY -> dailyRepository.getPersonalBest()
