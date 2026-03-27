@@ -1,15 +1,41 @@
 package xyz.ksharma.huezoo.domain.game
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.toLocalDateTime
 import xyz.ksharma.huezoo.data.repository.impl.DefaultDailyRepository
+import xyz.ksharma.huezoo.navigation.GameId
+import xyz.ksharma.huezoo.navigation.SessionResult
+import xyz.ksharma.huezoo.testutil.FakeDailyRepository
+import xyz.ksharma.huezoo.testutil.FakeSettingsRepository
+import xyz.ksharma.huezoo.testutil.FakeThresholdRepository
 import xyz.ksharma.huezoo.testutil.createTestDatabase
+import xyz.ksharma.huezoo.ui.home.HomeViewModel
+import xyz.ksharma.huezoo.ui.home.state.HomeUiState
+import xyz.ksharma.huezoo.ui.result.ResultViewModel
+import xyz.ksharma.huezoo.ui.result.state.ResultUiState
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 /**
  * Tests for Daily Challenge streak counting and personal best tracking.
@@ -18,14 +44,27 @@ import kotlin.test.assertTrue
  * Each test class instance gets a fresh database (kotlin.test creates a new
  * instance per test method), so there is no shared state between tests.
  *
- * Tests that require [DailyViewModel] / [ResultViewModel] state are marked TODO.
+ * ViewModel tests (isNewPersonalBest, HomeViewModel streak) use fake in-memory
+ * repositories so all coroutine scheduling stays on the test dispatcher.
  */
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
 class DailyStreakAndPersonalBestTest {
 
     private val repo = DefaultDailyRepository(createTestDatabase())
 
     private val TODAY = LocalDate(2026, 3, 27)
     private val YESTERDAY = LocalDate(2026, 3, 26)
+
+    // ── Test dispatcher for ViewModel tests ───────────────────────────────────
+
+    private val testScheduler = TestCoroutineScheduler()
+    private val testDispatcher = StandardTestDispatcher(testScheduler)
+
+    @BeforeTest
+    fun setupDispatcher() = Dispatchers.setMain(testDispatcher)
+
+    @AfterTest
+    fun teardownDispatcher() = Dispatchers.resetMain()
 
     // ─── Streak: basic cases ──────────────────────────────────────────────────
 
@@ -124,24 +163,85 @@ class DailyStreakAndPersonalBestTest {
     // ─── isNewPersonalBest for daily in ResultViewModel ───────────────────────
 
     @Test
-    fun `isNewPersonalBest true when correctRounds exceed stored bestRounds`() {
-        TODO("needs ResultViewModel: session.correctRounds > stored.bestRounds → isNewPersonalBest = true")
-    }
+    fun `isNewPersonalBest true when correctRounds exceed stored bestRounds`() =
+        runTest(testDispatcher) {
+            val cache = SessionResultCache()
+            val vm = ResultViewModel(
+                sessionResultCache = cache,
+                thresholdRepository = FakeThresholdRepository(),
+                dailyRepository = FakeDailyRepository(initialBestRounds = 3),
+            )
+            advanceUntilIdle()
+            cache.set(fakeDailyResult(roundsSurvived = 5)) // 5 > 3 → new best
+            advanceUntilIdle()
+            assertTrue(assertIs<ResultUiState.Ready>(vm.uiState.value).isNewPersonalBest)
+        }
 
     @Test
-    fun `isNewPersonalBest true when no previous personal best exists`() {
-        TODO("needs ResultViewModel: null storedBest → isNewPersonalBest = true for any session")
-    }
+    fun `isNewPersonalBest true when no previous personal best exists`() =
+        runTest(testDispatcher) {
+            val cache = SessionResultCache()
+            val vm = ResultViewModel(
+                sessionResultCache = cache,
+                thresholdRepository = FakeThresholdRepository(),
+                dailyRepository = FakeDailyRepository(), // no stored best
+            )
+            advanceUntilIdle()
+            cache.set(fakeDailyResult(roundsSurvived = 4))
+            advanceUntilIdle()
+            assertTrue(assertIs<ResultUiState.Ready>(vm.uiState.value).isNewPersonalBest)
+        }
 
     @Test
-    fun `isNewPersonalBest false when correctRounds do not exceed stored bestRounds`() {
-        TODO("needs ResultViewModel: session.correctRounds <= stored.bestRounds → isNewPersonalBest = false")
-    }
+    fun `isNewPersonalBest false when correctRounds do not exceed stored bestRounds`() =
+        runTest(testDispatcher) {
+            val cache = SessionResultCache()
+            val vm = ResultViewModel(
+                sessionResultCache = cache,
+                thresholdRepository = FakeThresholdRepository(),
+                dailyRepository = FakeDailyRepository(initialBestRounds = 5),
+            )
+            advanceUntilIdle()
+            cache.set(fakeDailyResult(roundsSurvived = 3)) // 3 < 5 → not new best
+            advanceUntilIdle()
+            assertFalse(assertIs<ResultUiState.Ready>(vm.uiState.value).isNewPersonalBest)
+        }
 
     // ─── Streak display on Home screen ────────────────────────────────────────
 
     @Test
-    fun `HomeViewModel shows current streak correctly after completing daily`() {
-        TODO("needs HomeViewModel test harness: complete 3 consecutive days → HomeUiState.streak == 3")
-    }
+    fun `HomeViewModel shows current streak correctly after completing daily`() =
+        runTest(testDispatcher) {
+            // Use real today so HomeViewModel.today matches our pre-populated completions.
+            val realToday = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+            val yesterday = realToday.minus(1, DateTimeUnit.DAY)
+            val dayBefore = realToday.minus(2, DateTimeUnit.DAY)
+
+            val dailyRepo = FakeDailyRepository()
+            dailyRepo.saveCompletion(realToday)
+            dailyRepo.saveCompletion(yesterday)
+            dailyRepo.saveCompletion(dayBefore)
+
+            val vm = HomeViewModel(
+                thresholdRepository = FakeThresholdRepository(),
+                dailyRepository = dailyRepo,
+                settingsRepository = FakeSettingsRepository(),
+            )
+            advanceUntilIdle()
+
+            val state = assertIs<HomeUiState.Ready>(vm.uiState.value)
+            assertEquals(3, state.streak)
+        }
+
+    // ── Test data factory ─────────────────────────────────────────────────────
+
+    private fun fakeDailyResult(roundsSurvived: Int) = SessionResult(
+        gameId = GameId.DAILY,
+        deltaE = 2.0f,
+        roundsSurvived = roundsSurvived,
+        correctRounds = roundsSurvived,
+        totalRounds = 6,
+        gemsEarned = 3 + roundsSurvived * 5,
+        gemBreakdown = emptyList(),
+    )
 }
