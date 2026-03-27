@@ -2,8 +2,7 @@
 
 *One obsessive game loop. Ship it. Hook people. Monetize the obsession.*
 
-Game rules, scoring, gem economy, and ΔE tiers are the single source of truth in:
-- `docs/GAME_DESIGN.md`
+Completed phases archived in `docs/archive/MVP_COMPLETED.md`.
 
 ---
 
@@ -11,43 +10,32 @@ Game rules, scoring, gem economy, and ΔE tiers are the single source of truth i
 
 | Phase | What | Status |
 |---|---|---|
-| 0 | Gradle, SQLDelight, DI, nav structure, package layout | ✅ Done |
-| Detekt | Code quality + Compose lint rules | ✅ Done |
-| DS.0 | HuezooColors, HuezooTypography, HuezooTheme | ✅ Done |
-| DS.0.5 | HuezooSpacing + HuezooSize dimension tokens | ✅ Done |
-| DS.1 | Shapes, shadows, overlays | ✅ Done |
-| DS.2 | Core components: Button, SwatchLayout, GameCard, BottomSheet, TopBar, CurrencyPill | ✅ Done |
-| DS.Font | Custom fonts: Bebas Neue + Clash Display + Space Grotesk | ✅ Done |
-| DS.3 | Haptics — HapticEngine expect/actual (Android + iOS) | ⬜ |
-| DS.4 | Sound — SoundEffect expect/actual, SoundPool / AVAudioPlayer | ⬜ |
-| DS.5 | Animations — confetti, shake, count-up, spring scale, slide-up | ✅ Done |
-| 1 | Color Math — rgbToLab, CIEDE2000, randomVividColor, seededColor | ✅ Done |
-| 2 | Core UI components wired to color math | ✅ Done |
-| 3 | Home Screen | ✅ Done |
-| 4 | The Threshold — game loop | ✅ Done |
-| 5 | Daily Challenge — game loop | ✅ Done |
-| 6 | Result Screen | ✅ Done |
+| 0 | Project setup, DI, nav, SQLDelight | ✅ |
+| DS.0–DS.2 | Design system, fonts, components | ✅ |
+| DS.3 | Haptics | ✅ |
+| DS.4 | Sound | ⬜ |
+| DS.5 | Animations | ✅ |
+| 1–6 | Color math, game loops, screens | ✅ |
+| UX | Various UX polish (see below) | Partial |
 | 7 | Monetization — AdMob + IAP | ⬜ |
-| 8 | Firebase — leaderboard + anon auth | ⬜ |
+| 8 | Firebase leaderboard + auth | ⬜ |
 | 9 | Polish + ship | ⬜ |
+| T | Unit tests | ⬜ |
+| L | Font license review | ⬜ |
 
 ---
 
 ## Core Idea
 
-**The Threshold** — detect the smallest color difference you can. Try budget = 10 tries per 8h window. Best ΔE across all tries is your result.
-**Daily Challenge** — date-seeded puzzle, same for every player, 6 rounds always played, 1 attempt per day.
-
----
-
-## User Journey
+**The Threshold** — detect the smallest color difference you can. 5 tries per 8h window (free) / unlimited (paid). Best ΔE is your result.
+**Daily Challenge** — date-seeded, same for every player, 6 rounds, 1 attempt per day.
 
 ```
 Open app
-  ├── Daily Challenge card  →  1 attempt/day  →  Result  →  Share
-  └── The Threshold card    →  10 tries / 8 hours
-                                  ├── Out of tries → Watch Ad (+1) OR Unlock $2 forever
-                                  └── Result → Share
+  ├── Daily Challenge  →  1 attempt/day  →  Result  →  Share
+  └── The Threshold   →  5 tries / 8 hours
+                            ├── Out of tries → Watch Ad (+1) OR Unlock $2
+                            └── Result → Share
 ```
 
 ---
@@ -57,419 +45,140 @@ Open app
 | Feature | Free | Paid ($2 one-time) |
 |---|---|---|
 | Daily Challenge | ✅ 1/day | ✅ 1/day |
-| The Threshold attempts | 10 per 8 hours | ♾️ Unlimited |
+| Threshold attempts | 5 per 8h | ♾️ Unlimited |
 | Watch ad for +1 try | ✅ | Not needed |
-| Submit to leaderboard | ✅ | ✅ |
-| Ads | ✅ shown | ❌ removed |
-
-**Attempt window: 10 tries per 8 hours.**
-`next_reset_at` stored as ISO timestamp in SQLDelight, not date string.
+| Leaderboard | ❌ | ✅ |
+| Ads | shown | removed |
 
 ---
 
-## Tech Stack
+## Pending Work
 
-| Layer | Choice |
-|---|---|
-| UI | Compose Multiplatform (Android + iOS) |
-| Navigation | Navigation3 (KMP) |
-| Local DB | SQLDelight 2.x |
-| Backend | Firebase Realtime Database (leaderboard only) |
-| Auth | Firebase Anonymous Auth |
-| Ads | AdMob (Android + iOS) |
-| IAP | Google Play Billing + StoreKit 2 (iOS) |
-| Color Math | Pure Kotlin (commonMain) |
-| Share | PlatformOps interface — Android Intent / iOS UIActivityViewController |
+### DS.4 — Sound ⬜
+- [ ] DS.4.1 Source + add sound files: `correct`, `wrong`, `gameover`, `tick`, `gem_earned`, `button_tap`
+- [ ] DS.4.2 `SoundType` enum + `SoundEngine` interface in commonMain
+- [ ] DS.4.3 Android actual — `SoundPool`; iOS actual — `AVAudioPlayer`
+- [ ] DS.4.4 `isSoundEnabled` setting in `SettingsRepository` (SQLDelight `user_settings`), default on
+- [ ] DS.4.5 Sound on/off toggle button (speaker icon) — in `HuezooTopBar` or persistent on game screens
+- [ ] DS.4.6 Wire into gameplay: correct → `correct`, wrong → `wrong`, game over → `gameover`, gem → `gem_earned`, button → `button_tap`
 
----
-
-## Detailed Task List
-
-### Phase 0 — Project Setup ✅
-- [x] 0.1 Review existing code, rename FunWithColors → Huezoo everywhere
-- [x] 0.2 Set up Navigation3 (KMP) — `NavDisplay` in `App.kt`
-- [x] 0.3 Package structure: `ui/home`, `ui/games/threshold`, `ui/games/daily`, `ui/result`, `ui/leaderboard`, `ui/paywall`, `domain/color`, `data/db`, `platform/`
-- [x] 0.4 SQLDelight schema — `daily_challenge`, `threshold_session` (8h window), `personal_best`, `user_settings`
-- [x] 0.5 DB driver factory interface + Android/iOS actuals
-- [x] 0.6 Koin DI — `appModule` + `platformDatabaseModule` expect/actual; iOS `doInitKoin()` called in `iOSApp.init()`
-- [x] 0.7 `PlatformOps` — `shareText()` Android + iOS implementations
-- [x] 0.8 iOS app renamed to HueZoo; Xcode linker flags fixed (`-ObjC -lsqlite3`, `FRAMEWORK_SEARCH_PATHS`)
-- [x] 0.9 Detekt setup — `config/detekt.yml` with Compose rules, applied in composeApp
-
-### Phase DS.0 — Design System Foundation ✅
-- [x] DS.0.1 `HuezooColors` — full dark game palette (Background, SurfaceL1-L3, accents, glows, game identity colors, GemGreen)
-- [x] DS.0.2 `HuezooTypography` — Space Grotesk + Bebas Neue + Clash Display type scale
-- [x] DS.0.3 `HuezooTheme` — `MaterialTheme` wrapper with dark color scheme + typography
-
-### Phase DS.Font — Custom Typography ✅
-- [x] DS.Font.1 **Bebas Neue** (Regular) — display/numbers font. SIL OFL.
-- [x] DS.Font.2 **Clash Display** (Regular, Medium, SemiBold, Bold) — title/heading font. Fontshare FF EULA.
-- [x] DS.Font.3 **Space Grotesk** (Regular, Medium, SemiBold, Bold) — body/label font. SIL OFL.
-- [x] DS.Font.4 All `.ttf` files placed in `composeApp/src/commonMain/composeResources/font/`
-- [x] DS.Font.5 `Typography.kt` updated — full type scale wired
+### DS.Font — Pre-ship items ⬜
 - [ ] DS.Font.6 Verify previews render with correct fonts in Android Studio
 - [ ] DS.Font.7 Verify on-device on Android + iOS simulator
-- [ ] DS.Font.8 **License review** — see Phase L below before App Store submission
+- [ ] DS.Font.8 License review (see Phase L)
 
-### Phase DS.1 — Shapes & Effects ✅
-- [x] DS.1.1 Shape variants — `SquircleSmall`, `SquircleMedium`, `HexagonSwatch`, `DiamondSwatch`, `SwatchPetal`, `ParallelogramBack`
-- [x] DS.1.2 `Modifier.shapedShadow()` — neo-brutalist offset shadow for any shape
-- [x] DS.1.3 `Modifier.rimLight()` — top-left inset highlight for depth
-- [x] DS.1.4 `SwatchGradientOverlay` — top-left highlight + bottom-right shadow for physical chip look
-- [x] DS.1.5 5 swatch layout styles — `Flower`, `HexRing`, `SquircleOrbit`, `SpokeBlades`, `DiamondHalo`; random style per round
-- [x] DS.1.6 `AmbientGlowBackground` — radial gradient glow behind game content
-
-### Phase DS.2 — Core Components ✅
-- [x] DS.2.1 `HuezooButton` — Primary / Ghost / GhostDanger variants; 3D press with shelf shadow
-- [x] DS.2.2 `RadialSwatchLayout` — 6 tiles in a ring, unfold/fold spring animations, shake on wrong, neon border on correct/wrong/revealed; `SwatchSize` enum (Normal / Medium 1.2×)
-- [x] DS.2.3 `GameCard` composables on Home — Threshold card (scanner illustration) + Daily card (gradient + round indicators)
-- [x] DS.2.4 `SkewedStatChip` — parallelogram stat badge used in game HUD
-- [x] DS.2.5 `HuezooTopBar` — glassmorphic bar with back button, wordmark, `CurrencyPill`, optional `?` help button
-- [x] DS.2.6 `CurrencyPill` — parallelogram gem counter with slot-machine `AnimatedContent` + scale pulse on gem change
-- [x] DS.2.7 `HuezooBottomSheet` — game-styled modal sheet, 32dp top corners, handle bar
-- [x] DS.2.8 `GameHelpSheet` — `ThresholdHelpSheet` + `DailyHelpSheet`; triggered by `?` button in top bar
-
-### Phase DS.3 — Haptics ⬜
-- [ ] DS.3.1 `HapticType` enum in commonMain (Light, Medium, Heavy, Success, Error, Warning, Selection)
-- [ ] DS.3.2 `HapticEngine` interface in commonMain
-- [ ] DS.3.3 Android actual — `VibrationEffect` patterns per type
-- [ ] DS.3.4 iOS actual — `UIImpactFeedbackGenerator` / `UINotificationFeedbackGenerator`
-- [ ] DS.3.5 Koin binding
-- [ ] DS.3.6 Wire into gameplay: wrong tap → Error; correct tap → Success; game over → Heavy
-
-### Phase DS.4 — Sound ⬜
-- [ ] DS.4.1 Source sound files: `correct`, `wrong`, `gameover`, `tick`, `confetti`, `button_tap`
-- [ ] DS.4.2 `SoundEffect` enum + `SoundPlayer` interface in commonMain
-- [ ] DS.4.3 Android actual — `SoundPool`; iOS actual — `AVAudioPlayer`
-- [ ] DS.4.4 User setting: sound on/off (default off), stored in SQLDelight `user_settings`
-
-### Phase DS.5 — Animations ✅
-- [x] DS.5.1 Shake animation on `RadialSwatchLayout` wrong tile (±10dp × 3 cycles)
-- [x] DS.5.2 `ConfettiEffect` composable — 117 particles, projectile physics, 5 shapes, identity color mix; fires on `gemsEarned > 0`
-- [x] DS.5.3 Gem count-up animation on Result screen (0 → final, spring, `Animatable`)
-- [x] DS.5.4 Staggered unfold on swatch layout (70ms per tile, spring)
-- [x] DS.5.5 Spring scale appear on swatch tiles (0 → 1, `DampingRatioMediumBouncy`)
-- [x] DS.5.6 Correct / wrong / revealed neon border via `drawWithContent` + shape path
-- [x] DS.5.7 ResultScreen slide-up entrance (60dp offset + spring) + fade-in
-- [x] DS.5.8 `GemBreakdownCard` staggered fade+slide (500ms base delay, +120ms per item)
-
-### Phase 1 — Color Math ✅
-- [x] 1.1 `rgbToLab` + `Color.toLab()` — sRGB → CIELAB (D65)
-- [x] 1.2 `deltaE(lab1, lab2)` — full CIEDE2000 (Sharma 2005)
-- [x] 1.3 `randomVividColor()` — vivid gamut only (sat 65–100%, lig 30–70%)
-- [x] 1.4 `generateOddSwatch(base, targetDeltaE)` — binary search in Lab a*/b* space, 22 iterations
-- [x] 1.5 `scoreFromDeltaE(de)` — 1000/ΔE formula, floored at ΔE 0.3
-- [x] 1.6 `seededColorForDate(date)` — LCG hash of date, deterministic, same for all players
-- [x] 1.7 `Lab.toColor()` — CIELAB → sRGB inverse pipeline
-
-### Phase 2 — Core UI Components ✅
-- [x] 2.1 `RadialSwatchLayout` wired to tap events and game state (correct / wrong / revealed display states)
-- [x] 2.2 Result screen hero gems count-up + gem breakdown card
-- [x] 2.3 Home screen game cards reading real data from SQLDelight (personal best ΔE, tries remaining, completion state)
-- [x] 2.4 `SkewedStatChip` live updates during game (TAP count, TRIES remaining, CURRENT ΔE)
-- [x] 2.5 Round indicators on Daily card (dot row: played / active / upcoming)
-
-### Phase 3 — Home Screen ✅
-- [x] 3.1 Two game cards: Daily Challenge + The Threshold
-- [x] 3.2 Daily card: today's date, completion state, countdown to next puzzle
-- [x] 3.3 Threshold card: personal best ΔE, tries remaining, live "Resets in Xh Xm" countdown
-- [x] 3.4 Gem inventory panel with `GemSpillIllustration` watermark + baseline-aligned number + label
-- [x] 3.5 Stat boxes: STREAK (days) + RANK (placeholder until Firebase)
-- [x] 3.6 Player level badge + progress bar toward next level
-- [x] 3.7 `LifecycleResumeEffect` — gem count refreshes on return from game
-
-### Phase 4 — The Threshold ✅
-- [x] 4.1 `ThresholdViewModel` — try-budget model (10 tries / 8h window), tap counter, ΔE progression
-- [x] 4.2 Start at ΔE 5.0, step −0.3 per correct tap, floor ΔE 0.1
-- [x] 4.3 6 swatches in `RadialSwatchLayout` — random layout style per round, random base color per tap
-- [x] 4.4 Correct tap → green neon border, fold + new round, ΔE tightens
-- [x] 4.5 Wrong tap → shake + magenta border + sting copy, try burned, ΔE resets to 5.0
-- [x] 4.6 Gate check on screen enter: `Exhausted` → `ThresholdUiState.Blocked` screen with countdown
-- [x] 4.7 Attempt recorded in SQLDelight on wrong tap
-- [x] 4.8 HUD: TAP counter + TRIES REMAINING chip + CURRENT ΔE chip
-- [x] 4.9 Gem earn: +2 per correct tap; milestone bonuses (ΔE < 2.0 → +5, < 1.0 → +10, < 0.5 → +25); milestones reset per try
-- [x] 4.10 `GameRewardRates` — pure constants object; single source of truth for all gem rates
-- [x] 4.11 `?` help button in top bar → `ThresholdHelpSheet` bottom sheet
-
-### Phase 5 — Daily Challenge ✅
-- [x] 5.1 `DailyViewModel` — loads `seededColorForDate(today)` as base; fixed ΔE curve [4.0, 3.0, 2.0, 1.5, 1.0, 0.7]
-- [x] 5.2 6 rounds always played — wrong tap reveals correct swatch and advances (does not end game)
-- [x] 5.3 Block replay: `AlreadyPlayed` state if `completed = 1` for today
-- [x] 5.4 Mark completed in SQLDelight on finish (score system removed — gems + rounds are the only metrics)
-- [x] 5.5 Gem earn: +5 per correct round, +3 participation, +20 perfect-run bonus (all 6 correct)
-- [x] 5.6 `?` help button in top bar → `DailyHelpSheet` bottom sheet
-
-### Phase 6 — Result Screen ✅
-- [x] 6.1 Slide-up entrance (60dp offset, spring) + fade-in
-- [x] 6.2 Hero: `+N GEMS` animated count-up (AccentCyan, italic display font)
-- [x] 6.3 `GemBreakdownCard` — per-line staggered fade+slide (500ms base delay, +120ms per item)
-- [x] 6.4 Stat cards: BEST ΔE + TAPS (Threshold) / ROUNDS CORRECT (Daily)
-- [x] 6.5 `StingReadout` — ΔE value + tier badge + sting copy; **Daily: rounds-based tiers** (6=PERFECT RUN, 4-5=STRONG SIGNAL, 2-3=DRIFTING, 0-1=SIGNAL LOST); **Threshold: ΔE-based tiers**
-- [x] 6.6 Outcome banner: "MISSION OUTCOME: COMPLETE / FAILURE / FLATLINED" (FLATLINED when `roundsSurvived == 0`)
-- [x] 6.7 Confetti fires when `gemsEarned > 0`; zero-gem result shows danger (AccentMagenta hero)
-- [x] 6.8 [Play Again] — enabled only if `canPlayAgain`; shows "NO TRIES LEFT" ghost-danger when exhausted
-- [x] 6.9 [Share] → `platformOps.shareText()`
-- [x] 6.10 Daily: "Next puzzle in Xh Xm" countdown below buttons
-- [x] 6.11 "NEW PERSONAL BEST" banner — shown when `isNewPersonalBest`; Daily compares `roundsSurvived >= bestRounds`; Threshold compares `abs(deltaE - bestDeltaE) < 0.005`
-
-### Phase UX — Pending Items
-
-#### UX.5 — Onboarding ⬜
-- [x] UX.5.0 In-game `?` help button on Threshold + Daily screens with rules bottom sheet
-- [ ] UX.5.1 First-launch onboarding — 3-slide walkthrough before Home; gated on `SettingsRepository.hasSeenOnboarding()` flag; slide 1: ΔE explainer, slide 2: Threshold rules, slide 3: Daily rules; skip always visible
+### UX.5 — Onboarding ⬜
+- [ ] UX.5.1 First-launch onboarding — 3-slide walkthrough; gated on `hasSeenOnboarding()`; slide 0: eye strain notice, slide 1: ΔE explainer, slide 2: Threshold rules, slide 3: Daily rules; skip always visible
 - [ ] UX.5.2 Review subtitle copy on both game cards to be more instructional for new users
-- [ ] UX.5.3 **Eye strain / health notice** — displayed on first launch (slide 0, before ΔE explainer) and accessible from About / Settings at any time. Copy must follow store guidelines — no fear-based language. Suggested wording: *"This game exercises your colour perception. Extended play may cause eye fatigue. Take breaks and stop if you experience discomfort. Play at your own pace."* Implementation notes: same `hasSeenOnboarding()` gate; include a "Got it" dismiss; also surface in About section (UX.16).
+- [ ] UX.5.3 Eye strain / health notice — also accessible from Settings at any time
 
-#### UX.6 — Navigation Gaps ⬜
-- [x] UX.6.1 Result "Play Again" for Threshold: `canPlayAgain` checked; shows "NO TRIES LEFT" disabled button if exhausted
-- [ ] UX.6.2 Leaderboard button on Result: hide until Firebase is implemented
+### UX.6 — Navigation Gaps ⬜
+- [ ] UX.6.2 Leaderboard button on Result: hide until Firebase is live
 
-#### UX.7 — Directional Feedback ⬜
-- [x] UX.7.1 Correct tap feedback: "↓ ΔE X.X — SHARPER" in fixed-height slot (graphicsLayer alpha, no layout shift)
-- [ ] UX.7.2 ΔE tier label in HUD (below ΔE chip): "BEGINNER / TRAINING / SHARP / EXPERT / ELITE" — updates each round
+### UX.7 — Directional Feedback ⬜
+- [ ] UX.7.2 ΔE tier label in HUD (below ΔE chip): "BEGINNER / TRAINING / SHARP / EXPERT / ELITE"
 - [ ] UX.7.3 Tier-change animation: brief pulse when ΔE crosses a tier boundary
 - [ ] UX.7.4 First-round tooltip: "Lower ΔE = harder to spot" — one-time, dismisses on first tap
-- [ ] UX.7.5 **Daily Challenge: per-round base color variety** — currently all 6 rounds use the same hue family; each round should seed a different base color so the challenge feels visually distinct across rounds. Wire through `DailyGameEngine` / `DefaultDailyGameEngine` date+round seed.
+- [ ] UX.7.5 Daily: per-round base color variety — each round seeds a different base color
 
-#### UX.8 — Satisfying Correct Dismiss ⬜
-- [ ] UX.8.1 Design + implement dismiss animation for the correct swatch (pop/glow-burst/implode)
+### UX.8 — Correct Swatch Dismiss ⬜
+- [ ] UX.8.1 Dismiss animation for the correct swatch (pop / glow-burst / implode)
 
-#### UX.9 — Gem Float-Up ⬜
-- [x] UX.9.1 Gem earn rates defined in `GameRewardRates`; per-session tracking in both ViewModels
-- [x] UX.9.2 `CurrencyPill` scale pulse (1.0 → 1.2 → 1.0, spring) when gem count changes on return to Home
-- [ ] UX.9.3 In-game "+N 💎" float-up label from HUD gem counter on earn (fades out over 600ms)
+### UX.9 — Gem Float-Up ⬜
+- [ ] UX.9.3 In-game "+N 💎" float-up label from HUD on earn (fades 600ms)
 
-#### UX.10 — Progression Screens ✅
-- [x] UX.10.1 Home screen — full design with gem panel, player level, stat boxes, game cards, illustrations
-- [x] UX.10.2 **Levels & Progress sheet** — `LevelsProgressSheet.kt`; tap gem inventory area on Home → shows all 5 tiers as color-coded neo-brutalist cards, progress bar, gem threshold to next level. Design ref: `docs/stitch_huezoo_prd_design_doc/huezoo_levels_progress/`
-- [x] UX.10.3 **Splash screen** — `SplashScreen.kt`; solid dark background; "HUEZOO" 96sp italic appears statically (HUE solid cyan, ZOO as unlit stroke outline); 500 ms pause → 9-step tube-light flicker cycles ZOO through all 5 PlayerLevel colours (Rookie cyan → Trained green → Sharp magenta → Elite yellow → Master amber → settles AccentCyan); tagline fades in mid-flicker; ~2.4 s total then cross-fades to Home. `Splash` destination removed from back stack on exit.
+### UX.11 — Out of Tries Refill Sheet ⬜
+- [ ] UX.11.1 Refill bottom sheet — gem refill + Watch Ad options; replaces current full-screen Blocked state
+- [ ] UX.11.2 Decide gem refill cost + try count (draft in GAME_DESIGN.md first)
+- [ ] UX.11.3 Gem deduction via `SettingsRepository.addGems(-N)`; disable if insufficient
+- [ ] UX.11.4 Watch Ad button stub (no-op until AdMob Phase 7)
 
-#### UX.11 — Out of Tries Refill Sheet ⬜
-*Replace current full-screen Blocked state with a monetisation-ready modal.*
-- [ ] UX.11.1 **Refill bottom sheet** — two options: gem refill + Watch Ad (free, always available stub). Design ref: `docs/stitch_huezoo_prd_design_doc/huezoo_refill_out_of_tries/`
-- [ ] UX.11.2 **Gem refill design** — decide cost and how many tries unlocked per refill (e.g. 150 gems = 3 extra tries, or 300 gems = 5 extra tries). Gem cost must feel meaningful but not punishing — draft in GAME_DESIGN.md before implementing.
-- [ ] UX.11.3 Gem deduction via `SettingsRepository.addGems(-N)` on gem refill; disable button with warning if insufficient gems
-- [ ] UX.11.4 Wire Watch Ad button stub (no-op until AdMob Phase 7); free tier only — paid users bypass entirely via `isPaid()` check in `DefaultThresholdRepository`
+### UX.12 — In-Game Streak ⬜
+- [ ] UX.12.1 Track consecutive correct taps in `ThresholdViewModel`
+- [ ] UX.12.2 5-in-a-row: confetti burst + "5 STREAK!" banner (800ms)
+- [ ] UX.12.3 10-in-a-row: multi-color confetti + "UNSTOPPABLE!" + bonus gems
+- [ ] UX.12.4 Streak counter in HUD (appears after first correct tap, gone on wrong)
 
-#### UX.12 — Streak System ⬜
-- [ ] UX.12.1 Track consecutive correct taps in `ThresholdViewModel` (`correctStreak: Int`)
-- [ ] UX.12.2 5-in-a-row: confetti burst + "5 STREAK!" flash banner (800ms)
-- [ ] UX.12.3 10-in-a-row: multi-color confetti + "UNSTOPPABLE!" banner + bonus gems
-- [ ] UX.12.4 Streak counter in HUD (appears after first correct tap, disappears on wrong)
-
-#### UX.13 — Result Polish ⬜
-- [ ] UX.13.1 "NEW PERSONAL BEST" badge on ΔE stat card (`isNewPersonalBest` already in state)
+### UX.13 — Result Polish ⬜
+- [ ] UX.13.1 "NEW PERSONAL BEST" badge on ΔE stat card
 - [ ] UX.13.2 ΔE tier name on result (e.g. "EXPERT" badge alongside ΔE value)
 
-#### UX.14 — Swatch Size Setting ⬜
-*Infrastructure complete — expose to user.*
-- [x] UX.14.0 `SwatchSize` enum (`Normal` 1.0× / `Medium` 1.2×); `ACTIVE_SWATCH_SIZE` constant in `RadialSwatchLayout.kt`; currently hardcoded to `Medium`
-- [ ] UX.14.1 Wire `SwatchSize` to a user setting in SQLDelight `user_settings`
-- [ ] UX.14.2 Add toggle in Settings screen (or game card options)
+### UX.14 — Swatch Size Setting ⬜
+- [ ] UX.14.1 Wire `SwatchSize` to `user_settings` in SQLDelight
+- [ ] UX.14.2 Toggle in Settings screen
 
-#### UX.16 — Level-Driven UI Theming ⬜
-
-**Business requirement**: The primary accent color of the entire app UI reflects the player's current
-`PlayerLevel`. Rookie (default) stays cyan. Once the player reaches Trained (150 gems) the UI shifts
-to green. Sharp → magenta, Elite → yellow, Master → amber. This makes level-up feel like a true
-identity upgrade — the whole interface changes allegiance, not just a badge.
-
-**Color → level mapping** (from `PlayerLevel`):
-| Level | minGems | Accent color |
-|---|---|---|
-| Rookie | 0 | `AccentCyan` |
-| Trained | 150 | `AccentGreen` |
-| Sharp | 750 | `AccentMagenta` |
-| Elite | 5 000 | `AccentYellow` |
-| Master | 50 000 | `Color(0xFFFFB800)` (amber) |
-
-**What changes color** (level-themed):
-- Primary `HuezooButton` fill + ghost border
-- `HuezooIconButton` primary variant
-- `CurrencyPill` shadow, gem count, and icon tint
-- `HuezooTopBar` back-button shadow, back arrow, back-button border, wordmark (debatable — brand vs level)
-- `HomeScreen` level-progress bar, level badge dot, gem panel border/labels, gem spill illustration, scanner illustration accent, stat chips
-- `ThresholdScreen` correct-tap feedback color and ΔE stat chip accent
-- `DailyScreen` round indicator active color and ambient glow secondary color
-- `ResultScreen` hero gem count (when gems earned > 0), stat card accents, gem breakdown icons
-- `LevelsProgressSheet` header cyan accent bar
-
-**What stays fixed** (semantic / game-mechanic colors — do NOT level-theme):
-- Correct tap border: `AccentGreen` (game truth — green = right)
-- Wrong tap border: `AccentMagenta` (game truth — magenta = wrong)
-- `SwatchDisplayState.Revealed` border: `AccentCyan` (neutral reveal)
-- `DeltaEBadge` difficulty color scale (cyan/yellow/magenta — difficulty semantics)
-- Danger button variant: `AccentMagenta`
-- Zero-gem hero on Result: `AccentMagenta`
-- Level tier cards in `LevelsProgressSheet` (each card keeps its own tier color)
-
-**Architecture — `LocalPlayerAccentColor` CompositionLocal**:
-- Define `val LocalPlayerAccentColor = compositionLocalOf { HuezooColors.AccentCyan }` in a new
-  `LocalPlayerTheme.kt` (or alongside `HuezooColors`)
-- In `App.kt`: observe `SettingsRepository.getTotalGemsFlow()` (or load once on startup), derive
-  `PlayerLevel.fromGems(gems).levelColor`, wrap `NavDisplay` in
-  `CompositionLocalProvider(LocalPlayerAccentColor provides levelColor) { … }`
-- All level-themed composables replace `HuezooColors.AccentCyan` (primary role only) with
-  `LocalPlayerAccentColor.current`
-
-**Files requiring changes** (12 files):
-1. `LocalPlayerTheme.kt` — NEW: `LocalPlayerAccentColor` definition
-2. `App.kt` — observe gems, provide `CompositionLocalProvider`
-3. `HuezooButton.kt` — Primary bg + Ghost border/content → `LocalPlayerAccentColor`
-4. `HuezooIconButton.kt` — primary bg → `LocalPlayerAccentColor`
-5. `CurrencyPill.kt` — shadow + count + icon → `LocalPlayerAccentColor`
-6. `HuezooTopBar.kt` — back button shadow, arrow, border, wordmark → `LocalPlayerAccentColor`
-7. `HomeScreen.kt` — progress bar, level badge, gem panel, scanner accent, stat chip → `LocalPlayerAccentColor`
-8. `ThresholdScreen.kt` — correct color, ΔE chip → `LocalPlayerAccentColor`
-9. `DailyScreen.kt` — round indicator active + ambient glow → `LocalPlayerAccentColor`
-10. `ResultScreen.kt` — hero (non-zero gems), stat cards, breakdown icons → `LocalPlayerAccentColor`
-11. `LevelsProgressSheet.kt` — header accent bar → `LocalPlayerAccentColor`
-12. `AmbientGlow.kt` — default `primaryColor` parameter → `LocalPlayerAccentColor`
-
-- [x] UX.16.1 Define `LocalPlayerAccentColor` + `LocalPlayerShelfColor` CompositionLocals (`LocalPlayerTheme.kt`)
-- [x] UX.16.2 `App.kt` — re-read gems on back-stack change, derive `PlayerLevel`, `CompositionLocalProvider`
-- [x] UX.16.3 `HuezooButton` + `HuezooIconButton` — primary/ghost/info variants read level locals
-- [x] UX.16.4 `CurrencyPill` — shadow, gem count, label read `LocalPlayerAccentColor`
-- [x] UX.16.5 `HuezooTopBar` — back button shadow + chevron, help button, wordmark read level color
-- [x] UX.16.6 `HomeScreen` — gem panel bar, GEMS label, pulse dot, scanner accent, GemSpillIllustration, DeltaEInfoCard
-- [x] UX.16.7 `ThresholdScreen` + `DailyScreen` — title color, ΔE chip, ambient glow secondary
-- [x] UX.16.8 `ResultScreen` — hero gems, stat cards, breakdown amounts, PlayIcon
-- [x] UX.16.9 `LevelsProgressSheet` — header accent bar
-- [x] UX.16.10 Verified: correct/wrong/revealed/DeltaEBadge colors unchanged; `PlayerLevel` cards keep tier colors
-
-#### UX.17 — Local Leaderboard (Pre-Firebase) ✅
-
-*Estimated percentile rank from personal best ΔE — shown while Firebase leaderboard is offline.*
-
-- [x] UX.17.1 `PerceptionTier` shared model — 7 tiers (TOP 1% ΔE < 0.5 → TOP 80% ΔE > 4.0), `estimatedPerceptionTier()` pure function in `ui/model/PerceptionTier.kt`
-- [x] UX.17.2 `LeaderboardViewModel` — loads personal best ΔE from `ThresholdRepository`
-- [x] UX.17.3 `LeaderboardScreen` — signal-offline aesthetic: pulsing `SIGNAL OFFLINE` indicator (AccentMagenta), sonar Canvas animation (3 staggered rings + sweep arm), `AgentClassificationCard` (tier color + rank label + ΔE, or UNRANKED), 7 `TierRow`s with colored vertical bars (player's tier highlighted), `ActivationProtocolCard` (500-agent threshold dotted progress bar), `BROADCAST SIGNAL` share button
-- [x] UX.17.4 Home screen `LeaderboardCompactCard` — shows estimated rank label; tapping navigates to `LeaderboardScreen`
-- [x] UX.17.5 Paid threshold — no cooldown; when 10-try batch exhausted `DefaultThresholdRepository.getAttemptStatus()` deletes the session and returns `Available(0, maxAttempts)` so paid users always return to playable state (try count still tracked locally in ViewModel for result screen)
-
-#### UX.18 — Perception Tiers Sheet ✅
-
-*ΔE perception tier ladder shown on tap of the personal best card — works for both ranked and unranked players.*
-
-- [x] UX.18.1 `PerceptionTiersSheet` — `HuezooBottomSheet` with: "YOUR CLASSIFICATION" banner (ranked: tier color + rank label + description + ΔE value; unranked: UNRANKED state), all 7 perception tier rows (colored vertical bar + label + description + ΔE range, current tier highlighted with `SurfaceL4` background), CIEDE2000 footer note
-- [x] UX.18.2 `PlayerDeltaECard` on Home is tappable → opens `PerceptionTiersSheet`; sheet shows even when personal best is N/A
-
-#### UX.19 — Personal Best Integrity ✅
-
-- [x] UX.19.1 **Drop-out save**: `handleCorrectTap` saves personal best inside the existing animation coroutine using `withContext(NonCancellable)` before any `delay()` — survives back-press/viewModelScope cancellation mid-animation
-- [x] UX.19.2 **Wrong-tap counts**: reaching a ΔE level on a wrong tap saves it as personal best candidate when `bestDeltaE != null` (guards against recording trivial 5.0 start value); `storedBestDeltaE` tracked from session start for comparison
-
-#### UX.20 — Share Personal Best from PerceptionTiersSheet ⬜
-
-*Full-width share button inside the bottom sheet that opens when the personal best card is tapped on Home.*
-
-- [ ] UX.20.1 Add a full-width, shelf-shadow share button at the bottom of `PerceptionTiersSheet` (inside the scrollable sheet content, pinned above the nav bar). Design ref: `stitch_huezoo_prd_design_doc/code.html` shelf-shadow-primary button style.
-- [ ] UX.20.2 Share text: `"My best ΔE is {deltaE} — {tierLabel}. Can you beat it? huezoo.app"` (if ranked), or `"I scored {rounds}/6 on today's Huezoo Daily. Can you beat it? huezoo.app"` for Daily variant.
-- [ ] UX.20.3 Unranked state: button still present but copy adapts — `"I'm training my eye on Huezoo. How sharp are yours? huezoo.app"`.
-- [ ] UX.20.4 Use platform-specific share icon (iOS: `ic_ios_share`, Android: `ic_share`) matching ResultScreen pattern.
-
----
-
-#### UX.21 — 3D Shelf-Press UX for All Interactive Buttons ⬜
-
-*`PriceButton` (UNLOCK FOREVER) has a physical 3D press feel — all primary buttons should match.*
-
-**How the shelf-press works (from `PriceButton.kt`):**
-Two overlapping boxes: a darker "shelf" box permanently offset 6 dp downward, and a colored "face" box on top. On press, `pressProgress` animates 0 → 1 in 80 ms (instant snap); the face translates `pressProgress × shelfPx` downward to sit flush on the shelf — as if physically pressed in. On release, a `spring(DampingRatioMediumBouncy)` bounces the face back, overshooting slightly before settling — the physical rebound feel.
-
-- [x] UX.21.1 Migrate `HuezooButton` to two-layer face/shelf architecture — shelf is now a stationary sibling Box; `shapedShadow` removed from button rendering.
-- [x] UX.21.2 `UpgradeCta` (GET FULL ACCESS) migrated from scale-squish to vertical shelf-press (5 dp shelf, `HuezooColors.ShelfPrice`).
-- [x] UX.21.3 Ghost + GhostDanger `HuezooButton` variants inherit the shelf-press fix automatically — shelf color was already defined per-variant (`SurfaceL1` / `ShelfMagenta`).
-- [x] UX.21.4 `ShareIconButton` migrated to two-layer shelf-press — `shapedShadow` replaced with explicit shelf Box, `clip = false` removed.
-- [ ] UX.21.5 Define `ShelfPress` as a reusable `Modifier` extension or composable wrapper so future buttons inherit the behaviour without boilerplate. Candidate signature: `Modifier.shelfPress(shelfHeight: Dp, shelfColor: Color, shape: Shape)`.
-
----
-
-#### UX.15 — Settings / About Screen ⬜
-- [ ] UX.15.1 **About screen** (or bottom sheet) — app version, legal links (Privacy Policy, Terms of Use), acknowledgements
-- [ ] UX.15.2 **Health & Eye Strain notice** — persistent, always accessible from About. Balanced copy (see UX.5.3): *"This game exercises colour perception. Take breaks. Stop if you feel eye strain or discomfort."* No alarmist language (App Store / Play Store content guidelines require factual, non-fear-based health copy).
+### UX.15 — Settings / About Screen ⬜
+- [ ] UX.15.1 About screen — app version, legal links, acknowledgements
+- [ ] UX.15.2 Health & eye strain notice (persistent, always accessible)
 - [ ] UX.15.3 Privacy Policy link (required by both stores)
 
+### UX.20 — Share from PerceptionTiersSheet ⬜
+- [ ] UX.20.1 Full-width share button at bottom of `PerceptionTiersSheet`
+- [ ] UX.20.2 Share text: `"My best ΔE is {deltaE} — {tierLabel}. Can you beat it? huezoo.app"`
+- [ ] UX.20.3 Unranked copy variant
+- [ ] UX.20.4 Platform share icon (iOS / Android)
+
+### UX.21.5 — ShelfPress Modifier ⬜
+- [ ] UX.21.5 `Modifier.shelfPress(shelfHeight, shelfColor, shape)` reusable extension
+
 ### Phase 7 — Monetization ⬜
-
-#### Upgrade screen (single paywall screen — `ui/upgrade/UpgradeScreen.kt`)
-The app has one dedicated paywall screen (`Upgrade` nav destination) reachable from multiple
-entry points. All purchase CTAs must navigate here — never inline a `PriceButton` in another screen.
-
-Current entry points:
-- Home screen: GET FULL ACCESS button (below Threshold card, shown when blocked + free)
-
-Planned future entry points:
-- Result screen: upsell after out-of-tries game end
-- Any future placement requiring upgrade CTA
-
 - [ ] 7.1 Attempt counter on Threshold card ("X of 5 tries used this window")
-- [ ] 7.2 Out of Tries refill sheet (see UX.11) — replaces blocked screen
-- [x] 7.3 `UpgradeScreen` — dedicated paywall screen with feature list + `PriceButton` ✅
-- [ ] 7.3a Wire real IAP in `UpgradeScreen.onPurchase` (currently TODO stub)
-- [ ] 7.3b Fetch price string from store at runtime (currently hardcoded "$2.99")
-- [ ] 7.3c Add Result screen entry point for upgrade CTA (after out-of-tries game)
-- [ ] 7.3d `UpgradeScreen` feature tile "◉ LEADERBOARD / Global rank" is already shown — confirms leaderboard is a paid perk. Ensure copy stays consistent with 7.8 in-app gating copy.
-- [ ] 7.4 AdMob setup — rewarded ad for +1 try (Android + iOS)
-- [ ] 7.5 IAP setup — one-time "Unlimited" product (Google Play Billing + StoreKit 2)
-- [ ] 7.6 Persist `is_paid = true` in SQLDelight `user_settings` on purchase
-- [ ] 7.7 If paid: hide ads, remove attempt cap, show "Unlimited" badge on Threshold card
-- [ ] 7.8 **Leaderboard gating** — Global Leaderboard is a paid-only feature. Gate entry from Home screen:
-  - Home: Leaderboard icon/button should show a lock badge or "PRO" label when user is free tier
-  - Tapping it while free → navigate to `UpgradeScreen` instead of `LeaderboardScreen` (or show a bottom sheet upsell first)
-  - `LeaderboardScreen` itself: if somehow reached while free, show a full-screen "This feature requires Full Access" state with `UpgradeCta`
-  - Copy framing: *"Global Leaderboard — Full Access Only"* / *"Compete globally. Unlock Full Access to submit your score and see where you rank."*
+- [ ] 7.2 Out of Tries refill sheet (UX.11)
+- [ ] 7.3a Wire real IAP in `UpgradeScreen.onPurchase`
+- [ ] 7.3b Fetch price string from store at runtime (currently hardcoded)
+- [ ] 7.3c Result screen entry point for upgrade CTA (after out-of-tries)
+- [ ] 7.4 AdMob — rewarded ad for +1 try (Android + iOS)
+- [ ] 7.5 IAP — one-time "Unlimited" product (Google Play Billing + StoreKit 2)
+- [ ] 7.6 Persist `is_paid = true` in SQLDelight on purchase
+- [ ] 7.7 Paid: hide ads, remove attempt cap, show "Unlimited" badge on Threshold card
+- [ ] 7.8 Leaderboard gating — free tier taps → `UpgradeScreen`; lock badge on Home
 
 ### Phase 8 — Firebase Leaderboard ⬜
-
-> **Paid-only feature.** All Phase 8 items are behind the `isPaid` flag from Phase 7 (item 7.8). Do not expose leaderboard UI to free users.
-
-- [ ] 8.0 Gate leaderboard navigation behind `isPaid` (see 7.8) before wiring any Firebase code
-- [ ] 8.1 Firebase project setup, enable Realtime DB + Anonymous Auth
-- [ ] 8.2 Firebase config — Android `google-services.json`, iOS `GoogleService-Info.plist`
+*Paid-only feature. All items behind `isPaid` flag.*
+- [ ] 8.0 Gate leaderboard navigation behind `isPaid`
+- [ ] 8.1 Firebase project — enable Realtime DB + Anonymous Auth
+- [ ] 8.2 Firebase config files (Android + iOS)
 - [ ] 8.3 Add `firebase-gitlive` KMP SDK to `libs.versions.toml`
 - [ ] 8.4 Schema: `/leaderboard/{uid}: { name, deltaE, timestamp }`
-- [ ] 8.5 Query: order by `deltaE` ascending, limit 50
+- [ ] 8.5 Query: order by `deltaE` asc, limit 50
 - [ ] 8.6 `LeaderboardScreen` — ranked list, your entry highlighted
 - [ ] 8.7 Submit flow: name input sheet → push to Firebase
 - [ ] 8.8 Security rules: public read, anon-auth write, max 1 entry per UID
-- [ ] 8.9 Player rank: query position after submission; wire into `HomeUiState.Ready.rank` (currently "—")
-- [x] 8.10 Streak tracking: consecutive daily completions; `getStreak()` implemented in `DefaultDailyRepository` (HashSet walk-backward), wired into `HomeUiState.Ready.streak`
+- [ ] 8.9 Player rank: query position after submission; wire into `HomeUiState.Ready.rank`
 
 ### Phase 9 — Polish & Ship ⬜
-- [ ] 9.1 App icon (all sizes) + splash screen
+- [ ] 9.1 App icon (all sizes) + splash screen asset
 - [ ] 9.2 Verify on real Android device + iOS device/simulator
 - [ ] 9.3 Haptic + sound tuning pass on real device
 - [ ] 9.4 Play Store listing — screenshots, description, content rating
 - [ ] 9.5 App Store listing — screenshots, description, review submission
 
 ### Phase T — Testing ⬜
-*All reward logic is isolated for unit testing — no mocking of DB needed for core logic.*
-- [ ] T.1 `GameRewardRates` — pure constants; verify gem rate values
-- [ ] T.2 `PlayerLevel.fromGems()` — pure function; test all tier boundaries
-- [ ] T.3 `ThresholdViewModel` — inject fake `ColorEngine`, `ThresholdRepository`, `SettingsRepository`; drive via `onUiEvent()`; verify `sessionGems`, milestone bonuses, try budget exhaustion
-- [ ] T.4 `DailyViewModel` — inject fakes; verify correct/wrong round handling, participation gem, perfect bonus, 6-round-always rule
-  - [ ] T.4a **ΔE shown in result = highest ΔE among correctly answered rounds** — e.g. if rounds 1 (ΔE 4.5) and 3 (ΔE 2.2) are correct and rounds 2/4/5/6 are wrong, result must show ΔE 4.5 (not last-round ΔE). Test 0-correct edge case (ΔE = 0.0) and all-correct case.
-  - [ ] T.4b **Personal best = rounds survived** — `savePersonalBest` only writes when `roundsSurvived > stored bestRounds`; verify tie does not overwrite.
-- [ ] T.5 `ColorMath` — `deltaE()` round-trip tests against known CIEDE2000 reference values
+- [ ] T.1 `ColorMath.deltaE()` — round-trip tests vs CIEDE2000 reference values
+- [ ] T.2 `PlayerLevel.fromGems()` — all tier boundaries
+- [ ] T.3 `GameRewardRates` — verify gem rate constants
+- [ ] T.4 `DefaultThresholdGameEngine` — ΔE progression, floor, personal best logic
+- [ ] T.5 `DefaultDailyGameEngine` — correct/wrong round handling, participation + perfect gem, 6-round-always rule
+- [ ] T.6 `ThresholdViewModel` — drive via `onUiEvent()`, verify gem accumulation, milestone bonuses, try budget exhaustion
+- [ ] T.7 `DailyViewModel` — per-round flow, perfect bonus, ΔE-in-result = highest correct round ΔE
+- [ ] T.8 Attempt window — 8h window logic, free vs paid caps, expiry reset
 
 ### Phase L — Font Licenses ⬜ (before App Store submission)
-- [ ] L.1 **Clash Display (Fontshare FF EULA)** — verify bundling inside APK/IPA is acceptable under clause 01. If any concern: replace with **DM Serif Display** or **Syne** (both SIL OFL).
-- [ ] L.2 **Bebas Neue (SIL OFL 1.1)** — no action needed.
-- [ ] L.3 **Space Grotesk (SIL OFL 1.1)** — no action needed.
-- [ ] L.4 Remove unused fonts (Antonio, Fredoka) from `composeResources/font/` before ship.
-- [ ] L.5 Add font attribution to app's About/Settings screen if required by Clash Display license.
+- [ ] L.1 Clash Display (Fontshare FF EULA) — verify APK/IPA bundling is acceptable; fallback: DM Serif Display or Syne (SIL OFL)
+- [ ] L.2 Bebas Neue (SIL OFL 1.1) — no action needed
+- [ ] L.3 Space Grotesk (SIL OFL 1.1) — no action needed
+- [ ] L.4 Remove unused fonts (Antonio, Fredoka) from `composeResources/font/`
+- [ ] L.5 Font attribution in About/Settings if required by Clash Display license
 
 ---
 
-## Ship Checklist (pre-submission)
+## Ship Checklist
 
-- [ ] All Phase 7 (monetization) items complete
-- [ ] Phase 8 (Firebase) live or hidden behind feature flag
-- [ ] DS.3 haptics + DS.4 sound wired
-- [ ] Font license review complete (Phase L)
-- [ ] 6.11 personal best badge on Result
+- [ ] Phase 7 (monetization) complete
+- [ ] Phase 8 live or behind feature flag
+- [ ] DS.4 sound wired
+- [ ] Phase L font license review
 - [ ] UX.5.1 first-launch onboarding
 - [ ] UX.6.2 leaderboard button hidden until Firebase live
-- [ ] App icon + splash done (9.1)
+- [ ] App icon + splash (9.1)
 - [ ] Tested on real Android + iOS device (9.2)
