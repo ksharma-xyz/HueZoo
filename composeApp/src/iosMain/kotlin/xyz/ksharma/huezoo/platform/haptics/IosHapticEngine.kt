@@ -2,13 +2,9 @@ package xyz.ksharma.huezoo.platform.haptics
 
 import platform.Foundation.NSTimer
 import platform.UIKit.UIImpactFeedbackGenerator
-import platform.UIKit.UIImpactFeedbackStyleHeavy
-import platform.UIKit.UIImpactFeedbackStyleLight
-import platform.UIKit.UIImpactFeedbackStyleSoft
+import platform.UIKit.UIImpactFeedbackStyle
 import platform.UIKit.UINotificationFeedbackGenerator
-import platform.UIKit.UINotificationFeedbackTypeError
-import platform.UIKit.UINotificationFeedbackTypeSuccess
-import platform.UIKit.UINotificationFeedbackTypeWarning
+import platform.UIKit.UINotificationFeedbackType
 import platform.UIKit.UISelectionFeedbackGenerator
 
 /**
@@ -29,7 +25,7 @@ import platform.UIKit.UISelectionFeedbackGenerator
  *                                  two-beat celebration without blocking the call site.
  *   - [HapticType.GameOver]     → UINotificationFeedbackGenerator(.warning): solemn, distinct
  *                                  from the error pattern.
- *   - [HapticType.GemEarned]    → UIImpactFeedbackStyleSoft (iOS 13+): gentle coin-collect feel.
+ *   - [HapticType.GemEarned]    → soft intensity impact (iOS 13+): gentle coin-collect feel.
  */
 class IosHapticEngine : HapticEngine {
 
@@ -39,36 +35,45 @@ class IosHapticEngine : HapticEngine {
                 UISelectionFeedbackGenerator().selectionChanged()
 
             HapticType.ButtonTap ->
-                UIImpactFeedbackGenerator(UIImpactFeedbackStyleLight).impactOccurred()
+                UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleLight)
+                    .impactOccurred()
 
             HapticType.GemEarned ->
-                UIImpactFeedbackGenerator(UIImpactFeedbackStyleSoft).impactOccurred()
+                UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleSoft)
+                    .impactOccurred()
 
             HapticType.CorrectTap ->
-                UINotificationFeedbackGenerator().notificationOccurred(UINotificationFeedbackTypeSuccess)
+                UINotificationFeedbackGenerator()
+                    .notificationOccurred(UINotificationFeedbackType.UINotificationFeedbackTypeSuccess)
 
             HapticType.WrongTap ->
-                UINotificationFeedbackGenerator().notificationOccurred(UINotificationFeedbackTypeError)
+                UINotificationFeedbackGenerator()
+                    .notificationOccurred(UINotificationFeedbackType.UINotificationFeedbackTypeError)
 
             HapticType.MilestoneHit ->
-                UIImpactFeedbackGenerator(UIImpactFeedbackStyleHeavy).impactOccurred()
+                UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy)
+                    .impactOccurred()
 
             HapticType.PerfectRun -> {
                 // Beat 1: heavy thud — immediately
-                UIImpactFeedbackGenerator(UIImpactFeedbackStyleHeavy).impactOccurred()
+                UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy)
+                    .impactOccurred()
                 // Beat 2: success notification — 150 ms later, non-blocking via NSTimer
                 NSTimer.scheduledTimerWithTimeInterval(
                     interval = 0.15,
                     repeats = false,
                     block = { _ ->
                         UINotificationFeedbackGenerator()
-                            .notificationOccurred(UINotificationFeedbackTypeSuccess)
+                            .notificationOccurred(
+                                UINotificationFeedbackType.UINotificationFeedbackTypeSuccess,
+                            )
                     },
                 )
             }
 
             HapticType.GameOver ->
-                UINotificationFeedbackGenerator().notificationOccurred(UINotificationFeedbackTypeWarning)
+                UINotificationFeedbackGenerator()
+                    .notificationOccurred(UINotificationFeedbackType.UINotificationFeedbackTypeWarning)
         }
     }
 }
