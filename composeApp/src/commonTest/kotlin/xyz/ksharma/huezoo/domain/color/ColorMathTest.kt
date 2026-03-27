@@ -29,7 +29,7 @@ class ColorMathTest {
     // ─── sRGB → CIELAB ───────────────────────────────────────────────────────
 
     @Test
-    fun `black converts to Lab(0, 0, 0)`() {
+    fun `black converts to Lab 0 0 0`() {
         val lab = Color.Black.toLab()
         assertEquals(0f, lab.l, LAB_TOLERANCE)
         assertEquals(0f, lab.a, LAB_TOLERANCE)
@@ -37,7 +37,7 @@ class ColorMathTest {
     }
 
     @Test
-    fun `white converts to Lab(100, 0, 0)`() {
+    fun `white converts to Lab 100 0 0`() {
         val lab = Color.White.toLab()
         assertEquals(100f, lab.l, LAB_TOLERANCE)
         assertEquals(0f, lab.a, LAB_TOLERANCE)
