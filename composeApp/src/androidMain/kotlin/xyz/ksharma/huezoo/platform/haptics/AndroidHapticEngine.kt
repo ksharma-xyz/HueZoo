@@ -1,10 +1,12 @@
 package xyz.ksharma.huezoo.platform.haptics
 
+import android.Manifest
 import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import androidx.annotation.RequiresPermission
 
 /**
  * Android implementation of [HapticEngine].
@@ -30,8 +32,8 @@ class AndroidHapticEngine(context: Context) : HapticEngine {
         context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     }
 
+    @RequiresPermission(Manifest.permission.VIBRATE)
     override fun perform(type: HapticType) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         if (!vibrator.hasVibrator()) return
         vibrator.vibrate(effectFor(type))
     }
