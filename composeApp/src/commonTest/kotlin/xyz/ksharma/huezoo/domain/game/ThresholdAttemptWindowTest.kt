@@ -1,102 +1,142 @@
 package xyz.ksharma.huezoo.domain.game
 
+import kotlinx.coroutines.runBlocking
+import xyz.ksharma.huezoo.data.repository.impl.DefaultSettingsRepository
+import xyz.ksharma.huezoo.data.repository.impl.DefaultThresholdRepository
+import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
+import xyz.ksharma.huezoo.testutil.FakePlatformOps
+import xyz.ksharma.huezoo.testutil.createTestDatabase
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /**
  * Tests for the Threshold 8-hour attempt window and paid-user bypass.
  *
- * ## Rules under test
- * - Free users get [ThresholdGameEngine.MAX_ATTEMPTS] = 5 attempts per 8-hour window.
- * - The window is created on the **first** attempt and expires 8 hours later.
- * - Expired sessions are deleted on every [ThresholdRepository.getAttemptStatus] call.
- * - After 5 attempts within a window, status is [AttemptStatus.Exhausted] with a
- *   `nextResetAt` timestamp showing when the window expires.
- * - **Paid users**: when all 5 attempts are used, the session is immediately deleted
- *   and a fresh [AttemptStatus.Available] (0 of 5) is returned — no cooldown.
+ * Uses a real [DefaultThresholdRepository] backed by an in-memory SQLite database
+ * so every call exercises the actual SQL queries and business logic.
  *
- * ## Setup needed
- * Use an in-memory fake of [ThresholdRepository] (or an in-memory SQLDelight driver
- * that mirrors the real schema) so persistence is testable without the full DB stack.
- * A `FakeClock` (returns a controllable [Instant]) avoids real-time dependencies.
+ * Time is controlled by passing explicit [Instant] values — no real-time dependencies.
+ * Each test gets a fresh database (kotlin.test creates a new class instance per test).
  */
+@OptIn(ExperimentalTime::class)
 class ThresholdAttemptWindowTest {
+
+    private val db = createTestDatabase()
+    private val settingsRepo = DefaultSettingsRepository(db)
+    private val repo = DefaultThresholdRepository(db, FakePlatformOps(), settingsRepo)
+
+    /** Anchor point in time — all test timestamps are expressed relative to this. */
+    private val T0 = Instant.fromEpochSeconds(0)
 
     // ─── Fresh start ──────────────────────────────────────────────────────────
 
     @Test
-    fun `status is Available with 0 used attempts before any attempt is recorded`() {
-        // TODO: FakeThresholdRepository.getAttemptStatus(now) with no DB rows →
-        //  Available(attemptsUsed = 0, maxAttempts = 5).
-        TODO("empty DB returns Available(0, 5)")
+    fun `status is Available with 0 used attempts before any attempt is recorded`() = runBlocking {
+        val status = assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0))
+        assertEquals(0, status.attemptsUsed)
+        assertEquals(ThresholdGameEngine.MAX_ATTEMPTS, status.maxAttempts)
     }
 
     @Test
-    fun `recording first attempt creates an 8-hour window`() {
-        // TODO: recordAttempt(t0) → getAttemptStatus(t0) → Available(1, 5).
-        //  Advance clock to t0 + 7h 59m → still Available.
-        //  Advance clock to t0 + 8h 1m → session expired → Available(0, 5) again.
-        TODO("8h window starts on first attempt; expired session is deleted and resets count")
+    fun `recording first attempt creates an 8-hour window`() = runBlocking {
+        repo.recordAttempt(T0)
+
+        // Immediately after: 1 attempt used, still available
+        val atT0 = assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0))
+        assertEquals(1, atT0.attemptsUsed)
+
+        // 7 h 59 m later: window still active
+        val atT7h59m = assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0 + 7.hours + 59.minutes))
+        assertEquals(1, atT7h59m.attemptsUsed)
+
+        // 8 h 01 m later: window expired → slate wiped, back to 0 used
+        val atT8h1m = assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0 + 8.hours + 1.minutes))
+        assertEquals(0, atT8h1m.attemptsUsed)
     }
 
     // ─── Attempt counting ─────────────────────────────────────────────────────
 
     @Test
-    fun `each recorded attempt increments attemptsUsed by one`() {
-        // TODO: Record 3 attempts → getAttemptStatus → Available(attemptsUsed = 3, maxAttempts = 5).
-        TODO("attemptsUsed increments monotonically within the same 8h window")
+    fun `each recorded attempt increments attemptsUsed by one`() = runBlocking {
+        repeat(3) { repo.recordAttempt(T0) }
+        val status = assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0))
+        assertEquals(3, status.attemptsUsed)
     }
 
     @Test
-    fun `fifth attempt exhausts the free window`() {
-        // TODO: Record 5 attempts → getAttemptStatus → Exhausted(nextResetAt, maxAttempts = 5).
-        TODO("5th attempt makes status Exhausted for free users")
+    fun `fifth attempt exhausts the free window`() = runBlocking {
+        repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
+        assertIs<AttemptStatus.Exhausted>(repo.getAttemptStatus(T0))
+        Unit
     }
 
     @Test
-    fun `sixth attempt within the window does not increment beyond exhausted`() {
-        // TODO: Record 5 attempts (exhausted) → record one more → getAttemptStatus →
-        //  still Exhausted (free users can't get a 6th attempt via recordAttempt alone).
-        //  Note: ThresholdViewModel checks AttemptStatus before starting a game, so this
-        //  path should not be reachable in normal usage — but the repo must be safe.
-        TODO("repo must not allow attempts beyond maxAttempts for free users")
+    fun `sixth attempt within the window does not increment beyond exhausted`() = runBlocking {
+        // Record one extra attempt beyond max — repo must stay safe
+        // (ThresholdViewModel guards against this in normal usage)
+        repeat(ThresholdGameEngine.MAX_ATTEMPTS + 1) { repo.recordAttempt(T0) }
+        assertIs<AttemptStatus.Exhausted>(repo.getAttemptStatus(T0))
+        Unit
     }
 
     // ─── Window expiry ────────────────────────────────────────────────────────
 
     @Test
-    fun `expired window is deleted and returns fresh Available status`() {
-        // TODO: Record 3 attempts at t0. Advance clock past t0 + 8h.
-        //  getAttemptStatus(t1) → deleteExpiredSessions fires → Available(0, 5).
-        TODO("deleteExpiredSessions clears window; user gets full 5 attempts again")
+    fun `expired window is deleted and returns fresh Available status`() = runBlocking {
+        repeat(3) { repo.recordAttempt(T0) }
+
+        val statusAfterExpiry = assertIs<AttemptStatus.Available>(
+            repo.getAttemptStatus(T0 + 8.hours + 1.minutes),
+        )
+        assertEquals(0, statusAfterExpiry.attemptsUsed)
     }
 
     @Test
-    fun `exhausted window expires and restores full attempts after 8 hours`() {
-        // TODO: Record 5 attempts at t0 → Exhausted. Advance past t0 + 8h.
-        //  getAttemptStatus → Available(0, 5).
-        TODO("8h cooldown ends and free user gets fresh 5-attempt window")
+    fun `exhausted window expires and restores full attempts after 8 hours`() = runBlocking {
+        repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
+
+        val statusAfterExpiry = assertIs<AttemptStatus.Available>(
+            repo.getAttemptStatus(T0 + 8.hours + 1.minutes),
+        )
+        assertEquals(0, statusAfterExpiry.attemptsUsed)
     }
 
     // ─── Paid user bypass ─────────────────────────────────────────────────────
 
     @Test
-    fun `paid user gets Available status even after 5 attempts are used`() {
-        // TODO: FakeSettingsRepository.isPaid() = true.
-        //  Record 5 attempts → getAttemptStatus → Available(0, 5).
-        //  The exhausted session is immediately deleted for paid users.
-        TODO("paid users never see Exhausted — session cleared on 5th attempt")
+    fun `paid user gets Available status even after 5 attempts are used`() = runBlocking {
+        settingsRepo.setPaid(true)
+        repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
+
+        val status = assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0))
+        assertEquals(0, status.attemptsUsed)
     }
 
     @Test
-    fun `paid user can start unlimited sessions within same 8-hour period`() {
-        // TODO: isPaid = true. Record 5 attempts (exhaust) → getAttemptStatus returns
-        //  Available(0, 5) → record 5 more → Available(0, 5) again. Repeat n times.
-        TODO("no cooldown cap for paid users; each exhaustion immediately resets")
+    fun `paid user can start unlimited sessions within same 8-hour period`() = runBlocking {
+        settingsRepo.setPaid(true)
+        // Exhaust and auto-reset twice in the same window — no cooldown for paid users
+        repeat(2) {
+            repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
+            val status = assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0))
+            assertEquals(0, status.attemptsUsed)
+        }
     }
 
     @Test
-    fun `free user does NOT bypass exhaustion regardless of attempt count`() {
-        // TODO: isPaid = false. Record 5 attempts → Exhausted. Verify nextResetAt is ~8h from first attempt.
-        TODO("free users must see Exhausted after 5 attempts within the window")
+    fun `free user does NOT bypass exhaustion regardless of attempt count`() = runBlocking {
+        repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
+        val status = assertIs<AttemptStatus.Exhausted>(repo.getAttemptStatus(T0))
+
+        // nextResetAt must be 8 hours from the first attempt at T0
+        val expectedReset = T0 + 8.hours
+        val drift = (status.nextResetAt - expectedReset).absoluteValue
+        assertTrue(drift < 1.minutes, "nextResetAt should be ~8h from T0, drift was $drift")
     }
 }

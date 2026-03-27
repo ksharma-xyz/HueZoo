@@ -80,6 +80,13 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.test.kotlin)
         }
+
+        // NativeSqliteDriver is needed in iosTest for the in-memory test database helper.
+        // Declared explicitly because test source sets don't automatically inherit
+        // main source set dependencies for dependency resolution.
+        iosTest.dependencies {
+            implementation(libs.sqldelight.native.driver)
+        }
     }
 }
 
