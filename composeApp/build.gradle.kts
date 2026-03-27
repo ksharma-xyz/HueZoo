@@ -79,6 +79,7 @@ kotlin {
 
         commonTest.dependencies {
             implementation(libs.test.kotlin)
+            implementation(libs.test.coroutines)
         }
 
         // NativeSqliteDriver is needed in iosTest for the in-memory test database helper.
