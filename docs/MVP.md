@@ -170,6 +170,12 @@ Open app
 - [ ] L.4 Remove unused fonts (Antonio, Fredoka) from `composeResources/font/`
 - [ ] L.5 Font attribution in About/Settings if required by Clash Display license
 
+### Phase M — Setup CI / CD 
+- [ ] M.1 GitHub Actions workflow for build + test on push
+- Similar to as per KRAIL (scan KRAIL codebase .github and make simialr todo items)
+-  add docs for CI / CD arch and setup.
+- docs for release process (versioning, changelog, tagging, Play Store + App Store submission steps)
+
 ---
 
 ## Ship Checklist
