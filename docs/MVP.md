@@ -20,6 +20,7 @@ Completed phases archived in `docs/archive/MVP_COMPLETED.md`.
 | 7 | Monetization — AdMob + IAP | ⬜ |
 | 8 | Firebase leaderboard + auth | ⬜ |
 | 9 | Polish + ship | ⬜ |
+| CI | CI/CD pipeline — workflows created, **one-time setup required** | ⬜ |
 | T | Unit tests | ⬜ |
 | L | Font license review | ⬜ |
 
@@ -170,11 +171,33 @@ Open app
 - [ ] L.4 Remove unused fonts (Antonio, Fredoka) from `composeResources/font/`
 - [ ] L.5 Font attribution in About/Settings if required by Clash Display license
 
-### Phase M — Setup CI / CD 
-- [ ] M.1 GitHub Actions workflow for build + test on push
-- Similar to as per KRAIL (scan KRAIL codebase .github and make simialr todo items)
--  add docs for CI / CD arch and setup.
-- docs for release process (versioning, changelog, tagging, Play Store + App Store submission steps)
+### Phase CI — CI/CD Pipeline ⬜ (workflows created, one-time setup required)
+
+Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` for the full setup checklist.
+
+**GitHub Secrets** (Settings → Secrets and variables → Actions → Secrets):
+- [ ] CI.1 `PAT_HUEZOO_GITHUB` — Personal Access Token (`repo` scope + Variables read/write)
+- [ ] CI.2 `ANDROID_KEYSTORE_FILE` — base64-encoded `.jks` signing keystore
+- [ ] CI.3 `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`
+- [ ] CI.4 `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` — Google Play Console service account key
+- [ ] CI.5 `APPSTORE_KEY_ID`, `APPSTORE_ISSUER_ID`, `APPSTORE_PRIVATE_KEY` — App Store Connect API key
+- [ ] CI.6 `IOS_DIST_SIGNING_KEY_BASE64`, `IOS_DIST_SIGNING_KEY_PASSWORD` — Apple Distribution certificate
+- [ ] CI.7 `IOS_PROVISIONING_PROFILE_NAME` — App Store provisioning profile name
+
+**GitHub Variables** (Settings → Secrets and variables → Actions → Variables):
+- [ ] CI.8 `ANDROID_VERSION_CODE` = `1`
+- [ ] CI.9 `IOS_BUILD_NUMBER` = `1`
+- [ ] CI.10 `DEVELOPMENT_TEAM` = Apple Team ID (developer.apple.com → Membership)
+
+**One-time iOS Xcode setup** (required before first TestFlight upload):
+- [ ] CI.11 Set Bundle Identifier to `xyz.ksharma.huezoo` in Xcode → iosApp target → General
+- [ ] CI.12 Add `CFBundleShortVersionString` (`1.0.0`) and `CFBundleVersion` (`1`) to `iosApp/iosApp/Info.plist`
+- [ ] CI.13 Set `CURRENT_PROJECT_VERSION = 1` in Xcode → iosApp target → Build Settings
+- [ ] CI.14 Register `xyz.ksharma.huezoo` in App Store Connect
+
+**Firebase** (configure after Phase 8):
+- [ ] CI.15 Uncomment Firebase workflow steps in `build-android.yml`, `build-ios.yml`, `distribute-testflight.yml`
+- [ ] CI.16 Add `FIREBASE_SERVICE_ACCOUNT_KEY`, `FIREBASE_ANDROID_DEBUG_APP_ID`, `FIREBASE_ANDROID_PROD_APP_ID`, `FIREBASE_GOOGLE_SERVICES_JSON_DEBUG`, `FIREBASE_GOOGLE_SERVICES_JSON_RELEASE`, `FIREBASE_IOS_GOOGLE_INFO` secrets
 
 ---
 
