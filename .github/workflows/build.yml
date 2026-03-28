@@ -1,0 +1,58 @@
+name: Huezoo App CI
+
+on:
+  push:
+    branches: [ main ]          # prod/* is handled by release-2-deploy-rc.yml
+  pull_request:
+    branches: [ main, prod/* ] # PRs to prod branches still get a quality+build check
+    types: [ opened, synchronize, reopened, ready_for_review ]
+
+permissions:
+  actions: write  # allows build-android.yml to write back ANDROID_VERSION_CODE
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  code-quality:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    uses: ./.github/workflows/code-quality.yml
+
+  build-android-debug:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: code-quality
+    uses: ./.github/workflows/build-android.yml
+    with:
+      variant: debug
+    secrets: inherit
+
+  build-android-release:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: code-quality
+    uses: ./.github/workflows/build-android.yml
+    with:
+      variant: release
+    secrets: inherit
+
+  build-ios:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    needs: code-quality
+    uses: ./.github/workflows/build-ios.yml
+    secrets: inherit
+
+  distribute-debug-apk-firebase:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-android-debug
+    uses: ./.github/workflows/distribute-firebase.yml
+    with:
+      variant: debug
+    secrets: inherit
+
+  distribute-release-apk-firebase:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-android-release
+    uses: ./.github/workflows/distribute-firebase.yml
+    with:
+      variant: release
+    secrets: inherit

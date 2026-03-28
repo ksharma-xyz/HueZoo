@@ -1,0 +1,62 @@
+name: Build iOS App
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: List available Xcode versions
+        run: |
+          echo "Listing all installed Xcode versions in /Applications:"
+          ls /Applications | grep Xcode
+          echo "Current default xcodebuild version:"
+          xcodebuild -version
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest-stable'
+
+      - name: Verify Xcode selection
+        run: xcodebuild -version
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: false
+
+      # Uncomment once Firebase is integrated (Phase 8):
+      # - name: Firebase iOS - GoogleService-Info.plist
+      #   env:
+      #     DATA: ${{ secrets.FIREBASE_IOS_GOOGLE_INFO }}
+      #   run: echo "$DATA" | base64 -d > iosApp/iosApp/GoogleService-Info.plist
+
+      - name: Build iOS App - Debug (No Signing)
+        run: |
+          xcodebuild -project iosApp/iosApp.xcodeproj \
+                     -scheme iosApp \
+                     -configuration Debug \
+                     -destination 'platform=iOS Simulator,name=iPhone 16' \
+                     OBJROOT=$GITHUB_WORKSPACE/build/ios \
+                     SYMROOT=$GITHUB_WORKSPACE/build/ios \
+                     CODE_SIGN_IDENTITY="" \
+                     CODE_SIGNING_REQUIRED=NO \
+                     CODE_SIGNING_ALLOWED=NO \
+                     -parallelizeTargets

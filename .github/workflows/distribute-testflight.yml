@@ -1,0 +1,139 @@
+name: Distribute TestFlight
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        required: false
+        type: string
+      notify-testers:
+        required: false
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      notify-testers:
+        description: 'Notify external testers after upload'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  distribute:
+    runs-on: macos-15
+    environment: Firebase
+    permissions:
+      actions: write  # required to write back IOS_BUILD_NUMBER repo variable
+    env:
+      # Fastlane auto-detects these — no temp .p8 file needed.
+      APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+      APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+      # Prevent xcodebuild settings query from timing out on slow CI runners.
+      FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      # Select Xcode before anything else runs.
+      # xcversion is not used — relies on the sunsetted xcode-install gem
+      # and is broken on macos-15 runners (fastlane/fastlane#29469).
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '~16'  # pin to stable Xcode 16.x; latest-stable can pick up pre-releases
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+
+      # Uncomment once Firebase is integrated (Phase 8):
+      # - name: Firebase iOS - GoogleService-Info.plist
+      #   env:
+      #     DATA: ${{ secrets.FIREBASE_IOS_GOOGLE_INFO }}
+      #   run: echo "$DATA" | base64 -d > iosApp/iosApp/GoogleService-Info.plist
+
+      - name: Import Code-Signing Certificates
+        uses: Apple-Actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.IOS_DIST_SIGNING_KEY_BASE64 }}
+          p12-password: ${{ secrets.IOS_DIST_SIGNING_KEY_PASSWORD }}
+
+      - name: Download Provisioning Profiles
+        uses: Apple-Actions/download-provisioning-profiles@v3
+        with:
+          bundle-id: xyz.ksharma.huezoo
+          profile-type: IOS_APP_STORE
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+
+      # Resolve Swift Packages before Fastlane runs so xcodebuild doesn't try to
+      # resolve dependencies while signing settings are active (causes silent failure).
+      - name: Resolve Swift Packages
+        run: |
+          cd iosApp
+          xcodebuild -resolvePackageDependencies -scheme iosApp -project iosApp.xcodeproj
+
+      # Increment IOS_BUILD_NUMBER repo variable so every upload to TestFlight has a
+      # strictly higher CFBundleVersion than the previous one. Apple rejects uploads
+      # where the build number is not greater than the last uploaded build.
+      - name: Set iOS build number
+        env:
+          GH_TOKEN: ${{ secrets.PAT_HUEZOO_GITHUB }}
+        run: |
+          set -e
+          CURRENT=${{ vars.IOS_BUILD_NUMBER }}
+          if [ -z "$CURRENT" ]; then
+            echo "::error::IOS_BUILD_NUMBER variable is not set. Add it in Settings → Variables."
+            exit 1
+          fi
+          NEXT=$(( CURRENT + 1 ))
+          gh api \
+            --method PATCH \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/actions/variables/IOS_BUILD_NUMBER" \
+            -f value="${NEXT}" \
+            || echo "::warning::Could not write back IOS_BUILD_NUMBER — check PAT_HUEZOO_GITHUB scope."
+          echo "IOS_BUILD_NUMBER=${NEXT}" >> $GITHUB_ENV
+          echo "Build number: ${CURRENT} → ${NEXT}"
+
+      - name: Build iOS App for Release
+        env:
+          APP_BUNDLE_ID: xyz.ksharma.huezoo
+          PROVISIONING_PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+          DEVELOPMENT_TEAM: ${{ vars.DEVELOPMENT_TEAM }}
+        run: |
+          cd iosApp
+          bundle exec fastlane build_release
+
+      - name: Upload to TestFlight
+        run: |
+          cd iosApp
+          bundle exec fastlane upload_testflight
+
+      - name: Upload IPA as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name || format('iosApp-release-ipa-{0}', github.run_id) }}
+          path: iosApp/build/*.ipa
+          retention-days: 30
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-logs-${{ github.run_id }}
+          path: iosApp/build/logs
+          retention-days: 3

@@ -1,0 +1,63 @@
+name: Firebase App Distribution
+
+on:
+  workflow_call:
+    inputs:
+      variant:
+        required: true
+        type: string
+
+jobs:
+  distribute-apk:
+    runs-on: ubuntu-latest
+    environment: Firebase
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: androidApp-${{ inputs.variant }}-apk-${{ github.run_id }}
+
+      - name: List files in extracted artifact
+        run: ls
+
+      - name: Download Firebase CLI
+        run: curl -sL https://firebase.tools | bash
+
+      - name: Authenticate with Firebase
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT" > gcloud.json
+
+      - name: Set Firebase Project App ID
+        run: |
+          if [ "${{ inputs.variant }}" = "debug" ]; then
+            echo "FIREBASE_APP_ID=${{ secrets.FIREBASE_ANDROID_DEBUG_APP_ID }}" >> $GITHUB_ENV
+          else
+            echo "FIREBASE_APP_ID=${{ secrets.FIREBASE_ANDROID_PROD_APP_ID }}" >> $GITHUB_ENV
+          fi
+
+      - name: Distribute APK to Firebase App Distribution
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: gcloud.json
+          FIREBASE_APP_ID: ${{ env.FIREBASE_APP_ID }}
+        run: |
+          COMMIT_TITLE=$(echo "${{ github.event.head_commit.message }}" | head -n1 | tr -d '\n' | tr -d '\r')
+
+          if [ "${{ inputs.variant }}" = "debug" ]; then
+            firebase appdistribution:distribute androidApp-debug.apk \
+              --app "$FIREBASE_APP_ID" \
+              --groups "Internal" \
+              --release-notes "Debug: $COMMIT_TITLE"
+          else
+            firebase appdistribution:distribute androidApp-release.apk \
+              --app "$FIREBASE_APP_ID" \
+              --groups "Friends" \
+              --release-notes "Release: $COMMIT_TITLE"
+          fi
+
+      - name: Cleanup sensitive files
+        if: always()
+        run: rm -f gcloud.json

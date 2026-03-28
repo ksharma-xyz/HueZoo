@@ -1,0 +1,123 @@
+name: Build Android App
+
+on:
+  workflow_call:
+    inputs:
+      variant:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: Firebase
+    permissions:
+      actions: write  # required to write back ANDROID_VERSION_CODE repo variable
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      # Uncomment and configure once Firebase is integrated (Phase 8):
+      # - name: Firebase Android (Release) - Google Services.json file
+      #   env:
+      #     DATA: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON_RELEASE }}
+      #   run: echo $DATA | base64 -di > androidApp/src/release/google-services.json
+      #
+      # - name: Firebase (Debug) - Google Services.json file
+      #   env:
+      #     DATA: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON_DEBUG }}
+      #   run: echo $DATA | base64 -di > androidApp/src/debug/google-services.json
+
+      - name: Decode Keystore
+        if: ${{ inputs.variant == 'release' }}
+        run: echo "${{ secrets.ANDROID_KEYSTORE_FILE }}" | base64 -d > keystore.jks
+
+      - name: Export signing secrets for Gradle
+        if: ${{ inputs.variant == 'release' }}
+        run: |
+          echo "ANDROID_KEYSTORE_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "ANDROID_KEY_ALIAS=${{ secrets.ANDROID_KEY_ALIAS }}" >> $GITHUB_ENV
+          echo "ANDROID_KEY_PASSWORD=${{ secrets.ANDROID_KEY_PASSWORD }}" >> $GITHUB_ENV
+
+      # versionCode is stored as a GitHub repository variable (Settings → Actions → Variables →
+      # ANDROID_VERSION_CODE) so it survives workflow renames and file restructures.
+      #
+      # Release builds: increment the counter and write it back via the GitHub API so the
+      # next build always gets a strictly higher number. Google Play rejects uploads where
+      # versionCode is not greater than the last uploaded build.
+      #
+      # Debug builds: read the current value without incrementing — debug APKs are never
+      # uploaded to Google Play so monotonicity doesn't matter for them.
+      - name: Set versionCode
+        id: version_code
+        env:
+          GH_TOKEN: ${{ secrets.PAT_HUEZOO_GITHUB }}
+        run: |
+          set -e
+          CURRENT=${{ vars.ANDROID_VERSION_CODE }}
+          if [ -z "$CURRENT" ]; then
+            echo "::error::Repository variable ANDROID_VERSION_CODE is not set. Add it in Settings → Secrets and variables → Actions → Variables."
+            exit 1
+          fi
+
+          if [[ "${{ inputs.variant }}" == "release" ]]; then
+            NEXT=$(( CURRENT + 1 ))
+            gh api \
+              --method PATCH \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${{ github.repository }}/actions/variables/ANDROID_VERSION_CODE" \
+              -f value="${NEXT}" \
+              || echo "::warning::Could not write back ANDROID_VERSION_CODE — PAT_HUEZOO_GITHUB needs 'repo' scope (classic PAT) or 'Variables: Read and write' (fine-grained PAT). Fix this before real releases."
+            echo "VERSION_CODE=${NEXT}" >> $GITHUB_ENV
+            echo "versionCode: ${CURRENT} → ${NEXT}"
+          else
+            echo "VERSION_CODE=${CURRENT}" >> $GITHUB_ENV
+            echo "versionCode: ${CURRENT} (debug — not incrementing)"
+          fi
+
+      - name: Build ${{ inputs.variant }}
+        run: |
+          set -e
+          if [[ "${{ inputs.variant }}" == "debug" ]]; then
+            ./gradlew :androidApp:assembleDebug :composeApp:iosSimulatorArm64Test -PversionCode="${VERSION_CODE}" --stacktrace --no-configuration-cache
+          elif [[ "${{ inputs.variant }}" == "release" ]]; then
+            ./gradlew :androidApp:assembleRelease :androidApp:bundleRelease -PversionCode="${VERSION_CODE}" --no-configuration-cache
+          fi
+
+      - name: Upload Debug APK
+        if: ${{ inputs.variant == 'debug' }}
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: androidApp-debug-apk-${{ github.run_id }}
+          path: androidApp/build/outputs/apk/debug/androidApp-debug.apk
+
+      - name: Upload Release APK
+        if: ${{ inputs.variant == 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: androidApp-release-apk-${{ github.run_id }}
+          path: androidApp/build/outputs/apk/release/androidApp-release.apk
+
+      # No separate signing step needed — build.gradle.kts signingConfig signs the AAB
+      # during bundleRelease using the keystore decoded above.
+      - name: Upload Release AAB
+        if: ${{ inputs.variant == 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: androidApp-release-aab-${{ github.run_id }}
+          path: androidApp/build/outputs/bundle/release/androidApp-release.aab
+
+      - name: Cleanup sensitive files
+        if: always()
+        run: rm -f keystore.jks
