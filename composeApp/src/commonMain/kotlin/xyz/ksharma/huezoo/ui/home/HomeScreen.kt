@@ -73,6 +73,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.PlatformOps
+import xyz.ksharma.huezoo.platform.ads.BannerAd
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
 import xyz.ksharma.huezoo.ui.components.HuezooBottomSheet
@@ -144,16 +145,27 @@ fun HomeScreen(
         onPauseOrDispose { }
     }
 
-    AmbientGlowBackground(modifier = modifier) {
-        when (val state = uiState) {
-            HomeUiState.Loading -> Unit
-            is HomeUiState.Ready -> ReadyContent(
-                state = state,
-                onThresholdTap = { onNavigate(ThresholdGame) },
-                onDailyTap = { onNavigate(DailyGame) },
-                onSettingsTap = onSettingsTap,
-                onUpgradeTap = onUpgradeTap,
-                onLeaderboardTap = onLeaderboardTap,
+    Box(modifier = modifier.fillMaxSize()) {
+        AmbientGlowBackground(modifier = Modifier.fillMaxSize()) {
+            when (val state = uiState) {
+                HomeUiState.Loading -> Unit
+                is HomeUiState.Ready -> ReadyContent(
+                    state = state,
+                    onThresholdTap = { onNavigate(ThresholdGame) },
+                    onDailyTap = { onNavigate(DailyGame) },
+                    onSettingsTap = onSettingsTap,
+                    onUpgradeTap = onUpgradeTap,
+                    onLeaderboardTap = onLeaderboardTap,
+                )
+            }
+        }
+
+        val readyState = uiState as? HomeUiState.Ready
+        if (readyState != null && !readyState.isPaid) {
+            BannerAd(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(),
             )
         }
     }

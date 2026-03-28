@@ -72,6 +72,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.platform.PlatformOps
+import xyz.ksharma.huezoo.platform.ads.BannerAd
 import xyz.ksharma.huezoo.platform.shareIconRes
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
@@ -144,6 +145,15 @@ fun ResultScreen(
             ConfettiEffect(
                 identityColor = identityColor,
                 modifier = Modifier.fillMaxSize(),
+            )
+        }
+
+        // Banner ad — pinned at bottom for free users
+        if (readyState != null && !readyState.isPaid) {
+            BannerAd(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth(),
             )
         }
     }
