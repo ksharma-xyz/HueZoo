@@ -2,13 +2,61 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
+    <ID>BracesOnIfStatements:ResultScreen.kt$if</ID>
     <ID>CommentOverPrivateProperty:ColorExt.kt$/** Near-black foreground used on bright/light backgrounds. */ private val TEXT_ON_LIGHT = Color(0xFF0D0D1A)</ID>
     <ID>CommentOverPrivateProperty:ColorExt.kt$/** White foreground used on dark backgrounds. */ private val TEXT_ON_DARK = Color(0xFFFFFFFF)</ID>
+    <ID>CommentOverPrivateProperty:DailyScreen.kt$/** Fixed height reserved for the in-game feedback message. Matches Threshold. */ private val FEEDBACK_SLOT_HEIGHT = 28.dp</ID>
+    <ID>CommentOverPrivateProperty:DailyViewModel.kt$DailyViewModel$/** Gems earned this session — participation + per-correct + perfect bonus. */ private var sessionGems = 0</ID>
+    <ID>CommentOverPrivateProperty:DailyViewModel.kt$DailyViewModel$/** Gems from correct-round awards (DAILY_CORRECT_ROUND * correctRounds). */ private var sessionCorrectGems = 0</ID>
+    <ID>CommentOverPrivateProperty:DailyViewModel.kt$DailyViewModel$/** Highest ΔE among rounds the player answered correctly (shown in result / personal best). */ private var highestCorrectDeltaE = 0f</ID>
+    <ID>CommentOverPrivateProperty:DailyViewModel.kt$DailyViewModel$/** Number of rounds answered correctly (0–6). */ private var correctRounds = 0</ID>
+    <ID>CommentOverPrivateProperty:DailyViewModel.kt$DailyViewModel$/** ΔE of the last round generated (used to evaluate the current round). */ private var lastRoundDeltaE = 0f</ID>
+    <ID>CommentOverPrivateProperty:ThresholdScreen.kt$/** Fixed height reserved for the in-game feedback message. Never changes, so nothing shifts. */ private val FEEDBACK_SLOT_HEIGHT = 28.dp</ID>
+    <ID>CommentOverPrivateProperty:ThresholdScreen.kt$/** Size of each heart in the lives indicator. */ private val HEART_SIZE = 14.dp</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** * Increments on every [emitRound] call — correct AND wrong-tap-resets. * Drives [RadialSwatchLayout] unfold animation regardless of [tapCount]. */ private var roundGeneration = 0</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** * Milestones awarded in the *current try*. * Cleared on every wrong tap so each new try can earn milestones fresh. */ private val awardedMilestones = mutableSetOf&lt;Float&gt;()</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** Best (lowest) ΔE survived across all tries in this session. */ private var bestDeltaE: Float? = null</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** Correct taps accumulated across ALL tries this session. */ private var sessionCorrectTaps = 0</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** Correct-tap counter within the current try. Resets to 1 on each new try. */ private var tapCount = 1</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** Gems earned in this session — shown on Result screen. */ private var sessionGems: Int = 0</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** Gems from correct taps (excluding milestones). */ private var sessionTapGems: Int = 0</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** Gems from milestone bonuses. */ private var sessionMilestoneGems: Int = 0</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** How many tries remain in the current 8-hour window. */ private var triesRemaining = 0</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** Lifetime gem total (kept in sync with DB). */ private var totalGems: Int = 0</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** Stored all-time personal best at session start — used for eager-save comparison. */ private var storedBestDeltaE: Float? = null</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** Total tries allowed in the current 8-hour window — set once on session start. */ private var maxAttempts = 0</ID>
+    <ID>CommentOverPrivateProperty:ThresholdViewModel.kt$ThresholdViewModel$/** Wrong taps accumulated across ALL tries this session (one per try used). */ private var sessionWrongTaps = 0</ID>
+    <ID>ComposableParamOrder:ResultScreen.kt$HeroGems</ID>
+    <ID>CompositionLocalAllowlist:LocalHapticEngine.kt$LocalHapticEngine</ID>
+    <ID>CompositionLocalAllowlist:LocalPlayerTheme.kt$LocalPlayerAccentColor</ID>
+    <ID>CompositionLocalAllowlist:LocalPlayerTheme.kt$LocalPlayerShelfColor</ID>
+    <ID>CyclomaticComplexMethod:HomeScreen.kt$@Composable private fun ThresholdScannerIllustration( enabled: Boolean, modifier: Modifier = Modifier, )</ID>
+    <ID>CyclomaticComplexMethod:RadialSwatchLayout.kt$@Composable private fun RadialTile( color: Color, displayState: SwatchDisplayState, angleDeg: Float, tileScale: Float, config: RadialConfig, shape: Shape, enabled: Boolean, onClick: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>CyclomaticComplexMethod:ResultScreen.kt$@Composable private fun ReadyContent( state: ResultUiState.Ready, onPlayAgain: () -&gt; Unit, onShare: (String) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>CyclomaticComplexMethod:SwatchBlock.kt$@Composable fun SwatchBlock( color: Color, onClick: () -&gt; Unit, modifier: Modifier = Modifier, size: SwatchBlockSize = SwatchBlockSize.Medium, sizeDp: Dp? = null, state: SwatchBlockState = SwatchBlockState.Default, )</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:HomeScreen.kt$(x, y, dx, dy)</ID>
     <ID>FunctionNaming:MainViewController.kt$fun MainViewController()</ID>
     <ID>LambdaParameterInRestartableEffect:DailyScreen.kt$onBack</ID>
     <ID>LambdaParameterInRestartableEffect:DailyScreen.kt$onResult</ID>
+    <ID>LambdaParameterInRestartableEffect:EyeStrainNoticeScreen.kt$onNavigateToHome</ID>
+    <ID>LambdaParameterInRestartableEffect:SplashScreen.kt$onNavigateToEyeStrain</ID>
+    <ID>LambdaParameterInRestartableEffect:SplashScreen.kt$onNavigateToHome</ID>
     <ID>LambdaParameterInRestartableEffect:ThresholdScreen.kt$onBack</ID>
     <ID>LambdaParameterInRestartableEffect:ThresholdScreen.kt$onResult</ID>
+    <ID>LongMethod:ThresholdViewModel.kt$ThresholdViewModel$private fun handleWrongTap(state: ThresholdUiState.Playing, tappedIndex: Int)</ID>
+    <ID>LongParameterList:DailyViewModel.kt$DailyViewModel$( private val gameEngine: DailyGameEngine, private val repository: DailyRepository, private val settingsRepository: SettingsRepository, private val colorEngine: ColorEngine, private val playerState: PlayerState, private val hapticEngine: HapticEngine, private val sessionResultCache: SessionResultCache, )</ID>
+    <ID>LongParameterList:ThresholdViewModel.kt$ThresholdViewModel$( private val gameEngine: ThresholdGameEngine, private val repository: ThresholdRepository, private val colorEngine: ColorEngine, private val settingsRepository: SettingsRepository, private val playerState: PlayerState, private val hapticEngine: HapticEngine, private val sessionResultCache: SessionResultCache, )</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$150</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$180</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$20</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$200</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$25</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$255</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$30</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$40</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$50</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$60</ID>
+    <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$80</ID>
     <ID>MagicNumber:ColorExt.kt$0.05f</ID>
     <ID>MagicNumber:ColorMath.kt$0.0031308</ID>
     <ID>MagicNumber:ColorMath.kt$0.0193339</ID>
@@ -40,20 +88,99 @@
     <ID>MagicNumber:ColorMath.kt$50.0</ID>
     <ID>MagicNumber:ColorMath.kt$6.0</ID>
     <ID>MagicNumber:ColorMath.kt$63.0</ID>
+    <ID>MagicNumber:CurrencyPill.kt$1_000_000</ID>
+    <ID>MagicNumber:CurrencyPill.kt$3</ID>
+    <ID>MagicNumber:DailyScreen.kt$10</ID>
     <ID>MagicNumber:DefaultColorEngine.kt$3</ID>
     <ID>MagicNumber:DefaultColorEngine.kt$4</ID>
     <ID>MagicNumber:DefaultColorEngine.kt$5</ID>
     <ID>MagicNumber:DefaultColorEngine.kt$60f</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$0.10f</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$0.12f</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$0.20f</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$0.25f</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$0.28f</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$0.30f</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$0.35f</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$0.38f</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$0.44f</ID>
     <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$10_000L</ID>
+    <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$180f</ID>
     <ID>MagicNumber:DefaultColorEngine.kt$DefaultColorEngine$360f</ID>
+    <ID>MagicNumber:HomeScreen.kt$0.08f</ID>
+    <ID>MagicNumber:HomeScreen.kt$0.24f</ID>
+    <ID>MagicNumber:HomeScreen.kt$0.40f</ID>
+    <ID>MagicNumber:HomeScreen.kt$0.45f</ID>
+    <ID>MagicNumber:HomeScreen.kt$0.48f</ID>
+    <ID>MagicNumber:HomeScreen.kt$0.5f</ID>
+    <ID>MagicNumber:HomeScreen.kt$0.70f</ID>
+    <ID>MagicNumber:HomeScreen.kt$1.5f</ID>
+    <ID>MagicNumber:HomeScreen.kt$10</ID>
+    <ID>MagicNumber:HomeScreen.kt$180.0</ID>
+    <ID>MagicNumber:HomeScreen.kt$3</ID>
+    <ID>MagicNumber:HomeScreen.kt$3.0f</ID>
+    <ID>MagicNumber:HomeScreen.kt$36.0</ID>
+    <ID>MagicNumber:HomeScreen.kt$4.0f</ID>
+    <ID>MagicNumber:HomeScreen.kt$9</ID>
+    <ID>MagicNumber:HomeScreen.kt$90.0</ID>
+    <ID>MagicNumber:LevelsProgressSheet.kt$3</ID>
+    <ID>MagicNumber:PlayerLevel.kt$PlayerLevel.Companion$150</ID>
+    <ID>MagicNumber:PlayerLevel.kt$PlayerLevel.Companion$50_000</ID>
+    <ID>MagicNumber:PlayerLevel.kt$PlayerLevel.Companion$5_000</ID>
+    <ID>MagicNumber:PlayerLevel.kt$PlayerLevel.Companion$750</ID>
+    <ID>MagicNumber:ResultScreen.kt$0.5f</ID>
+    <ID>MagicNumber:ResultScreen.kt$1.5f</ID>
+    <ID>MagicNumber:ResultScreen.kt$10</ID>
+    <ID>MagicNumber:ResultScreen.kt$3</ID>
+    <ID>MagicNumber:ResultScreen.kt$3.0f</ID>
+    <ID>MagicNumber:ResultScreen.kt$4</ID>
+    <ID>MagicNumber:ResultScreen.kt$6</ID>
+    <ID>MagicNumber:ResultViewModel.kt$ResultViewModel$0.005f</ID>
+    <ID>MagicNumber:Shape.kt$HeartShape$0.05f</ID>
+    <ID>MagicNumber:Shape.kt$HeartShape$0.25f</ID>
+    <ID>MagicNumber:Shape.kt$HeartShape$0.2f</ID>
+    <ID>MagicNumber:Shape.kt$HeartShape$0.30f</ID>
+    <ID>MagicNumber:Shape.kt$HeartShape$0.45f</ID>
+    <ID>MagicNumber:Shape.kt$HeartShape$0.50f</ID>
+    <ID>MagicNumber:Shape.kt$HeartShape$0.75f</ID>
+    <ID>MagicNumber:Shape.kt$HeartShape$1.50f</ID>
+    <ID>MagicNumber:Shape.kt$HeartShape$1.80f</ID>
+    <ID>MagicNumber:Shape.kt$HexagonShape$3.0</ID>
+    <ID>MagicNumber:Shape.kt$HexagonShape$5</ID>
+    <ID>MagicNumber:Shape.kt$PetalShape$0.05f</ID>
+    <ID>MagicNumber:Shape.kt$PetalShape$0.15f</ID>
+    <ID>MagicNumber:Shape.kt$PetalShape$0.60f</ID>
+    <ID>MagicNumber:Shape.kt$PetalShape$0.95f</ID>
+    <ID>MagicNumber:ThresholdScreen.kt$10</ID>
+    <ID>MagicNumber:ThresholdViewModel.kt$ThresholdViewModel$0.5f</ID>
+    <ID>MagicNumber:ThresholdViewModel.kt$ThresholdViewModel$3f</ID>
+    <ID>MagicNumber:ThresholdViewModel.kt$ThresholdViewModel$4f</ID>
     <ID>MatchingDeclarationName:Color.kt$HuezooColors</ID>
+    <ID>MaxLineLength:ResultViewModel.kt$ResultViewModel$"[DEBUG_RESULT] load() deltaE=${sessionResult.deltaE} gameId=${sessionResult.gameId} rounds=${sessionResult.roundsSurvived}/${sessionResult.totalRounds}"</ID>
+    <ID>MaxLineLength:ThresholdViewModel.kt$ThresholdViewModel$"[DEBUG_DELTA] CORRECT tap=$tapCount currentΔE=$currentDeltaE bestΔE(prev=$prevBestDeltaE → now=$sessionBest) isNewAllTimeBest=$isNewAllTimeBest"</ID>
+    <ID>MaxLineLength:ThresholdViewModel.kt$ThresholdViewModel$"[DEBUG_DELTA] NEXT ROUND tap=$tapCount ΔE: $prevDeltaE → $currentDeltaE (step=${ThresholdGameEngine.DELTA_E_STEP})"</ID>
+    <ID>MaxLineLength:ThresholdViewModel.kt$ThresholdViewModel$"[DEBUG_DELTA] SESSION END — finalΔE=$finalDeltaE bestΔE=$bestDeltaE fallback(currentΔE)=${bestDeltaE == null} correctRounds=$sessionCorrectTaps totalRounds=${sessionCorrectTaps + sessionWrongTaps}"</ID>
+    <ID>MaxLineLength:ThresholdViewModel.kt$ThresholdViewModel$"[DEBUG_DELTA] SESSION START — startingΔE=$currentDeltaE triesRemaining=$triesRemaining storedBestΔE=$storedBestDeltaE"</ID>
+    <ID>MaxLineLength:ThresholdViewModel.kt$ThresholdViewModel$"[DEBUG_DELTA] WRONG failedAtΔE=$currentDeltaE tap=$tapCount bestΔE=$bestDeltaE triesRemaining=$triesRemaining sessionCorrect=$sessionCorrectTaps sessionWrong=$sessionWrongTaps"</ID>
+    <ID>MaxLineLength:UpgradeScreen.kt$text = "Free tier: 5 Threshold tries per day.\nFull access removes the cap — play as much as you want."</ID>
+    <ID>MaximumLineLength:ResultViewModel.kt$ResultViewModel$ </ID>
+    <ID>MaximumLineLength:ThresholdViewModel.kt$ThresholdViewModel$ </ID>
+    <ID>MaximumLineLength:UpgradeScreen.kt$ </ID>
     <ID>ModifierMissing:App.kt$App</ID>
+    <ID>ModifierMissing:LevelsProgressSheet.kt$LevelsProgressSheet</ID>
+    <ID>StringLiteralDuplication:LevelsProgressSheet.kt$"Badge"</ID>
+    <ID>StringLiteralDuplication:LevelsProgressSheet.kt$"Difficulty"</ID>
+    <ID>StringLiteralDuplication:LevelsProgressSheet.kt$"Rewards"</ID>
     <ID>TooManyFunctions:ColorMath.kt$xyz.ksharma.huezoo.domain.color.ColorMath.kt</ID>
+    <ID>TooManyFunctions:HomeScreen.kt$xyz.ksharma.huezoo.ui.home.HomeScreen.kt</ID>
     <ID>TooManyFunctions:HuezooText.kt$xyz.ksharma.huezoo.ui.components.HuezooText.kt</ID>
-    <ID>UnusedParameter:LeaderboardScreen.kt$onBack: () -&gt; Unit</ID>
+    <ID>TooManyFunctions:RadialSwatchLayout.kt$xyz.ksharma.huezoo.ui.components.RadialSwatchLayout.kt</ID>
+    <ID>TooManyFunctions:ResultScreen.kt$xyz.ksharma.huezoo.ui.result.ResultScreen.kt</ID>
+    <ID>TooManyFunctions:ThresholdViewModel.kt$ThresholdViewModel : ViewModel</ID>
+    <ID>UnusedParameter:DailyScreen.kt$state: DailyUiState.AlreadyPlayed</ID>
     <ID>UnusedParameter:PaywallSheet.kt$onDismiss: () -&gt; Unit</ID>
     <ID>UnusedParameter:PaywallSheet.kt$onUnlock: () -&gt; Unit</ID>
     <ID>UnusedParameter:PaywallSheet.kt$onWatchAd: () -&gt; Unit</ID>
-    <ID>UnusedParameter:ResultScreen.kt$onBack: () -&gt; Unit</ID>
+    <ID>UnusedPrivateProperty:HomeScreen.kt$val platformOps: PlatformOps = koinInject()</ID>
   </CurrentIssues>
 </SmellBaseline>
