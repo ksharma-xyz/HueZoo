@@ -5,6 +5,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import xyz.ksharma.huezoo.di.androidModule
 import xyz.ksharma.huezoo.di.appModule
+import xyz.ksharma.huezoo.platform.ads.initMobileAds
 
 class HuezooApp : Application() {
 
@@ -14,5 +15,6 @@ class HuezooApp : Application() {
             androidContext(this@HuezooApp)
             modules(appModule, androidModule)
         }
+        initMobileAds(this)
     }
 }
