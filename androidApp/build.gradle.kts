@@ -8,8 +8,17 @@ android {
     defaultConfig {
         applicationId = "xyz.ksharma.huezoo"
         minSdk = 28
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = findProperty("versionCode")?.toString()?.toInt() ?: 1
+        versionName = "1.0.0"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("keystore.jks")
+            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+            keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+        }
     }
 
     buildTypes {
@@ -24,6 +33,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
