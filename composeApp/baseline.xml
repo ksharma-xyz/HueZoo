@@ -3,11 +3,11 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>BracesOnIfStatements:ResultScreen.kt$if</ID>
+    <ID>ClassOrdering:PlayerLevel.kt$PlayerLevel.Companion$fun fromGems(gems: Int): PlayerLevel</ID>
+    <ID>ClassOrdering:PlayerLevel.kt$PlayerLevel.Companion$fun levelUpBonus(level: PlayerLevel): Int</ID>
     <ID>CommentOverPrivateProperty:ColorExt.kt$/** Near-black foreground used on bright/light backgrounds. */ private val TEXT_ON_LIGHT = Color(0xFF0D0D1A)</ID>
     <ID>CommentOverPrivateProperty:ColorExt.kt$/** White foreground used on dark backgrounds. */ private val TEXT_ON_DARK = Color(0xFFFFFFFF)</ID>
     <ID>CommentOverPrivateProperty:DailyScreen.kt$/** Fixed height reserved for the in-game feedback message. Matches Threshold. */ private val FEEDBACK_SLOT_HEIGHT = 28.dp</ID>
-    <ID>CommentOverPrivateProperty:DailyViewModel.kt$DailyViewModel$/** Gems earned this session — participation + per-correct + perfect bonus. */ private var sessionGems = 0</ID>
-    <ID>CommentOverPrivateProperty:DailyViewModel.kt$DailyViewModel$/** Gems from correct-round awards (DAILY_CORRECT_ROUND * correctRounds). */ private var sessionCorrectGems = 0</ID>
     <ID>CommentOverPrivateProperty:DailyViewModel.kt$DailyViewModel$/** Highest ΔE among rounds the player answered correctly (shown in result / personal best). */ private var highestCorrectDeltaE = 0f</ID>
     <ID>CommentOverPrivateProperty:DailyViewModel.kt$DailyViewModel$/** Number of rounds answered correctly (0–6). */ private var correctRounds = 0</ID>
     <ID>CommentOverPrivateProperty:DailyViewModel.kt$DailyViewModel$/** ΔE of the last round generated (used to evaluate the current round). */ private var lastRoundDeltaE = 0f</ID>
@@ -43,9 +43,10 @@
     <ID>LambdaParameterInRestartableEffect:SplashScreen.kt$onNavigateToHome</ID>
     <ID>LambdaParameterInRestartableEffect:ThresholdScreen.kt$onBack</ID>
     <ID>LambdaParameterInRestartableEffect:ThresholdScreen.kt$onResult</ID>
+    <ID>LongMethod:ThresholdViewModel.kt$ThresholdViewModel$private fun handleCorrectTap(state: ThresholdUiState.Playing)</ID>
     <ID>LongMethod:ThresholdViewModel.kt$ThresholdViewModel$private fun handleWrongTap(state: ThresholdUiState.Playing, tappedIndex: Int)</ID>
     <ID>LongParameterList:DailyViewModel.kt$DailyViewModel$( private val gameEngine: DailyGameEngine, private val repository: DailyRepository, private val settingsRepository: SettingsRepository, private val colorEngine: ColorEngine, private val playerState: PlayerState, private val hapticEngine: HapticEngine, private val sessionResultCache: SessionResultCache, )</ID>
-    <ID>LongParameterList:ThresholdViewModel.kt$ThresholdViewModel$( private val gameEngine: ThresholdGameEngine, private val repository: ThresholdRepository, private val colorEngine: ColorEngine, private val settingsRepository: SettingsRepository, private val playerState: PlayerState, private val hapticEngine: HapticEngine, private val sessionResultCache: SessionResultCache, )</ID>
+    <ID>LongParameterList:ThresholdViewModel.kt$ThresholdViewModel$( private val gameEngine: ThresholdGameEngine, private val repository: ThresholdRepository, private val colorEngine: ColorEngine, private val settingsRepository: SettingsRepository, private val playerState: PlayerState, private val hapticEngine: HapticEngine, private val sessionResultCache: SessionResultCache, private val interstitialAdClient: InterstitialAdClient, private val adOrchestrator: AdOrchestrator, )</ID>
     <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$150</ID>
     <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$180</ID>
     <ID>MagicNumber:AndroidHapticEngine.kt$AndroidHapticEngine$20</ID>

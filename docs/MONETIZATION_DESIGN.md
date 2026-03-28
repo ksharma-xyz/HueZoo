@@ -27,10 +27,11 @@
 |---|---|---|
 | Home | `!isPaid` | pinned bottom, always visible |
 | Result | `!isPaid` | pinned bottom, above nav bar |
-| Game screens | never | — gameplay must stay uninterrupted |
+| Threshold (Playing / Blocked) | `!isPaid` | pinned bottom via Box overlay |
+| Daily (Playing / AlreadyPlayed) | `!isPaid` | pinned bottom via Box overlay |
 | Upgrade / Paywall | never | — purchase funnel must be ad-free |
 
-**Rationale:** Banners on Home and Result are constant low-intrusion revenue. Game screens are sacred — an ad during active gameplay kills retention. Upgrade and Paywall screens must never show ads (the player is about to pay, friction is the enemy).
+**Rationale:** Banners at the screen bottom are a low-intrusion constant revenue stream. The swatch area is never covered — the banner sits below gameplay. Upgrade and Paywall screens must never show ads (the player is about to pay, friction is the enemy).
 
 ---
 
@@ -148,29 +149,29 @@ Player finishes game (out of tries + no paid)
 
 ### Interstitial Ads
 
-- [ ] `InterstitialAdClient` interface in commonMain (alongside `RewardedAdClient`)
-- [ ] `AndroidInterstitialAdClient` in androidMain — `load()` + `show(activity): AdResult`
-- [ ] `IosInterstitialAdClient` stub in iosMain
-- [ ] Bind in `AndroidModule` / `IosModule`
-- [ ] `AdOrchestrator` singleton (or logic in `ThresholdViewModel`) — frequency counter + show gate
-- [ ] Wire into Threshold game flow: show ad → then navigate to Result
-- [ ] Frequency cap: 3/day guard (`shownTodayCount` key in `user_settings`)
-- [ ] Never show after personal best (check `isNewPersonalBest` before showing)
+- [x] `InterstitialAdClient` interface in commonMain (alongside `RewardedAdClient`)
+- [x] `AndroidInterstitialAdClient` in androidMain — `load()` + `show(activity): AdResult`
+- [x] `IosInterstitialAdClient` stub in iosMain
+- [x] Bind in `AndroidModule` / `IosModule`
+- [x] `AdOrchestrator` singleton — frequency counter + show gate (in-memory, resets on date change)
+- [x] Wire into Threshold game flow: show ad → then navigate to Result
+- [x] Frequency cap: 3/day guard (in-memory `shownTodayCount` keyed by date)
+- [x] Never show after personal best (guarded by `isSessionNewPersonalBest`)
 
 ### Level-Up Events
 
-- [ ] `PlayerLevel.levelUpBonus(level: Int): Int` — return bonus gems per level
-- [ ] Detect level crossing in `ThresholdViewModel` + `DailyViewModel` after `addGems()`
-- [ ] Emit `LevelUpEvent(newLevel, bonusGems)` in UiState / side-effect channel
-- [ ] Level-up banner on Result screen (500ms entrance animation, auto-dismiss at 2s)
-- [ ] Award bonus gems and reflect in HUD
+- [x] `PlayerLevel.levelUpBonus(level: PlayerLevel): Int` — return bonus gems per level
+- [x] Detect level crossing in `ThresholdViewModel` + `DailyViewModel` after `addGems()`
+- [x] Award bonus gems and include in session breakdown
+- [ ] Emit `LevelUpEvent(newLevel, bonusGems)` in UiState / side-effect channel *(UI banner — future)*
+- [ ] Level-up banner on Result screen (500ms entrance animation, auto-dismiss at 2s) *(future)*
 
 ### Daily Streak Bonus
 
-- [ ] If `streak >= 3` → +5 💎 daily bonus
-- [ ] If `streak >= 7` → +10 💎 daily bonus
-- [ ] Streak displayed on Home stats bar (already wired, value is 0 until logic is added)
-- [ ] `DailyRepository.getStreak()` needs real implementation (currently returns 0)
+- [x] If `streak >= 3` → +5 💎 daily bonus (in `DailyViewModel.finishGame()`)
+- [x] If `streak >= 7` → +10 💎 daily bonus (in `DailyViewModel.finishGame()`)
+- [x] `DailyRepository.getStreak()` fully implemented in `DefaultDailyRepository`
+- [ ] Streak displayed on Home stats bar *(requires HomeViewModel wiring)*
 
 ### Banner Ad IDs (replace before publishing)
 
