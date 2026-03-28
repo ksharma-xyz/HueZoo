@@ -69,5 +69,20 @@ enum class PlayerLevel(
             gems >= 150 -> Trained
             else -> Rookie
         }
+
+        /** Bonus gems awarded when the player reaches [level] for the first time. */
+        fun levelUpBonus(level: PlayerLevel): Int = when (level) {
+            Rookie -> BONUS_ROOKIE
+            Trained -> BONUS_TRAINED
+            Sharp -> BONUS_SHARP
+            Elite -> BONUS_ELITE
+            Master -> BONUS_MASTER
+        }
+
+        private const val BONUS_ROOKIE = 0
+        private const val BONUS_TRAINED = 20
+        private const val BONUS_SHARP = 40
+        private const val BONUS_ELITE = 60
+        private const val BONUS_MASTER = 100
     }
 }

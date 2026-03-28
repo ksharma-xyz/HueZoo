@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
 import xyz.ksharma.huezoo.domain.color.ColorEngine
@@ -23,6 +25,9 @@ import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.SessionResult
+import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
+import xyz.ksharma.huezoo.platform.ads.AdResult
+import xyz.ksharma.huezoo.platform.ads.InterstitialAdClient
 import xyz.ksharma.huezoo.platform.haptics.HapticEngine
 import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
@@ -46,6 +51,8 @@ class ThresholdViewModel(
     private val playerState: PlayerState,
     private val hapticEngine: HapticEngine,
     private val sessionResultCache: SessionResultCache,
+    private val interstitialAdClient: InterstitialAdClient,
+    private val adOrchestrator: AdOrchestrator,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ThresholdUiState>(ThresholdUiState.Loading)
@@ -53,6 +60,9 @@ class ThresholdViewModel(
 
     private val _navEvent = MutableSharedFlow<ThresholdNavEvent>(extraBufferCapacity = 1)
     val navEvent: SharedFlow<ThresholdNavEvent> = _navEvent.asSharedFlow()
+
+    private val _isPaid = MutableStateFlow(false)
+    val isPaid: StateFlow<Boolean> = _isPaid.asStateFlow()
 
     // ── Per-session state ─────────────────────────────────────────────────────
 
@@ -93,6 +103,9 @@ class ThresholdViewModel(
     /** Gems from milestone bonuses. */
     private var sessionMilestoneGems: Int = 0
 
+    private var sessionLevelUpGems: Int = 0
+    private var isSessionNewPersonalBest = false
+
     /**
      * Milestones awarded in the *current try*.
      * Cleared on every wrong tap so each new try can earn milestones fresh.
@@ -114,6 +127,14 @@ class ThresholdViewModel(
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init {
+        viewModelScope.launch {
+            val paid = settingsRepository.isPaid()
+            _isPaid.value = paid
+            if (!paid) {
+                // Preload interstitial in the background so it's ready when the session ends.
+                interstitialAdClient.load()
+            }
+        }
         loadGame()
     }
 
@@ -165,8 +186,10 @@ class ThresholdViewModel(
         sessionGems = 0
         sessionTapGems = 0
         sessionMilestoneGems = 0
+        sessionLevelUpGems = 0
         sessionCorrectTaps = 0
         sessionWrongTaps = 0
+        isSessionNewPersonalBest = false
         triesRemaining = status.maxAttempts - status.attemptsUsed
         maxAttempts = status.maxAttempts
         awardedMilestones.clear()
@@ -215,7 +238,10 @@ class ThresholdViewModel(
         println(
             "[DEBUG_DELTA] CORRECT tap=$tapCount currentΔE=$currentDeltaE bestΔE(prev=$prevBestDeltaE → now=$sessionBest) isNewAllTimeBest=$isNewAllTimeBest",
         )
-        if (isNewAllTimeBest) storedBestDeltaE = sessionBest
+        if (isNewAllTimeBest) {
+            storedBestDeltaE = sessionBest
+            isSessionNewPersonalBest = true
+        }
 
         val milestoneBonus = checkAndAwardMilestone(currentDeltaE)
         val gemsThisTap = GameRewardRates.THRESHOLD_CORRECT_TAP + milestoneBonus
@@ -242,11 +268,23 @@ class ThresholdViewModel(
                 }
             }
 
+            val levelBefore = PlayerLevel.fromGems(totalGems)
             totalGems = settingsRepository.addGems(gemsThisTap)
-            playerState.updateGems(totalGems)
             sessionGems += gemsThisTap
             sessionTapGems += GameRewardRates.THRESHOLD_CORRECT_TAP
             sessionMilestoneGems += milestoneBonus
+
+            // Level-up bonus
+            val levelAfter = PlayerLevel.fromGems(totalGems)
+            if (levelAfter.ordinal > levelBefore.ordinal) {
+                val bonus = PlayerLevel.levelUpBonus(levelAfter)
+                if (bonus > 0) {
+                    totalGems = settingsRepository.addGems(bonus)
+                    sessionGems += bonus
+                    sessionLevelUpGems += bonus
+                }
+            }
+            playerState.updateGems(totalGems)
 
             delay(ANIMATION_CORRECT_MS)
             (_uiState.value as? ThresholdUiState.Playing)?.let {
@@ -316,6 +354,7 @@ class ThresholdViewModel(
                 val breakdown = buildList {
                     if (sessionTapGems > 0) add(GemAward("Correct taps", sessionTapGems))
                     if (sessionMilestoneGems > 0) add(GemAward("Milestone bonuses", sessionMilestoneGems))
+                    if (sessionLevelUpGems > 0) add(GemAward("Level up bonus", sessionLevelUpGems))
                 }
                 sessionResultCache.set(
                     SessionResult(
@@ -328,6 +367,18 @@ class ThresholdViewModel(
                         gemBreakdown = breakdown,
                     ),
                 )
+
+                // Show interstitial (free users only, every 2nd session, never after personal best)
+                if (!_isPaid.value) {
+                    val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                    if (adOrchestrator.shouldShowInterstitial(isSessionNewPersonalBest, today)) {
+                        val adResult = interstitialAdClient.show()
+                        if (adResult is AdResult.Dismissed) adOrchestrator.onInterstitialShown()
+                        // Reload for next session
+                        interstitialAdClient.load()
+                    }
+                }
+
                 _navEvent.emit(ThresholdNavEvent.NavigateToResult)
             }
         }

@@ -39,6 +39,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
+import xyz.ksharma.huezoo.platform.ads.BannerAd
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
 import xyz.ksharma.huezoo.ui.components.HuezooButton
@@ -69,6 +70,7 @@ fun ThresholdScreen(
     viewModel: ThresholdViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isPaid by viewModel.isPaid.collectAsStateWithLifecycle()
     var showHelp by remember { mutableStateOf(false) }
 
     if (showHelp) {
@@ -94,33 +96,39 @@ fun ThresholdScreen(
         onPauseOrDispose {}
     }
 
-    AmbientGlowBackground(
-        modifier = modifier,
-        primaryColor = HuezooColors.GameThreshold,
-        secondaryColor = HuezooColors.AccentPurple,
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            HuezooTopBar(
-                onBackClick = onBack,
-                currencyAmount = (uiState as? ThresholdUiState.Playing)?.totalGems,
-                onHelpClick = { showHelp = true },
-            )
+    Box(modifier = modifier) {
+        AmbientGlowBackground(
+            modifier = Modifier.fillMaxSize(),
+            primaryColor = HuezooColors.GameThreshold,
+            secondaryColor = HuezooColors.AccentPurple,
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                HuezooTopBar(
+                    onBackClick = onBack,
+                    currencyAmount = (uiState as? ThresholdUiState.Playing)?.totalGems,
+                    onHelpClick = { showHelp = true },
+                )
 
-            when (val state = uiState) {
-                ThresholdUiState.Loading -> Unit
-                is ThresholdUiState.Blocked -> BlockedContent(
-                    state = state,
-                    onBack = onBack,
-                )
-                is ThresholdUiState.Playing -> PlayingContent(
-                    state = state,
-                    onSwatchTap = { index ->
-                        viewModel.onUiEvent(ThresholdUiEvent.SwatchTapped(index))
-                    },
-                )
+                when (val state = uiState) {
+                    ThresholdUiState.Loading -> Unit
+                    is ThresholdUiState.Blocked -> BlockedContent(
+                        state = state,
+                        onBack = onBack,
+                    )
+                    is ThresholdUiState.Playing -> PlayingContent(
+                        state = state,
+                        onSwatchTap = { index ->
+                            viewModel.onUiEvent(ThresholdUiEvent.SwatchTapped(index))
+                        },
+                    )
+                }
             }
         }
-    } // AmbientGlowBackground
+
+        if (!isPaid && uiState !is ThresholdUiState.Loading) {
+            BannerAd(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth())
+        }
+    }
 }
 
 @Composable

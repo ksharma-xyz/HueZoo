@@ -52,6 +52,9 @@ class DailyViewModel(
     private val _navEvent = MutableSharedFlow<DailyNavEvent>(extraBufferCapacity = 1)
     val navEvent: SharedFlow<DailyNavEvent> = _navEvent.asSharedFlow()
 
+    private val _isPaid = MutableStateFlow(false)
+    val isPaid: StateFlow<Boolean> = _isPaid.asStateFlow()
+
     private val today get() = Clock.System.now()
         .toLocalDateTime(TimeZone.currentSystemDefault()).date
 
@@ -69,11 +72,10 @@ class DailyViewModel(
     /** Highest ΔE among rounds the player answered correctly (shown in result / personal best). */
     private var highestCorrectDeltaE = 0f
 
-    /** Gems earned this session — participation + per-correct + perfect bonus. */
+    private var totalGems = 0
     private var sessionGems = 0
-
-    /** Gems from correct-round awards (DAILY_CORRECT_ROUND * correctRounds). */
     private var sessionCorrectGems = 0
+    private var sessionLevelUpGems = 0
 
     private var roundGeneration = 0
     private var lastLayoutStyle: SwatchLayoutStyle? = null
@@ -114,20 +116,23 @@ class DailyViewModel(
         correctRounds = 0
         lastRoundDeltaE = 0f
         highestCorrectDeltaE = 0f
+        totalGems = 0
         sessionGems = 0
         sessionCorrectGems = 0
+        sessionLevelUpGems = 0
         roundGeneration = 0
         lastLayoutStyle = null
 
         viewModelScope.launch {
+            _isPaid.value = settingsRepository.isPaid()
             val date = today
             val existing = repository.getChallenge(date)
             if (existing?.completed == true) {
                 _uiState.value = DailyUiState.AlreadyPlayed
             } else {
-                val gems = settingsRepository.getGems()
-                playerState.updateGems(gems)
-                playerLevel = PlayerLevel.fromGems(gems)
+                totalGems = settingsRepository.getGems()
+                playerState.updateGems(totalGems)
+                playerLevel = PlayerLevel.fromGems(totalGems)
                 emitRound(colorEngine.randomVividColorExcluding(playerLevel.levelHue))
             }
         }
@@ -175,10 +180,22 @@ class DailyViewModel(
             roundPhase = RoundPhase.Correct,
         )
         viewModelScope.launch {
-            val gemsAfterTap = settingsRepository.addGems(GameRewardRates.DAILY_CORRECT_ROUND)
-            playerState.updateGems(gemsAfterTap)
+            val levelBefore = PlayerLevel.fromGems(totalGems)
+            totalGems = settingsRepository.addGems(GameRewardRates.DAILY_CORRECT_ROUND)
             sessionGems += GameRewardRates.DAILY_CORRECT_ROUND
             sessionCorrectGems += GameRewardRates.DAILY_CORRECT_ROUND
+
+            // Level-up bonus
+            val levelAfter = PlayerLevel.fromGems(totalGems)
+            if (levelAfter.ordinal > levelBefore.ordinal) {
+                val bonus = PlayerLevel.levelUpBonus(levelAfter)
+                if (bonus > 0) {
+                    totalGems = settingsRepository.addGems(bonus)
+                    sessionGems += bonus
+                    sessionLevelUpGems += bonus
+                }
+            }
+            playerState.updateGems(totalGems)
 
             delay(ANIMATION_CORRECT_MS)
             val isLastRound = roundIndex == gameEngine.totalRounds - 1
@@ -230,25 +247,41 @@ class DailyViewModel(
         val date = today
 
         // Participation bonus — always awarded for completing all 6 rounds
-        val gemsAfterParticipation = settingsRepository.addGems(GameRewardRates.DAILY_PARTICIPATION)
-        playerState.updateGems(gemsAfterParticipation)
+        totalGems = settingsRepository.addGems(GameRewardRates.DAILY_PARTICIPATION)
         sessionGems += GameRewardRates.DAILY_PARTICIPATION
 
         // Perfect bonus — all 6 rounds correct
         val isPerfect = correctRounds == gameEngine.totalRounds
         if (isPerfect) {
             hapticEngine.perform(HapticType.PerfectRun)
-            val gemsAfterPerfect = settingsRepository.addGems(GameRewardRates.DAILY_PERFECT_BONUS)
-            playerState.updateGems(gemsAfterPerfect)
+            totalGems = settingsRepository.addGems(GameRewardRates.DAILY_PERFECT_BONUS)
             sessionGems += GameRewardRates.DAILY_PERFECT_BONUS
         }
 
+        // Save completion first so streak includes today
         repository.saveCompletion(date)
+
+        // Streak bonus
+        val streak = repository.getStreak(date)
+        val streakBonus = when {
+            streak >= STREAK_THRESHOLD_7 -> STREAK_BONUS_7
+            streak >= STREAK_THRESHOLD_3 -> STREAK_BONUS_3
+            else -> 0
+        }
+        if (streakBonus > 0) {
+            totalGems = settingsRepository.addGems(streakBonus)
+            sessionGems += streakBonus
+        }
+
+        playerState.updateGems(totalGems)
         repository.savePersonalBest(highestCorrectDeltaE, correctRounds)
+
         val breakdown = buildList {
             if (sessionCorrectGems > 0) add(GemAward("Correct rounds ×$correctRounds", sessionCorrectGems))
             add(GemAward("Participation", GameRewardRates.DAILY_PARTICIPATION))
             if (isPerfect) add(GemAward("Perfect run bonus", GameRewardRates.DAILY_PERFECT_BONUS))
+            if (streakBonus > 0) add(GemAward("Streak ×$streak bonus", streakBonus))
+            if (sessionLevelUpGems > 0) add(GemAward("Level up bonus", sessionLevelUpGems))
         }
         sessionResultCache.set(
             SessionResult(
@@ -268,5 +301,9 @@ class DailyViewModel(
         const val ANIMATION_CORRECT_MS = 750L
         const val ANIMATION_WRONG_MS = 850L
         const val ANIMATION_FOLD_MS = 520L
+        const val STREAK_THRESHOLD_3 = 3
+        const val STREAK_THRESHOLD_7 = 7
+        const val STREAK_BONUS_3 = 5
+        const val STREAK_BONUS_7 = 10
     }
 }

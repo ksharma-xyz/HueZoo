@@ -35,6 +35,7 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
+import xyz.ksharma.huezoo.platform.ads.BannerAd
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DailyHelpSheet
 import xyz.ksharma.huezoo.ui.components.HuezooButton
@@ -64,6 +65,7 @@ fun DailyScreen(
     viewModel: DailyViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isPaid by viewModel.isPaid.collectAsStateWithLifecycle()
     var showHelp by remember { mutableStateOf(false) }
 
     if (showHelp) {
@@ -87,29 +89,35 @@ fun DailyScreen(
         onPauseOrDispose {}
     }
 
-    AmbientGlowBackground(
-        modifier = modifier,
-        primaryColor = HuezooColors.GameDaily,
-        secondaryColor = LocalPlayerAccentColor.current,
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            HuezooTopBar(
-                onBackClick = onBack,
-                currencyAmount = null,
-                onHelpClick = { showHelp = true },
-            )
+    Box(modifier = modifier) {
+        AmbientGlowBackground(
+            modifier = Modifier.fillMaxSize(),
+            primaryColor = HuezooColors.GameDaily,
+            secondaryColor = LocalPlayerAccentColor.current,
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                HuezooTopBar(
+                    onBackClick = onBack,
+                    currencyAmount = null,
+                    onHelpClick = { showHelp = true },
+                )
 
-            when (val state = uiState) {
-                DailyUiState.Loading -> Unit
-                is DailyUiState.AlreadyPlayed -> AlreadyPlayedContent(
-                    state = state,
-                    onBack = onBack,
-                )
-                is DailyUiState.Playing -> DailyPlayingContent(
-                    state = state,
-                    onSwatchTap = { index -> viewModel.onUiEvent(DailyUiEvent.SwatchTapped(index)) },
-                )
+                when (val state = uiState) {
+                    DailyUiState.Loading -> Unit
+                    is DailyUiState.AlreadyPlayed -> AlreadyPlayedContent(
+                        state = state,
+                        onBack = onBack,
+                    )
+                    is DailyUiState.Playing -> DailyPlayingContent(
+                        state = state,
+                        onSwatchTap = { index -> viewModel.onUiEvent(DailyUiEvent.SwatchTapped(index)) },
+                    )
+                }
             }
+        }
+
+        if (!isPaid && uiState !is DailyUiState.Loading) {
+            BannerAd(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth())
         }
     }
 }
