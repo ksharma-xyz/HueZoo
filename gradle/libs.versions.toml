@@ -23,6 +23,8 @@ kotlinx-coroutines = "1.10.2"
 kotlinx-datetime = "0.7.1-0.6.x-compat"
 detekt = "1.23.8"
 detektCompose = "0.4.27"
+billing = "7.1.1"
+admob = "24.2.0"
 
 [libraries]
 # Android
@@ -90,6 +92,10 @@ detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plu
 # Detekt
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detekt-compose = { group = "io.nlopez.compose.rules", name = "detekt", version.ref = "detektCompose" }
+
+# Monetization
+billing = { module = "com.android.billingclient:billing-ktx", version.ref = "billing" }
+admob = { module = "com.google.android.gms:play-services-ads", version.ref = "admob" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

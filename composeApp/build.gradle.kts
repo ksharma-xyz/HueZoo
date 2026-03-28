@@ -42,6 +42,8 @@ kotlin {
             implementation(libs.compose.ui.tooling)           // ComposeViewAdapter — required for AS preview rendering
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.sqldelight.android.driver)
+            implementation(libs.billing)
+            implementation(libs.admob)
         }
 
         commonMain.dependencies {
