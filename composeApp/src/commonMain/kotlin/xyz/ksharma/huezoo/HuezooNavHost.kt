@@ -135,6 +135,7 @@ private fun huezooEntryProvider(navigator: HuezooNavigator): (NavKey) -> NavEntr
                     }
                 },
                 onBack = { navigator.pop() },
+                onUpgradeTap = { navigator.goTo(Upgrade) },
             )
         }
 

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.data.repository.DailyRepository
+import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
 import xyz.ksharma.huezoo.domain.game.SessionResultCache
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
@@ -22,6 +23,7 @@ class ResultViewModel(
     private val sessionResultCache: SessionResultCache,
     private val thresholdRepository: ThresholdRepository,
     private val dailyRepository: DailyRepository,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ResultUiState>(ResultUiState.Loading)
@@ -55,6 +57,7 @@ class ResultViewModel(
         } else {
             false
         }
+        val isPaid = settingsRepository.isPaid()
 
         val isNewPersonalBest = when (sessionResult.gameId) {
             GameId.THRESHOLD -> best?.bestDeltaE?.let {
@@ -76,6 +79,7 @@ class ResultViewModel(
             gemsEarned = sessionResult.gemsEarned,
             gemBreakdown = sessionResult.gemBreakdown,
             canPlayAgain = canPlayAgain,
+            isPaid = isPaid,
         )
     }
 }

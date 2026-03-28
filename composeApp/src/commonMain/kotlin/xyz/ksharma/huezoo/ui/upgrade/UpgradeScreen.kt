@@ -38,7 +38,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooDisplayLarge
 import xyz.ksharma.huezoo.ui.components.HuezooDisplayMedium
@@ -76,7 +78,9 @@ private const val RING_STAGGER_MS = 733
 fun UpgradeScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: UpgradeViewModel = koinViewModel(),
 ) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     // Entrance: slide up + fade in
     val offsetY = remember { Animatable(80f) }
     val alpha = remember { Animatable(0f) }
@@ -211,7 +215,7 @@ fun UpgradeScreen(
             ) {
                 // Price displayed separately — large and prominent
                 HuezooDisplayLarge(
-                    text = "$2.99", // TODO: fetch from store
+                    text = state.priceLabel,
                     color = HuezooColors.PriceGreen,
                     fontWeight = FontWeight.ExtraBold,
                 )
@@ -225,8 +229,8 @@ fun UpgradeScreen(
                 Spacer(Modifier.height(HuezooSpacing.sm))
 
                 PriceButton(
-                    price = "UNLOCK FOREVER",
-                    onClick = { /* TODO: trigger IAP purchase */ },
+                    price = if (state.isPurchasing) "PURCHASING…" else "UNLOCK FOREVER",
+                    onClick = { viewModel.onPurchase() },
                     modifier = Modifier.fillMaxWidth(),
                 )
 

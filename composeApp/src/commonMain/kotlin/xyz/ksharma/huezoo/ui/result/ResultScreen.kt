@@ -105,6 +105,7 @@ fun ResultScreen(
     onPlayAgain: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onUpgradeTap: () -> Unit = {},
     viewModel: ResultViewModel = koinViewModel(),
 ) {
     val platformOps: PlatformOps = koinInject()
@@ -131,6 +132,7 @@ fun ResultScreen(
                         state = state,
                         onPlayAgain = onPlayAgain,
                         onShare = { text -> platformOps.shareText(text) },
+                        onUpgradeTap = onUpgradeTap,
                     )
                 }
             }
@@ -190,6 +192,7 @@ private fun ReadyContent(
     state: ResultUiState.Ready,
     onPlayAgain: () -> Unit,
     onShare: (String) -> Unit,
+    onUpgradeTap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isDaily = state.gameId == GameId.DAILY
@@ -374,6 +377,17 @@ private fun ReadyContent(
                     icon = shareIcon,
                 )
             }
+        }
+
+        // Upgrade CTA — shown for Threshold when out of tries and not paid
+        if (!isDaily && !state.canPlayAgain && !state.isPaid) {
+            Spacer(Modifier.height(HuezooSpacing.xs))
+            HuezooButton(
+                text = "GO UNLIMITED  →  $2.99",
+                onClick = onUpgradeTap,
+                variant = HuezooButtonVariant.Primary,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
 
         // Daily: show "Next puzzle in Xh Xm" countdown
@@ -1100,6 +1114,7 @@ private fun ResultThresholdFailurePreview() {
             ),
             onPlayAgain = {},
             onShare = {},
+            onUpgradeTap = {},
         )
     }
 }
@@ -1123,6 +1138,7 @@ private fun ResultThresholdElitePreview() {
             ),
             onPlayAgain = {},
             onShare = {},
+            onUpgradeTap = {},
         )
     }
 }
@@ -1146,6 +1162,7 @@ private fun ResultDailyCompletePreview() {
             ),
             onPlayAgain = {},
             onShare = {},
+            onUpgradeTap = {},
         )
     }
 }

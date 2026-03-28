@@ -75,6 +75,7 @@ import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
+import xyz.ksharma.huezoo.ui.components.HuezooBottomSheet
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooDisplayMedium
@@ -90,6 +91,7 @@ import xyz.ksharma.huezoo.ui.home.state.HomeUiEvent
 import xyz.ksharma.huezoo.ui.home.state.HomeUiState
 import xyz.ksharma.huezoo.ui.home.state.ThresholdCardData
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
+import xyz.ksharma.huezoo.ui.paywall.PaywallSheet
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
@@ -157,7 +159,7 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun ReadyContent(
     state: HomeUiState.Ready,
@@ -170,6 +172,20 @@ private fun ReadyContent(
 ) {
     var showLevelsSheet by remember { mutableStateOf(false) }
     var showPerceptionSheet by remember { mutableStateOf(false) }
+    var showPaywallSheet by remember { mutableStateOf(false) }
+
+    if (showPaywallSheet) {
+        HuezooBottomSheet(onDismissRequest = { showPaywallSheet = false }) {
+            PaywallSheet(
+                onWatchAd = { showPaywallSheet = false },
+                onUnlock = {
+                    showPaywallSheet = false
+                    onUpgradeTap()
+                },
+                onDismiss = { showPaywallSheet = false },
+            )
+        }
+    }
 
     if (showLevelsSheet) {
         LevelsProgressSheet(
@@ -255,13 +271,14 @@ private fun ReadyContent(
             StaggeredCard(index = 2) {
                 ThresholdHeroCard(
                     data = state.threshold,
+                    isPaid = state.isPaid,
                     onEnterGame = onThresholdTap,
                 )
             }
 
             if (state.threshold.isBlocked && !state.isPaid) {
                 Spacer(Modifier.height(HuezooSpacing.md))
-                UpgradeCta(onClick = onUpgradeTap)
+                UpgradeCta(onClick = { showPaywallSheet = true })
                 Spacer(Modifier.height(HuezooSpacing.xs))
             }
 
@@ -281,7 +298,13 @@ private fun ReadyContent(
             StaggeredCard(index = 4) {
                 LeaderboardCompactCard(
                     personalBestDeltaE = state.threshold.personalBestDeltaE,
-                    onClick = { onLeaderboardTap() },
+                    onClick = {
+                        if (state.isPaid) {
+                            onLeaderboardTap()
+                        } else {
+                            onUpgradeTap()
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -442,10 +465,12 @@ private fun StatBox(
 @Composable
 private fun ThresholdHeroCard(
     data: ThresholdCardData,
+    isPaid: Boolean,
     onEnterGame: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val triesText = when {
+        isPaid -> "∞  UNLIMITED"
         data.isBlocked -> "OUT OF TRIES"
         else -> "${data.attemptsRemaining} / ${data.maxAttempts} TRIES REMAINING"
     }

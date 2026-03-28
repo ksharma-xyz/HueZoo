@@ -25,5 +25,7 @@ sealed interface ResultUiState {
          * For Daily: always false — once per day is the rule.
          */
         val canPlayAgain: Boolean = false,
+        /** True when the player has purchased the Unlimited upgrade. */
+        val isPaid: Boolean = false,
     ) : ResultUiState
 }
