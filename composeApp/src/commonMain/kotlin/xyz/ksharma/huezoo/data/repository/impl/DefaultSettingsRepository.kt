@@ -50,6 +50,24 @@ class DefaultSettingsRepository(
         Unit
     }
 
+    override suspend fun getBonusTries(): Int = withContext(Dispatchers.Default) {
+        db.huezooDatabaseQueries.getSetting(KEY_BONUS_TRIES).executeAsOneOrNull()?.toIntOrNull() ?: 0
+    }
+
+    override suspend fun addBonusTries(count: Int): Int = withContext(Dispatchers.Default) {
+        val current = db.huezooDatabaseQueries.getSetting(KEY_BONUS_TRIES).executeAsOneOrNull()?.toIntOrNull() ?: 0
+        val next = current + count
+        db.huezooDatabaseQueries.setSetting(KEY_BONUS_TRIES, next.toString())
+        next
+    }
+
+    override suspend fun consumeOneBonusTry(): Boolean = withContext(Dispatchers.Default) {
+        val current = db.huezooDatabaseQueries.getSetting(KEY_BONUS_TRIES).executeAsOneOrNull()?.toIntOrNull() ?: 0
+        if (current <= 0) return@withContext false
+        db.huezooDatabaseQueries.setSetting(KEY_BONUS_TRIES, (current - 1).toString())
+        true
+    }
+
     override suspend fun resetAll() = withContext(Dispatchers.Default) {
         val q = db.huezooDatabaseQueries
         q.deleteAllThresholdSessions()
@@ -64,5 +82,6 @@ class DefaultSettingsRepository(
         const val KEY_TOTAL_GEMS = "total_gems"
         const val KEY_HEALTH_NOTICE_SEEN = "health_notice_seen"
         const val KEY_USER_NAME = "user_name"
+        const val KEY_BONUS_TRIES = "bonus_tries"
     }
 }

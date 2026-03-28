@@ -29,10 +29,12 @@ class DefaultThresholdRepository(
         q.deleteExpiredSessions(now.toString())
         val session = q.getActiveThresholdSession(now.toString()).executeAsOneOrNull()
         val attemptsUsed = session?.attempts_used?.toInt() ?: 0
+        val bonusTries = settingsRepository.getBonusTries()
+        val effectiveMax = maxAttempts + bonusTries
         when {
-            attemptsUsed < maxAttempts -> AttemptStatus.Available(
+            attemptsUsed < effectiveMax -> AttemptStatus.Available(
                 attemptsUsed = attemptsUsed,
-                maxAttempts = maxAttempts,
+                maxAttempts = effectiveMax,
             )
             settingsRepository.isPaid() -> {
                 // Paid users: no cooldown — clear the exhausted session and give a fresh batch.
@@ -41,7 +43,7 @@ class DefaultThresholdRepository(
             }
             else -> AttemptStatus.Exhausted(
                 nextResetAt = Instant.parse(session!!.next_reset_at),
-                maxAttempts = maxAttempts,
+                maxAttempts = effectiveMax,
             )
         }
     }

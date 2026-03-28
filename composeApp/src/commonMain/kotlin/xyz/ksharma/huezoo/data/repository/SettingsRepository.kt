@@ -22,6 +22,18 @@ interface SettingsRepository {
     /** Persists the player's display name. */
     suspend fun setUserName(name: String)
 
+    /** Returns the number of bonus tries currently available (earned via ad or gem spend). */
+    suspend fun getBonusTries(): Int
+
+    /** Adds [count] bonus tries and returns the new total. */
+    suspend fun addBonusTries(count: Int): Int
+
+    /**
+     * Consumes one bonus try.
+     * Returns true if a bonus try was available and was deducted; false if balance was 0.
+     */
+    suspend fun consumeOneBonusTry(): Boolean
+
     /** Debug only — wipes all game data (sessions, daily, personal bests, settings). */
     suspend fun resetAll()
 }
