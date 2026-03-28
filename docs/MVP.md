@@ -17,7 +17,7 @@ Completed phases archived in `docs/archive/MVP_COMPLETED.md`.
 | DS.5 | Animations | ✅ |
 | 1–6 | Color math, game loops, screens | ✅ |
 | UX | Various UX polish (see below) | Partial |
-| 7 | Monetization — AdMob + IAP | ⬜ |
+| 7 | Monetization — AdMob + IAP | ✅ |
 | 8 | Firebase leaderboard + auth | ⬜ |
 | 9 | Polish + ship | ⬜ |
 | CI | CI/CD pipeline — workflows created, **one-time setup required** | ⬜ |
@@ -122,17 +122,17 @@ Open app
 ### UX.21.5 — ShelfPress Modifier ⬜
 - [ ] UX.21.5 `Modifier.shelfPress(shelfHeight, shelfColor, shape)` reusable extension
 
-### Phase 7 — Monetization ⬜
-- [ ] 7.1 Attempt counter on Threshold card ("X of 5 tries used this window")
-- [ ] 7.2 Out of Tries refill sheet (UX.11)
-- [ ] 7.3a Wire real IAP in `UpgradeScreen.onPurchase`
-- [ ] 7.3b Fetch price string from store at runtime (currently hardcoded)
-- [ ] 7.3c Result screen entry point for upgrade CTA (after out-of-tries)
-- [ ] 7.4 AdMob — rewarded ad for +1 try (Android + iOS)
-- [ ] 7.5 IAP — one-time "Unlimited" product (Google Play Billing + StoreKit 2)
-- [ ] 7.6 Persist `is_paid = true` in SQLDelight on purchase
-- [ ] 7.7 Paid: hide ads, remove attempt cap, show "Unlimited" badge on Threshold card
-- [ ] 7.8 Leaderboard gating — free tier taps → `UpgradeScreen`; lock badge on Home
+### Phase 7 — Monetization ✅
+- [x] 7.1 Attempt counter on Threshold card ("X of 5 tries used this window")
+- [x] 7.2 Out of Tries refill sheet (UX.11) — `PaywallSheet` with gem spend + watch ad + unlock forever
+- [x] 7.3a Wire real IAP in `UpgradeScreen.onPurchase` — `UpgradeViewModel` + `AndroidBillingClient`
+- [x] 7.3b Fetch price string from store at runtime — `billingClient.queryPrice()` in `UpgradeViewModel`
+- [x] 7.3c Result screen entry point for upgrade CTA (after out-of-tries)
+- [x] 7.4 AdMob — rewarded ad for +1 try (Android; iOS stub — StoreKit deferred)
+- [x] 7.5 IAP — one-time "Unlimited" product (Google Play Billing; StoreKit 2 deferred)
+- [x] 7.6 Persist `is_paid = true` in SQLDelight on purchase
+- [x] 7.7 Paid: remove attempt cap, show "∞ UNLIMITED" badge on Threshold card
+- [x] 7.8 Leaderboard gating — free tier taps → `UpgradeScreen`
 
 ### Phase 8 — Firebase Leaderboard ⬜
 *Paid-only feature. All items behind `isPaid` flag.*

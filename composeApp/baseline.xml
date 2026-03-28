@@ -32,7 +32,7 @@
     <ID>CompositionLocalAllowlist:LocalPlayerTheme.kt$LocalPlayerShelfColor</ID>
     <ID>CyclomaticComplexMethod:HomeScreen.kt$@Composable private fun ThresholdScannerIllustration( enabled: Boolean, modifier: Modifier = Modifier, )</ID>
     <ID>CyclomaticComplexMethod:RadialSwatchLayout.kt$@Composable private fun RadialTile( color: Color, displayState: SwatchDisplayState, angleDeg: Float, tileScale: Float, config: RadialConfig, shape: Shape, enabled: Boolean, onClick: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
-    <ID>CyclomaticComplexMethod:ResultScreen.kt$@Composable private fun ReadyContent( state: ResultUiState.Ready, onPlayAgain: () -&gt; Unit, onShare: (String) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>CyclomaticComplexMethod:ResultScreen.kt$@Composable private fun ReadyContent( state: ResultUiState.Ready, onPlayAgain: () -&gt; Unit, onShare: (String) -&gt; Unit, onUpgradeTap: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
     <ID>CyclomaticComplexMethod:SwatchBlock.kt$@Composable fun SwatchBlock( color: Color, onClick: () -&gt; Unit, modifier: Modifier = Modifier, size: SwatchBlockSize = SwatchBlockSize.Medium, sizeDp: Dp? = null, state: SwatchBlockState = SwatchBlockState.Default, )</ID>
     <ID>DestructuringDeclarationWithTooManyEntries:HomeScreen.kt$(x, y, dx, dy)</ID>
     <ID>FunctionNaming:MainViewController.kt$fun MainViewController()</ID>
@@ -172,15 +172,14 @@
     <ID>StringLiteralDuplication:LevelsProgressSheet.kt$"Difficulty"</ID>
     <ID>StringLiteralDuplication:LevelsProgressSheet.kt$"Rewards"</ID>
     <ID>TooManyFunctions:ColorMath.kt$xyz.ksharma.huezoo.domain.color.ColorMath.kt</ID>
+    <ID>TooManyFunctions:DefaultSettingsRepository.kt$DefaultSettingsRepository : SettingsRepository</ID>
     <ID>TooManyFunctions:HomeScreen.kt$xyz.ksharma.huezoo.ui.home.HomeScreen.kt</ID>
     <ID>TooManyFunctions:HuezooText.kt$xyz.ksharma.huezoo.ui.components.HuezooText.kt</ID>
     <ID>TooManyFunctions:RadialSwatchLayout.kt$xyz.ksharma.huezoo.ui.components.RadialSwatchLayout.kt</ID>
     <ID>TooManyFunctions:ResultScreen.kt$xyz.ksharma.huezoo.ui.result.ResultScreen.kt</ID>
+    <ID>TooManyFunctions:SettingsRepository.kt$SettingsRepository</ID>
     <ID>TooManyFunctions:ThresholdViewModel.kt$ThresholdViewModel : ViewModel</ID>
     <ID>UnusedParameter:DailyScreen.kt$state: DailyUiState.AlreadyPlayed</ID>
-    <ID>UnusedParameter:PaywallSheet.kt$onDismiss: () -&gt; Unit</ID>
-    <ID>UnusedParameter:PaywallSheet.kt$onUnlock: () -&gt; Unit</ID>
-    <ID>UnusedParameter:PaywallSheet.kt$onWatchAd: () -&gt; Unit</ID>
     <ID>UnusedPrivateProperty:HomeScreen.kt$val platformOps: PlatformOps = koinInject()</ID>
   </CurrentIssues>
 </SmellBaseline>
