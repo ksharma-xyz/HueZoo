@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
+import xyz.ksharma.huezoo.debug.DebugFlags
 import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.ui.settings.state.SettingsUiEvent
 import xyz.ksharma.huezoo.ui.settings.state.SettingsUiState
@@ -27,6 +28,7 @@ class SettingsViewModel(
     fun onUiEvent(event: SettingsUiEvent) {
         when (event) {
             SettingsUiEvent.TogglePaid -> togglePaid()
+            SettingsUiEvent.ToggleForceStreakCelebration -> toggleForceStreakCelebration()
             SettingsUiEvent.ResetAllTapped -> _uiState.update { it.copy(showResetConfirm = true) }
             SettingsUiEvent.ResetAllDismissed -> _uiState.update { it.copy(showResetConfirm = false) }
             SettingsUiEvent.ResetAllConfirmed -> resetAll()
@@ -47,6 +49,7 @@ class SettingsViewModel(
                     isDebugBuild = platformOps.isDebugBuild,
                     userName = userName,
                     nameInput = userName ?: "",
+                    forceStreakCelebration = DebugFlags.forceStreakCelebration,
                 )
             }
         }
@@ -67,6 +70,12 @@ class SettingsViewModel(
             settingsRepository.setUserName(name)
             _uiState.update { it.copy(userName = name) }
         }
+    }
+
+    private fun toggleForceStreakCelebration() {
+        val newValue = !DebugFlags.forceStreakCelebration
+        DebugFlags.forceStreakCelebration = newValue
+        _uiState.update { it.copy(forceStreakCelebration = newValue) }
     }
 
     private fun resetAll() {

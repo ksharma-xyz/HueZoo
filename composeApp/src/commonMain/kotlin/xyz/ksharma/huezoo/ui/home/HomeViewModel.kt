@@ -12,6 +12,7 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import xyz.ksharma.huezoo.data.repository.DailyRepository
+import xyz.ksharma.huezoo.debug.DebugFlags
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
@@ -96,6 +97,7 @@ class HomeViewModel(
                 playerLevel = PlayerLevel.fromGems(totalGems),
                 userName = userName,
                 streak = streak,
+                forceStreakCelebration = DebugFlags.forceStreakCelebration,
             )
         }
     }

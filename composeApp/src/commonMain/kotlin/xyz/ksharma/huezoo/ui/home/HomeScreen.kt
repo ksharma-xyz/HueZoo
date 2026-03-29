@@ -73,9 +73,10 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.PlatformOps
-import app.lexilabs.basic.ads.AdUnitId
 import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
 import app.lexilabs.basic.ads.composable.BannerAd
+import xyz.ksharma.huezoo.platform.ads.AdIds
+import xyz.ksharma.huezoo.ui.theme.shimmerCelebration
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
 import xyz.ksharma.huezoo.ui.components.HuezooBottomSheet
@@ -166,10 +167,7 @@ fun HomeScreen(
         @OptIn(DependsOnGoogleMobileAds::class)
         if (readyState != null && !readyState.isPaid) {
             Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
-                BannerAd(adUnitId = AdUnitId.autoSelect(
-                    androidAdUnitId = "ca-app-pub-1771675816656791/1541300697",
-                    iosAdUnitId = "ca-app-pub-1771675816656791/5831899491",
-                ))
+                BannerAd(adUnitId = AdIds.banner)
             }
         }
     }
@@ -257,6 +255,7 @@ private fun ReadyContent(
                     totalGems = state.totalGems,
                     streak = state.streak,
                     rank = state.rank,
+                    isStreakCelebrating = state.forceStreakCelebration || (state.daily.isCompletedToday && state.streak > 0),
                     onGemsClick = { showLevelsSheet = true },
                 )
             }
@@ -354,6 +353,7 @@ private fun StatsSection(
     streak: Int,
     rank: Int?,
     onGemsClick: () -> Unit,
+    isStreakCelebrating: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -424,6 +424,7 @@ private fun StatsSection(
                 label = "STREAK",
                 value = "$streak DAYS",
                 accentColor = HuezooColors.AccentMagenta,
+                celebrate = isStreakCelebrating,
                 modifier = Modifier.weight(1f),
             )
             StatBox(
@@ -441,12 +442,14 @@ private fun StatBox(
     label: String,
     value: String,
     accentColor: Color,
+    celebrate: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
             .shapedShadow(RectangleShape, ShelfColor, ShelfOffset, ShelfOffset)
             .background(HuezooColors.SurfaceL0)
+            .shimmerCelebration(active = celebrate, glowColor = accentColor)
             .drawBehind {
                 drawRect(
                     color = accentColor.copy(alpha = 0.55f),

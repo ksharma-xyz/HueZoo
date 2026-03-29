@@ -39,6 +39,7 @@ import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 fun SettingsScreen(
     onBack: () -> Unit,
     onViewHealthNotice: () -> Unit,
+    onUpgrade: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
@@ -122,6 +123,30 @@ fun SettingsScreen(
                     )
                 }
 
+                // ── ACCOUNT (all non-debug users) ────────────────────────────
+                if (!state.isDebugBuild) {
+                    Spacer(Modifier.height(HuezooSpacing.xl))
+
+                    SettingsSectionLabel("ACCOUNT")
+                    Spacer(Modifier.height(HuezooSpacing.sm))
+
+                    SettingsPanel {
+                        SettingsRow(
+                            label = "Subscription Status",
+                            description = if (state.isPaid) "PAID — Huezoo Unlimited active." else "FREE — ads + limited Threshold attempts.",
+                        )
+                        if (!state.isPaid) {
+                            Spacer(Modifier.height(HuezooSpacing.sm))
+                            HuezooButton(
+                                text = "UNLOCK FOREVER",
+                                onClick = onUpgrade,
+                                variant = HuezooButtonVariant.Primary,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                }
+
                 // ── DEBUG (debug builds only) ─────────────────────────────────
                 if (state.isDebugBuild) {
                     Spacer(Modifier.height(HuezooSpacing.xl))
@@ -138,6 +163,26 @@ fun SettingsScreen(
                         HuezooButton(
                             text = if (state.isPaid) "SWITCH TO FREE" else "SWITCH TO PAID",
                             onClick = { viewModel.onUiEvent(SettingsUiEvent.TogglePaid) },
+                            variant = HuezooButtonVariant.Ghost,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
+                    Spacer(Modifier.height(HuezooSpacing.md))
+
+                    SettingsPanel {
+                        SettingsRow(
+                            label = "Streak Celebration",
+                            description = if (state.forceStreakCelebration) {
+                                "ON — Home screen shows pulse animation."
+                            } else {
+                                "OFF — only fires on real day streak."
+                            },
+                        )
+                        Spacer(Modifier.height(HuezooSpacing.sm))
+                        HuezooButton(
+                            text = if (state.forceStreakCelebration) "TURN OFF" else "TURN ON",
+                            onClick = { viewModel.onUiEvent(SettingsUiEvent.ToggleForceStreakCelebration) },
                             variant = HuezooButtonVariant.Ghost,
                             modifier = Modifier.fillMaxWidth(),
                         )

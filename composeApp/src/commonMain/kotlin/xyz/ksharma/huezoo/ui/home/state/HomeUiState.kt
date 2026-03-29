@@ -20,6 +20,8 @@ sealed interface HomeUiState {
         val streak: Int = 0,
         /** Global rank — null until Leaderboard / Firebase is integrated. */
         val rank: Int? = null,
+        /** Debug only — forces streak celebration animation regardless of real streak state. */
+        val forceStreakCelebration: Boolean = false,
     ) : HomeUiState
 }
 

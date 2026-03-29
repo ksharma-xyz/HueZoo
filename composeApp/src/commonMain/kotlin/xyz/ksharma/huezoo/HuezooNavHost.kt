@@ -99,6 +99,7 @@ private fun huezooEntryProvider(navigator: HuezooNavigator): (NavKey) -> NavEntr
             SettingsScreen(
                 onBack = { navigator.pop() },
                 onViewHealthNotice = { navigator.goTo(EyeStrainNotice) },
+                onUpgrade = { navigator.goTo(Upgrade) },
             )
         }
 
