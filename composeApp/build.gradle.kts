@@ -44,6 +44,7 @@ kotlin {
             implementation(libs.sqldelight.android.driver)
             implementation(libs.billing)
             implementation(libs.admob)
+            implementation(libs.android.ump)
         }
 
         commonMain.dependencies {
@@ -55,6 +56,9 @@ kotlin {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.androidx.lifecycle.runtime.compose)
+
+            // Ads
+            implementation(libs.basic.ads)
 
             // DI
             implementation(libs.di.koinCore)

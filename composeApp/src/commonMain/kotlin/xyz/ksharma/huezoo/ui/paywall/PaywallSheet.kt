@@ -15,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.lexilabs.basic.ads.AdUnitId
+import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
+import app.lexilabs.basic.ads.composable.RewardedAd
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
@@ -78,15 +81,24 @@ fun PaywallSheet(
         )
 
         HuezooButton(
-            text = if (state.isLoadingAd) "LOADING AD…" else "WATCH AD  →  +1 TRY",
-            onClick = {
-                viewModel.onWatchAd()
-                onWatchAd()
-            },
-            variant = if (state.adReady) HuezooButtonVariant.Primary else HuezooButtonVariant.Ghost,
-            enabled = state.adReady && !state.isLoadingAd,
+            text = "WATCH AD  →  +1 TRY",
+            onClick = { viewModel.onWatchAd(); onWatchAd() },
+            variant = HuezooButtonVariant.Primary,
             modifier = Modifier.fillMaxWidth(),
         )
+
+        @OptIn(DependsOnGoogleMobileAds::class)
+        if (state.showRewardedAd) {
+            RewardedAd(
+                adUnitId = AdUnitId.autoSelect(
+                    androidAdUnitId = "ca-app-pub-1771675816656791/5835972183",
+                    iosAdUnitId = "ca-app-pub-1771675816656791/3345336954",
+                ),
+                onRewardEarned = { _ -> viewModel.onRewardEarned() },
+                onDismissed = { viewModel.onAdDismissed() },
+                onFailure = { _ -> viewModel.onAdDismissed() },
+            )
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),

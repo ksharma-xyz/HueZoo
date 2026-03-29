@@ -35,7 +35,9 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
-import xyz.ksharma.huezoo.platform.ads.BannerAd
+import app.lexilabs.basic.ads.AdUnitId
+import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
+import app.lexilabs.basic.ads.composable.BannerAd
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DailyHelpSheet
 import xyz.ksharma.huezoo.ui.components.HuezooButton
@@ -116,8 +118,14 @@ fun DailyScreen(
             }
         }
 
+        @OptIn(DependsOnGoogleMobileAds::class)
         if (!isPaid && uiState !is DailyUiState.Loading) {
-            BannerAd(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth())
+            Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+                BannerAd(adUnitId = AdUnitId.autoSelect(
+                    androidAdUnitId = "ca-app-pub-1771675816656791/1541300697",
+                    iosAdUnitId = "ca-app-pub-1771675816656791/5831899491",
+                ))
+            }
         }
     }
 }

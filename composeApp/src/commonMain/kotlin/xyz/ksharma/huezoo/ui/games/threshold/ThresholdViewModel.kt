@@ -26,8 +26,6 @@ import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
-import xyz.ksharma.huezoo.platform.ads.AdResult
-import xyz.ksharma.huezoo.platform.ads.InterstitialAdClient
 import xyz.ksharma.huezoo.platform.haptics.HapticEngine
 import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
@@ -51,7 +49,6 @@ class ThresholdViewModel(
     private val playerState: PlayerState,
     private val hapticEngine: HapticEngine,
     private val sessionResultCache: SessionResultCache,
-    private val interstitialAdClient: InterstitialAdClient,
     private val adOrchestrator: AdOrchestrator,
 ) : ViewModel() {
 
@@ -63,6 +60,9 @@ class ThresholdViewModel(
 
     private val _isPaid = MutableStateFlow(false)
     val isPaid: StateFlow<Boolean> = _isPaid.asStateFlow()
+
+    private val _showInterstitial = MutableStateFlow(false)
+    val showInterstitial: StateFlow<Boolean> = _showInterstitial.asStateFlow()
 
     // ── Per-session state ─────────────────────────────────────────────────────
 
@@ -127,14 +127,7 @@ class ThresholdViewModel(
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init {
-        viewModelScope.launch {
-            val paid = settingsRepository.isPaid()
-            _isPaid.value = paid
-            if (!paid) {
-                // Preload interstitial in the background so it's ready when the session ends.
-                interstitialAdClient.load()
-            }
-        }
+        viewModelScope.launch { _isPaid.value = settingsRepository.isPaid() }
         loadGame()
     }
 
@@ -150,6 +143,11 @@ class ThresholdViewModel(
      */
     fun onResume() {
         if (_uiState.value is ThresholdUiState.Blocked) loadGame()
+    }
+
+    fun onInterstitialDone() {
+        _showInterstitial.value = false
+        viewModelScope.launch { _navEvent.emit(ThresholdNavEvent.NavigateToResult) }
     }
 
     fun onUiEvent(event: ThresholdUiEvent) {
@@ -372,10 +370,9 @@ class ThresholdViewModel(
                 if (!_isPaid.value) {
                     val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
                     if (adOrchestrator.shouldShowInterstitial(isSessionNewPersonalBest, today)) {
-                        val adResult = interstitialAdClient.show()
-                        if (adResult is AdResult.Dismissed) adOrchestrator.onInterstitialShown()
-                        // Reload for next session
-                        interstitialAdClient.load()
+                        adOrchestrator.onInterstitialShown()
+                        _showInterstitial.value = true
+                        return@launch // screen calls onInterstitialDone() → navigates
                     }
                 }
 

@@ -73,7 +73,9 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.PlatformOps
-import xyz.ksharma.huezoo.platform.ads.BannerAd
+import app.lexilabs.basic.ads.AdUnitId
+import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
+import app.lexilabs.basic.ads.composable.BannerAd
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
 import xyz.ksharma.huezoo.ui.components.HuezooBottomSheet
@@ -161,12 +163,14 @@ fun HomeScreen(
         }
 
         val readyState = uiState as? HomeUiState.Ready
+        @OptIn(DependsOnGoogleMobileAds::class)
         if (readyState != null && !readyState.isPaid) {
-            BannerAd(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth(),
-            )
+            Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+                BannerAd(adUnitId = AdUnitId.autoSelect(
+                    androidAdUnitId = "ca-app-pub-1771675816656791/1541300697",
+                    iosAdUnitId = "ca-app-pub-1771675816656791/5831899491",
+                ))
+            }
         }
     }
 }

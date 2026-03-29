@@ -5,10 +5,6 @@ import org.koin.dsl.module
 import xyz.ksharma.huezoo.platform.AndroidActivityProvider
 import xyz.ksharma.huezoo.platform.AndroidPlatformOps
 import xyz.ksharma.huezoo.platform.PlatformOps
-import xyz.ksharma.huezoo.platform.ads.AndroidInterstitialAdClient
-import xyz.ksharma.huezoo.platform.ads.AndroidRewardedAdClient
-import xyz.ksharma.huezoo.platform.ads.InterstitialAdClient
-import xyz.ksharma.huezoo.platform.ads.RewardedAdClient
 import xyz.ksharma.huezoo.platform.billing.AndroidBillingClient
 import xyz.ksharma.huezoo.platform.billing.BillingClient
 import xyz.ksharma.huezoo.platform.haptics.AndroidHapticEngine
@@ -19,6 +15,4 @@ val androidModule = module {
     single<HapticEngine> { AndroidHapticEngine(androidContext()) }
     single { AndroidActivityProvider() }
     single<BillingClient> { AndroidBillingClient(get(), androidContext()) }
-    single<RewardedAdClient> { AndroidRewardedAdClient(androidContext(), get()) }
-    single<InterstitialAdClient> { AndroidInterstitialAdClient(androidContext(), get()) }
 }

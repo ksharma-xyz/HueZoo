@@ -39,7 +39,10 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
-import xyz.ksharma.huezoo.platform.ads.BannerAd
+import app.lexilabs.basic.ads.AdUnitId
+import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
+import app.lexilabs.basic.ads.composable.BannerAd
+import app.lexilabs.basic.ads.composable.InterstitialAd
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
 import xyz.ksharma.huezoo.ui.components.HuezooButton
@@ -71,6 +74,7 @@ fun ThresholdScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isPaid by viewModel.isPaid.collectAsStateWithLifecycle()
+    val showInterstitial by viewModel.showInterstitial.collectAsStateWithLifecycle()
     var showHelp by remember { mutableStateOf(false) }
 
     if (showHelp) {
@@ -125,8 +129,26 @@ fun ThresholdScreen(
             }
         }
 
+        @OptIn(DependsOnGoogleMobileAds::class)
         if (!isPaid && uiState !is ThresholdUiState.Loading) {
-            BannerAd(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth())
+            Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+                BannerAd(adUnitId = AdUnitId.autoSelect(
+                    androidAdUnitId = "ca-app-pub-1771675816656791/1541300697",
+                    iosAdUnitId = "ca-app-pub-1771675816656791/5831899491",
+                ))
+            }
+        }
+
+        @OptIn(DependsOnGoogleMobileAds::class)
+        if (showInterstitial) {
+            InterstitialAd(
+                adUnitId = AdUnitId.autoSelect(
+                    androidAdUnitId = "ca-app-pub-1771675816656791/1736945079",
+                    iosAdUnitId = "ca-app-pub-1771675816656791/4052117223",
+                ),
+                onDismissed = { viewModel.onInterstitialDone() },
+                onFailure = { _ -> viewModel.onInterstitialDone() },
+            )
         }
     }
 }
