@@ -104,6 +104,7 @@ class ThresholdViewModel(
     private var sessionMilestoneGems: Int = 0
 
     private var sessionLevelUpGems: Int = 0
+    private var sessionLevelUpTo: PlayerLevel? = null
     private var isSessionNewPersonalBest = false
 
     /**
@@ -185,6 +186,7 @@ class ThresholdViewModel(
         sessionTapGems = 0
         sessionMilestoneGems = 0
         sessionLevelUpGems = 0
+        sessionLevelUpTo = null
         sessionCorrectTaps = 0
         sessionWrongTaps = 0
         isSessionNewPersonalBest = false
@@ -275,6 +277,7 @@ class ThresholdViewModel(
             // Level-up bonus
             val levelAfter = PlayerLevel.fromGems(totalGems)
             if (levelAfter.ordinal > levelBefore.ordinal) {
+                sessionLevelUpTo = levelAfter
                 val bonus = PlayerLevel.levelUpBonus(levelAfter)
                 if (bonus > 0) {
                     totalGems = settingsRepository.addGems(bonus)
@@ -363,6 +366,7 @@ class ThresholdViewModel(
                         totalRounds = sessionCorrectTaps + sessionWrongTaps,
                         gemsEarned = sessionGems,
                         gemBreakdown = breakdown,
+                        levelUpTo = sessionLevelUpTo,
                     ),
                 )
 

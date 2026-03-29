@@ -1,6 +1,7 @@
 package xyz.ksharma.huezoo.ui.result.state
 
 import xyz.ksharma.huezoo.navigation.GemAward
+import xyz.ksharma.huezoo.ui.model.PlayerLevel
 
 sealed interface ResultUiState {
 
@@ -27,5 +28,7 @@ sealed interface ResultUiState {
         val canPlayAgain: Boolean = false,
         /** True when the player has purchased the Unlimited upgrade. */
         val isPaid: Boolean = false,
+        /** Non-null when the player levelled up during this session. */
+        val levelUpTo: PlayerLevel? = null,
     ) : ResultUiState
 }

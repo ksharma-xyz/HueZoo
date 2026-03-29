@@ -76,6 +76,7 @@ class DailyViewModel(
     private var sessionGems = 0
     private var sessionCorrectGems = 0
     private var sessionLevelUpGems = 0
+    private var sessionLevelUpTo: PlayerLevel? = null
 
     private var roundGeneration = 0
     private var lastLayoutStyle: SwatchLayoutStyle? = null
@@ -120,6 +121,7 @@ class DailyViewModel(
         sessionGems = 0
         sessionCorrectGems = 0
         sessionLevelUpGems = 0
+        sessionLevelUpTo = null
         roundGeneration = 0
         lastLayoutStyle = null
 
@@ -188,6 +190,7 @@ class DailyViewModel(
             // Level-up bonus
             val levelAfter = PlayerLevel.fromGems(totalGems)
             if (levelAfter.ordinal > levelBefore.ordinal) {
+                sessionLevelUpTo = levelAfter
                 val bonus = PlayerLevel.levelUpBonus(levelAfter)
                 if (bonus > 0) {
                     totalGems = settingsRepository.addGems(bonus)
@@ -292,6 +295,7 @@ class DailyViewModel(
                 totalRounds = gameEngine.totalRounds,
                 gemsEarned = sessionGems,
                 gemBreakdown = breakdown,
+                levelUpTo = sessionLevelUpTo,
             ),
         )
         _navEvent.emit(DailyNavEvent.NavigateToResult)

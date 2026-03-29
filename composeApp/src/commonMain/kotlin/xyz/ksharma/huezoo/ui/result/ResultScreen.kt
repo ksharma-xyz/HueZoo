@@ -72,9 +72,9 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.platform.PlatformOps
-import app.lexilabs.basic.ads.AdUnitId
 import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
 import app.lexilabs.basic.ads.composable.BannerAd
+import xyz.ksharma.huezoo.platform.ads.AdIds
 import xyz.ksharma.huezoo.platform.shareIconRes
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
@@ -154,10 +154,7 @@ fun ResultScreen(
         @OptIn(DependsOnGoogleMobileAds::class)
         if (readyState != null && !readyState.isPaid) {
             Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
-                BannerAd(adUnitId = AdUnitId.autoSelect(
-                    androidAdUnitId = "ca-app-pub-1771675816656791/1541300697",
-                    iosAdUnitId = "ca-app-pub-1771675816656791/5831899491",
-                ))
+                BannerAd(adUnitId = AdIds.banner)
             }
         }
     }
@@ -293,6 +290,27 @@ private fun ReadyContent(
                 HuezooLabelSmall(
                     text = "★  NEW PERSONAL BEST",
                     color = HuezooColors.AccentYellow,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Spacer(Modifier.height(HuezooSpacing.sm))
+        }
+
+        // ── LEVEL UP banner ───────────────────────────────────────────────────
+        if (state.levelUpTo != null) {
+            val levelColor = state.levelUpTo.levelColor
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(levelColor.copy(alpha = 0.15f), BannerShape)
+                    .border(1.dp, levelColor.copy(alpha = 0.6f), BannerShape)
+                    .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+                contentAlignment = Alignment.Center,
+            ) {
+                HuezooLabelSmall(
+                    text = "▲  LEVEL UP — ${state.levelUpTo.displayName}",
+                    color = levelColor,
                     fontWeight = FontWeight.ExtraBold,
                     textAlign = TextAlign.Center,
                 )

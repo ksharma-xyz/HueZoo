@@ -80,6 +80,7 @@ class ResultViewModel(
             gemBreakdown = sessionResult.gemBreakdown,
             canPlayAgain = canPlayAgain,
             isPaid = isPaid,
+            levelUpTo = sessionResult.levelUpTo,
         )
     }
 }
