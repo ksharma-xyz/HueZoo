@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import app.lexilabs.basic.ads.BasicAds
 import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
 import org.koin.compose.koinInject
+import xyz.ksharma.huezoo.platform.PlatformOps
+import xyz.ksharma.huezoo.platform.ads.AdIds
 import xyz.ksharma.huezoo.platform.haptics.HapticEngine
 import xyz.ksharma.huezoo.platform.haptics.LocalHapticEngine
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
@@ -22,6 +24,8 @@ fun App() {
     BasicAds.Initialize()
     val playerState: PlayerState = koinInject()
     val hapticEngine: HapticEngine = koinInject()
+    val platformOps: PlatformOps = koinInject()
+    AdIds.init(platformOps.isDebugBuild)
 
     HuezooTheme {
         Surface(modifier = Modifier.fillMaxSize()) {

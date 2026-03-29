@@ -15,9 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import app.lexilabs.basic.ads.AdUnitId
 import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
 import app.lexilabs.basic.ads.composable.RewardedAd
+import xyz.ksharma.huezoo.platform.ads.AdIds
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
@@ -90,10 +90,7 @@ fun PaywallSheet(
         @OptIn(DependsOnGoogleMobileAds::class)
         if (state.showRewardedAd) {
             RewardedAd(
-                adUnitId = AdUnitId.autoSelect(
-                    androidAdUnitId = "ca-app-pub-1771675816656791/5835972183",
-                    iosAdUnitId = "ca-app-pub-1771675816656791/3345336954",
-                ),
+                adUnitId = AdIds.rewarded,
                 onRewardEarned = { _ -> viewModel.onRewardEarned() },
                 onDismissed = { viewModel.onAdDismissed() },
                 onFailure = { _ -> viewModel.onAdDismissed() },

@@ -39,9 +39,9 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
-import app.lexilabs.basic.ads.AdUnitId
 import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
 import app.lexilabs.basic.ads.composable.BannerAd
+import xyz.ksharma.huezoo.platform.ads.AdIds
 import app.lexilabs.basic.ads.composable.InterstitialAd
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
@@ -132,20 +132,14 @@ fun ThresholdScreen(
         @OptIn(DependsOnGoogleMobileAds::class)
         if (!isPaid && uiState !is ThresholdUiState.Loading) {
             Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
-                BannerAd(adUnitId = AdUnitId.autoSelect(
-                    androidAdUnitId = "ca-app-pub-1771675816656791/1541300697",
-                    iosAdUnitId = "ca-app-pub-1771675816656791/5831899491",
-                ))
+                BannerAd(adUnitId = AdIds.banner)
             }
         }
 
         @OptIn(DependsOnGoogleMobileAds::class)
         if (showInterstitial) {
             InterstitialAd(
-                adUnitId = AdUnitId.autoSelect(
-                    androidAdUnitId = "ca-app-pub-1771675816656791/1736945079",
-                    iosAdUnitId = "ca-app-pub-1771675816656791/4052117223",
-                ),
+                adUnitId = AdIds.interstitial,
                 onDismissed = { viewModel.onInterstitialDone() },
                 onFailure = { _ -> viewModel.onInterstitialDone() },
             )
