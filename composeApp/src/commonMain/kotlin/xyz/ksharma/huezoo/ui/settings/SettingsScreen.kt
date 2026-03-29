@@ -123,28 +123,24 @@ fun SettingsScreen(
                     )
                 }
 
-                // ── ACCOUNT (all non-debug users) ────────────────────────────
-                if (!state.isDebugBuild) {
-                    Spacer(Modifier.height(HuezooSpacing.xl))
+                // ── ACCOUNT ──────────────────────────────────────────────────
+                Spacer(Modifier.height(HuezooSpacing.xl))
 
-                    SettingsSectionLabel("ACCOUNT")
+                SettingsSectionLabel("ACCOUNT")
+                Spacer(Modifier.height(HuezooSpacing.sm))
+
+                SettingsPanel {
+                    SettingsRow(
+                        label = "Subscription Status",
+                        description = if (state.isPaid) "PAID — Huezoo Unlimited active." else "FREE — ads + limited Threshold attempts.",
+                    )
                     Spacer(Modifier.height(HuezooSpacing.sm))
-
-                    SettingsPanel {
-                        SettingsRow(
-                            label = "Subscription Status",
-                            description = if (state.isPaid) "PAID — Huezoo Unlimited active." else "FREE — ads + limited Threshold attempts.",
-                        )
-                        if (!state.isPaid) {
-                            Spacer(Modifier.height(HuezooSpacing.sm))
-                            HuezooButton(
-                                text = "UNLOCK FOREVER",
-                                onClick = onUpgrade,
-                                variant = HuezooButtonVariant.Primary,
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                        }
-                    }
+                    HuezooButton(
+                        text = if (state.isPaid) "VIEW UPGRADE PAGE" else "UNLOCK FOREVER",
+                        onClick = onUpgrade,
+                        variant = if (state.isPaid) HuezooButtonVariant.Ghost else HuezooButtonVariant.Primary,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
 
                 // ── DEBUG (debug builds only) ─────────────────────────────────
