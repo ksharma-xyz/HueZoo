@@ -134,13 +134,15 @@ fun SettingsScreen(
                         label = "Subscription Status",
                         description = if (state.isPaid) "PAID — Huezoo Unlimited active." else "FREE — ads + limited Threshold attempts.",
                     )
-                    Spacer(Modifier.height(HuezooSpacing.sm))
-                    HuezooButton(
-                        text = if (state.isPaid) "VIEW UPGRADE PAGE" else "UNLOCK FOREVER",
-                        onClick = onUpgrade,
-                        variant = if (state.isPaid) HuezooButtonVariant.Ghost else HuezooButtonVariant.Primary,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    if (!state.isPaid) {
+                        Spacer(Modifier.height(HuezooSpacing.sm))
+                        HuezooButton(
+                            text = "UNLOCK FOREVER",
+                            onClick = onUpgrade,
+                            variant = HuezooButtonVariant.Primary,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
 
                 // ── DEBUG (debug builds only) ─────────────────────────────────
