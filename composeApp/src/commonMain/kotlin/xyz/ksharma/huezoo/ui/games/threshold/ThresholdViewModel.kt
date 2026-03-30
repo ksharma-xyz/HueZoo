@@ -402,7 +402,7 @@ class ThresholdViewModel(
                     if (adOrchestrator.shouldShowInterstitial(isSessionNewPersonalBest, today)) {
                         adOrchestrator.onInterstitialShown()
                         _showInterstitial.value = true
-                        return@launch // screen calls onInterstitialDone() → navigates
+                        return@safeLaunch // screen calls onInterstitialDone() → navigates
                     }
                 }
 
