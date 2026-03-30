@@ -297,7 +297,7 @@ private fun ReadyContent(
 
             if (state.threshold.isBlocked && !state.isPaid) {
                 Spacer(Modifier.height(HuezooSpacing.md))
-                UpgradeCta(onClick = { showPaywallSheet = true })
+                UpgradeCta(onClick = onUpgradeTap)
                 Spacer(Modifier.height(HuezooSpacing.xs))
             }
 
@@ -1136,7 +1136,7 @@ private fun PlayerDeltaECard(
 
         // Right: big value
         androidx.compose.material3.Text(
-            text = if (hasPlayed) bestDeltaE!!.fmtHome() else "N/A",
+            text = if (hasPlayed) bestDeltaE.fmtHome() else "N/A",
             style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
             color = if (hasPlayed) accent else HuezooColors.TextDisabled,
             fontWeight = FontWeight.ExtraBold,

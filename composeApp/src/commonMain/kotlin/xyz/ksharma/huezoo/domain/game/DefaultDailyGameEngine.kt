@@ -18,7 +18,7 @@ class DefaultDailyGameEngine(
         val deltaE = deltaECurve[roundIndex]
         val oddColor = colorEngine.generateOddSwatch(baseColor, deltaE)
         // Deterministic seed: same date + roundIndex → same shuffle for all players.
-        val seed = date.toEpochDays().toLong() * SEED_ROUND_MULTIPLIER + roundIndex
+        val seed = date.toEpochDays() * SEED_ROUND_MULTIPLIER + roundIndex
         val oddIndex = Random(seed).nextInt(SWATCH_COUNT)
         val swatches = List(SWATCH_COUNT) { i -> if (i == oddIndex) oddColor else baseColor }
         return GameRound(swatches = swatches, oddIndex = oddIndex, deltaE = deltaE)
