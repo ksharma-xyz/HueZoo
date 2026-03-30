@@ -3,6 +3,7 @@ package xyz.ksharma.huezoo.ui.components
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,6 +44,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,6 +62,7 @@ private val BackButtonWidth = 72.dp
 private val BackButtonHeight = 40.dp
 private val BackShadowOffsetX = 4.dp
 private val BackShadowOffsetY = 4.dp
+private val BackShelfHeight = 4.dp
 private val BackChevronStroke = 5.dp // ~1.3× original 4dp
 private val BackChevronSize = 24.dp // ~1.3× original 18dp
 private const val FROST_ALPHA_TOP = 0.95f
@@ -302,41 +306,61 @@ private fun TopBarBackButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) BACK_PRESS_SCALE else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium,
-        ),
-        label = "backScale",
+    // Press-down animation: translates face INTO the shelf, springs back on release.
+    val pressProgress by animateFloatAsState(
+        targetValue = if (isPressed) 1f else 0f,
+        animationSpec = if (isPressed) {
+            tween(durationMillis = 80)
+        } else {
+            spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow,
+            )
+        },
+        label = "backPress",
     )
 
+    val shelfPx = with(LocalDensity.current) { BackShelfHeight.toPx() }
     val accent = LocalPlayerAccentColor.current
+
+    // Outer box reserves bottom space so the shelf isn't clipped by the parent.
     Box(
         modifier = modifier
             .size(width = BackButtonWidth, height = BackButtonHeight)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .shapedShadow(
-                shape = ParallelogramBack,
-                color = accent.copy(alpha = BACK_SHADOW_ALPHA),
-                offsetX = BackShadowOffsetX,
-                offsetY = BackShadowOffsetY,
-            )
-            .clip(ParallelogramBack)
-            .background(HuezooColors.SurfaceL3)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-                role = Role.Button,
-                onClickLabel = "Back",
-            ),
-        contentAlignment = Alignment.Center,
+            .padding(bottom = BackShelfHeight),
     ) {
-        BackChevron()
+        // Shelf — stationary; the face slides into it on press.
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .offset(y = BackShelfHeight)
+                .shapedShadow(
+                    shape = ParallelogramBack,
+                    color = accent.copy(alpha = BACK_SHADOW_ALPHA),
+                    offsetX = BackShadowOffsetX,
+                    offsetY = BackShadowOffsetY,
+                )
+                .clip(ParallelogramBack)
+                .background(accent.copy(alpha = 0.25f)),
+        )
+        // Face — slides down on press to meet the shelf.
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer { translationY = pressProgress * shelfPx }
+                .clip(ParallelogramBack)
+                .background(HuezooColors.SurfaceL3)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                    role = Role.Button,
+                    onClickLabel = "Back",
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            BackChevron()
+        }
     }
 }
 
