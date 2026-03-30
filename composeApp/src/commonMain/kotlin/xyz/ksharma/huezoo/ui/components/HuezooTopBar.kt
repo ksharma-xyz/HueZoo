@@ -46,6 +46,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
@@ -67,7 +68,6 @@ private val BackChevronStroke = 5.dp // ~1.3× original 4dp
 private val BackChevronSize = 24.dp // ~1.3× original 18dp
 private const val FROST_ALPHA_TOP = 0.95f
 private const val FROST_ALPHA_BOTTOM = 0.82f
-private const val BACK_PRESS_SCALE = 0.88f
 private const val BACK_SHADOW_ALPHA = 0.30f
 private val EzLetterSpacing = (-1.3).sp
 
@@ -157,50 +157,86 @@ fun HuezooTopBar(
 // ── Private composables ───────────────────────────────────────────────────────
 
 /**
- * Small `?` parallelogram button for the top-bar right slot.
- * Matches the back button's shape, shadow, and press animation.
+ * Base parallelogram icon button shared by the back, help, and settings buttons.
+ *
+ * Shelf+face press pattern (same as [HuezooButton]):
+ * - Stationary accent shelf at y + [BackShelfHeight] provides visual depth.
+ * - Face slides down into the shelf on press and springs back on release.
+ *
+ * @param width  Button width — pass [BackButtonWidth] for the wider back button,
+ *               default [BackButtonHeight] for square icon buttons.
+ * @param content  Icon slot drawn inside the face at center alignment.
  */
 @Composable
-private fun TopBarHelpButton(
+private fun ParallelogramIconButton(
     onClick: () -> Unit,
+    clickLabel: String,
     modifier: Modifier = Modifier,
+    width: Dp = BackButtonHeight,
+    content: @Composable () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) BACK_PRESS_SCALE else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium,
-        ),
-        label = "helpScale",
+    val pressProgress by animateFloatAsState(
+        targetValue = if (isPressed) 1f else 0f,
+        animationSpec = if (isPressed) {
+            tween(durationMillis = 80)
+        } else {
+            spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow,
+            )
+        },
+        label = "parallelogramPress",
     )
 
+    val shelfPx = with(LocalDensity.current) { BackShelfHeight.toPx() }
     val accent = LocalPlayerAccentColor.current
+
     Box(
         modifier = modifier
-            .size(BackButtonHeight) // square — same height as back button
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .shapedShadow(
-                shape = ParallelogramBack,
-                color = accent.copy(alpha = BACK_SHADOW_ALPHA),
-                offsetX = BackShadowOffsetX,
-                offsetY = BackShadowOffsetY,
-            )
-            .clip(ParallelogramBack)
-            .background(HuezooColors.SurfaceL3)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-                role = Role.Button,
-                onClickLabel = "How to play",
-            ),
-        contentAlignment = Alignment.Center,
+            .size(width = width, height = BackButtonHeight)
+            .padding(bottom = BackShelfHeight),
     ) {
+        // Shelf — stationary depth layer
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .offset(y = BackShelfHeight)
+                .shapedShadow(
+                    shape = ParallelogramBack,
+                    color = accent.copy(alpha = BACK_SHADOW_ALPHA),
+                    offsetX = BackShadowOffsetX,
+                    offsetY = BackShadowOffsetY,
+                )
+                .clip(ParallelogramBack)
+                .background(accent.copy(alpha = 0.25f)),
+        )
+        // Face — slides down on press to meet the shelf
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer { translationY = pressProgress * shelfPx }
+                .clip(ParallelogramBack)
+                .background(HuezooColors.SurfaceL3)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick,
+                    role = Role.Button,
+                    onClickLabel = clickLabel,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun TopBarHelpButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val accent = LocalPlayerAccentColor.current
+    ParallelogramIconButton(onClick = onClick, clickLabel = "How to play", modifier = modifier) {
         Text(
             text = "?",
             style = MaterialTheme.typography.titleMedium,
@@ -210,56 +246,11 @@ private fun TopBarHelpButton(
     }
 }
 
-/**
- * Small ⚙ parallelogram button for the top-bar right slot.
- * Matches the help button's shape, shadow, and press animation.
- */
 @Composable
-private fun TopBarSettingsButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) BACK_PRESS_SCALE else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium,
-        ),
-        label = "settingsScale",
-    )
-
+private fun TopBarSettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val accent = LocalPlayerAccentColor.current
-    Box(
-        modifier = modifier
-            .size(BackButtonHeight)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .shapedShadow(
-                shape = ParallelogramBack,
-                color = accent.copy(alpha = BACK_SHADOW_ALPHA),
-                offsetX = BackShadowOffsetX,
-                offsetY = BackShadowOffsetY,
-            )
-            .clip(ParallelogramBack)
-            .background(HuezooColors.SurfaceL3)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onClick = onClick,
-                role = Role.Button,
-                onClickLabel = "Settings",
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = "⚙",
-            style = MaterialTheme.typography.titleMedium,
-            color = accent,
-        )
+    ParallelogramIconButton(onClick = onClick, clickLabel = "Settings", modifier = modifier) {
+        Text(text = "⚙", style = MaterialTheme.typography.titleMedium, color = accent)
     }
 }
 
@@ -285,82 +276,16 @@ private fun HuezooWordmark(modifier: Modifier = Modifier) {
     )
 }
 
-/**
- * Parallelogram back button for the top bar.
- *
- * Visual stack (back to front):
- * 1. Accent-tinted parallelogram shelf at y + [BackShelfHeight] — stationary, acts as the depth layer
- * 2. [SurfaceL3] parallelogram face — slides DOWN into the shelf on press, springs back on release
- * 3. Thick `<` chevron drawn via Canvas
- *
- * Press: face translates Y by [BackShelfHeight] (same pattern as [HuezooButton]).
- * Shadow / shelf stays fixed; only the face moves.
- *
- * Only shown when the screen has a back destination. When shown, the wordmark is
- * hidden — this component owns the left slot of [HuezooTopBar].
- */
+/** Wider back button — uses [ParallelogramIconButton] with [BackButtonWidth]. */
 @Composable
-private fun TopBarBackButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    // Press-down animation: translates face INTO the shelf, springs back on release.
-    val pressProgress by animateFloatAsState(
-        targetValue = if (isPressed) 1f else 0f,
-        animationSpec = if (isPressed) {
-            tween(durationMillis = 80)
-        } else {
-            spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessMediumLow,
-            )
-        },
-        label = "backPress",
-    )
-
-    val shelfPx = with(LocalDensity.current) { BackShelfHeight.toPx() }
-    val accent = LocalPlayerAccentColor.current
-
-    // Outer box reserves bottom space so the shelf isn't clipped by the parent.
-    Box(
-        modifier = modifier
-            .size(width = BackButtonWidth, height = BackButtonHeight)
-            .padding(bottom = BackShelfHeight),
+private fun TopBarBackButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    ParallelogramIconButton(
+        onClick = onClick,
+        clickLabel = "Back",
+        modifier = modifier,
+        width = BackButtonWidth,
     ) {
-        // Shelf — stationary; the face slides into it on press.
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .offset(y = BackShelfHeight)
-                .shapedShadow(
-                    shape = ParallelogramBack,
-                    color = accent.copy(alpha = BACK_SHADOW_ALPHA),
-                    offsetX = BackShadowOffsetX,
-                    offsetY = BackShadowOffsetY,
-                )
-                .clip(ParallelogramBack)
-                .background(accent.copy(alpha = 0.25f)),
-        )
-        // Face — slides down on press to meet the shelf.
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .graphicsLayer { translationY = pressProgress * shelfPx }
-                .clip(ParallelogramBack)
-                .background(HuezooColors.SurfaceL3)
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    onClick = onClick,
-                    role = Role.Button,
-                    onClickLabel = "Back",
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            BackChevron()
-        }
+        BackChevron()
     }
 }
 
