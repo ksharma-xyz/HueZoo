@@ -62,17 +62,17 @@ private val thresholdHelpSections = listOf(
         heading = "WHAT IS ΔE?",
         body = "ΔE (delta-E) measures colour difference. " +
             "Higher = more obvious. Lower = near-invisible.\n\n" +
-            "ΔE 5.0  →  Easy — clearly different\n" +
-            "ΔE 2.0  →  Hard — trained eye needed\n" +
-            "ΔE 1.0  →  Expert / colorist level\n" +
-            "ΔE 0.5  →  Near human limits",
+            "ΔE 5.0: Easy — clearly different\n" +
+            "ΔE 2.0: Hard — trained eye needed\n" +
+            "ΔE 1.0: Expert / colorist level\n" +
+            "ΔE 0.5: Near human limits",
     ),
     HelpSection(
         heading = "GEMS",
         body = "+2 gems per correct tap. Bonus gems for milestones:\n\n" +
-            "ΔE < 2.0  →  +5 SHARP bonus\n" +
-            "ΔE < 1.0  →  +10 EXPERT bonus\n" +
-            "ΔE < 0.5  →  +25 ELITE bonus\n\n" +
+            "ΔE < 2.0: +5 SHARP bonus\n" +
+            "ΔE < 1.0: +10 EXPERT bonus\n" +
+            "ΔE < 0.5: +25 ELITE bonus\n\n" +
             "Milestones reset each try — earn them again on every run.",
     ),
 )
@@ -102,7 +102,7 @@ private val dailyHelpSections = listOf(
     HelpSection(
         heading = "6 ROUNDS, ALWAYS",
         body = "Every day there are exactly 6 rounds with a fixed ΔE curve: " +
-            "4.0 → 3.0 → 2.0 → 1.5 → 1.0 → 0.7.\n\n" +
+            "4.0, 3.0, 2.0, 1.5, 1.0, 0.7.\n\n" +
             "A wrong tap doesn't end the game — the correct swatch is revealed and " +
             "you move on. All 6 rounds are always played.",
     ),
@@ -110,8 +110,8 @@ private val dailyHelpSections = listOf(
         heading = "SCORING",
         body = "Only correct rounds score. Wrong rounds score 0.\n\n" +
             "Score per round = 1000 ÷ ΔE\n\n" +
-            "e.g. correct at ΔE 1.0 → 1,000 pts\n" +
-            "e.g. correct at ΔE 0.7 → ~1,428 pts",
+            "e.g. correct at ΔE 1.0: 1,000 pts\n" +
+            "e.g. correct at ΔE 0.7: ~1,428 pts",
     ),
     HelpSection(
         heading = "SAME PUZZLE WORLDWIDE",

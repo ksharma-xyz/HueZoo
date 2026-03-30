@@ -1229,10 +1229,10 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
                     text = "ΔE (Delta-E) measures how different two colors look to the human eye. " +
                         "Unlike raw RGB math, ΔE is perceptual — it accounts for how our eyes " +
                         "actually see color.\n\n" +
-                        "ΔE 10 → red vs blue — instantly obvious\n" +
-                        "ΔE 3  → clearly different if side by side\n" +
-                        "ΔE 1  → just noticeable to a trained eye\n" +
-                        "ΔE 0.5 → near the limit of human vision\n\n" +
+                        "ΔE 10: red vs blue — instantly obvious\n" +
+                        "ΔE 3:  clearly different if side by side\n" +
+                        "ΔE 1:  just noticeable to a trained eye\n" +
+                        "ΔE 0.5: near the limit of human vision\n\n" +
                         "Huezoo uses CIEDE2000 — the international color science standard used by " +
                         "paint manufacturers, display calibrators, and medical imaging. " +
                         "Your score here reflects real perceptual precision.",

@@ -417,7 +417,7 @@ private fun ReadyContent(
         if (!isDaily && !state.canPlayAgain && !state.isPaid) {
             Spacer(Modifier.height(HuezooSpacing.xs))
             HuezooButton(
-                text = "GO UNLIMITED  →  $2.99",
+                text = "GO UNLIMITED  —  $2.99",
                 onClick = onUpgradeTap,
                 variant = HuezooButtonVariant.Primary,
                 modifier = Modifier.fillMaxWidth(),
