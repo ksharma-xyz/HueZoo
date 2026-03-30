@@ -11,7 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1B52D11B11EF9B5F11F90ED0 /* HueZoo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HueZoo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B52D11B11EF9B5F11F90ED0 /* Huezoo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Huezoo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -64,7 +64,7 @@
 		C7713C77028B523FB8EC989C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1B52D11B11EF9B5F11F90ED0 /* HueZoo.app */,
+				1B52D11B11EF9B5F11F90ED0 /* Huezoo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -93,7 +93,7 @@
 				5D9CEBBB2F78F807000C53B3 /* GoogleMobileAds */,
 			);
 			productName = iosApp;
-			productReference = 1B52D11B11EF9B5F11F90ED0 /* HueZoo.app */;
+			productReference = 1B52D11B11EF9B5F11F90ED0 /* Huezoo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

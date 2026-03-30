@@ -122,6 +122,13 @@ Open app
 ### UX.21.5 — ShelfPress Modifier ⬜
 - [ ] UX.21.5 `Modifier.shelfPress(shelfHeight, shelfColor, shape)` reusable extension
 
+### UX.22 — Copy & UX Debt ⬜
+- [ ] UX.22.1 Audit and replace arrow "→" copy across entire app — feels AI-generated, replace with better phrasing
+- [ ] UX.22.2 Help / settings top-bar buttons: add same 3D shelf-press animation as back button
+
+### UX.23 — Paywall Debug (remove before ship) ⬜
+- [ ] UX.23.1 Remove `[DEBUG_PAYWALL]` println logs from `PaywallViewModel` and `PaywallSheet` before App Store / Play Store submission
+
 ### Phase 7 — Monetization ✅
 - [x] 7.1 Attempt counter on Threshold card ("X of 5 tries used this window")
 - [x] 7.2 Out of Tries refill sheet (UX.11) — `PaywallSheet` with gem spend + watch ad + unlock forever
