@@ -1,11 +1,10 @@
 package xyz.ksharma.huezoo.ui.home
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -46,7 +45,7 @@ class HomeViewModel(
     }
 
     private fun load() {
-        viewModelScope.launch {
+        safeLaunch {
             val now = Clock.System.now()
             val today = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
 

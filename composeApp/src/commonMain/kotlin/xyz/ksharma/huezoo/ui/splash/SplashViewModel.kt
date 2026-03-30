@@ -1,11 +1,10 @@
 package xyz.ksharma.huezoo.ui.splash
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.ui.model.PlayerState
 
@@ -18,7 +17,7 @@ class SplashViewModel(
     val navEvent: SharedFlow<SplashNavEvent> = _navEvent.asSharedFlow()
 
     fun onSplashFinished() {
-        viewModelScope.launch {
+        safeLaunch {
             // Seed reactive gem state before any screen reads LocalPlayerAccentColor
             playerState.updateGems(settingsRepository.getGems())
             val next = if (settingsRepository.hasSeenHealthNotice()) {

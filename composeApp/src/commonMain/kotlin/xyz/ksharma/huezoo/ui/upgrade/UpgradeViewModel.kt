@@ -1,11 +1,10 @@
 package xyz.ksharma.huezoo.ui.upgrade
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.platform.billing.BillingClient
 import xyz.ksharma.huezoo.platform.billing.PRODUCT_UNLIMITED
@@ -27,7 +26,7 @@ class UpgradeViewModel(
     val uiState: StateFlow<UpgradeUiState> = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
+        safeLaunch {
             val isPaid = settingsRepository.isPaid()
             val price = billingClient.queryPrice(PRODUCT_UNLIMITED)
             _uiState.value = _uiState.value.copy(
@@ -39,7 +38,7 @@ class UpgradeViewModel(
 
     fun onPurchase() {
         if (_uiState.value.isPurchasing) return
-        viewModelScope.launch {
+        safeLaunch {
             _uiState.value = _uiState.value.copy(isPurchasing = true, error = null)
             when (val result = billingClient.purchase(PRODUCT_UNLIMITED)) {
                 PurchaseResult.Success -> {
@@ -60,7 +59,7 @@ class UpgradeViewModel(
     }
 
     fun onRestorePurchases() {
-        viewModelScope.launch {
+        safeLaunch {
             val owned = billingClient.isOwned(PRODUCT_UNLIMITED)
             if (owned) {
                 settingsRepository.setPaid(true)

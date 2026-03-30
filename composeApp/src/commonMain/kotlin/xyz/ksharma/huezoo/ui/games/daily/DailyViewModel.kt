@@ -1,7 +1,6 @@
 package xyz.ksharma.huezoo.ui.games.daily
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,7 +8,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import xyz.ksharma.huezoo.data.repository.DailyRepository
@@ -125,7 +124,7 @@ class DailyViewModel(
         roundGeneration = 0
         lastLayoutStyle = null
 
-        viewModelScope.launch {
+        safeLaunch {
             _isPaid.value = settingsRepository.isPaid()
             val date = today
             val existing = repository.getChallenge(date)
@@ -181,7 +180,7 @@ class DailyViewModel(
             },
             roundPhase = RoundPhase.Correct,
         )
-        viewModelScope.launch {
+        safeLaunch {
             val levelBefore = PlayerLevel.fromGems(totalGems)
             totalGems = settingsRepository.addGems(GameRewardRates.DAILY_CORRECT_ROUND)
             sessionGems += GameRewardRates.DAILY_CORRECT_ROUND
@@ -230,7 +229,7 @@ class DailyViewModel(
             },
             roundPhase = RoundPhase.Wrong,
         )
-        viewModelScope.launch {
+        safeLaunch {
             delay(ANIMATION_WRONG_MS)
             val isLastRound = roundIndex == gameEngine.totalRounds - 1
             if (isLastRound) {

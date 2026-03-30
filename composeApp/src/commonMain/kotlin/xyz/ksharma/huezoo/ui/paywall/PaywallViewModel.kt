@@ -1,14 +1,13 @@
 package xyz.ksharma.huezoo.ui.paywall
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 
-private const val GEM_COST_PER_BONUS_TRY = 15
+private const val GEM_COST_PER_BONUS_TRY = 100
 private const val BONUS_TRIES_PER_AD = 1
 private const val BONUS_TRIES_PER_GEM_SPEND = 1
 
@@ -16,6 +15,12 @@ data class PaywallUiState(
     val gemBalance: Int = 0,
     val showRewardedAd: Boolean = false,
     val isSpendingGems: Boolean = false,
+    /**
+     * Incremented each time a bonus try is successfully granted (gems spent or ad watched).
+     * PaywallSheet compares against the count it saw on open — dismisses only when count rises.
+     * Counter-based to avoid instant-dismiss on re-open if Boolean stayed true in the ViewModel.
+     */
+    val tryGrantedCount: Int = 0,
     val error: String? = null,
 )
 
@@ -27,19 +32,24 @@ class PaywallViewModel(
     val uiState: StateFlow<PaywallUiState> = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
+        safeLaunch {
             _uiState.value = _uiState.value.copy(gemBalance = settingsRepository.getGems())
         }
     }
 
     fun onWatchAd() {
+        println("[DEBUG_PAYWALL] onWatchAd: triggering rewarded ad")
         _uiState.value = _uiState.value.copy(showRewardedAd = true, error = null)
     }
 
     fun onRewardEarned() {
-        viewModelScope.launch {
+        safeLaunch {
             settingsRepository.addBonusTries(BONUS_TRIES_PER_AD)
-            _uiState.value = _uiState.value.copy(showRewardedAd = false)
+            println("[DEBUG_PAYWALL] onRewardEarned: bonus try granted, incrementing tryGrantedCount")
+            _uiState.value = _uiState.value.copy(
+                showRewardedAd = false,
+                tryGrantedCount = _uiState.value.tryGrantedCount + 1,
+            )
         }
     }
 
@@ -50,12 +60,17 @@ class PaywallViewModel(
     fun onSpendGems() {
         val balance = _uiState.value.gemBalance
         if (balance < GEM_COST_PER_BONUS_TRY || _uiState.value.isSpendingGems) return
-        viewModelScope.launch {
+        safeLaunch {
             _uiState.value = _uiState.value.copy(isSpendingGems = true, error = null)
             settingsRepository.addGems(-GEM_COST_PER_BONUS_TRY)
             settingsRepository.addBonusTries(BONUS_TRIES_PER_GEM_SPEND)
             val newBalance = settingsRepository.getGems()
-            _uiState.value = _uiState.value.copy(isSpendingGems = false, gemBalance = newBalance)
+            println("[DEBUG_PAYWALL] onSpendGems: gems spent, incrementing tryGrantedCount")
+            _uiState.value = _uiState.value.copy(
+                isSpendingGems = false,
+                gemBalance = newBalance,
+                tryGrantedCount = _uiState.value.tryGrantedCount + 1,
+            )
         }
     }
 

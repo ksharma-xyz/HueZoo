@@ -1,12 +1,11 @@
 package xyz.ksharma.huezoo.ui.settings
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.debug.DebugFlags
 import xyz.ksharma.huezoo.platform.PlatformOps
@@ -38,7 +37,7 @@ class SettingsViewModel(
     }
 
     private fun load() {
-        viewModelScope.launch {
+        safeLaunch {
             val isPaid = settingsRepository.isPaid()
             val gems = settingsRepository.getGems()
             val userName = settingsRepository.getUserName()
@@ -56,7 +55,7 @@ class SettingsViewModel(
     }
 
     private fun togglePaid() {
-        viewModelScope.launch {
+        safeLaunch {
             val newPaid = !_uiState.value.isPaid
             settingsRepository.setPaid(newPaid)
             _uiState.update { it.copy(isPaid = newPaid) }
@@ -66,7 +65,7 @@ class SettingsViewModel(
     private fun saveName() {
         val name = _uiState.value.nameInput.trim()
         if (name.isBlank()) return
-        viewModelScope.launch {
+        safeLaunch {
             settingsRepository.setUserName(name)
             _uiState.update { it.copy(userName = name) }
         }
@@ -79,7 +78,7 @@ class SettingsViewModel(
     }
 
     private fun resetAll() {
-        viewModelScope.launch {
+        safeLaunch {
             settingsRepository.resetAll()
             load()
             _uiState.update { it.copy(showResetConfirm = false) }

@@ -1,12 +1,11 @@
 package xyz.ksharma.huezoo.ui.result
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 import xyz.ksharma.huezoo.data.repository.DailyRepository
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
@@ -32,7 +31,7 @@ class ResultViewModel(
     init {
         // Collect reactively so "play again" sessions trigger a fresh load automatically,
         // even when this ViewModel instance is reused by the DI container.
-        viewModelScope.launch {
+        safeLaunch {
             sessionResultCache.result.filterNotNull().collect { result ->
                 load(result)
             }

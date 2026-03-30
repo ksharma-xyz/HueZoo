@@ -1,11 +1,10 @@
 package xyz.ksharma.huezoo.ui.eyestrain
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 
 class EyeStrainViewModel(
@@ -16,7 +15,7 @@ class EyeStrainViewModel(
     val navEvent: SharedFlow<EyeStrainNavEvent> = _navEvent.asSharedFlow()
 
     fun onGotIt() {
-        viewModelScope.launch {
+        safeLaunch {
             settingsRepository.setSeenHealthNotice()
             _navEvent.emit(EyeStrainNavEvent.NavigateToHome)
         }
