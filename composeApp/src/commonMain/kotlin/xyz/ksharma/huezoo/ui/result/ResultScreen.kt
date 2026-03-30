@@ -99,6 +99,8 @@ import kotlin.time.ExperimentalTime
 
 private val BannerShape = RoundedCornerShape(12.dp)
 private val CardShape = RoundedCornerShape(16.dp)
+/** Height reserved at the bottom of the scroll column so the pinned banner ad never hides content. */
+private val BannerAdReservedHeight = 56.dp
 private val StatIconSize = 28.dp
 private val CardShelfHeight = 4.dp
 
@@ -429,6 +431,11 @@ private fun ReadyContent(
         }
 
         Spacer(Modifier.height(HuezooSpacing.md))
+
+        // Extra padding so the pinned banner ad never obscures the last button
+        if (!state.isPaid) {
+            Spacer(Modifier.height(BannerAdReservedHeight))
+        }
     }
 }
 

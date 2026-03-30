@@ -159,6 +159,7 @@ fun HomeScreen(
                     onSettingsTap = onSettingsTap,
                     onUpgradeTap = onUpgradeTap,
                     onLeaderboardTap = onLeaderboardTap,
+                    onTryGranted = { viewModel.onUiEvent(HomeUiEvent.ScreenResumed) },
                 )
             }
         }
@@ -182,6 +183,7 @@ private fun ReadyContent(
     onSettingsTap: () -> Unit,
     onUpgradeTap: () -> Unit,
     onLeaderboardTap: () -> Unit,
+    onTryGranted: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showLevelsSheet by remember { mutableStateOf(false) }
@@ -189,14 +191,15 @@ private fun ReadyContent(
     var showPaywallSheet by remember { mutableStateOf(false) }
 
     if (showPaywallSheet) {
-        HuezooBottomSheet(onDismissRequest = { showPaywallSheet = false }) {
+        HuezooBottomSheet(onDismissRequest = { showPaywallSheet = false; onTryGranted() }) {
             PaywallSheet(
-                onWatchAd = { showPaywallSheet = false },
+                // Sheet stays open while ad plays; auto-dismisses via tryGranted state
+                onWatchAd = {},
                 onUnlock = {
                     showPaywallSheet = false
                     onUpgradeTap()
                 },
-                onDismiss = { showPaywallSheet = false },
+                onDismiss = { showPaywallSheet = false; onTryGranted() },
             )
         }
     }
@@ -288,6 +291,7 @@ private fun ReadyContent(
                     data = state.threshold,
                     isPaid = state.isPaid,
                     onEnterGame = onThresholdTap,
+                    onWatchAd = { showPaywallSheet = true },
                 )
             }
 
@@ -486,6 +490,7 @@ private fun ThresholdHeroCard(
     data: ThresholdCardData,
     isPaid: Boolean,
     onEnterGame: () -> Unit,
+    onWatchAd: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val triesText = when {
@@ -595,7 +600,7 @@ private fun ThresholdHeroCard(
                 Spacer(Modifier.height(HuezooSpacing.sm))
                 HuezooButton(
                     text = "WATCH AD — EARN +1 TRY",
-                    onClick = { /* TODO: rewarded ad integration */ },
+                    onClick = onWatchAd,
                     variant = HuezooButtonVariant.Ghost,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -1543,6 +1548,7 @@ private fun HomeReadyPreview() {
             onSettingsTap = {},
             onUpgradeTap = {},
             onLeaderboardTap = {},
+            onTryGranted = {},
         )
     }
 }
@@ -1571,6 +1577,7 @@ private fun HomeBlockedPreview() {
             onSettingsTap = {},
             onUpgradeTap = {},
             onLeaderboardTap = {},
+            onTryGranted = {},
         )
     }
 }

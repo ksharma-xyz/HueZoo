@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -57,10 +58,24 @@ import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val HeroSize = 200.dp
-private val TileHeight = 88.dp
 private const val RING_ALPHA_PEAK = 0.45f
 private const val RING_PERIOD_MS = 2200
 private const val RING_STAGGER_MS = 733
+private const val LARGE_FONT_SCALE_THRESHOLD = 1.3f
+
+private data class Feature(
+    val symbol: String,
+    val title: String,
+    val subtitle: String,
+    val accentColor: Color,
+)
+
+private val FeatureList = listOf(
+    Feature("∞", "UNLIMITED", "Threshold tries", HuezooColors.AccentCyan),
+    Feature("◈", "DAILY", "Always free", HuezooColors.GameDaily),
+    Feature("◉", "LEADERBOARD", "Global rank", HuezooColors.GameThreshold),
+    Feature("+", "ALL MODES", "Future included", HuezooColors.AccentYellow),
+)
 
 /**
  * Paywall screen — single entry point for all purchase CTAs.
@@ -161,45 +176,57 @@ fun UpgradeScreen(
 
                 Spacer(Modifier.height(HuezooSpacing.xxl))
 
-                // ── Feature tiles — 2×2 parallelogram grid ────────────────────
+                // ── Feature tiles — adaptive layout ───────────────────────────
+                val fontScale = LocalDensity.current.fontScale
                 Column(verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-                    ) {
-                        FeatureTile(
-                            symbol = "∞",
-                            title = "UNLIMITED",
-                            subtitle = "Threshold tries",
-                            accentColor = HuezooColors.AccentCyan,
-                            modifier = Modifier.weight(1f).height(TileHeight),
-                        )
-                        FeatureTile(
-                            symbol = "◈",
-                            title = "DAILY",
-                            subtitle = "Always free",
-                            accentColor = HuezooColors.GameDaily,
-                            modifier = Modifier.weight(1f).height(TileHeight),
-                        )
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-                    ) {
-                        FeatureTile(
-                            symbol = "◉",
-                            title = "LEADERBOARD",
-                            subtitle = "Global rank",
-                            accentColor = HuezooColors.GameThreshold,
-                            modifier = Modifier.weight(1f).height(TileHeight),
-                        )
-                        FeatureTile(
-                            symbol = "+",
-                            title = "ALL MODES",
-                            subtitle = "Future included",
-                            accentColor = HuezooColors.AccentYellow,
-                            modifier = Modifier.weight(1f).height(TileHeight),
-                        )
+                    if (fontScale > LARGE_FONT_SCALE_THRESHOLD) {
+                        FeatureList.forEach { feature ->
+                            FeatureRow(
+                                symbol = feature.symbol,
+                                title = feature.title,
+                                subtitle = feature.subtitle,
+                                accentColor = feature.accentColor,
+                            )
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                        ) {
+                            FeatureTile(
+                                symbol = "∞",
+                                title = "UNLIMITED",
+                                subtitle = "Threshold tries",
+                                accentColor = HuezooColors.AccentCyan,
+                                modifier = Modifier.weight(1f),
+                            )
+                            FeatureTile(
+                                symbol = "◈",
+                                title = "DAILY",
+                                subtitle = "Always free",
+                                accentColor = HuezooColors.GameDaily,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                        ) {
+                            FeatureTile(
+                                symbol = "◉",
+                                title = "LEADERBOARD",
+                                subtitle = "Global rank",
+                                accentColor = HuezooColors.GameThreshold,
+                                modifier = Modifier.weight(1f),
+                            )
+                            FeatureTile(
+                                symbol = "+",
+                                title = "ALL MODES",
+                                subtitle = "Future included",
+                                accentColor = HuezooColors.AccentYellow,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
                 }
 
@@ -356,6 +383,64 @@ private fun FeatureTile(
                 color = accentColor,
                 fontWeight = FontWeight.ExtraBold,
             )
+            HuezooLabelLarge(
+                text = title,
+                color = HuezooColors.TextPrimary,
+                fontWeight = FontWeight.ExtraBold,
+            )
+            HuezooLabelSmall(
+                text = subtitle,
+                color = HuezooColors.TextSecondary,
+            )
+        }
+    }
+}
+
+// ── Feature row (large font fallback) ────────────────────────────────────────
+
+/**
+ * Single-row feature item for large-font layouts — parallelogram badge on the
+ * left, title + subtitle text on the right. Matches the shape language of
+ * [FeatureTile] without a fixed height so text never clips.
+ */
+@Composable
+private fun FeatureRow(
+    symbol: String,
+    title: String,
+    subtitle: String,
+    accentColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .shapedShadow(
+                shape = ParallelogramBack,
+                color = accentColor.copy(alpha = 0.25f),
+                offsetX = 4.dp,
+                offsetY = 4.dp,
+            )
+            .clip(ParallelogramBack)
+            .background(HuezooColors.SurfaceL2)
+            .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+    ) {
+        // Parallelogram badge
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(ParallelogramBack)
+                .background(accentColor.copy(alpha = 0.15f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            HuezooDisplayMedium(
+                text = symbol,
+                color = accentColor,
+                fontWeight = FontWeight.ExtraBold,
+            )
+        }
+        Column {
             HuezooLabelLarge(
                 text = title,
                 color = HuezooColors.TextPrimary,
