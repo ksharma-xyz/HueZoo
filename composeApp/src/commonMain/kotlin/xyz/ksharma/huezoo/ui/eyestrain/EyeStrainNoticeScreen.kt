@@ -32,6 +32,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewScreen
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 
 /**
  * Eye-strain / health notice screen — UX.5.3.
@@ -57,9 +58,10 @@ fun EyeStrainNoticeScreen(
         viewModel.navEvent.collect { onNavigateToHome() }
     }
 
+    val accent = LocalPlayerAccentColor.current
     AmbientGlowBackground(
         modifier = modifier,
-        primaryColor = HuezooColors.AccentCyan,
+        primaryColor = accent,
         secondaryColor = HuezooColors.AccentPurple,
     ) {
         Column(
@@ -74,7 +76,7 @@ fun EyeStrainNoticeScreen(
 
             // ── Icon ──────────────────────────────────────────────────────────
             EyeIcon(
-                tint = HuezooColors.AccentCyan,
+                tint = accent,
                 modifier = Modifier.size(72.dp),
             )
 
@@ -84,7 +86,7 @@ fun EyeStrainNoticeScreen(
             Text(
                 text = "QUICK NOTE",
                 style = MaterialTheme.typography.headlineMedium,
-                color = HuezooColors.AccentCyan,
+                color = accent,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
                 letterSpacing = 4.sp,

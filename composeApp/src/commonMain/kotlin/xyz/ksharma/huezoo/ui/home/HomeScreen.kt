@@ -167,7 +167,7 @@ fun HomeScreen(
         val readyState = uiState as? HomeUiState.Ready
         @OptIn(DependsOnGoogleMobileAds::class)
         if (readyState != null && !readyState.isPaid) {
-            Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+            Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding()) {
                 BannerAd(adUnitId = AdIds.banner)
             }
         }
@@ -332,7 +332,9 @@ private fun ReadyContent(
 
             DeltaEInfoCard()
 
-            Spacer(Modifier.height(HuezooSpacing.xxl).navigationBarsPadding())
+            // Extra 56 dp when free-tier banner is visible so the card scrolls clear of the overlay.
+            val bannerReserve = if (state.isPaid) 0.dp else 56.dp
+            Spacer(Modifier.height(HuezooSpacing.xxl + bannerReserve).navigationBarsPadding())
         }
     }
 }
@@ -1248,10 +1250,11 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
                 ) {
+                    val tierAccent = LocalPlayerAccentColor.current
                     listOf("≥5 EASY", "2–5 MED", "1–2 HARD", "<1 ELITE").forEach { tier ->
                         HuezooLabelSmall(
                             text = tier,
-                            color = HuezooColors.AccentCyan.copy(alpha = 0.75f),
+                            color = tierAccent.copy(alpha = 0.75f),
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center,
