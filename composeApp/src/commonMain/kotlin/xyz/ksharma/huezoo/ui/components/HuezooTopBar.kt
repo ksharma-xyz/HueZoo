@@ -289,12 +289,12 @@ private fun HuezooWordmark(modifier: Modifier = Modifier) {
  * Parallelogram back button for the top bar.
  *
  * Visual stack (back to front):
- * 1. Cyan [AccentCyan] parallelogram shadow, offset (+4, +4) dp — visible only on
- *    the right and bottom edges (neo-brutalist press-depth effect)
- * 2. [SurfaceL3] parallelogram fill (the actual button face)
+ * 1. Accent-tinted parallelogram shelf at y + [BackShelfHeight] — stationary, acts as the depth layer
+ * 2. [SurfaceL3] parallelogram face — slides DOWN into the shelf on press, springs back on release
  * 3. Thick `<` chevron drawn via Canvas
  *
- * Press: spring scale-down to [BACK_PRESS_SCALE] — shadow and button scale together.
+ * Press: face translates Y by [BackShelfHeight] (same pattern as [HuezooButton]).
+ * Shadow / shelf stays fixed; only the face moves.
  *
  * Only shown when the screen has a back destination. When shown, the wordmark is
  * hidden — this component owns the left slot of [HuezooTopBar].
