@@ -31,10 +31,16 @@ class DefaultThresholdRepository(
         val attemptsUsed = session?.attempts_used?.toInt() ?: 0
         val bonusTries = settingsRepository.getBonusTries()
         val effectiveMax = maxAttempts + bonusTries
+        // UI always shows exactly maxAttempts hearts. Bonus tries extend availability
+        // beyond the base cap without inflating the heart count.
+        // visualRemaining = how many tries are left, capped to [0, maxAttempts].
+        // attemptsUsed for display = maxAttempts - visualRemaining, so hearts fill correctly
+        // (e.g. 1 bonus try left → 1 filled heart out of 5).
+        val visualRemaining = minOf(effectiveMax - attemptsUsed, maxAttempts)
         when {
             attemptsUsed < effectiveMax -> AttemptStatus.Available(
-                attemptsUsed = attemptsUsed,
-                maxAttempts = effectiveMax,
+                attemptsUsed = maxAttempts - visualRemaining,
+                maxAttempts = maxAttempts,
             )
             settingsRepository.isPaid() -> {
                 // Paid users: no cooldown — clear the exhausted session and give a fresh batch.
@@ -43,7 +49,7 @@ class DefaultThresholdRepository(
             }
             else -> AttemptStatus.Exhausted(
                 nextResetAt = Instant.parse(session!!.next_reset_at),
-                maxAttempts = effectiveMax,
+                maxAttempts = maxAttempts,
             )
         }
     }
@@ -52,11 +58,16 @@ class DefaultThresholdRepository(
         val q = db.huezooDatabaseQueries
         q.deleteExpiredSessions(now.toString())
         val session = q.getActiveThresholdSession(now.toString()).executeAsOneOrNull()
+        val attemptsUsedBefore = session?.attempts_used?.toInt() ?: 0
         if (session == null) {
             val nextResetAt = now.plus(WINDOW_DURATION)
             q.upsertThresholdSession(now.toString(), FIRST_ATTEMPT, nextResetAt.toString())
         } else {
             q.upsertThresholdSession(session.window_id, session.attempts_used + 1, session.next_reset_at)
+        }
+        // If this attempt was using a bonus try (exceeded the base cap), consume it.
+        if (attemptsUsedBefore >= maxAttempts) {
+            settingsRepository.consumeOneBonusTry()
         }
         Unit
     }
