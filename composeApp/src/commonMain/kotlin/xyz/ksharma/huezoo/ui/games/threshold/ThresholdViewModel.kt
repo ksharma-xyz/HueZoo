@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
@@ -37,6 +39,7 @@ import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -88,6 +91,13 @@ class ThresholdViewModel(
     /** Best (lowest) ΔE survived across all tries in this session. */
     private var bestDeltaE: Float? = null
 
+    /**
+     * Set to true when the session ends (all tries exhausted → navigate to result).
+     * Checked in [onResume] so re-entering the screen always starts a fresh session
+     * instead of resuming the stale wrong-tap state.
+     */
+    private var sessionEnded = false
+
     /** Stored all-time personal best at session start — used for eager-save comparison. */
     private var storedBestDeltaE: Float? = null
 
@@ -128,7 +138,7 @@ class ThresholdViewModel(
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init {
-        viewModelScope.launch { _isPaid.value = settingsRepository.isPaid() }
+        safeLaunch { _isPaid.value = settingsRepository.isPaid() }
         loadGame()
     }
 
@@ -143,12 +153,17 @@ class ThresholdViewModel(
      * the screen lifecycle.
      */
     fun onResume() {
-        if (_uiState.value is ThresholdUiState.Blocked) loadGame()
+        // Also reload when the previous session ended (triesRemaining hit 0 and navigated to
+        // result) — the ViewModel survives navigation so we need to explicitly start fresh.
+        if (_uiState.value is ThresholdUiState.Blocked || sessionEnded) {
+            sessionEnded = false
+            loadGame()
+        }
     }
 
     fun onInterstitialDone() {
         _showInterstitial.value = false
-        viewModelScope.launch { _navEvent.emit(ThresholdNavEvent.NavigateToResult) }
+        safeLaunch { _navEvent.emit(ThresholdNavEvent.NavigateToResult) }
     }
 
     fun onUiEvent(event: ThresholdUiEvent) {
@@ -160,7 +175,7 @@ class ThresholdViewModel(
     // ── Internal ──────────────────────────────────────────────────────────────
 
     private fun loadGame() {
-        viewModelScope.launch {
+        safeLaunch {
             val now = Clock.System.now()
             when (val status = repository.getAttemptStatus(now)) {
                 is AttemptStatus.Available -> startSession(status)
@@ -254,7 +269,7 @@ class ThresholdViewModel(
             },
             roundPhase = RoundPhase.Correct,
         )
-        viewModelScope.launch {
+        safeLaunch {
             // Milestone thud lands 200 ms after the CorrectTap snap — layered, not simultaneous.
             if (milestoneBonus > 0) {
                 delay(MILESTONE_HAPTIC_DELAY_MS)
@@ -320,8 +335,15 @@ class ThresholdViewModel(
             roundPhase = RoundPhase.Wrong,
             stingCopy = sting,
         )
-        viewModelScope.launch {
-            repository.recordAttempt(Clock.System.now())
+        safeLaunch {
+            // Timeout so a slow/hanging DB write never permanently locks the game UI
+            try {
+                withTimeout(3_000L) { repository.recordAttempt(Clock.System.now()) }
+            } catch (_: TimeoutCancellationException) {
+                println("[DEBUG_DELTA] recordAttempt timed out — proceeding anyway")
+            } catch (_: Exception) {
+                println("[DEBUG_DELTA] recordAttempt failed — proceeding anyway")
+            }
             triesRemaining--
             // Accumulate this try's stats before tapCount resets
             sessionCorrectTaps += tapCount - 1
@@ -369,6 +391,10 @@ class ThresholdViewModel(
                         levelUpTo = sessionLevelUpTo,
                     ),
                 )
+
+                // Mark session done before navigating so onResume() starts fresh
+                // when the user re-enters ThresholdScreen after viewing the result.
+                sessionEnded = true
 
                 // Show interstitial (free users only, every 2nd session, never after personal best)
                 if (!_isPaid.value) {

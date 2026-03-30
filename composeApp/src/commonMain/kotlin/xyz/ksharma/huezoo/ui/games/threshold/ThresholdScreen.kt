@@ -39,10 +39,12 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
+import app.lexilabs.basic.ads.AdState
 import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
 import app.lexilabs.basic.ads.composable.BannerAd
 import xyz.ksharma.huezoo.platform.ads.AdIds
 import app.lexilabs.basic.ads.composable.InterstitialAd
+import app.lexilabs.basic.ads.composable.rememberInterstitialAd
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
 import xyz.ksharma.huezoo.ui.components.HuezooButton
@@ -76,6 +78,16 @@ fun ThresholdScreen(
     val isPaid by viewModel.isPaid.collectAsStateWithLifecycle()
     val showInterstitial by viewModel.showInterstitial.collectAsStateWithLifecycle()
     var showHelp by remember { mutableStateOf(false) }
+
+    // Pre-load the interstitial at screen entry so it's ready when the session ends.
+    // Must be called unconditionally (composable ordering rules) — only used when !isPaid.
+    // This avoids the crash where InterstitialAd.setListeners() throws if called before load completes.
+    @OptIn(DependsOnGoogleMobileAds::class)
+    val interstitialAdState = rememberInterstitialAd(
+        adUnitId = AdIds.interstitial,
+        onLoad = {},
+        onFailure = { _ -> /* handled at show time via the else branch below */ },
+    )
 
     if (showHelp) {
         ThresholdHelpSheet(onDismiss = { showHelp = false })
@@ -136,13 +148,24 @@ fun ThresholdScreen(
             }
         }
 
+        // Only show when the pre-loaded ad is READY — calling InterstitialAd before the
+        // async load completes crashes with "InterstitialAd not loaded yet".
         @OptIn(DependsOnGoogleMobileAds::class)
         if (showInterstitial) {
-            InterstitialAd(
-                adUnitId = AdIds.interstitial,
-                onDismissed = { viewModel.onInterstitialDone() },
-                onFailure = { _ -> viewModel.onInterstitialDone() },
-            )
+            when (interstitialAdState.value.state) {
+                AdState.READY -> InterstitialAd(
+                    loadedAd = interstitialAdState.value,
+                    onDismissed = { viewModel.onInterstitialDone() },
+                    onFailure = { _ -> viewModel.onInterstitialDone() },
+                )
+                AdState.SHOWING, AdState.SHOWN -> {
+                    // Ad is on screen — onDismissed will call onInterstitialDone()
+                }
+                else -> {
+                    // Ad not ready (still loading or failed) — skip ad and go to result
+                    LaunchedEffect(showInterstitial) { viewModel.onInterstitialDone() }
+                }
+            }
         }
     }
 }

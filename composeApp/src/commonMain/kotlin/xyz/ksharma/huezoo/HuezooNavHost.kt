@@ -136,7 +136,12 @@ private fun huezooEntryProvider(navigator: HuezooNavigator): (NavKey) -> NavEntr
                     }
                 },
                 onBack = { navigator.pop() },
-                onUpgradeTap = { navigator.goTo(Upgrade) },
+                onUpgradeTap = {
+                    // Pop Result so the user can't back-navigate to it from Upgrade.
+                    // Back stack becomes [Home, Upgrade] instead of [Home, Result, Upgrade].
+                    navigator.pop()
+                    navigator.goTo(Upgrade)
+                },
             )
         }
 
