@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +47,14 @@ fun PaywallSheet(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    // Capture the count when the sheet opens. Dismiss only when it rises — safe for
+    // Activity-scoped ViewModels where the counter persists across sheet re-opens.
+    val initialGrantCount = remember { state.tryGrantedCount }
+    LaunchedEffect(state.tryGrantedCount) {
+        println("[DEBUG_PAYWALL] tryGrantedCount=${state.tryGrantedCount} initial=$initialGrantCount")
+        if (state.tryGrantedCount > initialGrantCount) onDismiss()
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -70,19 +80,21 @@ fun PaywallSheet(
 
         val canSpendGems = state.gemBalance >= PaywallViewModel.GEM_COST
         HuezooButton(
-            text = "SPEND ${PaywallViewModel.GEM_COST} 💎  →  +1 TRY",
-            onClick = {
-                viewModel.onSpendGems()
-                onDismiss()
-            },
+            // Sheet auto-dismisses via LaunchedEffect(tryGranted) once DB writes complete
+            text = if (state.isSpendingGems) "SPENDING…" else "SPEND ${PaywallViewModel.GEM_COST} GEMS  —  +1 TRY",
+            onClick = { viewModel.onSpendGems() },
             variant = if (canSpendGems) HuezooButtonVariant.Primary else HuezooButtonVariant.Ghost,
             enabled = canSpendGems && !state.isSpendingGems,
             modifier = Modifier.fillMaxWidth(),
         )
 
         HuezooButton(
-            text = "WATCH AD  →  +1 TRY",
-            onClick = { viewModel.onWatchAd(); onWatchAd() },
+            // Keep sheet in composition so RewardedAd composable stays alive during the ad
+            text = "WATCH AD  —  +1 TRY",
+            onClick = {
+                println("[DEBUG_PAYWALL] WATCH AD button tapped")
+                viewModel.onWatchAd()
+            },
             variant = HuezooButtonVariant.Primary,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -103,7 +115,10 @@ fun PaywallSheet(
         ) {
             HuezooButton(
                 text = "UNLOCK FOREVER",
-                onClick = onUnlock,
+                onClick = {
+                    println("[DEBUG_PAYWALL] UNLOCK FOREVER button tapped")
+                    onUnlock()
+                },
                 variant = HuezooButtonVariant.Primary,
                 modifier = Modifier.weight(1f),
             )
