@@ -30,15 +30,23 @@ class DefaultThresholdRepository(
         val session = q.getActiveThresholdSession(now.toString()).executeAsOneOrNull()
         val attemptsUsed = session?.attempts_used?.toInt() ?: 0
         val bonusTries = settingsRepository.getBonusTries()
-        val effectiveMax = maxAttempts + bonusTries
-        // UI always shows exactly maxAttempts hearts. Bonus tries extend availability
-        // beyond the base cap without inflating the heart count.
-        // visualRemaining = how many tries are left, capped to [0, maxAttempts].
-        // attemptsUsed for display = maxAttempts - visualRemaining, so hearts fill correctly
-        // (e.g. 1 bonus try left → 1 filled heart out of 5).
-        val visualRemaining = minOf(effectiveMax - attemptsUsed, maxAttempts)
+        // Available when base tries remain OR bonus tries are in the bank.
+        //
+        // Do NOT use (attemptsUsed < maxAttempts + bonusTries) — that formula is broken
+        // because consuming a bonus try both increments attemptsUsed (+1) AND decrements
+        // bonusTries (-1), shrinking effectiveMax and growing attemptsUsed simultaneously.
+        // After an earn→play→earn cycle, attemptsUsed lands exactly at the new effectiveMax
+        // (13 < 13 = false) even though bonusTries > 0 and another game is available.
+        val hasBaseTriesLeft = attemptsUsed < maxAttempts
+        val hasBonusTries = bonusTries > 0
+        // Hearts display: base remaining, or bonus tries capped to heart count.
+        val visualRemaining = when {
+            hasBaseTriesLeft -> maxAttempts - attemptsUsed
+            hasBonusTries -> minOf(bonusTries, maxAttempts)
+            else -> 0
+        }
         when {
-            attemptsUsed < effectiveMax -> AttemptStatus.Available(
+            hasBaseTriesLeft || hasBonusTries -> AttemptStatus.Available(
                 attemptsUsed = maxAttempts - visualRemaining,
                 maxAttempts = maxAttempts,
             )
