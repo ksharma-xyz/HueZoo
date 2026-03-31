@@ -79,6 +79,19 @@
 -keepclassmembers @androidx.room.Entity class * { *; }
 -dontwarn androidx.room.**
 
+# ── Firebase ──────────────────────────────────────────────────────────────────
+-keep class com.google.firebase.** { *; }
+-dontwarn com.google.firebase.**
+# Crashlytics — keep mapping metadata so stack traces are symbolicated
+-keepattributes *Annotation*
+-keep class com.crashlytics.** { *; }
+-dontwarn com.crashlytics.**
+# Remote Config — keep field names used in config fetch/activate
+-keep class com.google.android.gms.internal.firebase_remote_config.** { *; }
+# GitLive KMP wrappers
+-keep class dev.gitlive.firebase.** { *; }
+-dontwarn dev.gitlive.firebase.**
+
 # ── Suppress irrelevant warnings ──────────────────────────────────────────────
 -dontwarn org.slf4j.**
 -dontwarn java.awt.**
