@@ -192,6 +192,26 @@ fun SettingsScreen(
 
                     SettingsPanel {
                         SettingsRow(
+                            label = "Hide Ads",
+                            description = if (state.hideAds) {
+                                "ON — ads hidden for screenshots."
+                            } else {
+                                "OFF — ads shown as normal."
+                            },
+                        )
+                        Spacer(Modifier.height(HuezooSpacing.sm))
+                        HuezooButton(
+                            text = if (state.hideAds) "SHOW ADS" else "HIDE ADS",
+                            onClick = { viewModel.onUiEvent(SettingsUiEvent.ToggleHideAds) },
+                            variant = HuezooButtonVariant.Ghost,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
+                    Spacer(Modifier.height(HuezooSpacing.md))
+
+                    SettingsPanel {
+                        SettingsRow(
                             label = "Reset All Data",
                             description = "Wipes sessions, daily records, personal bests, and settings.",
                         )

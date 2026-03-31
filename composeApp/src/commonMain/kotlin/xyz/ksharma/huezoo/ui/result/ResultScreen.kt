@@ -71,6 +71,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import xyz.ksharma.huezoo.debug.DebugFlags
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.platform.PlatformOps
@@ -155,7 +156,7 @@ fun ResultScreen(
 
         // Banner ad — pinned at bottom for free users
         @OptIn(DependsOnGoogleMobileAds::class)
-        if (readyState != null && !readyState.isPaid) {
+        if (readyState != null && !readyState.isPaid && !DebugFlags.hideAds) {
             Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
                 BannerAd(adUnitId = AdIds.banner)
             }

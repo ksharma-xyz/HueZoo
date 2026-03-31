@@ -8,4 +8,5 @@ sealed interface SettingsUiEvent {
     data class NameInputChanged(val value: String) : SettingsUiEvent
     data object SaveNameTapped : SettingsUiEvent
     data object ToggleForceStreakCelebration : SettingsUiEvent
+    data object ToggleHideAds : SettingsUiEvent
 }

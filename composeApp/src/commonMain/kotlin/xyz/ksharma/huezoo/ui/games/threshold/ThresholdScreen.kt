@@ -44,6 +44,7 @@ import app.lexilabs.basic.ads.composable.InterstitialAd
 import app.lexilabs.basic.ads.composable.rememberInterstitialAd
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
+import xyz.ksharma.huezoo.debug.DebugFlags
 import xyz.ksharma.huezoo.platform.ads.AdIds
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
@@ -142,7 +143,7 @@ fun ThresholdScreen(
         }
 
         @OptIn(DependsOnGoogleMobileAds::class)
-        if (!isPaid && uiState !is ThresholdUiState.Loading) {
+        if (!isPaid && !DebugFlags.hideAds && uiState !is ThresholdUiState.Loading) {
             Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
                 BannerAd(adUnitId = AdIds.banner)
             }
@@ -151,7 +152,7 @@ fun ThresholdScreen(
         // Only show when the pre-loaded ad is READY — calling InterstitialAd before the
         // async load completes crashes with "InterstitialAd not loaded yet".
         @OptIn(DependsOnGoogleMobileAds::class)
-        if (showInterstitial) {
+        if (showInterstitial && !DebugFlags.hideAds) {
             when (interstitialAdState.value.state) {
                 AdState.READY -> InterstitialAd(
                     loadedAd = interstitialAdState.value,

@@ -8,6 +8,8 @@ data class SettingsUiState(
     val showResetConfirm: Boolean = false,
     /** Debug only — when true, HomeScreen shows the streak celebration animation unconditionally. */
     val forceStreakCelebration: Boolean = false,
+    /** Debug only — when true, all ad composables are hidden (for screenshots). */
+    val hideAds: Boolean = false,
     /** Current saved display name, null if not yet set. */
     val userName: String? = null,
     /** Draft value in the name text field while editing. */

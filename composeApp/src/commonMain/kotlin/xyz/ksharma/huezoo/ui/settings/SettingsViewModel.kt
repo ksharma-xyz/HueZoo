@@ -28,6 +28,7 @@ class SettingsViewModel(
         when (event) {
             SettingsUiEvent.TogglePaid -> togglePaid()
             SettingsUiEvent.ToggleForceStreakCelebration -> toggleForceStreakCelebration()
+            SettingsUiEvent.ToggleHideAds -> toggleHideAds()
             SettingsUiEvent.ResetAllTapped -> _uiState.update { it.copy(showResetConfirm = true) }
             SettingsUiEvent.ResetAllDismissed -> _uiState.update { it.copy(showResetConfirm = false) }
             SettingsUiEvent.ResetAllConfirmed -> resetAll()
@@ -51,6 +52,7 @@ class SettingsViewModel(
                     userName = userName,
                     nameInput = userName ?: "",
                     forceStreakCelebration = DebugFlags.forceStreakCelebration,
+                    hideAds = DebugFlags.hideAds,
                     appVersion = appVersion,
                 )
             }
@@ -78,6 +80,12 @@ class SettingsViewModel(
         val newValue = !DebugFlags.forceStreakCelebration
         DebugFlags.forceStreakCelebration = newValue
         _uiState.update { it.copy(forceStreakCelebration = newValue) }
+    }
+
+    private fun toggleHideAds() {
+        val newValue = !DebugFlags.hideAds
+        DebugFlags.hideAds = newValue
+        _uiState.update { it.copy(hideAds = newValue) }
     }
 
     private fun resetAll() {

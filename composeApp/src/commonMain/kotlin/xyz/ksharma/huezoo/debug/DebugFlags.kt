@@ -6,4 +6,5 @@ package xyz.ksharma.huezoo.debug
  */
 object DebugFlags {
     var forceStreakCelebration: Boolean = false
+    var hideAds: Boolean = false
 }

@@ -37,6 +37,7 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
+import xyz.ksharma.huezoo.debug.DebugFlags
 import xyz.ksharma.huezoo.platform.ads.AdIds
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DailyHelpSheet
@@ -119,7 +120,7 @@ fun DailyScreen(
         }
 
         @OptIn(DependsOnGoogleMobileAds::class)
-        if (!isPaid && uiState !is DailyUiState.Loading) {
+        if (!isPaid && !DebugFlags.hideAds && uiState !is DailyUiState.Loading) {
             Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
                 BannerAd(adUnitId = AdIds.banner)
             }
