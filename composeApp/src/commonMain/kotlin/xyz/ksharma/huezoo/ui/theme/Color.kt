@@ -44,9 +44,9 @@ object HuezooColors {
     val ShelfYellow = Color(0xFFB8A000)
     val ShelfGreen = Color(0xFF00A86A)
     val ShelfPurple = Color(0xFF6B3DAD)
-    val ShelfOrange = Color(0xFFCC6200) // shelf for AccentOrange
-    val ShelfPink = Color(0xFFCC1A7A) // shelf for AccentPink
-    val ShelfMaster = Color(0xFFBB8800) // darker amber shelf for Master level
+    val ShelfOrange = Color(0xFFA05000) // shelf for AccentOrange — darkened for 2.21:1 depth vs face
+    val ShelfPink = Color(0xFFAA1465) // shelf for AccentPink — darkened for 2.14:1 depth vs face
+    val ShelfMaster = Color(0xFFAA7C00) // shelf for Master gold — darkened for 2.17:1 depth vs face
 
     // ── Game-action button colors ─────────────────────────────────────────────
     val ActionConfirm = Color(0xFF22C55E) // green — confirm / correct

@@ -88,11 +88,11 @@ Open app
 ### UX.9 — Gem Float-Up ⬜
 - [ ] UX.9.3 In-game "+N 💎" float-up label from HUD on earn (fades 600ms)
 
-### UX.11 — Out of Tries Refill Sheet ⬜
-- [ ] UX.11.1 Refill bottom sheet — gem refill + Watch Ad options; replaces current full-screen Blocked state
-- [ ] UX.11.2 Decide gem refill cost + try count (draft in GAME_DESIGN.md first)
-- [ ] UX.11.3 Gem deduction via `SettingsRepository.addGems(-N)`; disable if insufficient
-- [ ] UX.11.4 Watch Ad button stub (no-op until AdMob Phase 7)
+### UX.11 — Out of Tries Refill Sheet ✅
+- [x] UX.11.1 Refill bottom sheet — gem refill + Watch Ad options; replaces current full-screen Blocked state
+- [x] UX.11.2 Decide gem refill cost + try count (draft in GAME_DESIGN.md first)
+- [x] UX.11.3 Gem deduction via `SettingsRepository.addGems(-N)`; disable if insufficient
+- [x] UX.11.4 Watch Ad button stub (no-op until AdMob Phase 7)
 
 ### UX.12 — In-Game Streak ⬜
 - [ ] UX.12.1 Track consecutive correct taps in `ThresholdViewModel`
@@ -123,7 +123,7 @@ Open app
 - [ ] UX.21.5 `Modifier.shelfPress(shelfHeight, shelfColor, shape)` reusable extension
 
 ### UX.22 — Copy & UX Debt ⬜
-- [ ] UX.22.1 Audit and replace arrow "→" copy across entire app — feels AI-generated, replace with better phrasing
+- [x] UX.22.1 Audit and replace arrow "→" copy across entire app — feels AI-generated, replace with better phrasing
 - [ ] UX.22.2 Help / settings top-bar buttons: add same 3D shelf-press animation as back button
 
 ### UX.23 — Paywall Debug (remove before ship) ⬜
@@ -210,7 +210,7 @@ Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` fo
 
 ## Ship Checklist
 
-- [ ] Phase 7 (monetization) complete
+- [x] Phase 7 (monetization) complete
 - [ ] Phase 8 live or behind feature flag
 - [ ] DS.4 sound wired
 - [ ] Phase L font license review

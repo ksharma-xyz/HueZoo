@@ -19,18 +19,21 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.platform.haptics.LocalHapticEngine
+import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
@@ -171,7 +174,7 @@ fun HuezooButton(
         Box(
             modifier = Modifier
                 .then(if (width == HuezooButtonWidth.Fill) Modifier.fillMaxWidth() else Modifier)
-                .graphicsLayer { translationY = pressProgress * shelfPx }
+                .offset { IntOffset(x = 0, y = (pressProgress * shelfPx).roundToInt()) }
                 .then(
                     if (resolvedBorder != Color.Transparent) {
                         Modifier.border(HuezooSize.BorderThin, resolvedBorder, PillShape)
@@ -222,6 +225,33 @@ private fun HuezooButtonVariantsPreview() {
             HuezooButton(text = "Unlock Forever — \$2", onClick = {}, variant = HuezooButtonVariant.Score)
             HuezooButton(text = "Try Different Color", onClick = {}, variant = HuezooButtonVariant.Try)
             HuezooButton(text = "Disabled", onClick = {}, enabled = false)
+        }
+    }
+}
+
+/**
+ * Shows the Primary button in each player-level accent color, side-by-side with its shelf.
+ * Use this to judge face-vs-shelf contrast: the shelf should read as a clear shadow/depth cue.
+ * If the two colors are too close in luminance the button looks flat.
+ */
+@PreviewComponent
+@Composable
+private fun HuezooButtonLevelColorsPreview() {
+    HuezooPreviewTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            PlayerLevel.entries.forEach { level ->
+                CompositionLocalProvider(
+                    LocalPlayerAccentColor provides level.levelColor,
+                    LocalPlayerShelfColor provides level.shelfColor,
+                ) {
+                    HuezooButton(
+                        text = level.displayName,
+                        onClick = {},
+                        variant = HuezooButtonVariant.Primary,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
         }
     }
 }
