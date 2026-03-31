@@ -139,4 +139,80 @@ class ThresholdAttemptWindowTest {
         val drift = (status.nextResetAt - expectedReset).absoluteValue
         assertTrue(drift < 1.minutes, "nextResetAt should be ~8h from T0, drift was $drift")
     }
+
+    // ─── Bonus try availability (regression: earn→play→earn cycle) ───────────
+
+    @Test
+    fun `bonus try makes status Available when base tries are exhausted`() = runBlocking {
+        // Use all base tries
+        repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
+        assertIs<AttemptStatus.Exhausted>(repo.getAttemptStatus(T0))
+
+        // Grant one bonus try
+        settingsRepo.addBonusTries(1)
+
+        // Now must be Available
+        val status = assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0))
+        // attemptsUsed reported as maxAttempts - visualRemaining = maxAttempts - 1
+        assertEquals(ThresholdGameEngine.MAX_ATTEMPTS - 1, status.attemptsUsed)
+    }
+
+    @Test
+    fun `earn-play-earn cycle stays Available (regression for double-shrink formula)`() = runBlocking {
+        // Use all base tries
+        repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
+
+        // Earn a bonus try (e.g. watch ad)
+        settingsRepo.addBonusTries(1)
+        assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0))
+
+        // Play the bonus game — recordAttempt increments attemptsUsed AND consumeOneBonusTry
+        repo.recordAttempt(T0)
+        // bonusTries is now 0, attemptsUsed > maxAttempts → old formula would say Exhausted
+        assertIs<AttemptStatus.Exhausted>(repo.getAttemptStatus(T0))
+
+        // Earn again
+        settingsRepo.addBonusTries(1)
+        // Must be Available again — old "attemptsUsed < maxAttempts + bonusTries" formula fails
+        // here because attemptsUsed = maxAttempts+1 and bonusTries = 1, so effectiveMax=maxAttempts+1
+        // which equals attemptsUsed → Exhausted (bug). New formula: hasBonusTries → Available.
+        assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0))
+    }
+
+    @Test
+    fun `multiple bonus tries all register as Available`() = runBlocking {
+        repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
+        settingsRepo.addBonusTries(3)
+
+        val status = assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0))
+        // visualRemaining = minOf(bonusTries=3, maxAttempts) = 3
+        // attemptsUsed reported = maxAttempts - 3
+        assertEquals(ThresholdGameEngine.MAX_ATTEMPTS - 3, status.attemptsUsed)
+        assertEquals(ThresholdGameEngine.MAX_ATTEMPTS, status.maxAttempts)
+    }
+
+    @Test
+    fun `bonus tries cap visual hearts at maxAttempts`() = runBlocking {
+        repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
+        // More bonus tries than max hearts — visual cap kicks in
+        settingsRepo.addBonusTries(ThresholdGameEngine.MAX_ATTEMPTS + 5)
+
+        val status = assertIs<AttemptStatus.Available>(repo.getAttemptStatus(T0))
+        // visualRemaining = minOf(bonusTries, maxAttempts) = maxAttempts → attemptsUsed = 0
+        assertEquals(0, status.attemptsUsed)
+        assertEquals(ThresholdGameEngine.MAX_ATTEMPTS, status.maxAttempts)
+    }
+
+    @Test
+    fun `exhausting all bonus tries returns to Exhausted`() = runBlocking {
+        repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
+        settingsRepo.addBonusTries(2)
+
+        // Play both bonus games
+        repeat(2) { repo.recordAttempt(T0) }
+
+        // bonusTries=0, attemptsUsed > maxAttempts → Exhausted
+        assertIs<AttemptStatus.Exhausted>(repo.getAttemptStatus(T0))
+        Unit
+    }
 }
