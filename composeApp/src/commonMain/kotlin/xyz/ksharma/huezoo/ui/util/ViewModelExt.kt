@@ -18,7 +18,6 @@ import kotlinx.coroutines.launch
  * @param block  The suspend work to run.
  */
 fun ViewModel.safeLaunch(
-    tag: String = this::class.simpleName ?: "ViewModel",
     block: suspend CoroutineScope.() -> Unit,
 ): Job = viewModelScope.launch(
     context = CoroutineExceptionHandler { _, _ ->

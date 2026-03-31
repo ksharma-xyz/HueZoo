@@ -37,14 +37,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.delay
-import org.koin.compose.viewmodel.koinViewModel
 import app.lexilabs.basic.ads.AdState
 import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
 import app.lexilabs.basic.ads.composable.BannerAd
-import xyz.ksharma.huezoo.platform.ads.AdIds
 import app.lexilabs.basic.ads.composable.InterstitialAd
 import app.lexilabs.basic.ads.composable.rememberInterstitialAd
+import kotlinx.coroutines.delay
+import org.koin.compose.viewmodel.koinViewModel
+import xyz.ksharma.huezoo.platform.ads.AdIds
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
 import xyz.ksharma.huezoo.ui.components.HuezooButton

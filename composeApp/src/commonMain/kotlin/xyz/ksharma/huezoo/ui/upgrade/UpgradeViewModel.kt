@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import xyz.ksharma.huezoo.ui.util.safeLaunch
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.platform.billing.BillingClient
 import xyz.ksharma.huezoo.platform.billing.PRODUCT_UNLIMITED
 import xyz.ksharma.huezoo.platform.billing.PurchaseResult
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 
 data class UpgradeUiState(
     val priceLabel: String = "$2.99",

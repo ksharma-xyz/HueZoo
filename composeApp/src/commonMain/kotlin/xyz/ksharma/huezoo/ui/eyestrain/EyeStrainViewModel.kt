@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import xyz.ksharma.huezoo.ui.util.safeLaunch
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 
 class EyeStrainViewModel(
     private val settingsRepository: SettingsRepository,

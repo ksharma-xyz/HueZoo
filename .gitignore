@@ -19,3 +19,6 @@ captures
 node_modules/
 keystore.jks
 *.jks
+*.aab
+*.apk
+androidApp/release/

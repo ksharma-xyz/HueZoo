@@ -63,7 +63,7 @@ fun Modifier.shimmerCelebration(
 
     // Smooth fade-in / fade-out envelope
     val envelope = when {
-        p < ENVELOPE_FADE_IN  -> p / ENVELOPE_FADE_IN
+        p < ENVELOPE_FADE_IN -> p / ENVELOPE_FADE_IN
         p > ENVELOPE_FADE_OUT -> (1f - p) / (1f - ENVELOPE_FADE_OUT)
         else -> 1f
     }

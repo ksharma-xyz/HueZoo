@@ -65,6 +65,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
+import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
+import app.lexilabs.basic.ads.composable.BannerAd
 import kotlinx.coroutines.delay
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -73,10 +75,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.PlatformOps
-import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
-import app.lexilabs.basic.ads.composable.BannerAd
 import xyz.ksharma.huezoo.platform.ads.AdIds
-import xyz.ksharma.huezoo.ui.theme.shimmerCelebration
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
 import xyz.ksharma.huezoo.ui.components.HuezooBottomSheet
@@ -103,6 +102,7 @@ import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
 import xyz.ksharma.huezoo.ui.theme.rimLight
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
+import xyz.ksharma.huezoo.ui.theme.shimmerCelebration
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -191,7 +191,10 @@ private fun ReadyContent(
     var showPaywallSheet by remember { mutableStateOf(false) }
 
     if (showPaywallSheet) {
-        HuezooBottomSheet(onDismissRequest = { showPaywallSheet = false; onTryGranted() }) {
+        HuezooBottomSheet(onDismissRequest = {
+            showPaywallSheet = false
+            onTryGranted()
+        }) {
             PaywallSheet(
                 // Sheet stays open while ad plays; auto-dismisses via tryGranted state
                 onWatchAd = {},
@@ -199,7 +202,10 @@ private fun ReadyContent(
                     showPaywallSheet = false
                     onUpgradeTap()
                 },
-                onDismiss = { showPaywallSheet = false; onTryGranted() },
+                onDismiss = {
+                    showPaywallSheet = false
+                    onTryGranted()
+                },
             )
         }
     }

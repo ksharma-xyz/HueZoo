@@ -59,6 +59,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
+import app.lexilabs.basic.ads.composable.BannerAd
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
@@ -72,8 +74,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.platform.PlatformOps
-import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
-import app.lexilabs.basic.ads.composable.BannerAd
 import xyz.ksharma.huezoo.platform.ads.AdIds
 import xyz.ksharma.huezoo.platform.shareIconRes
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
@@ -99,6 +99,7 @@ import kotlin.time.ExperimentalTime
 
 private val BannerShape = RoundedCornerShape(12.dp)
 private val CardShape = RoundedCornerShape(16.dp)
+
 /** Height reserved at the bottom of the scroll column so the pinned banner ad never hides content. */
 private val BannerAdReservedHeight = 56.dp
 private val StatIconSize = 28.dp

@@ -5,12 +5,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import xyz.ksharma.huezoo.ui.util.safeLaunch
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.debug.DebugFlags
 import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.ui.settings.state.SettingsUiEvent
 import xyz.ksharma.huezoo.ui.settings.state.SettingsUiState
+import xyz.ksharma.huezoo.ui.util.safeLaunch
 
 class SettingsViewModel(
     private val settingsRepository: SettingsRepository,

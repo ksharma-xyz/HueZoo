@@ -27,9 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
-import kotlin.math.roundToInt
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.platform.haptics.LocalHapticEngine
@@ -43,6 +42,7 @@ import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerShelfColor
 import xyz.ksharma.huezoo.ui.theme.PillShape
 import xyz.ksharma.huezoo.ui.theme.onColor
+import kotlin.math.roundToInt
 
 private val ShelfHeight = 5.dp
 

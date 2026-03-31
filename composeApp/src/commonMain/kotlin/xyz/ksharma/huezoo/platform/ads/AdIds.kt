@@ -20,25 +20,43 @@ object AdIds {
 
     val banner: String
         get() = AdUnitId.autoSelect(
-            androidAdUnitId = if (isDebug) "ca-app-pub-3940256099942544/6300978111"
-                              else "ca-app-pub-1771675816656791/1541300697",
-            iosAdUnitId     = if (isDebug) "ca-app-pub-3940256099942544/2934735716"
-                              else "ca-app-pub-1771675816656791/5831899491",
+            androidAdUnitId = if (isDebug) {
+                "ca-app-pub-3940256099942544/6300978111"
+            } else {
+                "ca-app-pub-1771675816656791/1541300697"
+            },
+            iosAdUnitId = if (isDebug) {
+                "ca-app-pub-3940256099942544/2934735716"
+            } else {
+                "ca-app-pub-1771675816656791/5831899491"
+            },
         )
 
     val interstitial: String
         get() = AdUnitId.autoSelect(
-            androidAdUnitId = if (isDebug) "ca-app-pub-3940256099942544/1033173712"
-                              else "ca-app-pub-1771675816656791/1736945079",
-            iosAdUnitId     = if (isDebug) "ca-app-pub-3940256099942544/4411468910"
-                              else "ca-app-pub-1771675816656791/4052117223",
+            androidAdUnitId = if (isDebug) {
+                "ca-app-pub-3940256099942544/1033173712"
+            } else {
+                "ca-app-pub-1771675816656791/1736945079"
+            },
+            iosAdUnitId = if (isDebug) {
+                "ca-app-pub-3940256099942544/4411468910"
+            } else {
+                "ca-app-pub-1771675816656791/4052117223"
+            },
         )
 
     val rewarded: String
         get() = AdUnitId.autoSelect(
-            androidAdUnitId = if (isDebug) "ca-app-pub-3940256099942544/5224354917"
-                              else "ca-app-pub-1771675816656791/5835972183",
-            iosAdUnitId     = if (isDebug) "ca-app-pub-3940256099942544/1712485313"
-                              else "ca-app-pub-1771675816656791/3345336954",
+            androidAdUnitId = if (isDebug) {
+                "ca-app-pub-3940256099942544/5224354917"
+            } else {
+                "ca-app-pub-1771675816656791/5835972183"
+            },
+            iosAdUnitId = if (isDebug) {
+                "ca-app-pub-3940256099942544/1712485313"
+            } else {
+                "ca-app-pub-1771675816656791/3345336954"
+            },
         )
 }
