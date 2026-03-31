@@ -21,7 +21,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 SYMBOLS_DIR = (
     REPO_ROOT
-    / "composeApp/build/intermediates/stripped_native_libs"
+    / "androidApp/build/intermediates/stripped_native_libs"
     / "release/stripReleaseDebugSymbols/out/lib"
 )
 
