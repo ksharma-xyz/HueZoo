@@ -45,6 +45,8 @@ kotlin {
             implementation(libs.billing)
             implementation(libs.admob)
             implementation(libs.android.ump)
+            // Firebase BOM needed for GitLive Android platform dependencies
+            implementation(project.dependencies.platform(libs.firebase.bom))
         }
 
         commonMain.dependencies {
@@ -77,6 +79,11 @@ kotlin {
 
             // SQLDelight
             implementation(libs.sqldelight.coroutines)
+
+            // Firebase (GitLive KMP wrappers)
+            implementation(libs.firebase.gitLiveAnalytics)
+            implementation(libs.firebase.gitLiveCrashlytics)
+            implementation(libs.firebase.gitLiveRemoteConfig)
         }
 
         iosMain.dependencies {

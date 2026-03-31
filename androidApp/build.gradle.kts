@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.huezoo.android.application)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlyticsPlugin)
 }
 android {
     namespace = "xyz.ksharma.huezoo"
@@ -66,4 +68,10 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.di.koinAndroid)
     debugImplementation(libs.compose.ui.tooling)
+
+    // Firebase (BoM manages versions; plugins wire google-services + crashlytics)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.config)
 }

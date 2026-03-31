@@ -27,6 +27,8 @@ billing = "7.1.1"
 admob = "24.9.0"
 basic-ads = "1.1.0"
 android-ump = "4.0.0"
+firebaseGitLive = "2.4.0"
+firebaseBom = "34.11.0"
 
 [libraries]
 # Android
@@ -101,6 +103,15 @@ admob = { module = "com.google.android.gms:play-services-ads", version.ref = "ad
 basic-ads = { module = "app.lexilabs.basic:basic-ads", version.ref = "basic-ads" }
 android-ump = { module = "com.google.android.ump:user-messaging-platform", version.ref = "android-ump" }
 
+# Firebase
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-config = { module = "com.google.firebase:firebase-config" }
+firebase-gitLiveAnalytics = { module = "dev.gitlive:firebase-analytics", version.ref = "firebaseGitLive" }
+firebase-gitLiveCrashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "firebaseGitLive" }
+firebase-gitLiveRemoteConfig = { module = "dev.gitlive:firebase-config", version.ref = "firebaseGitLive" }
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
@@ -110,6 +121,8 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.4" }
+firebase-crashlyticsPlugin = { id = "com.google.firebase.crashlytics", version = "3.0.6" }
 
 # Convention plugins (defined in gradle/build-logic)
 huezoo-android-application = { id = "huezoo.android.application", version = "unspecified" }
