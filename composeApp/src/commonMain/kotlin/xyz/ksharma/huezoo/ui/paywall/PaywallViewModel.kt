@@ -31,6 +31,14 @@ class PaywallViewModel(
     private val _uiState = MutableStateFlow(PaywallUiState())
     val uiState: StateFlow<PaywallUiState> = _uiState.asStateFlow()
 
+    /**
+     * True while [onRewardEarned] has fired but its coroutine hasn't yet committed the DB write.
+     * [onAdDismissed] must NOT remove the [RewardedAd] composable during this window — doing so
+     * disposes the composable's DisposableEffect, which unregisters the reward callback from the
+     * ad library before [onRewardEarned] can complete, silently losing the earned try.
+     */
+    private var adRewardPending = false
+
     init {
         safeLaunch {
             _uiState.value = _uiState.value.copy(gemBalance = settingsRepository.getGems())
@@ -39,12 +47,15 @@ class PaywallViewModel(
 
     fun onWatchAd() {
         println("[DEBUG_PAYWALL] onWatchAd: triggering rewarded ad")
+        adRewardPending = false
         _uiState.value = _uiState.value.copy(showRewardedAd = true, error = null)
     }
 
     fun onRewardEarned() {
+        adRewardPending = true
         safeLaunch {
             settingsRepository.addBonusTries(BONUS_TRIES_PER_AD)
+            adRewardPending = false
             println("[DEBUG_PAYWALL] onRewardEarned: bonus try granted, incrementing tryGrantedCount")
             _uiState.value = _uiState.value.copy(
                 showRewardedAd = false,
@@ -54,7 +65,11 @@ class PaywallViewModel(
     }
 
     fun onAdDismissed() {
-        _uiState.value = _uiState.value.copy(showRewardedAd = false)
+        // If a reward DB write is in-flight, let onRewardEarned clear showRewardedAd once done.
+        // Clearing it here would dispose RewardedAd and unregister the reward callback too early.
+        if (!adRewardPending) {
+            _uiState.value = _uiState.value.copy(showRewardedAd = false)
+        }
     }
 
     fun onSpendGems() {
