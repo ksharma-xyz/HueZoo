@@ -18,8 +18,6 @@ sealed interface HomeUiState {
         val userName: String? = null,
         /** Consecutive days the player has completed the Daily Challenge. 0 until tracking is wired (UX.8). */
         val streak: Int = 0,
-        /** Global rank — null until Leaderboard / Firebase is integrated. */
-        val rank: Int? = null,
         /** Debug only — forces streak celebration animation regardless of real streak state. */
         val forceStreakCelebration: Boolean = false,
     ) : HomeUiState

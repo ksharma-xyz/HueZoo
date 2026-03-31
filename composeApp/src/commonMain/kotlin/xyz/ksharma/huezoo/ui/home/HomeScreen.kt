@@ -257,7 +257,6 @@ private fun ReadyContent(
                 StatsSection(
                     totalGems = state.totalGems,
                     streak = state.streak,
-                    rank = state.rank,
                     isStreakCelebrating = state.forceStreakCelebration || (state.daily.isCompletedToday && state.streak > 0),
                     onGemsClick = { showLevelsSheet = true },
                 )
@@ -348,16 +347,15 @@ private fun ReadyContent(
  * ┌─────────────────────────────┐
  * │▌ 1,250  GEMS                │  ← cyan left accent bar + neo-brutal shadow
  * └─────────────────────────────┘
- * ┌──────────────┐ ┌────────────┐
- * │ STREAK       │ │ RANK       │  ← equal-width stat boxes
- * │ 0 DAYS       │ │ —          │
- * └──────────────┘ └────────────┘
+ * ┌─────────────────────────────┐
+ * │ STREAK                      │
+ * │ 0 DAYS                      │
+ * └─────────────────────────────┘
  */
 @Composable
 private fun StatsSection(
     totalGems: Int,
     streak: Int,
-    rank: Int?,
     onGemsClick: () -> Unit,
     isStreakCelebrating: Boolean = false,
     modifier: Modifier = Modifier,
@@ -421,25 +419,13 @@ private fun StatsSection(
             }
         }
 
-        // Streak + Rank side-by-side, equal width
-        Row(
+        StatBox(
+            label = "STREAK",
+            value = "$streak DAYS",
+            accentColor = HuezooColors.AccentMagenta,
+            celebrate = isStreakCelebrating,
             modifier = Modifier.fillMaxWidth().padding(top = HuezooSpacing.md),
-            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-        ) {
-            StatBox(
-                label = "STREAK",
-                value = "$streak DAYS",
-                accentColor = HuezooColors.AccentMagenta,
-                celebrate = isStreakCelebrating,
-                modifier = Modifier.weight(1f),
-            )
-            StatBox(
-                label = "RANK",
-                value = rank?.let { "#$it" } ?: "—",
-                accentColor = HuezooColors.AccentYellow,
-                modifier = Modifier.weight(1f),
-            )
-        }
+        )
     }
 }
 
@@ -1544,7 +1530,6 @@ private fun HomeReadyPreview() {
                 totalGems = 1250,
                 playerLevel = PlayerLevel.Rookie,
                 streak = 14,
-                rank = null,
             ),
             onThresholdTap = {},
             onDailyTap = {},
@@ -1573,7 +1558,6 @@ private fun HomeBlockedPreview() {
                 totalGems = 2450,
                 playerLevel = PlayerLevel.Sharp,
                 streak = 7,
-                rank = 412,
             ),
             onThresholdTap = {},
             onDailyTap = {},
