@@ -9,7 +9,7 @@ android {
         applicationId = "xyz.ksharma.huezoo"
         minSdk = 28
         versionCode = findProperty("versionCode")?.toString()?.toInt() ?: 1
-        versionName = "1.0.0"
+        versionName = "0.1.0"
     }
 
     signingConfigs {
