@@ -39,9 +39,6 @@ class ResultViewModel(
     }
 
     private suspend fun load(sessionResult: SessionResult) {
-        println(
-            "[DEBUG_RESULT] load() deltaE=${sessionResult.deltaE} gameId=${sessionResult.gameId} rounds=${sessionResult.roundsSurvived}/${sessionResult.totalRounds}",
-        )
         val best = when (sessionResult.gameId) {
             GameId.THRESHOLD -> thresholdRepository.getPersonalBest()
             GameId.DAILY -> dailyRepository.getPersonalBest()
@@ -66,7 +63,6 @@ class ResultViewModel(
             else -> false
         }
 
-        println("[DEBUG_RESULT] dbBest=${best?.bestDeltaE} isNewPersonalBest=$isNewPersonalBest")
         _uiState.value = ResultUiState.Ready(
             gameId = sessionResult.gameId,
             deltaE = sessionResult.deltaE,

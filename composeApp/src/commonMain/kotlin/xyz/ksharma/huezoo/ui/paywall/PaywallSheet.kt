@@ -51,7 +51,6 @@ fun PaywallSheet(
     // Activity-scoped ViewModels where the counter persists across sheet re-opens.
     val initialGrantCount = remember { state.tryGrantedCount }
     LaunchedEffect(state.tryGrantedCount) {
-        println("[DEBUG_PAYWALL] tryGrantedCount=${state.tryGrantedCount} initial=$initialGrantCount")
         if (state.tryGrantedCount > initialGrantCount) onDismiss()
     }
 
@@ -91,10 +90,7 @@ fun PaywallSheet(
         HuezooButton(
             // Keep sheet in composition so RewardedAd composable stays alive during the ad
             text = "WATCH AD  —  +1 TRY",
-            onClick = {
-                println("[DEBUG_PAYWALL] WATCH AD button tapped")
-                viewModel.onWatchAd()
-            },
+            onClick = { viewModel.onWatchAd() },
             variant = HuezooButtonVariant.Primary,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -115,10 +111,7 @@ fun PaywallSheet(
         ) {
             HuezooButton(
                 text = "UNLOCK FOREVER",
-                onClick = {
-                    println("[DEBUG_PAYWALL] UNLOCK FOREVER button tapped")
-                    onUnlock()
-                },
+                onClick = onUnlock,
                 variant = HuezooButtonVariant.Primary,
                 modifier = Modifier.weight(1f),
             )

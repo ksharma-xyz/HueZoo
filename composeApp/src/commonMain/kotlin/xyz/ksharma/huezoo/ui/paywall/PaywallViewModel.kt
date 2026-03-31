@@ -46,7 +46,6 @@ class PaywallViewModel(
     }
 
     fun onWatchAd() {
-        println("[DEBUG_PAYWALL] onWatchAd: triggering rewarded ad")
         adRewardPending = false
         _uiState.value = _uiState.value.copy(showRewardedAd = true, error = null)
     }
@@ -56,7 +55,6 @@ class PaywallViewModel(
         safeLaunch {
             settingsRepository.addBonusTries(BONUS_TRIES_PER_AD)
             adRewardPending = false
-            println("[DEBUG_PAYWALL] onRewardEarned: bonus try granted, incrementing tryGrantedCount")
             _uiState.value = _uiState.value.copy(
                 showRewardedAd = false,
                 tryGrantedCount = _uiState.value.tryGrantedCount + 1,
@@ -80,14 +78,12 @@ class PaywallViewModel(
 
             val deductResult = runCatching { settingsRepository.addGems(-GEM_COST_PER_BONUS_TRY) }
             if (deductResult.isFailure) {
-                println("[ERROR] PaywallViewModel: gem deduction failed — ${deductResult.exceptionOrNull()?.message}")
                 _uiState.value = _uiState.value.copy(isSpendingGems = false)
                 return@safeLaunch
             }
 
             val grantResult = runCatching { settingsRepository.addBonusTries(BONUS_TRIES_PER_GEM_SPEND) }
             if (grantResult.isFailure) {
-                println("[ERROR] PaywallViewModel: bonus try grant failed — ${grantResult.exceptionOrNull()?.message}")
                 // Refund gems — best-effort, ignore secondary failure.
                 runCatching { settingsRepository.addGems(GEM_COST_PER_BONUS_TRY) }
                 val revertedBalance = runCatching { settingsRepository.getGems() }.getOrDefault(balance)
@@ -96,7 +92,6 @@ class PaywallViewModel(
             }
 
             val newBalance = settingsRepository.getGems()
-            println("[DEBUG_PAYWALL] onSpendGems: gems spent, incrementing tryGrantedCount")
             _uiState.value = _uiState.value.copy(
                 isSpendingGems = false,
                 gemBalance = newBalance,
