@@ -21,7 +21,7 @@ Completed phases archived in `docs/archive/MVP_COMPLETED.md`.
 | 8 | Firebase leaderboard + auth | ⬜ |
 | 9 | Polish + ship | ⬜ |
 | CI | CI/CD pipeline — workflows created, **one-time setup required** | ⬜ |
-| T | Unit tests | ⬜ |
+| T | Unit tests | Partial |
 | L | Font license review | ⬜ |
 
 ---
@@ -126,8 +126,8 @@ Open app
 - [x] UX.22.1 Audit and replace arrow "→" copy across entire app — feels AI-generated, replace with better phrasing
 - [ ] UX.22.2 Help / settings top-bar buttons: add same 3D shelf-press animation as back button
 
-### UX.23 — Paywall Debug (remove before ship) ⬜
-- [ ] UX.23.1 Remove `[DEBUG_PAYWALL]` println logs from `PaywallViewModel` and `PaywallSheet` before App Store / Play Store submission
+### UX.23 — Debug Log Cleanup ✅
+- [x] UX.23.1 Remove all `[DEBUG_PAYWALL]`, `[DEBUG_DELTA]`, `[DEBUG_RESULT]` println logs from `PaywallViewModel`, `PaywallSheet`, `ThresholdViewModel`, `ResultViewModel`
 
 ### Phase 7 — Monetization ✅
 - [x] 7.1 Attempt counter on Threshold card ("X of 5 tries used this window")
@@ -169,7 +169,11 @@ Open app
 - [ ] T.5 `DefaultDailyGameEngine` — correct/wrong round handling, participation + perfect gem, 6-round-always rule
 - [ ] T.6 `ThresholdViewModel` — drive via `onUiEvent()`, verify gem accumulation, milestone bonuses, try budget exhaustion
 - [ ] T.7 `DailyViewModel` — per-round flow, perfect bonus, ΔE-in-result = highest correct round ΔE
-- [ ] T.8 Attempt window — 8h window logic, free vs paid caps, expiry reset
+- [x] T.8 Attempt window — 8h window logic, free vs paid caps, expiry reset (`ThresholdAttemptWindowTest`)
+- [x] T.8.1 Bonus try availability — `bonusTries > 0` when base exhausted → Available (regression for double-shrink formula)
+- [x] T.8.2 Earn→play→earn cycle — stays Available after second ad reward (exact regression case)
+- [x] T.8.3 Visual heart cap — bonus tries > maxAttempts are capped at maxAttempts hearts
+- [x] T.8.4 All bonus tries exhausted → Exhausted
 
 ### Phase L — Font Licenses ⬜ (before App Store submission)
 - [ ] L.1 Clash Display (Fontshare FF EULA) — verify APK/IPA bundling is acceptable; fallback: DM Serif Display or Syne (SIL OFL)
@@ -206,11 +210,39 @@ Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` fo
 - [ ] CI.15 Uncomment Firebase workflow steps in `build-android.yml`, `build-ios.yml`, `distribute-testflight.yml`
 - [ ] CI.16 Add `FIREBASE_SERVICE_ACCOUNT_KEY`, `FIREBASE_ANDROID_DEBUG_APP_ID`, `FIREBASE_ANDROID_PROD_APP_ID`, `FIREBASE_GOOGLE_SERVICES_JSON_DEBUG`, `FIREBASE_GOOGLE_SERVICES_JSON_RELEASE`, `FIREBASE_IOS_GOOGLE_INFO` secrets
 
+### Pre-Launch — Android ⬜
+- [ ] PL.A.1 Confirm AdMob App ID in `AndroidManifest.xml` is the production ID (not test ID)
+- [ ] PL.A.2 Signing keystore created; `ANDROID_KEYSTORE_FILE` + password secrets added (see CI.2–CI.4)
+- [ ] PL.A.3 `versionCode` and `versionName` set in `build.gradle.kts` (or driven by `ANDROID_VERSION_CODE` GitHub Variable)
+- [ ] PL.A.4 ProGuard / R8 rules verified for release build — check SQLDelight, Koin, AdMob, Billing
+- [ ] PL.A.5 Content rating questionnaire completed in Play Console
+- [ ] PL.A.6 GDPR consent form configured in AdMob dashboard (required for EU users)
+- [ ] PL.A.7 Privacy Policy URL added to Play Store listing and in-app Settings / About screen
+- [ ] PL.A.8 Tested on at least one real Android device (release build)
+
+### Pre-Launch — iOS ⬜
+- [ ] PL.I.1 Bundle Identifier set to `xyz.ksharma.huezoo` in Xcode → iosApp target → General (see CI.11)
+- [ ] PL.I.2 `CFBundleShortVersionString` (`1.0.0`) and `CFBundleVersion` (`1`) in `iosApp/iosApp/Info.plist` (see CI.12)
+- [ ] PL.I.3 `NSUserTrackingUsageDescription` added to `Info.plist` (required by AdMob ATT prompt)
+- [ ] PL.I.4 App Store Connect record created for `xyz.ksharma.huezoo` (see CI.14)
+- [ ] PL.I.5 Apple Distribution certificate + App Store provisioning profile created; secrets added (CI.6–CI.7)
+- [ ] PL.I.6 StoreKit 2 IAP product configured in App Store Connect (currently stub — deferred from Phase 7)
+- [ ] PL.I.7 TestFlight build uploaded and internal testing completed
+- [ ] PL.I.8 Privacy Policy URL added to App Store listing
+- [ ] PL.I.9 Tested on at least one real iOS device (release build)
+
+### Pre-Launch — Common ⬜
+- [ ] PL.C.1 Privacy Policy page live at a hosted URL (required by both stores)
+- [ ] PL.C.2 App icon all sizes generated for Android (mipmap) and iOS (Assets.xcassets) — see 9.1
+- [ ] PL.C.3 Font license review complete — Clash Display EULA permits APK/IPA bundling (see Phase L)
+- [ ] PL.C.4 All GitHub CI/CD secrets and variables configured (see Phase CI)
+
 ---
 
 ## Ship Checklist
 
 - [x] Phase 7 (monetization) complete
+- [x] UX.23 debug logs removed
 - [ ] Phase 8 live or behind feature flag
 - [ ] DS.4 sound wired
 - [ ] Phase L font license review
@@ -218,3 +250,6 @@ Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` fo
 - [ ] UX.6.2 leaderboard button hidden until Firebase live
 - [ ] App icon + splash (9.1)
 - [ ] Tested on real Android + iOS device (9.2)
+- [ ] Pre-Launch Android checklist (PL.A.1–PL.A.8)
+- [ ] Pre-Launch iOS checklist (PL.I.1–PL.I.9)
+- [ ] Pre-Launch Common checklist (PL.C.1–PL.C.4)
