@@ -18,6 +18,7 @@ import xyz.ksharma.huezoo.data.repository.impl.DefaultDailyRepository
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.testutil.FakeDailyRepository
+import xyz.ksharma.huezoo.testutil.FakeBillingClient
 import xyz.ksharma.huezoo.testutil.FakeSettingsRepository
 import xyz.ksharma.huezoo.testutil.FakeThresholdRepository
 import xyz.ksharma.huezoo.testutil.createTestDatabase
@@ -170,6 +171,8 @@ class DailyStreakAndPersonalBestTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(),
                 dailyRepository = FakeDailyRepository(initialBestRounds = 3),
+                settingsRepository = FakeSettingsRepository(),
+                billingClient = FakeBillingClient(),
             )
             advanceUntilIdle()
             cache.set(fakeDailyResult(roundsSurvived = 5)) // 5 > 3 → new best
@@ -185,6 +188,8 @@ class DailyStreakAndPersonalBestTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(),
                 dailyRepository = FakeDailyRepository(), // no stored best
+                settingsRepository = FakeSettingsRepository(),
+                billingClient = FakeBillingClient(),
             )
             advanceUntilIdle()
             cache.set(fakeDailyResult(roundsSurvived = 4))
@@ -200,6 +205,8 @@ class DailyStreakAndPersonalBestTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(),
                 dailyRepository = FakeDailyRepository(initialBestRounds = 5),
+                settingsRepository = FakeSettingsRepository(),
+                billingClient = FakeBillingClient(),
             )
             advanceUntilIdle()
             cache.set(fakeDailyResult(roundsSurvived = 3)) // 3 < 5 → not new best

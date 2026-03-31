@@ -14,6 +14,8 @@ import xyz.ksharma.huezoo.data.repository.impl.DefaultThresholdRepository
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.domain.color.FakeColorEngine
+import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
+import xyz.ksharma.huezoo.testutil.FakeBillingClient
 import xyz.ksharma.huezoo.testutil.FakeDailyRepository
 import xyz.ksharma.huezoo.testutil.FakeHapticEngine
 import xyz.ksharma.huezoo.testutil.FakePlatformOps
@@ -73,6 +75,7 @@ class ThresholdDeltaEProgressionTest {
             playerState = PlayerState(),
             hapticEngine = FakeHapticEngine(),
             sessionResultCache = cache,
+            adOrchestrator = AdOrchestrator(),
         )
         return vm to cache
     }
@@ -217,6 +220,8 @@ class ThresholdDeltaEProgressionTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(initialBestDeltaE = storedBest),
                 dailyRepository = FakeDailyRepository(),
+                settingsRepository = FakeSettingsRepository(),
+                billingClient = FakeBillingClient(),
             )
             advanceUntilIdle()
             cache.set(fakeThresholdResult(deltaE = storedBest)) // abs(2.5 - 2.5) = 0 < 0.005
@@ -232,6 +237,8 @@ class ThresholdDeltaEProgressionTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(initialBestDeltaE = 2.0f),
                 dailyRepository = FakeDailyRepository(),
+                settingsRepository = FakeSettingsRepository(),
+                billingClient = FakeBillingClient(),
             )
             advanceUntilIdle()
             cache.set(fakeThresholdResult(deltaE = 3.0f)) // 3.0 > 2.0 → worse
@@ -247,6 +254,8 @@ class ThresholdDeltaEProgressionTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(), // no stored best
                 dailyRepository = FakeDailyRepository(),
+                settingsRepository = FakeSettingsRepository(),
+                billingClient = FakeBillingClient(),
             )
             advanceUntilIdle()
             cache.set(fakeThresholdResult(deltaE = 2.5f))

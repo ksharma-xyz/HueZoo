@@ -12,6 +12,7 @@ import xyz.ksharma.huezoo.data.repository.SettingsRepository
 class FakeSettingsRepository(
     private var paid: Boolean = false,
     private var gems: Int = 0,
+    private var bonusTries: Int = 0,
 ) : SettingsRepository {
 
     override suspend fun isPaid(): Boolean = paid
@@ -20,11 +21,19 @@ class FakeSettingsRepository(
     override suspend fun getGems(): Int = gems
     override suspend fun addGems(amount: Int): Int { gems += amount; return gems }
 
+    override suspend fun getBonusTries(): Int = bonusTries
+    override suspend fun addBonusTries(count: Int): Int { bonusTries += count; return bonusTries }
+    override suspend fun consumeOneBonusTry(): Boolean {
+        if (bonusTries <= 0) return false
+        bonusTries--
+        return true
+    }
+
     override suspend fun hasSeenHealthNotice(): Boolean = false
     override suspend fun setSeenHealthNotice() = Unit
 
     override suspend fun getUserName(): String? = null
     override suspend fun setUserName(name: String) = Unit
 
-    override suspend fun resetAll() { gems = 0; paid = false }
+    override suspend fun resetAll() { gems = 0; paid = false; bonusTries = 0 }
 }

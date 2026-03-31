@@ -9,5 +9,6 @@ import xyz.ksharma.huezoo.platform.PlatformOps
  * [shareText] is never called from repository or engine code.
  */
 class FakePlatformOps(override val isDebugBuild: Boolean = false) : PlatformOps {
+    override val appVersion: String = "0.0.0-test"
     override fun shareText(text: String, title: String) = Unit
 }

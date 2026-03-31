@@ -10,6 +10,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine.Companion.MAX_ATTEMPTS
+import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
 import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.domain.color.FakeColorEngine
 import xyz.ksharma.huezoo.testutil.FakeHapticEngine
@@ -73,6 +74,7 @@ class ThresholdGemCalculationTest {
             playerState = PlayerState(),
             hapticEngine = FakeHapticEngine(),
             sessionResultCache = cache,
+            adOrchestrator = AdOrchestrator(),
         )
         return vm to cache
     }

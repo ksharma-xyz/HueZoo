@@ -158,7 +158,7 @@ class ThresholdAttemptWindowTest {
     }
 
     @Test
-    fun `earn-play-earn cycle stays Available (regression for double-shrink formula)`() = runBlocking {
+    fun `earn-play-earn cycle stays Available regression for double-shrink formula`() = runBlocking {
         // Use all base tries
         repeat(ThresholdGameEngine.MAX_ATTEMPTS) { repo.recordAttempt(T0) }
 
