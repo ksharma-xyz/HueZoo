@@ -9,10 +9,10 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine.Companion.MAX_ATTEMPTS
-import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
-import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.domain.color.FakeColorEngine
+import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine.Companion.MAX_ATTEMPTS
+import xyz.ksharma.huezoo.navigation.SessionResult
+import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
 import xyz.ksharma.huezoo.testutil.FakeHapticEngine
 import xyz.ksharma.huezoo.testutil.FakeSettingsRepository
 import xyz.ksharma.huezoo.testutil.FakeThresholdGameEngine
@@ -26,7 +26,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 /**
  * Tests for Threshold gem earn logic — all driven through [ThresholdViewModel].
