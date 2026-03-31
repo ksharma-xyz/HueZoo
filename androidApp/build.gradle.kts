@@ -14,25 +14,10 @@ android {
 
     signingConfigs {
         create("release") {
-            // CI: env vars injected from GitHub Secrets.
-            // Local: passwords read from macOS Keychain via `security find-generic-password`.
-            //   Store once:
-            //     security add-generic-password -a "huezoo-keystore" -s "huezoo-signing" -w "<store_pass>"
-            //     security add-generic-password -a "huezoo-key"      -s "huezoo-signing" -w "<key_pass>"
-            fun keychain(account: String): String? = runCatching {
-                val proc = ProcessBuilder(
-                    "security", "find-generic-password",
-                    "-a", account, "-s", "huezoo-signing", "-w",
-                ).start()
-                proc.inputStream.bufferedReader().readLine()?.trim()
-            }.getOrNull()
-
-            val keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
-                ?: "/Users/ksharma/ksharma-xyz/krail_key.jks"
-            storeFile = file(keystorePath)
-            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: keychain("huezoo-keystore")
-            keyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: "huezoo-key"
-            keyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: keychain("huezoo-key")
+            storeFile = rootProject.file("keystore.jks")
+            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+            keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
         }
     }
 
