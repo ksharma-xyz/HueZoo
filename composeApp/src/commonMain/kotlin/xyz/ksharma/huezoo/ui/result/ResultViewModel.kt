@@ -13,6 +13,8 @@ import xyz.ksharma.huezoo.domain.game.SessionResultCache
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.SessionResult
+import xyz.ksharma.huezoo.platform.billing.BillingClient
+import xyz.ksharma.huezoo.platform.billing.PRODUCT_UNLIMITED
 import xyz.ksharma.huezoo.ui.result.state.ResultUiState
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -23,6 +25,7 @@ class ResultViewModel(
     private val thresholdRepository: ThresholdRepository,
     private val dailyRepository: DailyRepository,
     private val settingsRepository: SettingsRepository,
+    private val billingClient: BillingClient,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ResultUiState>(ResultUiState.Loading)
@@ -54,6 +57,11 @@ class ResultViewModel(
             false
         }
         val isPaid = settingsRepository.isPaid()
+        val priceLabel = if (!isPaid) {
+            billingClient.queryPrice(PRODUCT_UNLIMITED) ?: ""
+        } else {
+            ""
+        }
 
         val isNewPersonalBest = when (sessionResult.gameId) {
             GameId.THRESHOLD -> best?.bestDeltaE?.let {
@@ -76,6 +84,7 @@ class ResultViewModel(
             canPlayAgain = canPlayAgain,
             isPaid = isPaid,
             levelUpTo = sessionResult.levelUpTo,
+            priceLabel = priceLabel,
         )
     }
 }

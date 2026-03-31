@@ -416,8 +416,13 @@ private fun ReadyContent(
         // Upgrade CTA — shown for Threshold when out of tries and not paid
         if (!isDaily && !state.canPlayAgain && !state.isPaid) {
             Spacer(Modifier.height(HuezooSpacing.xs))
+            val upgradeText = if (state.priceLabel.isNotBlank()) {
+                "GO UNLIMITED  —  ${state.priceLabel}"
+            } else {
+                "GO UNLIMITED"
+            }
             HuezooButton(
-                text = "GO UNLIMITED  —  $2.99",
+                text = upgradeText,
                 onClick = onUpgradeTap,
                 variant = HuezooButtonVariant.Primary,
                 modifier = Modifier.fillMaxWidth(),

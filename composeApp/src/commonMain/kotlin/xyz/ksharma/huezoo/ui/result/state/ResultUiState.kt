@@ -30,5 +30,10 @@ sealed interface ResultUiState {
         val isPaid: Boolean = false,
         /** Non-null when the player levelled up during this session. */
         val levelUpTo: PlayerLevel? = null,
+        /**
+         * Live price string fetched from the store (e.g. "$2.99", "€2.99").
+         * Empty until the store query returns; UI falls back to "UNLOCK FOREVER" without a price.
+         */
+        val priceLabel: String = "",
     ) : ResultUiState
 }
