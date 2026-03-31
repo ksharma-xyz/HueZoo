@@ -14,7 +14,11 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = rootProject.file("keystore.jks")
+            // CI: keystore is base64-decoded from ANDROID_KEYSTORE_FILE secret into keystore.jks
+            // Local: point ANDROID_KEYSTORE_PATH to the absolute path of your .jks file
+            val keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+                ?: rootProject.file("keystore.jks").absolutePath
+            storeFile = file(keystorePath)
             storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
             keyAlias = System.getenv("ANDROID_KEY_ALIAS")
             keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
