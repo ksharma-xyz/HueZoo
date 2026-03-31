@@ -118,6 +118,7 @@ Result screen reads this flag to conditionally show the neon border.
 
 1. **Phase 1 — Wall mechanic** (ViewModel + game flow only, no new UI)
    - Detect floor hit in `handleCorrectTap`
+   - Award **5000 gems** instantly on wall hit
    - End life triumphantly (decrement tries, reset ΔE, store flag)
    - Add `RoundPhase.PerceptionWall`
    - Add `hitPerceptionWall` to session result
@@ -139,12 +140,11 @@ Result screen reads this flag to conditionally show the neon border.
 
 ---
 
-## Open Questions
+## Decisions (locked April 2026)
 
-- Should hitting the wall consume a try? (Current design: yes — life is over,
-  can't go lower. Alternative: give a free "bonus try" as reward.)
-- Should `hitPerceptionWall` be persisted to DB / leaderboard as a badge?
-- Does the Eagle appear as watermark in swatches below 0.5, or only exactly
-  at 0.1 (the wall moment)?
-- Neon border color — match the base color of that round, or always
-  cyan/magenta/yellow as in the promo art reference?
+- **Wall consumes a try** — life is over, can't go lower. Rewarded with 5000 gems.
+- **Neon border is always cyan/magenta/yellow** — fixed, iconic, matches promo art.
+  Makes the legendary state instantly recognizable regardless of round color.
+- **Eagle appears at ΔE < 0.5** — not only at the exact floor. The 0.5 crossing
+  is where human perception ends; Eagle marks that whole territory.
+- **`hitPerceptionWall` leaderboard badge** — persist to DB, future work.

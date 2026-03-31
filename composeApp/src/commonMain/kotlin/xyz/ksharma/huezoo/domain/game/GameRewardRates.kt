@@ -4,8 +4,9 @@ package xyz.ksharma.huezoo.domain.game
  * All gem earn rates in one place — single source of truth for both game engines and tests.
  *
  * Threshold:
- *   - [THRESHOLD_CORRECT_TAP]     : base per correct tap
- *   - [THRESHOLD_MILESTONE_*]     : one-time bonus per try when ΔE first crosses a boundary
+ *   - [THRESHOLD_CORRECT_TAP]       : base per correct tap
+ *   - [THRESHOLD_MILESTONE_*]       : one-time bonus per try when ΔE first crosses a boundary
+ *   - [THRESHOLD_PERCEPTION_WALL]   : one-time bonus when player hits MIN_DELTA_E
  *
  * Daily:
  *   - [DAILY_CORRECT_ROUND]       : per round answered correctly
@@ -16,6 +17,9 @@ object GameRewardRates {
 
     // ── Threshold ─────────────────────────────────────────────────────────────
     const val THRESHOLD_CORRECT_TAP = 2
+
+    /** Awarded once per session when a player correctly identifies at MIN_DELTA_E (the floor). */
+    const val THRESHOLD_PERCEPTION_WALL = 5000
 
     /** Awarded once per try the first time ΔE drops below each boundary. */
     const val THRESHOLD_MILESTONE_SHARP = 5 // ΔE < 2.0

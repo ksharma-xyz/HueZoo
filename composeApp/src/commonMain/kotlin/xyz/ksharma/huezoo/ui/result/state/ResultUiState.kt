@@ -35,5 +35,8 @@ sealed interface ResultUiState {
          * Empty until the store query returns; UI falls back to "UNLOCK FOREVER" without a price.
          */
         val priceLabel: String = "",
+        /** True when the player hit the perception wall (ΔE = MIN_DELTA_E) this session.
+         *  Unlocks the legendary neon border treatment on the result screen. */
+        val isLegendaryResult: Boolean = false,
     ) : ResultUiState
 }

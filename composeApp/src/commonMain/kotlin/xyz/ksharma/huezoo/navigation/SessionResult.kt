@@ -16,4 +16,6 @@ data class SessionResult(
     val gemBreakdown: List<GemAward> = emptyList(),
     /** Non-null when the player levelled up during this session. */
     val levelUpTo: PlayerLevel? = null,
+    /** True when the player correctly identified at MIN_DELTA_E (the perception wall). */
+    val hitPerceptionWall: Boolean = false,
 )

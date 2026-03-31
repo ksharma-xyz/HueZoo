@@ -21,4 +21,10 @@ enum class RoundPhase {
      * the petals retract to the centre point.
      */
     FoldingOut,
+
+    /**
+     * Player correctly identified the odd swatch at MIN_DELTA_E — the perception wall.
+     * Triggers the legendary celebration overlay before the life ends and a new one begins.
+     */
+    PerceptionWall,
 }

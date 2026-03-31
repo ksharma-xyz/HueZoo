@@ -90,6 +90,9 @@ class ThresholdViewModel(
     /** Best (lowest) ΔE survived across all tries in this session. */
     private var bestDeltaE: Float? = null
 
+    /** True if the player correctly identified the odd swatch at MIN_DELTA_E this session. */
+    private var hitPerceptionWall = false
+
     /**
      * Set to true when the session ends (all tries exhausted → navigate to result).
      * Checked in [onResume] so re-entering the screen always starts a fresh session
@@ -200,6 +203,7 @@ class ThresholdViewModel(
         currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
         tapCount = 1
         bestDeltaE = null
+        hitPerceptionWall = false
         sessionGems = 0
         sessionTapGems = 0
         sessionMilestoneGems = 0
@@ -298,6 +302,25 @@ class ThresholdViewModel(
             }
             playerState.updateGems(totalGems)
 
+            // Check if this correct tap hit the perception wall (ΔE already at floor).
+            // Award the legendary bonus once per session and end the life triumphantly.
+            if (currentDeltaE <= ThresholdGameEngine.MIN_DELTA_E && !hitPerceptionWall) {
+                hitPerceptionWall = true
+                totalGems = settingsRepository.addGems(GameRewardRates.THRESHOLD_PERCEPTION_WALL)
+                sessionGems += GameRewardRates.THRESHOLD_PERCEPTION_WALL
+                playerState.updateGems(totalGems)
+
+                (_uiState.value as? ThresholdUiState.Playing)?.let {
+                    _uiState.value = it.copy(
+                        roundPhase = RoundPhase.PerceptionWall,
+                        totalGems = totalGems,
+                    )
+                }
+                delay(ANIMATION_PERCEPTION_WALL_MS)
+                endLifeAfterWall()
+                return@safeLaunch
+            }
+
             delay(ANIMATION_CORRECT_MS)
             (_uiState.value as? ThresholdUiState.Playing)?.let {
                 _uiState.value = it.copy(roundPhase = RoundPhase.FoldingOut, totalGems = totalGems)
@@ -374,6 +397,7 @@ class ThresholdViewModel(
                         gemsEarned = sessionGems,
                         gemBreakdown = breakdown,
                         levelUpTo = sessionLevelUpTo,
+                        hitPerceptionWall = hitPerceptionWall,
                     ),
                 )
 
@@ -420,10 +444,56 @@ class ThresholdViewModel(
         else -> "Superhuman territory. And you fumbled."
     }
 
+    private fun endLifeAfterWall() {
+        safeLaunch {
+            sessionCorrectTaps += tapCount
+            triesRemaining--
+
+            (_uiState.value as? ThresholdUiState.Playing)?.let {
+                _uiState.value = it.copy(roundPhase = RoundPhase.FoldingOut)
+            }
+            delay(ANIMATION_FOLD_MS)
+
+            if (triesRemaining > 0) {
+                awardedMilestones.clear()
+                currentDeltaE = ThresholdGameEngine.STARTING_DELTA_E
+                tapCount = 1
+                baseColor = colorEngine.randomVividColorExcluding(playerLevel.levelHue)
+                emitRound()
+            } else {
+                hapticEngine.perform(HapticType.GameOver)
+                val finalDeltaE = bestDeltaE ?: currentDeltaE
+                repository.savePersonalBest(finalDeltaE)
+                val breakdown = buildList {
+                    if (sessionTapGems > 0) add(GemAward("Correct taps", sessionTapGems))
+                    if (sessionMilestoneGems > 0) add(GemAward("Milestone bonuses", sessionMilestoneGems))
+                    if (sessionLevelUpGems > 0) add(GemAward("Level up bonus", sessionLevelUpGems))
+                    add(GemAward("Perception wall bonus", GameRewardRates.THRESHOLD_PERCEPTION_WALL))
+                }
+                sessionResultCache.set(
+                    SessionResult(
+                        gameId = GameId.THRESHOLD,
+                        deltaE = finalDeltaE,
+                        roundsSurvived = sessionCorrectTaps,
+                        correctRounds = sessionCorrectTaps,
+                        totalRounds = sessionCorrectTaps + sessionWrongTaps,
+                        gemsEarned = sessionGems,
+                        gemBreakdown = breakdown,
+                        levelUpTo = sessionLevelUpTo,
+                        hitPerceptionWall = true,
+                    )
+                )
+                sessionEnded = true
+                _navEvent.emit(ThresholdNavEvent.NavigateToResult)
+            }
+        }
+    }
+
     private companion object {
         const val ANIMATION_CORRECT_MS = 750L
         const val ANIMATION_WRONG_MS = 850L
         const val ANIMATION_FOLD_MS = 520L
+        const val ANIMATION_PERCEPTION_WALL_MS = 2500L
         const val MILESTONE_HAPTIC_DELAY_MS = 200L
     }
 }

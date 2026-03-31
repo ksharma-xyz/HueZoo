@@ -85,6 +85,7 @@ class ResultViewModel(
             isPaid = isPaid,
             levelUpTo = sessionResult.levelUpTo,
             priceLabel = priceLabel,
+            isLegendaryResult = sessionResult.hitPerceptionWall,
         )
     }
 }
