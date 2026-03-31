@@ -21,8 +21,9 @@ fun ViewModel.safeLaunch(
     tag: String = this::class.simpleName ?: "ViewModel",
     block: suspend CoroutineScope.() -> Unit,
 ): Job = viewModelScope.launch(
-    context = CoroutineExceptionHandler { _, throwable ->
-        println("[ERROR] $tag: Uncaught coroutine exception — ${throwable.message}")
+    context = CoroutineExceptionHandler { _, _ ->
+        // Swallow uncaught coroutine exceptions to prevent crashes.
+        // Add platform logging here if crash reporting (e.g. Firebase Crashlytics) is wired up.
     },
     block = block,
 )

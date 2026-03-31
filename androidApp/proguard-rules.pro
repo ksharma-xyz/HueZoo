@@ -67,6 +67,18 @@
     native <methods>;
 }
 
+# ── WorkManager ──────────────────────────────────────────────────────────────
+-keep class androidx.work.** { *; }
+-keep class androidx.work.impl.** { *; }
+-dontwarn androidx.work.**
+
+# ── Room (used internally by WorkManager's WorkDatabase) ──────────────────────
+-keep class androidx.room.** { *; }
+-keep @androidx.room.Database class * { *; }
+-keep @androidx.room.Entity class * { *; }
+-keepclassmembers @androidx.room.Entity class * { *; }
+-dontwarn androidx.room.**
+
 # ── Suppress irrelevant warnings ──────────────────────────────────────────────
 -dontwarn org.slf4j.**
 -dontwarn java.awt.**

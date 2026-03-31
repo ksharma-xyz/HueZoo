@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId = "xyz.ksharma.huezoo"
         minSdk = 28
-        versionCode = findProperty("versionCode")?.toString()?.toInt() ?: 1
+        versionCode = findProperty("versionCode")?.toString()?.toInt() ?: 2
         versionName = "0.1.0"
     }
 
