@@ -14,6 +14,7 @@ import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.Home
 import xyz.ksharma.huezoo.navigation.HuezooNavigator
 import xyz.ksharma.huezoo.navigation.Leaderboard
+import xyz.ksharma.huezoo.navigation.Licenses
 import xyz.ksharma.huezoo.navigation.Result
 import xyz.ksharma.huezoo.navigation.Settings
 import xyz.ksharma.huezoo.navigation.Splash
@@ -29,6 +30,7 @@ import xyz.ksharma.huezoo.ui.games.daily.DailyScreen
 import xyz.ksharma.huezoo.ui.games.threshold.ThresholdScreen
 import xyz.ksharma.huezoo.ui.home.HomeScreen
 import xyz.ksharma.huezoo.ui.leaderboard.LeaderboardScreen
+import xyz.ksharma.huezoo.ui.licenses.LicensesScreen
 import xyz.ksharma.huezoo.ui.result.ResultScreen
 import xyz.ksharma.huezoo.ui.settings.SettingsScreen
 import xyz.ksharma.huezoo.ui.splash.SplashScreen
@@ -100,7 +102,12 @@ private fun huezooEntryProvider(navigator: HuezooNavigator): (NavKey) -> NavEntr
                 onBack = { navigator.pop() },
                 onViewHealthNotice = { navigator.goTo(EyeStrainNotice) },
                 onUpgrade = { navigator.goTo(Upgrade) },
+                onLicenses = { navigator.goTo(Licenses) },
             )
+        }
+
+        entry<Licenses> {
+            LicensesScreen(onBack = { navigator.pop() })
         }
 
         entry<Upgrade> {

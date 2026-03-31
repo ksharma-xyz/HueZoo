@@ -31,6 +31,9 @@ data object Settings : NavKey
 @Serializable
 data object Upgrade : NavKey
 
+@Serializable
+data object Licenses : NavKey
+
 sealed interface GameId {
     companion object {
         const val THRESHOLD = "threshold"

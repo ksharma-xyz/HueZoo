@@ -23,6 +23,7 @@ val huezooNavSerializationConfig = SavedStateConfiguration {
             subclass(Leaderboard::class, Leaderboard.serializer())
             subclass(Settings::class, Settings.serializer())
             subclass(Upgrade::class, Upgrade.serializer())
+            subclass(Licenses::class, Licenses.serializer())
         }
     }
 }
