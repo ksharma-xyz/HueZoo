@@ -157,6 +157,10 @@ class ThresholdViewModel(
         // result) — the ViewModel survives navigation so we need to explicitly start fresh.
         if (_uiState.value is ThresholdUiState.Blocked || sessionEnded) {
             sessionEnded = false
+            // Reset to Loading immediately so the screen never shows stale game state
+            // while the async DB read runs. Without this, the last Playing/Blocked state
+            // stays visible for the duration of loadGame(), causing a visible flash.
+            _uiState.value = ThresholdUiState.Loading
             loadGame()
         }
     }
