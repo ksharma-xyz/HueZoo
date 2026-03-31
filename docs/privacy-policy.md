@@ -85,4 +85,4 @@ We may update this Privacy Policy from time to time. Changes are effective when 
 
 Questions about privacy? Reach out:
 
-**Email:** [hey@ksharma.xyz](mailto:hey@ksharma.xyz)
+**Email:** [heyhuezoo@gmail.com](mailto:heyhuezoo@gmail.com)

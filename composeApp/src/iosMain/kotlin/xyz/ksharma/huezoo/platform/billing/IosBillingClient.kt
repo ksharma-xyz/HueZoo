@@ -9,9 +9,7 @@ import platform.StoreKit.SKPayment
 import platform.StoreKit.SKPaymentQueue
 import platform.StoreKit.SKPaymentTransaction
 import platform.StoreKit.SKPaymentTransactionObserverProtocol
-import platform.StoreKit.SKPaymentTransactionStateFailed
-import platform.StoreKit.SKPaymentTransactionStatePurchased
-import platform.StoreKit.SKPaymentTransactionStateRestored
+import platform.StoreKit.SKPaymentTransactionState
 import platform.StoreKit.SKProduct
 import platform.StoreKit.SKProductsRequest
 import platform.StoreKit.SKProductsRequestDelegateProtocol
@@ -66,19 +64,19 @@ class IosBillingClient : BillingClient {
                 val transactions = updatedTransactions as List<SKPaymentTransaction>
                 for (tx in transactions) {
                     when (tx.transactionState) {
-                        SKPaymentTransactionStatePurchased -> {
+                        SKPaymentTransactionState.SKPaymentTransactionStatePurchased -> {
                             queue.finishTransaction(tx)
                             val deferred = pendingPurchase.also { pendingPurchase = null }
                             deferred?.complete(PurchaseResult.Success)
                         }
-                        SKPaymentTransactionStateRestored -> {
+                        SKPaymentTransactionState.SKPaymentTransactionStateRestored -> {
                             // Collect IDs during restore; deferred completes in
                             // paymentQueueRestoreCompletedTransactionsFinished
                             tx.originalTransaction?.payment?.productIdentifier
                                 ?.let { restoredIds += it }
                             queue.finishTransaction(tx)
                         }
-                        SKPaymentTransactionStateFailed -> {
+                        SKPaymentTransactionState.SKPaymentTransactionStateFailed -> {
                             val isCancelled =
                                 tx.error?.code?.toInt() == SK_ERROR_PAYMENT_CANCELLED
                             queue.finishTransaction(tx)
