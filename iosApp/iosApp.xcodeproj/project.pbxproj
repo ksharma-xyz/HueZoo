@@ -8,14 +8,19 @@
 
 /* Begin PBXBuildFile section */
 		5D9CEBBC2F78F807000C53B3 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 5D9CEBBB2F78F807000C53B3 /* GoogleMobileAds */; };
+		5DF633AF2F7C8057003688FC /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 5DF633AE2F7C8057003688FC /* FirebaseAnalytics */; };
+		5DF633B12F7C8057003688FC /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 5DF633B02F7C8057003688FC /* FirebaseCrashlytics */; };
+		5DF633B32F7C8057003688FC /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 5DF633B22F7C8057003688FC /* FirebaseRemoteConfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1B52D11B11EF9B5F11F90ED0 /* Huezoo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Huezoo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E65F7A7393294364E6609A78 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.info; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		E65F7E708146EB89A8C6084E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.info; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		83152837D4C5E2FA57AD1344 /* Exceptions for "iosApp" folder in "iosApp" target */ = {
+		83152837D4C5E2FA57AD1344 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -33,7 +38,7 @@
 		E62871AFCA49A0CF0AF23492 /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				83152837D4C5E2FA57AD1344 /* Exceptions for "iosApp" folder in "iosApp" target */,
+				83152837D4C5E2FA57AD1344 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -45,7 +50,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DF633B12F7C8057003688FC /* FirebaseCrashlytics in Frameworks */,
+				5DF633AF2F7C8057003688FC /* FirebaseAnalytics in Frameworks */,
 				5D9CEBBC2F78F807000C53B3 /* GoogleMobileAds in Frameworks */,
+				5DF633B32F7C8057003688FC /* FirebaseRemoteConfig in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +86,7 @@
 			buildPhases = (
 				7AA25C370E97F22FD593F875 /* Compile Kotlin Framework */,
 				FA0E3562058964959B507D8B /* Sources */,
+				5DF633B42F7C8084003688FC /* Crashlytics */,
 				D051945D8C154BB28DE88C0A /* Frameworks */,
 				7A718B68F6C4608359C2E8C6 /* Resources */,
 			);
@@ -91,6 +100,9 @@
 			name = iosApp;
 			packageProductDependencies = (
 				5D9CEBBB2F78F807000C53B3 /* GoogleMobileAds */,
+				5DF633AE2F7C8057003688FC /* FirebaseAnalytics */,
+				5DF633B02F7C8057003688FC /* FirebaseCrashlytics */,
+				5DF633B22F7C8057003688FC /* FirebaseRemoteConfig */,
 			);
 			productName = iosApp;
 			productReference = 1B52D11B11EF9B5F11F90ED0 /* Huezoo.app */;
@@ -122,6 +134,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				5D9CEBBA2F78F807000C53B3 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				5DF633AD2F7C8057003688FC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C7713C77028B523FB8EC989C /* Products */;
@@ -144,6 +157,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		5DF633B42F7C8084003688FC /* Crashlytics */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = Crashlytics;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SHARED_PRECOMPS_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
+		};
 		7AA25C370E97F22FD593F875 /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -407,6 +439,14 @@
 				minimumVersion = 13.1.0;
 			};
 		};
+		5DF633AD2F7C8057003688FC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.11.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -414,6 +454,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5D9CEBBA2F78F807000C53B3 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
 			productName = GoogleMobileAds;
+		};
+		5DF633AE2F7C8057003688FC /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DF633AD2F7C8057003688FC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		5DF633B02F7C8057003688FC /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DF633AD2F7C8057003688FC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		5DF633B22F7C8057003688FC /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5DF633AD2F7C8057003688FC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
