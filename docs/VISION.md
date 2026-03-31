@@ -157,6 +157,30 @@ Firebase rules: public read, anonymous-auth write only, max 1 write per UID per 
 - **Seasonal themes** — swap color palettes (pastels, neons, earth tones)
 - **Friends leaderboard** — share code, see only people you know
 
+### Visual / UI ideas (from design exploration, April 2026)
+
+- **Timer ring** — the segmented circular ring (cine_solid aesthetic) wraps the
+  reference swatch and counts down as a timed-mode pressure mechanic. Segments
+  drain arc-by-arc. Pairs with a future "Speed Round" or timed variant of Threshold.
+  Ring shape reference: `docs/ideas/cine_solid.png`
+
+- **Progress ring (non-timed)** — same ring shape but fills up as you answer
+  correctly in a session. Segments map to milestone thresholds. Resets on wrong
+  answer for max drama. Could ship sooner than the timed variant.
+
+- **Animal mascots per difficulty tier** — a faint animal watermark inside each
+  swatch that changes as ΔE drops, tying visual identity to difficulty:
+  Bear (ΔE 5→3) → Fox (3→2) → Frog (2→1) → Octopus (1→0.5) → Eagle (<0.5).
+  Animal flashes on correct-answer reveal. Pairs with PlayerLevel progression.
+
+- **"Beyond human perception" wall** — when ΔE drops below ~0.5 the game
+  surfaces a special message acknowledging the player has crossed the threshold
+  of human color discrimination. Eagle mascot appears. Legendary tier moment.
+
+- **BulbPetal swatch shape** — wider, more bulbous teardrop than the existing
+  Flower style; inward curve at the base, no border. Based on `docs/ideas/screen.png`
+  petal cluster. Add as a new `SwatchLayoutStyle` entry.
+
 ---
 
 ## Tech Stack (full vision)

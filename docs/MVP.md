@@ -103,6 +103,10 @@ Open app
 ### UX.13 — Result Polish ⬜
 - [ ] UX.13.1 "NEW PERSONAL BEST" badge on ΔE stat card
 - [ ] UX.13.2 ΔE tier name on result (e.g. "EXPERT" badge alongside ΔE value)
+- [ ] UX.13.3 Neon border redesign — Result screen gets a neon rectangular border
+      inspired by the `docs/ideas/screen.png` promo art (cyan/magenta/yellow glow edges).
+      Replaces or augments the current card background. Subtle animated glow on entry.
+      Design ref: `docs/ideas/screen.png` outer rectangle border.
 
 ### UX.14 — Swatch Size Setting ⬜
 - [ ] UX.14.1 Wire `SwatchSize` to `user_settings` in SQLDelight
