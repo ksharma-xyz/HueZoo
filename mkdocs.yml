@@ -1,10 +1,10 @@
 site_name: Huezoo
-site_url: https://ksharma-xyz.github.io/FunWithColors/
+site_url: https://ksharma-xyz.github.io/Huezoo/
 site_author: ksharma-xyz
 site_description: A color-matching game for curious minds.
 
-repo_name: ksharma-xyz/FunWithColors
-repo_url: https://github.com/ksharma-xyz/FunWithColors
+repo_name: ksharma-xyz/Huezoo
+repo_url: https://github.com/ksharma-xyz/Huezoo
 edit_uri: ""
 
 theme:
