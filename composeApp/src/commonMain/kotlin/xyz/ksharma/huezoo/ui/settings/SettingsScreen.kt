@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
@@ -40,6 +41,7 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onViewHealthNotice: () -> Unit,
     onUpgrade: () -> Unit = {},
+    onLicenses: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
@@ -229,6 +231,38 @@ fun SettingsScreen(
                             )
                         }
                     }
+                }
+
+                // ── ABOUT ──────────────────────────────────────────────────
+                Spacer(Modifier.height(HuezooSpacing.xl))
+
+                SettingsSectionLabel("ABOUT")
+                Spacer(Modifier.height(HuezooSpacing.sm))
+
+                SettingsPanel {
+                    SettingsRow(
+                        label = "Open Licenses",
+                        description = "Fonts and libraries used in Huezoo.",
+                    )
+                    Spacer(Modifier.height(HuezooSpacing.sm))
+                    HuezooButton(
+                        text = "VIEW LICENSES",
+                        onClick = onLicenses,
+                        variant = HuezooButtonVariant.Ghost,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+
+                Spacer(Modifier.height(HuezooSpacing.xl))
+
+                // ── Version ──────────────────────────────────────────────────
+                if (state.appVersion.isNotBlank()) {
+                    HuezooLabelSmall(
+                        text = "v${state.appVersion}",
+                        color = HuezooColors.TextDisabled,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                    )
                 }
 
                 Spacer(Modifier.height(HuezooSpacing.xl))

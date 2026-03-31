@@ -12,4 +12,6 @@ data class SettingsUiState(
     val userName: String? = null,
     /** Draft value in the name text field while editing. */
     val nameInput: String = "",
+    /** Version string shown at the bottom of the screen ("0.1.0" release, "0.1.0 dev" debug). */
+    val appVersion: String = "",
 )

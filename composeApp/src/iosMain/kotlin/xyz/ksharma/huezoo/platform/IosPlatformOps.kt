@@ -5,6 +5,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.cValue
 import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRect
+import platform.Foundation.NSBundle
 import platform.Foundation.NSOperationQueue
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
@@ -16,6 +17,10 @@ class IosPlatformOps : PlatformOps {
     @OptIn(ExperimentalNativeApi::class)
     override val isDebugBuild: Boolean
         get() = Platform.isDebugBinary
+
+    override val appVersion: String
+        get() = NSBundle.mainBundle.infoDictionary
+            ?.get("CFBundleShortVersionString") as? String ?: "0.1"
 
     @OptIn(ExperimentalForeignApi::class)
     override fun shareText(text: String, title: String) {

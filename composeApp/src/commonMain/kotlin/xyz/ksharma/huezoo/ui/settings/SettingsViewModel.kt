@@ -41,14 +41,17 @@ class SettingsViewModel(
             val isPaid = settingsRepository.isPaid()
             val gems = settingsRepository.getGems()
             val userName = settingsRepository.getUserName()
+            val isDebug = platformOps.isDebugBuild
+            val appVersion = if (isDebug) "${platformOps.appVersion} dev" else platformOps.appVersion
             _uiState.update {
                 it.copy(
                     isPaid = isPaid,
                     gems = gems,
-                    isDebugBuild = platformOps.isDebugBuild,
+                    isDebugBuild = isDebug,
                     userName = userName,
                     nameInput = userName ?: "",
                     forceStreakCelebration = DebugFlags.forceStreakCelebration,
+                    appVersion = appVersion,
                 )
             }
         }
