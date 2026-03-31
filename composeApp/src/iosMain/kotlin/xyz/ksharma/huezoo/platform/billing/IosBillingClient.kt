@@ -50,11 +50,9 @@ class IosBillingClient : BillingClient {
 
     // ── Transaction observer ──────────────────────────────────────────────────
 
-    /**
-     * Stored as a class property so it stays alive for the app's lifetime.
-     * SKPaymentQueue retains observers, but we also hold a strong Kotlin reference
-     * to be safe with Kotlin/Native's GC.
-     */
+    // Stored as a class property so it stays alive for the app's lifetime.
+    // SKPaymentQueue retains observers, but we also hold a strong Kotlin reference
+    // to be safe with Kotlin/Native's GC.
     @Suppress("ObjectLiteralToLambda") // must be NSObject subclass, not a lambda
     private val observer: SKPaymentTransactionObserverProtocol =
         object : NSObject(), SKPaymentTransactionObserverProtocol {
