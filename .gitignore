@@ -22,3 +22,5 @@ keystore.jks
 *.aab
 *.apk
 androidApp/release/
+google-services.json
+GoogleService-Info.plist
