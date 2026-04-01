@@ -25,7 +25,7 @@ All variables → **same page → Variables tab**
 | `IOS_DIST_SIGNING_KEY_PASSWORD`         | plain text            | ⬜      |
 | `IOS_PROVISIONING_PROFILE_NAME`         | plain text            | ⬜      |
 | `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`      | plain text (raw JSON) | ⬜      |
-| `FIREBASE_SERVICE_ACCOUNT_KEY`          | base64                | ⬜      |
+| `FIREBASE_SERVICE_ACCOUNT_KEY`          | plain text (raw JSON) | ⬜      |
 | `FIREBASE_ANDROID_DEBUG_APP_ID`         | plain text            | ⬜      |
 | `FIREBASE_ANDROID_PROD_APP_ID`          | plain text            | ⬜      |
 | `ANDROID_VERSION_CODE` (variable)       | plain text            | ⬜      |
@@ -169,7 +169,7 @@ automatically.
 **What it is:** A Firebase service account key used by CI to distribute APKs via Firebase App
 Distribution (internal testing before Play Store).
 
-**Format:** base64.
+**Format:** Plain text — paste the raw JSON content directly, NOT base64.
 
 **Steps:**
 
@@ -177,19 +177,15 @@ Distribution (internal testing before Play Store).
    [console.firebase.google.com/project/huezoo/settings/serviceaccounts/adminsdk](https://console.firebase.google.com/u/0/project/huezoo/settings/serviceaccounts/adminsdk)
 2. Click **Generate new private key** → **Generate key**
 3. A `.json` file downloads
-6. Base64 encode and add as secret:
-
-```bash
-base64 -i ~/Downloads/huezoo-firebase-adminsdk-*.json | pbcopy
-```
-
-→ paste as `FIREBASE_SERVICE_ACCOUNT_KEY`
+4. Open the file in a text editor → select all → copy
+   → paste the raw JSON as `FIREBASE_SERVICE_ACCOUNT_KEY` (plain text, not base64)
 
 **Cleanup:**
-
 ```bash
 rm ~/Downloads/huezoo-firebase-adminsdk-*.json
 ```
+
+> ⚠️ If you previously added this as base64 — delete it from GitHub and re-add as plain JSON.
 
 ---
 
