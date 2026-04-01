@@ -492,8 +492,10 @@ private fun StatBox(
             AnimatedContent(
                 targetState = value,
                 transitionSpec = {
-                    (scaleIn(initialScale = 1.45f, animationSpec = tween(280)) +
-                        fadeIn(tween(220)))
+                    (
+                        scaleIn(initialScale = 1.45f, animationSpec = tween(280)) +
+                            fadeIn(tween(220))
+                        )
                         .togetherWith(
                             scaleOut(targetScale = 0.65f, animationSpec = tween(180)) +
                                 fadeOut(tween(180)),
@@ -1172,6 +1174,7 @@ private fun AnimatedDailyIcon(color: Color) {
     }
 }
 
+@Suppress("MagicNumber")
 private fun DrawScope.drawNeonCat(color: Color, tailAngleDeg: Float, glowAlpha: Float) {
     val cx = size.width / 2f
     val cy = size.height * 0.54f
@@ -1229,9 +1232,12 @@ private fun DrawScope.drawNeonCat(color: Color, tailAngleDeg: Float, glowAlpha: 
         val tailPath = Path().apply {
             moveTo(tailPivotX, tailPivotY)
             cubicTo(
-                tailPivotX + headR * 0.85f, tailPivotY + headR * 0.50f,
-                tailPivotX + headR * 1.25f, tailPivotY + headR * 0.08f,
-                tailPivotX + headR * 1.15f, tailPivotY - headR * 0.45f,
+                tailPivotX + headR * 0.85f,
+                tailPivotY + headR * 0.50f,
+                tailPivotX + headR * 1.25f,
+                tailPivotY + headR * 0.08f,
+                tailPivotX + headR * 1.15f,
+                tailPivotY - headR * 0.45f,
             )
         }
         drawPath(tailPath, color.copy(alpha = 0.80f), style = Stroke(sw, cap = StrokeCap.Round))

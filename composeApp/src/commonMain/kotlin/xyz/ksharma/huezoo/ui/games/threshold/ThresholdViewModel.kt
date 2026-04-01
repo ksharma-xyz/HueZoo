@@ -90,7 +90,6 @@ class ThresholdViewModel(
     /** Best (lowest) ΔE survived across all tries in this session. */
     private var bestDeltaE: Float? = null
 
-    /** True if the player correctly identified the odd swatch at MIN_DELTA_E this session. */
     private var hitPerceptionWall = false
 
     /**
@@ -248,6 +247,7 @@ class ThresholdViewModel(
         if (index == oddIndex) handleCorrectTap(state) else handleWrongTap(state, tappedIndex = index)
     }
 
+    @Suppress("LongMethod")
     private fun handleCorrectTap(state: ThresholdUiState.Playing) {
         bestDeltaE = bestDeltaE?.let { minOf(it, currentDeltaE) } ?: currentDeltaE
 
@@ -481,7 +481,7 @@ class ThresholdViewModel(
                         gemBreakdown = breakdown,
                         levelUpTo = sessionLevelUpTo,
                         hitPerceptionWall = true,
-                    )
+                    ),
                 )
                 sessionEnded = true
                 _navEvent.emit(ThresholdNavEvent.NavigateToResult)

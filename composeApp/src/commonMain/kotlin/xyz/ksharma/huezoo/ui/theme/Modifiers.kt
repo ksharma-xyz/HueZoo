@@ -227,17 +227,17 @@ fun Modifier.organicGlow(
     // ── Derived colour variants ──────────────────────────────────────────────
     val colorRose = remember(color) {
         Color(
-            red   = color.red,
+            red = color.red,
             green = (color.green + 0.20f).coerceIn(0f, 1f),
-            blue  = (color.blue  * 0.40f).coerceIn(0f, 1f),
+            blue = (color.blue * 0.40f).coerceIn(0f, 1f),
             alpha = 1f,
         )
     }
     val colorViolet = remember(color) {
         Color(
-            red   = (color.red  * 0.40f).coerceIn(0f, 1f),
+            red = (color.red * 0.40f).coerceIn(0f, 1f),
             green = 0f,
-            blue  = (color.blue + 0.15f).coerceIn(0f, 1f),
+            blue = (color.blue + 0.15f).coerceIn(0f, 1f),
             alpha = 1f,
         )
     }
@@ -248,25 +248,95 @@ fun Modifier.organicGlow(
     val blobs = remember(color, colorRose, colorViolet) {
         listOf(
             // Top edge — big magenta patch left-of-center
-            GlowBlob(nx = 0.25f, ny = -0.10f, baseRadiusDp = 36f, color = color,        phaseOffset = 0.00f,               maxAlpha = 0.55f),
+            GlowBlob(
+                nx = 0.25f,
+                ny = -0.10f,
+                baseRadiusDp = 36f,
+                color = color,
+                phaseOffset = 0.00f,
+                maxAlpha = 0.55f,
+            ),
             // Top edge — smaller rose blob, right-of-center
-            GlowBlob(nx = 0.72f, ny = -0.07f, baseRadiusDp = 22f, color = colorRose,    phaseOffset = (PI * 0.60f).toFloat(), maxAlpha = 0.42f),
+            GlowBlob(
+                nx = 0.72f,
+                ny = -0.07f,
+                baseRadiusDp = 22f,
+                color = colorRose,
+                phaseOffset = (PI * 0.60f).toFloat(),
+                maxAlpha = 0.42f,
+            ),
             // Top-right corner — violet spike
-            GlowBlob(nx = 0.97f, ny = -0.04f, baseRadiusDp = 16f, color = colorViolet,  phaseOffset = (PI * 1.10f).toFloat(), maxAlpha = 0.35f),
+            GlowBlob(
+                nx = 0.97f,
+                ny = -0.04f,
+                baseRadiusDp = 16f,
+                color = colorViolet,
+                phaseOffset = (PI * 1.10f).toFloat(),
+                maxAlpha = 0.35f,
+            ),
             // Right edge — magenta, upper half
-            GlowBlob(nx = 1.09f, ny = 0.38f,  baseRadiusDp = 26f, color = color,        phaseOffset = (PI * 0.40f).toFloat(), maxAlpha = 0.50f),
+            GlowBlob(
+                nx = 1.09f,
+                ny = 0.38f,
+                baseRadiusDp = 26f,
+                color = color,
+                phaseOffset = (PI * 0.40f).toFloat(),
+                maxAlpha = 0.50f,
+            ),
             // Right edge — violet, lower half (thinner → gap feel)
-            GlowBlob(nx = 1.06f, ny = 0.74f,  baseRadiusDp = 16f, color = colorViolet,  phaseOffset = (PI * 1.60f).toFloat(), maxAlpha = 0.36f),
+            GlowBlob(
+                nx = 1.06f,
+                ny = 0.74f,
+                baseRadiusDp = 16f,
+                color = colorViolet,
+                phaseOffset = (PI * 1.60f).toFloat(),
+                maxAlpha = 0.36f,
+            ),
             // Bottom edge — large rose cloud, right-of-center
-            GlowBlob(nx = 0.62f, ny = 1.10f,  baseRadiusDp = 40f, color = colorRose,    phaseOffset = (PI * 1.30f).toFloat(), maxAlpha = 0.55f),
+            GlowBlob(
+                nx = 0.62f,
+                ny = 1.10f,
+                baseRadiusDp = 40f,
+                color = colorRose,
+                phaseOffset = (PI * 1.30f).toFloat(),
+                maxAlpha = 0.55f,
+            ),
             // Bottom edge — magenta, left-of-center (smaller → asymmetry)
-            GlowBlob(nx = 0.18f, ny = 1.07f,  baseRadiusDp = 20f, color = color,        phaseOffset = (PI * 0.90f).toFloat(), maxAlpha = 0.40f),
+            GlowBlob(
+                nx = 0.18f,
+                ny = 1.07f,
+                baseRadiusDp = 20f,
+                color = color,
+                phaseOffset = (PI * 0.90f).toFloat(),
+                maxAlpha = 0.40f,
+            ),
             // Bottom-left corner — rose accent
-            GlowBlob(nx = 0.04f, ny = 1.05f,  baseRadiusDp = 14f, color = colorRose,    phaseOffset = (PI * 1.50f).toFloat(), maxAlpha = 0.30f),
+            GlowBlob(
+                nx = 0.04f,
+                ny = 1.05f,
+                baseRadiusDp = 14f,
+                color = colorRose,
+                phaseOffset = (PI * 1.50f).toFloat(),
+                maxAlpha = 0.30f,
+            ),
             // Left edge — big violet cloud (creates deep purple flank)
-            GlowBlob(nx = -0.10f, ny = 0.65f, baseRadiusDp = 30f, color = colorViolet,  phaseOffset = (PI * 1.90f).toFloat(), maxAlpha = 0.50f),
+            GlowBlob(
+                nx = -0.10f,
+                ny = 0.65f,
+                baseRadiusDp = 30f,
+                color = colorViolet,
+                phaseOffset = (PI * 1.90f).toFloat(),
+                maxAlpha = 0.50f,
+            ),
             // Left edge — small rose, upper (breaks symmetry with right)
-            GlowBlob(nx = -0.06f, ny = 0.20f, baseRadiusDp = 18f, color = colorRose,    phaseOffset = (PI * 0.25f).toFloat(), maxAlpha = 0.36f),
+            GlowBlob(
+                nx = -0.06f,
+                ny = 0.20f,
+                baseRadiusDp = 18f,
+                color = colorRose,
+                phaseOffset = (PI * 0.25f).toFloat(),
+                maxAlpha = 0.36f,
+            ),
         )
     }
 
@@ -274,33 +344,49 @@ fun Modifier.organicGlow(
     val transition = rememberInfiniteTransition(label = "organicGlow")
     val phase by transition.animateFloat(
         initialValue = 0f,
-        targetValue  = (2f * PI).toFloat(),
+        targetValue = (2f * PI).toFloat(),
         animationSpec = infiniteRepeatable(
-            animation    = tween(durationMillis = 12_000, easing = LinearEasing),
-            repeatMode   = RepeatMode.Restart,
+            animation = tween(durationMillis = 12_000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
         ),
         label = "glowPhase",
     )
 
     // ── Draw ─────────────────────────────────────────────────────────────────
     return this.drawBehind {
-        val W = size.width
-        val H = size.height
+        val w = size.width
+        val h = size.height
 
         blobs.forEach { blob ->
             // Breathe: 0 → 1 sine wave unique to this blob
-            val breathe  = sin(phase + blob.phaseOffset) * 0.5f + 0.5f
-            val radius   = blob.baseRadiusDp.dp.toPx() * (0.75f + breathe * 0.50f)
+            val breathe = sin(phase + blob.phaseOffset) * 0.5f + 0.5f
+            val radius = blob.baseRadiusDp.dp.toPx() * (0.75f + breathe * 0.50f)
             val peakAlpha = blob.maxAlpha * (0.40f + breathe * 0.60f)
-            val cx = W * blob.nx
-            val cy = H * blob.ny
+            val cx = w * blob.nx
+            val cy = h * blob.ny
 
             // Four concentric circles — outermost large+faint, innermost small+bright.
             // Source-Over accumulation makes the center progressively more saturated.
-            drawCircle(color = blob.color.copy(alpha = peakAlpha * 0.10f), radius = radius,          center = Offset(cx, cy))
-            drawCircle(color = blob.color.copy(alpha = peakAlpha * 0.18f), radius = radius * 0.62f,  center = Offset(cx, cy))
-            drawCircle(color = blob.color.copy(alpha = peakAlpha * 0.26f), radius = radius * 0.35f,  center = Offset(cx, cy))
-            drawCircle(color = blob.color.copy(alpha = peakAlpha * 0.20f), radius = radius * 0.14f,  center = Offset(cx, cy))
+            drawCircle(
+                color = blob.color.copy(alpha = peakAlpha * 0.10f),
+                radius = radius,
+                center = Offset(cx, cy),
+            )
+            drawCircle(
+                color = blob.color.copy(alpha = peakAlpha * 0.18f),
+                radius = radius * 0.62f,
+                center = Offset(cx, cy),
+            )
+            drawCircle(
+                color = blob.color.copy(alpha = peakAlpha * 0.26f),
+                radius = radius * 0.35f,
+                center = Offset(cx, cy),
+            )
+            drawCircle(
+                color = blob.color.copy(alpha = peakAlpha * 0.20f),
+                radius = radius * 0.14f,
+                center = Offset(cx, cy),
+            )
         }
     }
 }

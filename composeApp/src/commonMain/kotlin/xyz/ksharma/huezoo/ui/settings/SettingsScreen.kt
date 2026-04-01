@@ -36,6 +36,7 @@ import xyz.ksharma.huezoo.ui.settings.state.SettingsUiEvent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,

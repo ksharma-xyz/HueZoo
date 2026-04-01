@@ -16,11 +16,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
@@ -42,10 +42,10 @@ import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.CitrusSwatch
 import xyz.ksharma.huezoo.ui.theme.DiamondSwatch
-import xyz.ksharma.huezoo.ui.theme.ShieldSwatch
 import xyz.ksharma.huezoo.ui.theme.HexagonSwatch
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.ShieldSwatch
 import xyz.ksharma.huezoo.ui.theme.SquircleMedium
 import xyz.ksharma.huezoo.ui.theme.SquircleSmall
 import xyz.ksharma.huezoo.ui.theme.SwatchPetal
@@ -498,16 +498,15 @@ fun SwatchShapeProgressRing(
     }
 }
 
-/** Consecutive correct taps needed to fully illuminate each of the 6 ghost tiles. */
 private val SWATCH_PROGRESS_MILESTONES = intArrayOf(1, 3, 6, 10, 15, 21)
 
-private const val GHOST_SCALE_UNIFORM = 1.10f    // uniform shapes (hex, squircle, diamond)
-private const val GHOST_SCALE_RADIAL = 1.12f     // petal/blade: grow along radial axis
+private const val GHOST_SCALE_UNIFORM = 1.10f // uniform shapes (hex, squircle, diamond)
+private const val GHOST_SCALE_RADIAL = 1.12f // petal/blade: grow along radial axis
 private const val GHOST_SCALE_TANGENTIAL = 1.04f // petal/blade: subtle tangential spread
 private const val GHOST_STROKE_PX = 3.5f
-private const val GHOST_TRACK_ALPHA = 0.14f  // always-visible dim track
-private const val GHOST_FILL_ALPHA = 0.38f   // max fill body alpha
-private const val GHOST_GLOW_ALPHA = 0.62f   // additional stroke alpha when fully lit
+private const val GHOST_TRACK_ALPHA = 0.14f // always-visible dim track
+private const val GHOST_FILL_ALPHA = 0.38f // max fill body alpha
+private const val GHOST_GLOW_ALPHA = 0.62f // additional stroke alpha when fully lit
 
 // ── Previews ──────────────────────────────────────────────────────────────────
 
@@ -664,7 +663,6 @@ private fun RadialCitrusSlicePreview() {
         )
     }
 }
-
 
 @PreviewComponent
 @Composable

@@ -43,7 +43,6 @@ enum class SwatchLayoutStyle {
      */
     DiamondHalo,
 
-
     /**
      * 6 rounded shield / badge shapes — pointed inner tip, wide convex outer body with
      * concave "shoulder" curves.  Inspired by [docs/ideas/swatch_diamong.png].

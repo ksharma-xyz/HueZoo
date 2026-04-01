@@ -190,7 +190,6 @@ class PetalShape : Shape {
 /** Default petal tile for the flower swatch layout. */
 val SwatchPetal = PetalShape()
 
-
 /**
  * Diamond shape — a perfect rhombus whose **top tip sits at (width/2, 0)** and bottom tip at
  * (width/2, height), with the widest points at the vertical midpoint.
@@ -243,16 +242,17 @@ class RoundedShieldShape : Shape {
         density: Density,
     ): Outline = Outline.Generic(shieldPath(size))
 
+    @Suppress("MagicNumber")
     private fun shieldPath(size: Size): Path {
         val cx = size.width / 2f
         // Widest point below mid-height → inner portion is taller (more pointed inner tip)
         // while outer portion stays at roughly the same angle as a symmetric diamond.
         val sidePtY = size.height * 0.58f
         return Path().apply {
-            moveTo(cx, 0f)              // inner tip — top centre, points toward layout centre
+            moveTo(cx, 0f) // inner tip — top centre, points toward layout centre
             lineTo(size.width, sidePtY) // right point — widest edge (58 % down)
-            lineTo(cx, size.height)     // outer tip — bottom centre, points away from centre
-            lineTo(0f, sidePtY)         // left point — widest edge
+            lineTo(cx, size.height) // outer tip — bottom centre, points away from centre
+            lineTo(0f, sidePtY) // left point — widest edge
             close()
         }
     }
@@ -279,6 +279,7 @@ class CitrusSliceShape : Shape {
         density: Density,
     ): Outline = Outline.Generic(citrusPath(size))
 
+    @Suppress("MagicNumber")
     private fun citrusPath(size: Size): Path {
         val w = size.width
         val h = size.height
@@ -287,15 +288,21 @@ class CitrusSliceShape : Shape {
             moveTo(0f, cy) // left tip
             // Outer (convex) arc: left tip → deep downward curve → right tip
             cubicTo(
-                w * 0.12f, h * 1.08f, // ctrl 1 — pulls below bounding box
-                w * 0.88f, h * 1.08f, // ctrl 2 — mirror
-                w, cy, // right tip
+                w * 0.12f,
+                h * 1.08f, // ctrl 1 — pulls below bounding box
+                w * 0.88f,
+                h * 1.08f, // ctrl 2 — mirror
+                w,
+                cy, // right tip
             )
             // Inner (concave) arc: right tip → shallow upward curve → left tip
             cubicTo(
-                w * 0.80f, -h * 0.12f, // ctrl 1 — pulls above bounding box
-                w * 0.20f, -h * 0.12f, // ctrl 2 — mirror
-                0f, cy, // back to left tip
+                w * 0.80f,
+                -h * 0.12f, // ctrl 1 — pulls above bounding box
+                w * 0.20f,
+                -h * 0.12f, // ctrl 2 — mirror
+                0f,
+                cy, // back to left tip
             )
             close()
         }
@@ -304,7 +311,6 @@ class CitrusSliceShape : Shape {
 
 /** Citrus-slice / crescent swatch tile — concave inner edge, convex outer edge. */
 val CitrusSwatch = CitrusSliceShape()
-
 
 /**
  * Classic heart shape — two circular lobes at the top, pointed tip at the bottom.

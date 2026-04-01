@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package xyz.ksharma.huezoo.ui.games.threshold
 
 import androidx.compose.animation.animateColorAsState
@@ -72,6 +74,7 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun ThresholdScreen(
     onResult: () -> Unit,
@@ -406,7 +409,10 @@ private fun PerceptionWallOverlay(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
             modifier = Modifier
-                .graphicsLayer { scaleX = scale; scaleY = scale }
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }
                 .padding(horizontal = HuezooSpacing.xl),
         ) {
             Text(
@@ -490,7 +496,7 @@ private fun ThresholdLightLines(modifier: Modifier = Modifier) {
 
         // Floor reflection: bottom 36% of screen — lines denser + brighter near very bottom
         for (i in 0 until lineCount) {
-            val t = (i + 1).toFloat() / lineCount      // 0 = near centre horizon, 1 = bottom edge
+            val t = (i + 1).toFloat() / lineCount // 0 = near centre horizon, 1 = bottom edge
             val y = size.height - size.height * 0.36f * (1f - t * t) // quadratic spacing
             drawLine(
                 color = lineColor.copy(alpha = 0.022f + t * 0.052f),

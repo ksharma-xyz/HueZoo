@@ -159,6 +159,7 @@ Open app
 - [ ] 8.9 Player rank: query position after submission; wire into `HomeUiState.Ready.rank`
 
 ### Phase 9 — Polish & Ship ⬜
+- [x] 9.0 UI buttons use drawn shapes in production — `BackChevron` (Canvas), help `"?"` text, settings `"⚙"` text; white-circle placeholder only in `@PreviewComponent` private previews, not in shipped UI
 - [ ] 9.1 App icon (all sizes) + splash screen asset
 - [ ] 9.2 Verify on real Android device + iOS device/simulator
 - [ ] 9.3 Haptic + sound tuning pass on real device
