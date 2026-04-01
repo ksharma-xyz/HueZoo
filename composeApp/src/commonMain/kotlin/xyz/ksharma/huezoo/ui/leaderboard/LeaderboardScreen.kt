@@ -53,6 +53,7 @@ import xyz.ksharma.huezoo.ui.model.estimatedPerceptionTier
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.colorGlow
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -140,8 +141,21 @@ private fun LeaderboardContent(
                 modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
             )
 
-            // Activation protocol box
-            ActivationProtocolCard(modifier = Modifier.fillMaxWidth())
+            // Share text — used inside the ActivationProtocolCard's broadcast button
+            val shareText = if (personalBestDeltaE != null && tier != null) {
+                "I'm classified as ${tier.rankLabel} in color perception on Huezoo — " +
+                    "my ΔE score is ${personalBestDeltaE.fmt()}. Can your eyes beat mine? " +
+                    "Download Huezoo and find out."
+            } else {
+                "I just discovered Huezoo — a game that tests how precisely you can see color. " +
+                    "My eyes are being calibrated. Join me. Download Huezoo."
+            }
+
+            // Activation protocol box (includes BROADCAST SIGNAL button)
+            ActivationProtocolCard(
+                onShare = { onShare(shareText) },
+                modifier = Modifier.fillMaxWidth(),
+            )
 
             Spacer(Modifier.height(HuezooSpacing.xs))
 
@@ -165,25 +179,6 @@ private fun LeaderboardContent(
                     )
                 }
             }
-
-            Spacer(Modifier.height(HuezooSpacing.xs))
-
-            // Share button
-            val shareText = if (personalBestDeltaE != null && tier != null) {
-                "I'm classified as ${tier.rankLabel} in color perception on Huezoo — " +
-                    "my ΔE score is ${personalBestDeltaE.fmt()}. Can your eyes beat mine? " +
-                    "Download Huezoo and find out."
-            } else {
-                "I just discovered Huezoo — a game that tests how precisely you can see color. " +
-                    "My eyes are being calibrated. Join me. Download Huezoo."
-            }
-
-            HuezooButton(
-                text = "BROADCAST SIGNAL",
-                onClick = { onShare(shareText) },
-                variant = HuezooButtonVariant.Primary,
-                modifier = Modifier.fillMaxWidth(),
-            )
 
             Spacer(Modifier.height(HuezooSpacing.lg))
         }
@@ -430,9 +425,18 @@ private fun TierRow(
 // ── Activation Protocol card ──────────────────────────────────────────────────
 
 @Composable
-private fun ActivationProtocolCard(modifier: Modifier = Modifier) {
+private fun ActivationProtocolCard(
+    onShare: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Box(
         modifier = modifier
+            // Spread neon glow — magenta halo that bleeds outward like a lit sign
+            .colorGlow(
+                color = HuezooColors.AccentMagenta,
+                glowRadius = 10.dp,
+                cornerRadius = HuezooSize.CornerCard,
+            )
             .clip(RoundedCornerShape(HuezooSize.CornerCard))
             .background(HuezooColors.SurfaceL2)
             .padding(HuezooSpacing.md),
@@ -499,6 +503,15 @@ private fun ActivationProtocolCard(modifier: Modifier = Modifier) {
                 text = "Global rankings go live when 500 operators enroll. Recruit agents to accelerate activation.",
                 color = HuezooColors.TextSecondary,
                 maxLines = Int.MAX_VALUE,
+            )
+
+            // Broadcast Signal button — GhostDanger: transparent bg, magenta border + text
+            Spacer(Modifier.height(HuezooSpacing.xs))
+            HuezooButton(
+                text = "BROADCAST SIGNAL",
+                onClick = onShare,
+                variant = HuezooButtonVariant.GhostDanger,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
