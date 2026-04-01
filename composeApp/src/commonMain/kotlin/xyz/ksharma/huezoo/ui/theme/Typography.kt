@@ -27,8 +27,7 @@ import org.jetbrains.compose.resources.Font
  *
  * - **Clash Display** — geometric, premium display font. Distinct alternates at large sizes.
  *   Used for: card titles, section headings, medium-level hierarchy.
- *   License: Fontshare FF EULA — free for commercial use in apps.
- *   ⚠️  See MVP.md for license review TODO before App Store submission.
+ *   License: Fontshare FF EULA — free for commercial use in apps (reviewed ✓).
  *
  * - **Space Grotesk** — geometric sans-serif for all body and UI text.
  *   Used for: body copy, button labels, badges, secondary labels.

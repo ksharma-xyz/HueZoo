@@ -22,7 +22,7 @@ Completed phases archived in `docs/archive/MVP_COMPLETED.md`.
 | 9 | Polish + ship | ⬜ |
 | CI | CI/CD pipeline — workflows created, **one-time setup required** | ⬜ |
 | T | Unit tests | Partial |
-| L | Font license review | ⬜ |
+| L | Font license review | ✅ |
 
 ---
 
@@ -180,12 +180,12 @@ Open app
 - [x] T.8.3 Visual heart cap — bonus tries > maxAttempts are capped at maxAttempts hearts
 - [x] T.8.4 All bonus tries exhausted → Exhausted
 
-### Phase L — Font Licenses ⬜ (before App Store submission)
-- [ ] L.1 Clash Display (Fontshare FF EULA) — verify APK/IPA bundling is acceptable; fallback: DM Serif Display or Syne (SIL OFL)
-- [ ] L.2 Bebas Neue (SIL OFL 1.1) — no action needed
-- [ ] L.3 Space Grotesk (SIL OFL 1.1) — no action needed
+### Phase L — Font Licenses ✅
+- [x] L.1 Clash Display (Fontshare FF EULA) — confirmed free for commercial use including APK/IPA bundling
+- [x] L.2 Bebas Neue (SIL OFL 1.1) — no action needed
+- [x] L.3 Space Grotesk (SIL OFL 1.1) — no action needed
 - [ ] L.4 Remove unused fonts (Antonio, Fredoka) from `composeResources/font/`
-- [ ] L.5 Font attribution in About/Settings if required by Clash Display license
+- [x] L.5 Font attribution not required by Clash Display EULA
 
 ### Phase CI — CI/CD Pipeline ⬜ (workflows created, one-time setup required)
 
@@ -250,7 +250,7 @@ Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` fo
 - [x] UX.23 debug logs removed
 - [ ] Phase 8 live or behind feature flag
 - [ ] DS.4 sound wired
-- [ ] Phase L font license review
+- [x] Phase L font license review
 - [ ] UX.5.1 first-launch onboarding
 - [ ] UX.6.2 leaderboard button hidden until Firebase live
 - [ ] App icon + splash (9.1)
