@@ -191,6 +191,57 @@ class PetalShape : Shape {
 val SwatchPetal = PetalShape()
 
 /**
+ * Bulb-petal shape — a wider, more voluminous teardrop than [PetalShape].
+ *
+ * Differences from the standard petal:
+ * - Belly fans out to the full tile width for a rounder silhouette.
+ * - Base has a gentle **inward curve** (like a tulip), so the bottom-edge reads as a soft
+ *   concave notch rather than a smooth round tip.
+ * - No border — shape identity comes from the full, bloated form.
+ *
+ * Tip sits at (cx, 0) — same radial pivot rule as [PetalShape] applies.
+ */
+class BulbPetalShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(bulbPetalPath(size))
+
+    private fun bulbPetalPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        return Path().apply {
+            moveTo(cx, 0f) // tip — top centre
+            // Right edge: sweeps wide early, stays wide through mid-height
+            cubicTo(
+                w, h * 0.07f, // ctrl 1 — pulls hard right near the top
+                w, h * 0.65f, // ctrl 2 — stays at full width
+                cx + w * 0.22f, h * 0.88f, // end — bottom-right corner
+            )
+            // Concave base: right corner → left corner, curves inward
+            cubicTo(
+                cx + w * 0.10f, h * 1.04f, // ctrl 1 — dips below bounding box (the concavity)
+                cx - w * 0.10f, h * 1.04f, // ctrl 2 — mirror on left side
+                cx - w * 0.22f, h * 0.88f, // end — bottom-left corner
+            )
+            // Left edge: sweeps back up symmetrically
+            cubicTo(
+                0f, h * 0.65f, // ctrl 1 — stays at full width
+                0f, h * 0.07f, // ctrl 2 — pulls hard left near the top
+                cx, 0f, // end — back to tip
+            )
+            close()
+        }
+    }
+}
+
+/** Bulb-petal swatch tile — wider and more voluminous than the standard petal. */
+val BulbPetalSwatch = BulbPetalShape()
+
+/**
  * Diamond shape — a perfect rhombus whose **top tip sits at (width/2, 0)** and bottom tip at
  * (width/2, height), with the widest points at the vertical midpoint.
  *
@@ -221,6 +272,104 @@ class DiamondShape : Shape {
 
 /** Default diamond tile for the DiamondHalo layout. */
 val DiamondSwatch = DiamondShape()
+
+/**
+ * Rounded shield shape — wide at the outer (bottom) end, tapers to a soft tip at the inner
+ * (top) end, with gently concave "shoulders" that give it a pentagon / badge silhouette.
+ *
+ * Inspired by the swatch cluster in [docs/ideas/swatch_diamong.png].
+ *
+ * Tip at (cx, 0) — radial pivot math identical to [PetalShape].
+ */
+class RoundedShieldShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(shieldPath(size))
+
+    private fun shieldPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        return Path().apply {
+            moveTo(cx, 0f) // inner tip — top centre
+            // Right edge: fans out hard then eases into right shoulder
+            cubicTo(
+                w, h * 0.12f, // ctrl 1 — pull far right near tip
+                w, h * 0.52f, // ctrl 2 — hold full width at mid-height
+                w * 0.82f, h * 0.76f, // end — right shoulder
+            )
+            // Right shoulder → bottom centre arc
+            cubicTo(
+                w * 0.68f, h * 0.96f, // ctrl 1
+                cx + w * 0.16f, h, // ctrl 2
+                cx, h, // bottom centre
+            )
+            // Bottom centre → left shoulder arc (mirror)
+            cubicTo(
+                cx - w * 0.16f, h, // ctrl 1
+                w * 0.32f, h * 0.96f, // ctrl 2
+                w * 0.18f, h * 0.76f, // left shoulder
+            )
+            // Left edge back to tip
+            cubicTo(
+                0f, h * 0.52f, // ctrl 1
+                0f, h * 0.12f, // ctrl 2
+                cx, 0f, // back to tip
+            )
+            close()
+        }
+    }
+}
+
+/** Rounded shield/badge tile — wide at the outer edge, tapers to an inner tip. */
+val ShieldSwatch = RoundedShieldShape()
+
+/**
+ * Citrus-slice (crescent) shape — a landscape tile with a **concave inner arc** facing the
+ * flower centre and a **convex outer arc** facing outward.  The two tips sit at the left and
+ * right edges at mid-height.
+ *
+ * Inspired by the fruit-slice swatch cluster in [docs/ideas/swatch_fruit.png].
+ *
+ * Unlike petal shapes this tile is **wider than it is tall** and uses [uniformScale] = true in
+ * [RadialSwatchLayout] so it animates as a whole rather than growing radially.
+ */
+class CitrusSliceShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(citrusPath(size))
+
+    private fun citrusPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cy = h / 2f
+        return Path().apply {
+            moveTo(0f, cy) // left tip
+            // Outer (convex) arc: left tip → deep downward curve → right tip
+            cubicTo(
+                w * 0.12f, h * 1.08f, // ctrl 1 — pulls below bounding box
+                w * 0.88f, h * 1.08f, // ctrl 2 — mirror
+                w, cy, // right tip
+            )
+            // Inner (concave) arc: right tip → shallow upward curve → left tip
+            cubicTo(
+                w * 0.80f, -h * 0.12f, // ctrl 1 — pulls above bounding box
+                w * 0.20f, -h * 0.12f, // ctrl 2 — mirror
+                0f, cy, // back to left tip
+            )
+            close()
+        }
+    }
+}
+
+/** Citrus-slice / crescent swatch tile — concave inner edge, convex outer edge. */
+val CitrusSwatch = CitrusSliceShape()
 
 /**
  * Classic heart shape — two circular lobes at the top, pointed tip at the bottom.

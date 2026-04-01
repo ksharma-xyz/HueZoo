@@ -42,4 +42,23 @@ enum class SwatchLayoutStyle {
      * Each diamond's top tip points toward the centre; bottom tip fans outward.
      */
     DiamondHalo,
+
+    /**
+     * 6 wide, bulbous teardrops — like Flower but with a fuller belly and a concave
+     * inward curve at the base.
+     */
+    BulbPetal,
+
+    /**
+     * 6 rounded shield / badge shapes — pointed inner tip, wide convex outer body with
+     * concave "shoulder" curves.  Inspired by [docs/ideas/swatch_diamong.png].
+     */
+    ShieldRing,
+
+    /**
+     * 6 citrus-slice crescents — concave inner arc facing the centre, convex outer arc
+     * facing outward, tips at the sides.  Landscape tile (wider than tall).
+     * Inspired by [docs/ideas/swatch_fruit.png].
+     */
+    CitrusSlice,
 }

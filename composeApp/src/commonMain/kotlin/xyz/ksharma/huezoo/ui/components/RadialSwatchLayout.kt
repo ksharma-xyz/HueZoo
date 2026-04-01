@@ -3,8 +3,10 @@ package xyz.ksharma.huezoo.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,7 +37,10 @@ import xyz.ksharma.huezoo.ui.model.SwatchSize
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
+import xyz.ksharma.huezoo.ui.theme.BulbPetalSwatch
+import xyz.ksharma.huezoo.ui.theme.CitrusSwatch
 import xyz.ksharma.huezoo.ui.theme.DiamondSwatch
+import xyz.ksharma.huezoo.ui.theme.ShieldSwatch
 import xyz.ksharma.huezoo.ui.theme.HexagonSwatch
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
@@ -107,6 +112,19 @@ private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig 
         SwatchSize.Normal -> RadialConfig(54.dp, 54.dp, SHARED_CONTAINER, centerGap = 28.dp)
         SwatchSize.Medium -> RadialConfig(65.dp, 65.dp, SHARED_CONTAINER, centerGap = 28.dp)
     }
+    SwatchLayoutStyle.BulbPetal -> when (size) {
+        SwatchSize.Normal -> RadialConfig(78.dp, 108.dp, SHARED_CONTAINER, centerGap = 20.dp)
+        SwatchSize.Medium -> RadialConfig(94.dp, 130.dp, SHARED_CONTAINER, centerGap = 12.dp)
+    }
+    SwatchLayoutStyle.ShieldRing -> when (size) {
+        SwatchSize.Normal -> RadialConfig(86.dp, 108.dp, SHARED_CONTAINER, centerGap = 36.dp)
+        SwatchSize.Medium -> RadialConfig(103.dp, 130.dp, SHARED_CONTAINER, centerGap = 18.dp)
+    }
+    SwatchLayoutStyle.CitrusSlice -> when (size) {
+        // Landscape tile — wider than tall; uniformScale so the slice pops in as a whole.
+        SwatchSize.Normal -> RadialConfig(88.dp, 52.dp, SHARED_CONTAINER, centerGap = 30.dp, uniformScale = true)
+        SwatchSize.Medium -> RadialConfig(106.dp, 62.dp, SHARED_CONTAINER, centerGap = 34.dp, uniformScale = true)
+    }
 }
 
 private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
@@ -115,6 +133,9 @@ private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
     SwatchLayoutStyle.SquircleOrbit -> SquircleMedium
     SwatchLayoutStyle.SpokeBlades -> SquircleSmall
     SwatchLayoutStyle.DiamondHalo -> DiamondSwatch
+    SwatchLayoutStyle.BulbPetal -> BulbPetalSwatch
+    SwatchLayoutStyle.ShieldRing -> ShieldSwatch
+    SwatchLayoutStyle.CitrusSlice -> CitrusSwatch
 }
 
 // ── Animation constants ───────────────────────────────────────────────────────
@@ -166,7 +187,7 @@ private const val NEON_OUTER_ALPHA = 0.30f
  * @param roundPhase      Current animation phase — controls unfold / fold transitions and
  *                        whether taps are accepted.
  * @param roundKey        Changes every time a new round starts.  Triggers the reset + unfold.
- * @param layoutStyle     Which of the 5 built-in shapes and geometries to use.
+ * @param layoutStyle     Which of the built-in shapes and geometries to use.
  * @param onSwatchTap     Called with the 0-based index of the tapped tile.
  */
 @Composable
@@ -395,6 +416,100 @@ private fun RadialTile(
     }
 }
 
+// ── Swatch-shape progress ring ────────────────────────────────────────────────
+
+/**
+ * Six ghost outlines — one per tile — positioned identically to [RadialSwatchLayout] but scaled
+ * slightly outward so they glow around the real swatches.
+ *
+ * Place this *behind* [RadialSwatchLayout] in a stacked [Box].  Each ghost fills with the
+ * player's accent colour as the consecutive-correct-tap streak climbs through six milestones.
+ * Resets (drains) smoothly when [correctStreak] drops back to 0 (wrong tap / new try).
+ *
+ * Milestones: [1, 3, 6, 10, 15, 21] correct taps to fill each ghost fully.
+ */
+@Composable
+fun SwatchShapeProgressRing(
+    layoutStyle: SwatchLayoutStyle,
+    correctStreak: Int,
+    roundPhase: RoundPhase,
+    modifier: Modifier = Modifier,
+) {
+    val config = remember(layoutStyle) { configFor(layoutStyle, ACTIVE_SWATCH_SIZE) }
+    val shape = remember(layoutStyle) { shapeFor(layoutStyle) }
+    val accent = LocalPlayerAccentColor.current
+
+    Box(modifier = modifier.size(config.containerSize)) {
+        repeat(TILE_COUNT) { idx ->
+            val angleDeg = idx * (360f / TILE_COUNT)
+            val milestone = SWATCH_PROGRESS_MILESTONES[idx]
+            val prevMilestone = if (idx == 0) 0 else SWATCH_PROGRESS_MILESTONES[idx - 1]
+            val targetFill = when {
+                correctStreak >= milestone -> 1f
+                correctStreak <= prevMilestone -> 0f
+                else -> (correctStreak - prevMilestone).toFloat() / (milestone - prevMilestone)
+            }
+            val animatedFill by animateFloatAsState(
+                targetValue = targetFill,
+                animationSpec = tween(if (roundPhase == RoundPhase.Wrong) 420 else 230),
+                label = "ghostFill_$idx",
+            )
+
+            val pivotY = -(config.centerGap.value / config.tileHeight.value)
+
+            Canvas(
+                modifier = Modifier
+                    .absoluteOffset(
+                        x = (config.containerSize - config.tileWidth) / 2,
+                        y = config.containerSize / 2 + config.centerGap,
+                    )
+                    .size(config.tileWidth, config.tileHeight)
+                    .graphicsLayer {
+                        transformOrigin = TransformOrigin(0.5f, pivotY)
+                        rotationZ = angleDeg
+                        // Scale outward so the ghost peeks around the real tile edges.
+                        if (config.uniformScale) {
+                            scaleX = GHOST_SCALE_UNIFORM
+                            scaleY = GHOST_SCALE_UNIFORM
+                        } else {
+                            scaleX = GHOST_SCALE_TANGENTIAL
+                            scaleY = GHOST_SCALE_RADIAL
+                        }
+                        clip = false
+                    },
+            ) {
+                val outline = shape.createOutline(size, layoutDirection, this)
+                if (outline is Outline.Generic) {
+                    // Filled body — grows from transparent to solid as the ghost fills
+                    if (animatedFill > 0f) {
+                        drawPath(
+                            path = outline.path,
+                            color = accent.copy(alpha = animatedFill * GHOST_FILL_ALPHA),
+                        )
+                    }
+                    // Always-visible dim stroke — brightens to neon as the ghost fills
+                    drawPath(
+                        path = outline.path,
+                        color = accent.copy(alpha = GHOST_TRACK_ALPHA + animatedFill * GHOST_GLOW_ALPHA),
+                        style = Stroke(width = GHOST_STROKE_PX),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Consecutive correct taps needed to fully illuminate each of the 6 ghost tiles. */
+private val SWATCH_PROGRESS_MILESTONES = intArrayOf(1, 3, 6, 10, 15, 21)
+
+private const val GHOST_SCALE_UNIFORM = 1.10f    // uniform shapes (hex, squircle, diamond)
+private const val GHOST_SCALE_RADIAL = 1.12f     // petal/blade: grow along radial axis
+private const val GHOST_SCALE_TANGENTIAL = 1.04f // petal/blade: subtle tangential spread
+private const val GHOST_STROKE_PX = 3.5f
+private const val GHOST_TRACK_ALPHA = 0.14f  // always-visible dim track
+private const val GHOST_FILL_ALPHA = 0.38f   // max fill body alpha
+private const val GHOST_GLOW_ALPHA = 0.62f   // additional stroke alpha when fully lit
+
 // ── Previews ──────────────────────────────────────────────────────────────────
 
 private val PREVIEW_BASE = HuezooColors.AccentPurple
@@ -472,6 +587,48 @@ private fun RadialDiamondHaloPreview() {
             roundPhase = RoundPhase.Idle,
             roundKey = 1,
             layoutStyle = SwatchLayoutStyle.DiamondHalo,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialBulbPetalPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 0),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.BulbPetal,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialShieldRingPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 2),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.ShieldRing,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialCitrusSlicePreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 3),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.CitrusSlice,
             onSwatchTap = {},
         )
     }

@@ -1,8 +1,10 @@
 package xyz.ksharma.huezoo.ui.games.threshold
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -30,11 +32,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.lexilabs.basic.ads.AdState
@@ -119,6 +123,10 @@ fun ThresholdScreen(
             primaryColor = HuezooColors.GameThreshold,
             secondaryColor = HuezooColors.AccentPurple,
         ) {
+            // Cine-style floor/ceiling reflection lines — drawn behind all game UI.
+            // Canvas is a Spacer internally so it never consumes touch events.
+            ThresholdLightLines(modifier = Modifier.fillMaxSize())
+
             Column(modifier = Modifier.fillMaxSize()) {
                 HuezooTopBar(
                     onBackClick = onBack,
@@ -167,6 +175,12 @@ fun ThresholdScreen(
                     LaunchedEffect(showInterstitial) { viewModel.onInterstitialDone() }
                 }
             }
+        }
+
+        // Perception Wall celebration — full-screen overlay, sits on top of everything.
+        // ViewModel holds this phase for ANIMATION_PERCEPTION_WALL_MS then transitions automatically.
+        if ((uiState as? ThresholdUiState.Playing)?.roundPhase == RoundPhase.PerceptionWall) {
+            PerceptionWallOverlay(modifier = Modifier.fillMaxSize())
         }
     }
 }
@@ -360,6 +374,78 @@ private fun BlockedContent(
     }
 }
 
+// ── Perception Wall celebration overlay ──────────────────────────────────────
+
+/**
+ * Full-screen legendary overlay shown when the player correctly identifies at ΔE 0.1.
+ * Animates in with fade + scale; the ViewModel times the exit after [ANIMATION_PERCEPTION_WALL_MS].
+ */
+@Composable
+private fun PerceptionWallOverlay(modifier: Modifier = Modifier) {
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(durationMillis = 350),
+        label = "wallOverlayAlpha",
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (visible) 1f else 0.72f,
+        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
+        label = "wallOverlayScale",
+    )
+
+    Box(
+        modifier = modifier
+            .graphicsLayer { this.alpha = alpha }
+            .background(HuezooColors.Background.copy(alpha = 0.93f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+            modifier = Modifier
+                .graphicsLayer { scaleX = scale; scaleY = scale }
+                .padding(horizontal = HuezooSpacing.xl),
+        ) {
+            Text(
+                text = "🦅",
+                fontSize = 72.sp,
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(Modifier.height(HuezooSpacing.sm))
+
+            Text(
+                text = "PERCEPTION LIMIT REACHED",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.ExtraBold,
+                color = HuezooColors.AccentYellow,
+                textAlign = TextAlign.Center,
+                letterSpacing = 2.sp,
+            )
+
+            Text(
+                text = "ΔE 0.1 — Beyond human vision",
+                style = MaterialTheme.typography.bodyLarge,
+                color = HuezooColors.TextSecondary,
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(Modifier.height(HuezooSpacing.md))
+
+            Text(
+                text = "+5,000 💎",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold,
+                color = HuezooColors.GemGreen,
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
 /** Returns a live-updating "Xh Xm" string, ticking every 60 s. */
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -383,6 +469,50 @@ private val FEEDBACK_SLOT_HEIGHT = 28.dp
 
 /** Size of each heart in the lives indicator. */
 private val HEART_SIZE = 14.dp
+
+// ── Cine-style background light lines ────────────────────────────────────────
+
+/**
+ * Subtle horizontal light-reflection lines drawn full-screen behind the game UI.
+ *
+ * Mimics a cinema floor/ceiling reflection: lines cluster near the top and bottom edges,
+ * fading toward the centre.  Each line pulses with the game's theme colour at very low
+ * alpha (2–8%) so they add depth without distracting from gameplay.
+ *
+ * Implemented as [Canvas] (a Spacer under the hood) so it never intercepts touch events.
+ */
+@Composable
+private fun ThresholdLightLines(modifier: Modifier = Modifier) {
+    val lineColor = HuezooColors.GameThreshold
+    Canvas(modifier = modifier) {
+        val lineW = 1.2.dp.toPx()
+        val lineCount = 9
+
+        // Floor reflection: bottom 36% of screen — lines denser + brighter near very bottom
+        for (i in 0 until lineCount) {
+            val t = (i + 1).toFloat() / lineCount      // 0 = near centre horizon, 1 = bottom edge
+            val y = size.height - size.height * 0.36f * (1f - t * t) // quadratic spacing
+            drawLine(
+                color = lineColor.copy(alpha = 0.022f + t * 0.052f),
+                start = Offset(0f, y),
+                end = Offset(size.width, y),
+                strokeWidth = lineW,
+            )
+        }
+
+        // Ceiling reflection: top 26% of screen — same pattern, mirrored
+        for (i in 0 until lineCount - 2) {
+            val t = (i + 1).toFloat() / (lineCount - 2)
+            val y = size.height * 0.26f * (1f - t * t)
+            drawLine(
+                color = lineColor.copy(alpha = 0.018f + t * 0.038f),
+                start = Offset(0f, y),
+                end = Offset(size.width, y),
+                strokeWidth = lineW,
+            )
+        }
+    }
+}
 
 private fun Float.fmt(): String {
     val i = toInt()
