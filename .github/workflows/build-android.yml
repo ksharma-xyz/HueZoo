@@ -25,16 +25,15 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
-      # Uncomment and configure once Firebase is integrated (Phase 8):
-      # - name: Firebase Android (Release) - Google Services.json file
-      #   env:
-      #     DATA: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON_RELEASE }}
-      #   run: echo $DATA | base64 -di > androidApp/src/release/google-services.json
-      #
-      # - name: Firebase (Debug) - Google Services.json file
-      #   env:
-      #     DATA: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON_DEBUG }}
-      #   run: echo $DATA | base64 -di > androidApp/src/debug/google-services.json
+      - name: Firebase Android (Release) - Google Services.json file
+        env:
+          DATA: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON_RELEASE }}
+        run: echo $DATA | base64 -di > androidApp/src/release/google-services.json
+
+      - name: Firebase Android (Debug) - Google Services.json file
+        env:
+          DATA: ${{ secrets.FIREBASE_GOOGLE_SERVICES_JSON_DEBUG }}
+        run: echo $DATA | base64 -di > androidApp/src/debug/google-services.json
 
       - name: Decode Keystore
         if: ${{ inputs.variant == 'release' }}
