@@ -104,7 +104,7 @@ private fun buttonColors(
     )
     HuezooButtonVariant.GhostDanger -> ButtonColors(
         bg = Color.Transparent,
-        content = HuezooColors.AccentMagenta,
+        content = Color.White,
         shelf = HuezooColors.ShelfMagenta,
         border = HuezooColors.AccentMagenta,
     )
