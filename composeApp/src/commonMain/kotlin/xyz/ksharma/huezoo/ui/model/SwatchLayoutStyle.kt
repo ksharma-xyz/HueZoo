@@ -43,11 +43,6 @@ enum class SwatchLayoutStyle {
      */
     DiamondHalo,
 
-    /**
-     * 6 wide, bulbous teardrops — like Flower but with a fuller belly and a concave
-     * inward curve at the base.
-     */
-    BulbPetal,
 
     /**
      * 6 rounded shield / badge shapes — pointed inner tip, wide convex outer body with

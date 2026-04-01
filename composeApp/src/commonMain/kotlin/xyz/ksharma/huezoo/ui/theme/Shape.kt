@@ -190,56 +190,6 @@ class PetalShape : Shape {
 /** Default petal tile for the flower swatch layout. */
 val SwatchPetal = PetalShape()
 
-/**
- * Bulb-petal shape — a wider, more voluminous teardrop than [PetalShape].
- *
- * Differences from the standard petal:
- * - Belly fans out to the full tile width for a rounder silhouette.
- * - Base has a gentle **inward curve** (like a tulip), so the bottom-edge reads as a soft
- *   concave notch rather than a smooth round tip.
- * - No border — shape identity comes from the full, bloated form.
- *
- * Tip sits at (cx, 0) — same radial pivot rule as [PetalShape] applies.
- */
-class BulbPetalShape : Shape {
-
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): Outline = Outline.Generic(bulbPetalPath(size))
-
-    private fun bulbPetalPath(size: Size): Path {
-        val w = size.width
-        val h = size.height
-        val cx = w / 2f
-        return Path().apply {
-            moveTo(cx, 0f) // tip — top centre
-            // Right edge: sweeps wide early, stays wide through mid-height
-            cubicTo(
-                w, h * 0.07f, // ctrl 1 — pulls hard right near the top
-                w, h * 0.65f, // ctrl 2 — stays at full width
-                cx + w * 0.22f, h * 0.88f, // end — bottom-right corner
-            )
-            // Concave base: right corner → left corner, curves inward
-            cubicTo(
-                cx + w * 0.10f, h * 1.04f, // ctrl 1 — dips below bounding box (the concavity)
-                cx - w * 0.10f, h * 1.04f, // ctrl 2 — mirror on left side
-                cx - w * 0.22f, h * 0.88f, // end — bottom-left corner
-            )
-            // Left edge: sweeps back up symmetrically
-            cubicTo(
-                0f, h * 0.65f, // ctrl 1 — stays at full width
-                0f, h * 0.07f, // ctrl 2 — pulls hard left near the top
-                cx, 0f, // end — back to tip
-            )
-            close()
-        }
-    }
-}
-
-/** Bulb-petal swatch tile — wider and more voluminous than the standard petal. */
-val BulbPetalSwatch = BulbPetalShape()
 
 /**
  * Diamond shape — a perfect rhombus whose **top tip sits at (width/2, 0)** and bottom tip at
@@ -274,12 +224,16 @@ class DiamondShape : Shape {
 val DiamondSwatch = DiamondShape()
 
 /**
- * Rounded shield shape — wide at the outer (bottom) end, tapers to a soft tip at the inner
- * (top) end, with gently concave "shoulders" that give it a pentagon / badge silhouette.
+ * Kite-diamond (asymmetric rhombus) shape — four **straight** edges with sharp points at all
+ * four corners, but intentionally **not** symmetric:
  *
- * Inspired by the swatch cluster in [docs/ideas/swatch_diamong.png].
+ * - **Inner tip** (top, faces layout centre): narrower angle (~60 °) — more pointed, gem-like.
+ * - **Outer tip** (bottom, faces outward): wider angle (~76 °) — same as the old symmetric
+ *   diamond, so the outer silhouette looks unchanged.
+ * - Widest point sits at 58 % of the tile height (below centre), producing the elongated
+ *   inner-triangle proportions seen in [docs/ideas/swatch_diamong.png].
  *
- * Tip at (cx, 0) — radial pivot math identical to [PetalShape].
+ * Tip at (cx, 0) — radial pivot math identical to [PetalShape] and [DiamondShape].
  */
 class RoundedShieldShape : Shape {
 
@@ -290,35 +244,15 @@ class RoundedShieldShape : Shape {
     ): Outline = Outline.Generic(shieldPath(size))
 
     private fun shieldPath(size: Size): Path {
-        val w = size.width
-        val h = size.height
-        val cx = w / 2f
+        val cx = size.width / 2f
+        // Widest point below mid-height → inner portion is taller (more pointed inner tip)
+        // while outer portion stays at roughly the same angle as a symmetric diamond.
+        val sidePtY = size.height * 0.58f
         return Path().apply {
-            moveTo(cx, 0f) // inner tip — top centre
-            // Right edge: fans out hard then eases into right shoulder
-            cubicTo(
-                w, h * 0.12f, // ctrl 1 — pull far right near tip
-                w, h * 0.52f, // ctrl 2 — hold full width at mid-height
-                w * 0.82f, h * 0.76f, // end — right shoulder
-            )
-            // Right shoulder → bottom centre arc
-            cubicTo(
-                w * 0.68f, h * 0.96f, // ctrl 1
-                cx + w * 0.16f, h, // ctrl 2
-                cx, h, // bottom centre
-            )
-            // Bottom centre → left shoulder arc (mirror)
-            cubicTo(
-                cx - w * 0.16f, h, // ctrl 1
-                w * 0.32f, h * 0.96f, // ctrl 2
-                w * 0.18f, h * 0.76f, // left shoulder
-            )
-            // Left edge back to tip
-            cubicTo(
-                0f, h * 0.52f, // ctrl 1
-                0f, h * 0.12f, // ctrl 2
-                cx, 0f, // back to tip
-            )
+            moveTo(cx, 0f)              // inner tip — top centre, points toward layout centre
+            lineTo(size.width, sidePtY) // right point — widest edge (58 % down)
+            lineTo(cx, size.height)     // outer tip — bottom centre, points away from centre
+            lineTo(0f, sidePtY)         // left point — widest edge
             close()
         }
     }
