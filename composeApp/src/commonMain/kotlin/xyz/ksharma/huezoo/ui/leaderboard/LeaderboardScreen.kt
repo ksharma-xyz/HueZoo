@@ -53,7 +53,8 @@ import xyz.ksharma.huezoo.ui.model.estimatedPerceptionTier
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
-import xyz.ksharma.huezoo.ui.theme.colorGlow
+import xyz.ksharma.huezoo.ui.theme.neonStrike
+import xyz.ksharma.huezoo.ui.theme.organicGlow
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -431,10 +432,14 @@ private fun ActivationProtocolCard(
 ) {
     Box(
         modifier = modifier
-            // Spread neon glow — magenta halo that bleeds outward like a lit sign
-            .colorGlow(
+            // Cloud-like organic halo — blobs of base magenta, rose, and violet
+            // breathe independently so the glow is thick in some places, thin in others
+            .organicGlow(
                 color = HuezooColors.AccentMagenta,
-                glowRadius = 10.dp,
+            )
+            // Crisp neon border that anchors the halo to the card edge
+            .neonStrike(
+                color = HuezooColors.AccentMagenta,
                 cornerRadius = HuezooSize.CornerCard,
             )
             .clip(RoundedCornerShape(HuezooSize.CornerCard))

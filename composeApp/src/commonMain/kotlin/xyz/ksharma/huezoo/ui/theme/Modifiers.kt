@@ -1,5 +1,14 @@
 package xyz.ksharma.huezoo.ui.theme
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
@@ -11,6 +20,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.math.PI
+import kotlin.math.sin
 
 private const val GLOW_LAYERS = 8
 private const val SHADOW_LAYERS = 4
@@ -166,6 +177,130 @@ fun Modifier.shapedShadow(
                 color = color,
                 cornerRadius = outline.roundRect.topLeftCornerRadius,
             )
+        }
+    }
+}
+
+// ── Organic cloud glow ────────────────────────────────────────────────────────
+
+/**
+ * Internal blob descriptor for [organicGlow].
+ *
+ * @param nx          Normalised X position relative to the composable width  (0 = left, 1 = right; values outside [0,1] place the blob outside the bounds).
+ * @param ny          Normalised Y position relative to the composable height.
+ * @param baseRadiusDp Base radius of the blob in dp (breathe animation scales this ±25 %).
+ * @param color       Colour of this blob — varies per position to get chromatic variety.
+ * @param phaseOffset Offset into the shared phase oscillation so each blob breathes at a different moment.
+ * @param maxAlpha    Peak opacity when the blob is fully "inhaled".
+ */
+private data class GlowBlob(
+    val nx: Float,
+    val ny: Float,
+    val baseRadiusDp: Float,
+    val color: Color,
+    val phaseOffset: Float,
+    val maxAlpha: Float,
+)
+
+/**
+ * Organic, cloud-like neon glow that bleeds unevenly around the composable.
+ *
+ * Ten animated blobs of varying size, colour, and breathing phase are scattered
+ * around the card edges.  Their overlap creates a living halo that is thick in
+ * some places and thin in others — nothing like a uniform ring.
+ *
+ * Three colour variants are auto-derived from [color]:
+ * - **base** — the colour as-is
+ * - **rose** — warmer, more pink (red channel kept, green +0.20, blue ×0.40)
+ * - **violet** — cooler, deeper purple (red ×0.40, blue +0.15)
+ *
+ * Each blob is drawn as four concentric filled circles from outer-faint to
+ * inner-bright, accumulating into a smooth radial falloff without platform blur.
+ *
+ * NOTE: the parent must not clip so the blobs extending beyond the composable
+ * bounds stay visible.
+ */
+@Composable
+fun Modifier.organicGlow(
+    color: Color,
+): Modifier {
+    // ── Derived colour variants ──────────────────────────────────────────────
+    val colorRose = remember(color) {
+        Color(
+            red   = color.red,
+            green = (color.green + 0.20f).coerceIn(0f, 1f),
+            blue  = (color.blue  * 0.40f).coerceIn(0f, 1f),
+            alpha = 1f,
+        )
+    }
+    val colorViolet = remember(color) {
+        Color(
+            red   = (color.red  * 0.40f).coerceIn(0f, 1f),
+            green = 0f,
+            blue  = (color.blue + 0.15f).coerceIn(0f, 1f),
+            alpha = 1f,
+        )
+    }
+
+    // ── Blob layout ─────────────────────────────────────────────────────────
+    // Positions are chosen so corners get colour-accent spikes and edges get
+    // large soft patches — intentionally asymmetric.
+    val blobs = remember(color, colorRose, colorViolet) {
+        listOf(
+            // Top edge — big magenta patch left-of-center
+            GlowBlob(nx = 0.25f, ny = -0.10f, baseRadiusDp = 36f, color = color,        phaseOffset = 0.00f,               maxAlpha = 0.55f),
+            // Top edge — smaller rose blob, right-of-center
+            GlowBlob(nx = 0.72f, ny = -0.07f, baseRadiusDp = 22f, color = colorRose,    phaseOffset = (PI * 0.60f).toFloat(), maxAlpha = 0.42f),
+            // Top-right corner — violet spike
+            GlowBlob(nx = 0.97f, ny = -0.04f, baseRadiusDp = 16f, color = colorViolet,  phaseOffset = (PI * 1.10f).toFloat(), maxAlpha = 0.35f),
+            // Right edge — magenta, upper half
+            GlowBlob(nx = 1.09f, ny = 0.38f,  baseRadiusDp = 26f, color = color,        phaseOffset = (PI * 0.40f).toFloat(), maxAlpha = 0.50f),
+            // Right edge — violet, lower half (thinner → gap feel)
+            GlowBlob(nx = 1.06f, ny = 0.74f,  baseRadiusDp = 16f, color = colorViolet,  phaseOffset = (PI * 1.60f).toFloat(), maxAlpha = 0.36f),
+            // Bottom edge — large rose cloud, right-of-center
+            GlowBlob(nx = 0.62f, ny = 1.10f,  baseRadiusDp = 40f, color = colorRose,    phaseOffset = (PI * 1.30f).toFloat(), maxAlpha = 0.55f),
+            // Bottom edge — magenta, left-of-center (smaller → asymmetry)
+            GlowBlob(nx = 0.18f, ny = 1.07f,  baseRadiusDp = 20f, color = color,        phaseOffset = (PI * 0.90f).toFloat(), maxAlpha = 0.40f),
+            // Bottom-left corner — rose accent
+            GlowBlob(nx = 0.04f, ny = 1.05f,  baseRadiusDp = 14f, color = colorRose,    phaseOffset = (PI * 1.50f).toFloat(), maxAlpha = 0.30f),
+            // Left edge — big violet cloud (creates deep purple flank)
+            GlowBlob(nx = -0.10f, ny = 0.65f, baseRadiusDp = 30f, color = colorViolet,  phaseOffset = (PI * 1.90f).toFloat(), maxAlpha = 0.50f),
+            // Left edge — small rose, upper (breaks symmetry with right)
+            GlowBlob(nx = -0.06f, ny = 0.20f, baseRadiusDp = 18f, color = colorRose,    phaseOffset = (PI * 0.25f).toFloat(), maxAlpha = 0.36f),
+        )
+    }
+
+    // ── Shared animation phase (one value drives all blobs via their offset) ─
+    val transition = rememberInfiniteTransition(label = "organicGlow")
+    val phase by transition.animateFloat(
+        initialValue = 0f,
+        targetValue  = (2f * PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation    = tween(durationMillis = 12_000, easing = LinearEasing),
+            repeatMode   = RepeatMode.Restart,
+        ),
+        label = "glowPhase",
+    )
+
+    // ── Draw ─────────────────────────────────────────────────────────────────
+    return this.drawBehind {
+        val W = size.width
+        val H = size.height
+
+        blobs.forEach { blob ->
+            // Breathe: 0 → 1 sine wave unique to this blob
+            val breathe  = sin(phase + blob.phaseOffset) * 0.5f + 0.5f
+            val radius   = blob.baseRadiusDp.dp.toPx() * (0.75f + breathe * 0.50f)
+            val peakAlpha = blob.maxAlpha * (0.40f + breathe * 0.60f)
+            val cx = W * blob.nx
+            val cy = H * blob.ny
+
+            // Four concentric circles — outermost large+faint, innermost small+bright.
+            // Source-Over accumulation makes the center progressively more saturated.
+            drawCircle(color = blob.color.copy(alpha = peakAlpha * 0.10f), radius = radius,          center = Offset(cx, cy))
+            drawCircle(color = blob.color.copy(alpha = peakAlpha * 0.18f), radius = radius * 0.62f,  center = Offset(cx, cy))
+            drawCircle(color = blob.color.copy(alpha = peakAlpha * 0.26f), radius = radius * 0.35f,  center = Offset(cx, cy))
+            drawCircle(color = blob.color.copy(alpha = peakAlpha * 0.20f), radius = radius * 0.14f,  center = Offset(cx, cy))
         }
     }
 }
