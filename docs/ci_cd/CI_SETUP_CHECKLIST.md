@@ -173,11 +173,10 @@ Distribution (internal testing before Play Store).
 
 **Steps:**
 
-1. Go to [console.firebase.google.com](https://console.firebase.google.com) → Huezoo project
-2. Click the **gear icon** (top left) → **Project Settings**
-3. Click the **Service accounts** tab
-4. Click **Generate new private key** → **Generate key**
-5. A `.json` file downloads
+1. Go directly to the Firebase service accounts page for Huezoo:
+   [console.firebase.google.com/project/huezoo/settings/serviceaccounts/adminsdk](https://console.firebase.google.com/u/0/project/huezoo/settings/serviceaccounts/adminsdk)
+2. Click **Generate new private key** → **Generate key**
+3. A `.json` file downloads
 6. Base64 encode and add as secret:
 
 ```bash
