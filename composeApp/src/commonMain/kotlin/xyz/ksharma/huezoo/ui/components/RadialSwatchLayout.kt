@@ -12,8 +12,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,7 +40,6 @@ import xyz.ksharma.huezoo.ui.model.SwatchSize
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
-import xyz.ksharma.huezoo.ui.theme.BulbPetalSwatch
 import xyz.ksharma.huezoo.ui.theme.CitrusSwatch
 import xyz.ksharma.huezoo.ui.theme.DiamondSwatch
 import xyz.ksharma.huezoo.ui.theme.ShieldSwatch
@@ -97,28 +99,26 @@ private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig 
         SwatchSize.Medium -> RadialConfig(101.dp, 139.dp, SHARED_CONTAINER, centerGap = 10.dp)
     }
     SwatchLayoutStyle.HexRing -> when (size) {
-        SwatchSize.Normal -> RadialConfig(60.dp, 60.dp, SHARED_CONTAINER, centerGap = 28.dp, uniformScale = true)
-        SwatchSize.Medium -> RadialConfig(72.dp, 72.dp, SHARED_CONTAINER, centerGap = 28.dp, uniformScale = true)
+        SwatchSize.Normal -> RadialConfig(68.dp, 68.dp, SHARED_CONTAINER, centerGap = 24.dp, uniformScale = true)
+        SwatchSize.Medium -> RadialConfig(82.dp, 82.dp, SHARED_CONTAINER, centerGap = 24.dp, uniformScale = true)
     }
     SwatchLayoutStyle.SquircleOrbit -> when (size) {
-        SwatchSize.Normal -> RadialConfig(58.dp, 58.dp, SHARED_CONTAINER, centerGap = 32.dp, uniformScale = true)
-        SwatchSize.Medium -> RadialConfig(70.dp, 70.dp, SHARED_CONTAINER, centerGap = 28.dp, uniformScale = true)
+        SwatchSize.Normal -> RadialConfig(66.dp, 66.dp, SHARED_CONTAINER, centerGap = 28.dp, uniformScale = true)
+        SwatchSize.Medium -> RadialConfig(80.dp, 80.dp, SHARED_CONTAINER, centerGap = 24.dp, uniformScale = true)
     }
     SwatchLayoutStyle.SpokeBlades -> when (size) {
-        SwatchSize.Normal -> RadialConfig(36.dp, 92.dp, SHARED_CONTAINER, centerGap = 24.dp)
-        SwatchSize.Medium -> RadialConfig(43.dp, 110.dp, SHARED_CONTAINER, centerGap = 18.dp)
+        SwatchSize.Normal -> RadialConfig(42.dp, 106.dp, SHARED_CONTAINER, centerGap = 20.dp)
+        SwatchSize.Medium -> RadialConfig(50.dp, 120.dp, SHARED_CONTAINER, centerGap = 14.dp)
     }
     SwatchLayoutStyle.DiamondHalo -> when (size) {
-        SwatchSize.Normal -> RadialConfig(54.dp, 54.dp, SHARED_CONTAINER, centerGap = 28.dp)
-        SwatchSize.Medium -> RadialConfig(65.dp, 65.dp, SHARED_CONTAINER, centerGap = 28.dp)
-    }
-    SwatchLayoutStyle.BulbPetal -> when (size) {
-        SwatchSize.Normal -> RadialConfig(78.dp, 108.dp, SHARED_CONTAINER, centerGap = 20.dp)
-        SwatchSize.Medium -> RadialConfig(94.dp, 130.dp, SHARED_CONTAINER, centerGap = 12.dp)
+        SwatchSize.Normal -> RadialConfig(62.dp, 62.dp, SHARED_CONTAINER, centerGap = 24.dp)
+        SwatchSize.Medium -> RadialConfig(74.dp, 74.dp, SHARED_CONTAINER, centerGap = 24.dp)
     }
     SwatchLayoutStyle.ShieldRing -> when (size) {
-        SwatchSize.Normal -> RadialConfig(86.dp, 108.dp, SHARED_CONTAINER, centerGap = 36.dp)
-        SwatchSize.Medium -> RadialConfig(103.dp, 130.dp, SHARED_CONTAINER, centerGap = 18.dp)
+        // Width reduced (86→72, 103→86) to give the kite-diamond a ~0.67 aspect ratio —
+        // elongated and visually distinct from the square DiamondHalo layout.
+        SwatchSize.Normal -> RadialConfig(72.dp, 108.dp, SHARED_CONTAINER, centerGap = 36.dp)
+        SwatchSize.Medium -> RadialConfig(86.dp, 130.dp, SHARED_CONTAINER, centerGap = 18.dp)
     }
     SwatchLayoutStyle.CitrusSlice -> when (size) {
         // Landscape tile — wider than tall; uniformScale so the slice pops in as a whole.
@@ -133,7 +133,6 @@ private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
     SwatchLayoutStyle.SquircleOrbit -> SquircleMedium
     SwatchLayoutStyle.SpokeBlades -> SquircleSmall
     SwatchLayoutStyle.DiamondHalo -> DiamondSwatch
-    SwatchLayoutStyle.BulbPetal -> BulbPetalSwatch
     SwatchLayoutStyle.ShieldRing -> ShieldSwatch
     SwatchLayoutStyle.CitrusSlice -> CitrusSwatch
 }
@@ -594,15 +593,47 @@ private fun RadialDiamondHaloPreview() {
 
 @PreviewComponent
 @Composable
-private fun RadialBulbPetalPreview() {
+private fun AllSwatchStylesGalleryPreview() {
+    // All remaining styles in a 2-column grid, each scaled to 50 % so the full ring is visible.
+    // Use this as the single source of truth when evaluating shape/size changes.
+    val styles = SwatchLayoutStyle.entries
     HuezooPreviewTheme {
-        RadialSwatchLayout(
-            swatches = previewSwatches(oddIndex = 0),
-            roundPhase = RoundPhase.Idle,
-            roundKey = 1,
-            layoutStyle = SwatchLayoutStyle.BulbPetal,
-            onSwatchTap = {},
-        )
+        Column {
+            styles.chunked(2).forEach { rowStyles ->
+                Row {
+                    rowStyles.forEach { style ->
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            // Scale the 300 dp container to 150 dp so two fit side-by-side.
+                            Box(
+                                modifier = Modifier.size(150.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(SHARED_CONTAINER)
+                                        .graphicsLayer {
+                                            scaleX = 0.5f
+                                            scaleY = 0.5f
+                                        },
+                                ) {
+                                    RadialSwatchLayout(
+                                        swatches = previewSwatches(oddIndex = 2),
+                                        roundPhase = RoundPhase.Idle,
+                                        roundKey = 1,
+                                        layoutStyle = style,
+                                        onSwatchTap = {},
+                                    )
+                                }
+                            }
+                            HuezooLabelSmall(
+                                text = style.name.uppercase(),
+                                color = HuezooColors.TextSecondary,
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -633,6 +664,7 @@ private fun RadialCitrusSlicePreview() {
         )
     }
 }
+
 
 @PreviewComponent
 @Composable
