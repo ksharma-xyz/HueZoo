@@ -48,6 +48,8 @@ import xyz.ksharma.huezoo.ui.components.HuezooDisplayMedium
 import xyz.ksharma.huezoo.ui.components.HuezooHeadlineMedium
 import xyz.ksharma.huezoo.ui.components.HuezooLabelLarge
 import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
+import xyz.ksharma.huezoo.ui.components.HuezooButton
+import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.PriceButton
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
@@ -267,6 +269,15 @@ fun UpgradeScreen(
                     text = "Supports indie development ♥",
                     color = HuezooColors.TextDisabled,
                     textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Spacer(Modifier.height(HuezooSpacing.xs))
+
+                HuezooButton(
+                    text = "RESTORE PURCHASES",
+                    onClick = { viewModel.onRestorePurchases() },
+                    variant = HuezooButtonVariant.Ghost,
                     modifier = Modifier.fillMaxWidth(),
                 )
 
