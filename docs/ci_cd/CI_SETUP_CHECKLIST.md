@@ -187,6 +187,19 @@ rm ~/Downloads/huezoo-firebase-adminsdk-*.json
 
 > ⚠️ If you previously added this as base64 — delete it from GitHub and re-add as plain JSON.
 
+**After adding the secret — two required one-time steps in Google Cloud:**
+
+1. **Enable the Firebase App Distribution API:**
+   - Go to [console.cloud.google.com/apis/library](https://console.cloud.google.com/apis/library)
+   - Search **"Firebase App Distribution API"** → click it → **Enable**
+
+2. **Grant the service account the App Distribution role:**
+   - Go to [console.cloud.google.com/iam-admin/iam](https://console.cloud.google.com/iam-admin/iam)
+   - Find the Firebase Admin SDK service account (email ends in `@huezoo.iam.gserviceaccount.com`)
+   - Click the pencil (Edit) → **Add another role** → search **"Firebase App Distribution Admin"** → **Save**
+
+> Without these two steps CI will fail with HTTP 403 on the distribute step.
+
 ---
 
 ### FIREBASE_ANDROID_DEBUG_APP_ID + FIREBASE_ANDROID_PROD_APP_ID
