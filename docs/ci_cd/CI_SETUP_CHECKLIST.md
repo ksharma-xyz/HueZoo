@@ -187,18 +187,25 @@ rm ~/Downloads/huezoo-firebase-adminsdk-*.json
 
 > ⚠️ If you previously added this as base64 — delete it from GitHub and re-add as plain JSON.
 
-**After adding the secret — two required one-time steps in Google Cloud:**
+**After adding the secret — three required one-time steps:**
 
-1. **Enable the Firebase App Distribution API:**
+1. **Initialise Firebase App Distribution for your app:**
+   - Go to [console.firebase.google.com/project/huezoo/appdistribution](https://console.firebase.google.com/project/huezoo/appdistribution)
+   - If it shows a blank page or "Get started" button — click **Get started**
+   - Your Android app must appear in the list before CI can distribute to it
+   - Without this step CI will get HTTP 403 even with the correct service account
+
+2. **Enable the Firebase App Distribution API:**
    - Go to [console.cloud.google.com/apis/library](https://console.cloud.google.com/apis/library)
    - Search **"Firebase App Distribution API"** → click it → **Enable**
 
-2. **Grant the service account the App Distribution role:**
+3. **Grant the service account the App Distribution Admin role:**
+   - Open the JSON in `FIREBASE_SERVICE_ACCOUNT_KEY` and copy the `client_email` value
    - Go to [console.cloud.google.com/iam-admin/iam](https://console.cloud.google.com/iam-admin/iam)
-   - Find the Firebase Admin SDK service account (email ends in `@huezoo.iam.gserviceaccount.com`)
-   - Click the pencil (Edit) → **Add another role** → search **"Firebase App Distribution Admin"** → **Save**
+   - Find that **exact email** in the list → click pencil (Edit) → **Add another role**
+   - Search **"Firebase App Distribution Admin"** → **Save**
 
-> Without these two steps CI will fail with HTTP 403 on the distribute step.
+> All three steps are required. HTTP 403 on the distribute step means at least one is missing.
 
 ---
 
