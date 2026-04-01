@@ -1,5 +1,6 @@
 package xyz.ksharma.huezoo.ui.home
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -11,8 +12,12 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -57,6 +62,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -229,6 +235,20 @@ private fun ReadyContent(
         CHALLENGE_NAMES[dayOfYear % CHALLENGE_NAMES.size]
     }
 
+    // Only celebrate when the streak *increases* this session — not every time the screen loads.
+    val prevStreak = remember { mutableStateOf(-1) }
+    val shouldCelebrate = remember { mutableStateOf(false) }
+    LaunchedEffect(state.streak) {
+        val prev = prevStreak.value
+        if (prev >= 0 && state.streak > prev) {
+            shouldCelebrate.value = true
+            delay(5_400L) // outlast shimmerCelebration's 5 000 ms + fade-out
+            shouldCelebrate.value = false
+        }
+        prevStreak.value = state.streak
+    }
+    val isStreakCelebrating = state.forceStreakCelebration || shouldCelebrate.value
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -264,7 +284,7 @@ private fun ReadyContent(
                 StatsSection(
                     totalGems = state.totalGems,
                     streak = state.streak,
-                    isStreakCelebrating = state.forceStreakCelebration || (state.daily.isCompletedToday && state.streak > 0),
+                    isStreakCelebrating = isStreakCelebrating,
                     onGemsClick = { showLevelsSheet = true },
                 )
             }
@@ -313,6 +333,7 @@ private fun ReadyContent(
                 DailyCompactCard(
                     data = state.daily,
                     challengeName = challengeName,
+                    streak = state.streak,
                     onClick = onDailyTap,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -429,6 +450,7 @@ private fun StatsSection(
         StatBox(
             label = "STREAK",
             value = "$streak DAYS",
+            hint = "Daily challenge counts toward streak",
             accentColor = HuezooColors.AccentMagenta,
             celebrate = isStreakCelebrating,
             modifier = Modifier.fillMaxWidth().padding(top = HuezooSpacing.md),
@@ -442,6 +464,7 @@ private fun StatBox(
     value: String,
     accentColor: Color,
     celebrate: Boolean = false,
+    hint: String? = null,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -465,10 +488,32 @@ private fun StatBox(
                 fontWeight = FontWeight.ExtraBold,
             )
             Spacer(Modifier.height(2.dp))
-            HuezooHeadlineSmall(
-                text = value,
-                color = HuezooColors.TextPrimary,
-            )
+            // Value animates with a zoom-pop whenever the text changes (e.g. streak ticks up)
+            AnimatedContent(
+                targetState = value,
+                transitionSpec = {
+                    (scaleIn(initialScale = 1.45f, animationSpec = tween(280)) +
+                        fadeIn(tween(220)))
+                        .togetherWith(
+                            scaleOut(targetScale = 0.65f, animationSpec = tween(180)) +
+                                fadeOut(tween(180)),
+                        )
+                },
+                label = "statBoxValue",
+            ) { animatedValue ->
+                HuezooHeadlineSmall(
+                    text = animatedValue,
+                    color = HuezooColors.TextPrimary,
+                )
+            }
+            if (hint != null) {
+                Spacer(Modifier.height(3.dp))
+                HuezooLabelSmall(
+                    // Soft white — readable over SurfaceL0 without screaming magenta
+                    text = hint,
+                    color = Color.White.copy(alpha = 0.38f),
+                )
+            }
         }
     }
 }
@@ -863,6 +908,7 @@ private fun LevelProgressBar(
 /**
  * Daily Challenge compact card — full width, stacked below Threshold.
  * Clickable when daily is not yet completed today.
+ * When available, shows an animated neon cat and streak context in the subtitle.
  */
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -871,13 +917,13 @@ private fun DailyCompactCard(
     challengeName: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    streak: Int = 0,
 ) {
     val countdown = data.nextPuzzleAt?.let { countdownUntil(it, prefix = "Next in ") }
-    val bestText = data.personalBestRounds?.let { "BEST: $it / 6 ROUNDS" }
     val subtitleText = when {
         data.isCompletedToday -> countdown ?: "Completed today"
-        bestText != null -> bestText
-        else -> "Available now"
+        streak > 0 -> "$streak-day streak — play to extend it!"
+        else -> "Plays count toward your streak"
     }
 
     CompactCard(
@@ -887,7 +933,16 @@ private fun DailyCompactCard(
         accentColor = HuezooColors.AccentMagenta,
         enabled = !data.isCompletedToday,
         onClick = onClick,
-        iconDraw = { color -> drawMedalStar(color) },
+        iconDraw = if (data.isCompletedToday) {
+            { color -> drawMedalStar(color) }
+        } else {
+            null
+        },
+        iconContent = if (!data.isCompletedToday) {
+            { AnimatedDailyIcon(HuezooColors.AccentMagenta) }
+        } else {
+            null
+        },
         modifier = modifier,
     )
 }
@@ -942,6 +997,7 @@ private fun estimatedRankDescription(deltaE: Float): String = when {
  * - Neo-brutalist top-border accent + shelf shadow
  *
  * Colors always at full brightness — clickable state only gates the onClick action.
+ * Pass [iconContent] to replace the static Canvas draw with a live Composable (e.g. animation).
  */
 @Composable
 private fun CompactCard(
@@ -951,8 +1007,9 @@ private fun CompactCard(
     accentColor: Color,
     enabled: Boolean,
     onClick: () -> Unit,
-    iconDraw: DrawScope.(Color) -> Unit,
     modifier: Modifier = Modifier,
+    iconDraw: (DrawScope.(Color) -> Unit)? = null,
+    iconContent: (@Composable () -> Unit)? = null,
 ) {
     Row(
         modifier = modifier
@@ -999,8 +1056,12 @@ private fun CompactCard(
                 },
             contentAlignment = Alignment.Center,
         ) {
-            Canvas(modifier = Modifier.size(36.dp)) {
-                iconDraw(accentColor)
+            if (iconContent != null) {
+                iconContent()
+            } else if (iconDraw != null) {
+                Canvas(modifier = Modifier.size(36.dp)) {
+                    iconDraw(accentColor)
+                }
             }
         }
 
@@ -1061,6 +1122,119 @@ private fun DrawScope.drawLeaderboardBars(color: Color) {
             topLeft = Offset(startX + i * (barW + gap), size.height - barH),
             size = Size(barW, barH),
         )
+    }
+}
+
+// ── Animated daily challenge icon ─────────────────────────────────────────────
+
+/**
+ * Neon cat that bobs up/down and wags its tail — shown in the Daily Challenge
+ * compact card icon box when today's challenge is still available to play.
+ */
+@Composable
+private fun AnimatedDailyIcon(color: Color) {
+    val transition = rememberInfiniteTransition(label = "dailyCat")
+
+    val bobY by transition.animateFloat(
+        initialValue = -2f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 600),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "bob",
+    )
+    val tailAngle by transition.animateFloat(
+        initialValue = -22f,
+        targetValue = 22f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 700),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "tail",
+    )
+    val glowAlpha by transition.animateFloat(
+        initialValue = 0.18f,
+        targetValue = 0.60f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "glow",
+    )
+
+    Canvas(
+        modifier = Modifier
+            .size(36.dp)
+            .graphicsLayer { translationY = bobY },
+    ) {
+        drawNeonCat(color, tailAngle, glowAlpha)
+    }
+}
+
+private fun DrawScope.drawNeonCat(color: Color, tailAngleDeg: Float, glowAlpha: Float) {
+    val cx = size.width / 2f
+    val cy = size.height * 0.54f
+    val headR = size.minDimension * 0.27f
+    val sw = 1.5.dp.toPx()
+
+    // Pulsing radial glow behind the cat
+    drawCircle(
+        brush = Brush.radialGradient(
+            colors = listOf(color.copy(alpha = glowAlpha * 0.45f), Color.Transparent),
+            center = Offset(cx, cy),
+            radius = headR * 2.3f,
+        ),
+        radius = headR * 2.3f,
+        center = Offset(cx, cy),
+    )
+
+    // Left ear
+    val leftEar = Path().apply {
+        moveTo(cx - headR * 0.55f, cy - headR * 0.82f)
+        lineTo(cx - headR * 0.90f, cy - headR * 1.52f)
+        lineTo(cx - headR * 0.15f, cy - headR * 1.10f)
+        close()
+    }
+    drawPath(leftEar, color.copy(alpha = 0.85f))
+
+    // Right ear
+    val rightEar = Path().apply {
+        moveTo(cx + headR * 0.55f, cy - headR * 0.82f)
+        lineTo(cx + headR * 0.90f, cy - headR * 1.52f)
+        lineTo(cx + headR * 0.15f, cy - headR * 1.10f)
+        close()
+    }
+    drawPath(rightEar, color.copy(alpha = 0.85f))
+
+    // Head fill (subtle)
+    drawCircle(color = color.copy(alpha = 0.10f), radius = headR, center = Offset(cx, cy))
+    // Head outline
+    drawCircle(color = color, radius = headR, center = Offset(cx, cy), style = Stroke(sw))
+
+    // Eyes — two bright dots
+    val eyeR = headR * 0.14f
+    drawCircle(color, eyeR, Offset(cx - headR * 0.33f, cy - headR * 0.08f))
+    drawCircle(color, eyeR, Offset(cx + headR * 0.33f, cy - headR * 0.08f))
+
+    // Nose — tiny dot
+    drawCircle(color.copy(alpha = 0.65f), headR * 0.07f, Offset(cx, cy + headR * 0.22f))
+
+    // Animated wagging tail
+    val tailPivotX = cx + headR * 0.40f
+    val tailPivotY = cy + headR * 0.72f
+    withTransform({
+        rotate(degrees = tailAngleDeg, pivot = Offset(tailPivotX, tailPivotY))
+    }) {
+        val tailPath = Path().apply {
+            moveTo(tailPivotX, tailPivotY)
+            cubicTo(
+                tailPivotX + headR * 0.85f, tailPivotY + headR * 0.50f,
+                tailPivotX + headR * 1.25f, tailPivotY + headR * 0.08f,
+                tailPivotX + headR * 1.15f, tailPivotY - headR * 0.45f,
+            )
+        }
+        drawPath(tailPath, color.copy(alpha = 0.80f), style = Stroke(sw, cap = StrokeCap.Round))
     }
 }
 
