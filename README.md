@@ -65,6 +65,16 @@ iosApp/             — Xcode project + Fastlane for TestFlight CI
 
 Color math lives in `commonMain` — the CIEDE2000 formula is implemented in pure Kotlin so it runs identically on both platforms with zero platform divergence.
 
+### A deliberate architecture choice
+
+Huezoo has a full design system (custom shapes, modifiers, color tokens, spacing scale, typography) and follows Clean Architecture principles — unidirectional data flow, ViewModels, repositories, use cases, and a clear separation between UI, domain, and data layers.
+
+What it deliberately does **not** have is multi-module separation (`:core`, `:feature:threshold`, `:design-system`, etc.).
+
+This was a conscious call. The focus of this project is UI, interaction, animation, and color — not module graph management. In a solo project at this scale, splitting into modules would mean spending the majority of time on Gradle configuration, inter-module dependency wiring, and build performance tuning — none of which moves the actual product forward. The assumption is that anyone reading this code understands that modularisation is a team/scale problem, not an architecture purity requirement.
+
+Separation of concerns is enforced through **package structure and naming conventions** instead. If this ever grows into a team project or the codebase becomes significantly larger, extracting modules is a straightforward refactor — the boundaries are already clearly drawn in the code.
+
 ---
 
 ## Getting Started
