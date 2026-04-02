@@ -483,8 +483,9 @@ private fun UpgradeBottomCta(
         Spacer(Modifier.height(HuezooSpacing.xs))
 
         HuezooButton(
-            text = "RESTORE PURCHASES",
+            text = if (state.isRestoring) "RESTORING…" else "RESTORE PURCHASES",
             onClick = onRestore,
+            enabled = !state.isRestoring,
             variant = HuezooButtonVariant.Ghost,
             modifier = Modifier.fillMaxWidth(),
         )

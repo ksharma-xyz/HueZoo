@@ -13,6 +13,7 @@ import xyz.ksharma.huezoo.ui.util.safeLaunch
 data class UpgradeUiState(
     val priceLabel: String = "$2.99",
     val isPurchasing: Boolean = false,
+    val isRestoring: Boolean = false,
     val isPaid: Boolean = false,
     val error: String? = null,
 )
@@ -59,11 +60,18 @@ class UpgradeViewModel(
     }
 
     fun onRestorePurchases() {
+        if (_uiState.value.isRestoring) return
         safeLaunch {
+            _uiState.value = _uiState.value.copy(isRestoring = true, error = null)
             val owned = billingClient.isOwned(PRODUCT_UNLIMITED)
             if (owned) {
                 settingsRepository.setPaid(true)
-                _uiState.value = _uiState.value.copy(isPaid = true)
+                _uiState.value = _uiState.value.copy(isRestoring = false, isPaid = true)
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isRestoring = false,
+                    error = "No previous purchase found for this Apple ID.",
+                )
             }
         }
     }
