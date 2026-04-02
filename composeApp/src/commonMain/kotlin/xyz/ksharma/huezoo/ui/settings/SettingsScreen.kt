@@ -145,6 +145,9 @@ fun SettingsScreen(
                             variant = HuezooButtonVariant.Primary,
                             modifier = Modifier.fillMaxWidth(),
                         )
+                        // TODO(android): add "Restore Purchases" button here wired to
+                        //  UpgradeViewModel.onRestorePurchases(). Not required by Google Play
+                        //  (unlike Apple), but good practice for users who reinstall.
                     }
                 }
 

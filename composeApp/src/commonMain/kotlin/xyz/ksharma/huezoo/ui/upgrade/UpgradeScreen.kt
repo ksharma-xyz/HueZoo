@@ -236,53 +236,12 @@ fun UpgradeScreen(
             }
 
             // ── Pinned price + purchase CTA ───────────────────────────────────
-            Column(
-                modifier = Modifier
-                    .graphicsLayer { this.alpha = alpha.value }
-                    .padding(horizontal = HuezooSpacing.md),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                // Price displayed separately — large and prominent
-                HuezooDisplayLarge(
-                    text = state.priceLabel,
-                    color = HuezooColors.PriceGreen,
-                    fontWeight = FontWeight.ExtraBold,
-                )
-
-                HuezooLabelSmall(
-                    text = "ONE-TIME PURCHASE · NO SUBSCRIPTION",
-                    color = HuezooColors.TextDisabled,
-                    textAlign = TextAlign.Center,
-                )
-
-                Spacer(Modifier.height(HuezooSpacing.sm))
-
-                PriceButton(
-                    price = if (state.isPurchasing) "PURCHASING…" else "UNLOCK FOREVER",
-                    onClick = { viewModel.onPurchase() },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Spacer(Modifier.height(HuezooSpacing.sm))
-
-                HuezooLabelSmall(
-                    text = "Supports indie development ♥",
-                    color = HuezooColors.TextDisabled,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Spacer(Modifier.height(HuezooSpacing.xs))
-
-                HuezooButton(
-                    text = "RESTORE PURCHASES",
-                    onClick = { viewModel.onRestorePurchases() },
-                    variant = HuezooButtonVariant.Ghost,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Spacer(Modifier.height(HuezooSpacing.lg))
-            }
+            UpgradeBottomCta(
+                state = state,
+                alpha = alpha.value,
+                onPurchase = { viewModel.onPurchase() },
+                onRestore = { viewModel.onRestorePurchases() },
+            )
         }
     }
 }
@@ -465,6 +424,75 @@ private fun FeatureRow(
     }
 }
 
+// ── Pinned CTA ────────────────────────────────────────────────────────────────
+
+@Composable
+private fun UpgradeBottomCta(
+    state: UpgradeUiState,
+    alpha: Float,
+    onPurchase: () -> Unit,
+    onRestore: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .graphicsLayer { this.alpha = alpha }
+            .padding(horizontal = HuezooSpacing.md),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        // Price displayed separately — large and prominent
+        HuezooDisplayLarge(
+            text = state.priceLabel,
+            color = HuezooColors.PriceGreen,
+            fontWeight = FontWeight.ExtraBold,
+        )
+
+        HuezooLabelSmall(
+            text = "ONE-TIME PURCHASE · NO SUBSCRIPTION",
+            color = HuezooColors.TextDisabled,
+            textAlign = TextAlign.Center,
+        )
+
+        Spacer(Modifier.height(HuezooSpacing.sm))
+
+        PriceButton(
+            price = if (state.isPurchasing) "PURCHASING…" else "UNLOCK FOREVER",
+            onClick = onPurchase,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        if (state.error != null) {
+            Spacer(Modifier.height(HuezooSpacing.xs))
+            HuezooLabelSmall(
+                text = state.error,
+                color = HuezooColors.AccentMagenta,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        Spacer(Modifier.height(HuezooSpacing.sm))
+
+        HuezooLabelSmall(
+            text = "Supports indie development ♥",
+            color = HuezooColors.TextDisabled,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Spacer(Modifier.height(HuezooSpacing.xs))
+
+        HuezooButton(
+            text = "RESTORE PURCHASES",
+            onClick = onRestore,
+            variant = HuezooButtonVariant.Ghost,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Spacer(Modifier.height(HuezooSpacing.lg))
+    }
+}
+
 // ── Preview ───────────────────────────────────────────────────────────────────
 
 @PreviewScreen
@@ -472,5 +500,21 @@ private fun FeatureRow(
 private fun UpgradeScreenPreview() {
     HuezooPreviewTheme {
         UpgradeScreen(onBack = {})
+    }
+}
+
+@PreviewScreen
+@Composable
+private fun UpgradeBottomCtaErrorPreview() {
+    HuezooPreviewTheme {
+        UpgradeBottomCta(
+            state = UpgradeUiState(
+                priceLabel = "$2.99",
+                error = "Purchase failed. Check your connection and try again.",
+            ),
+            alpha = 1f,
+            onPurchase = {},
+            onRestore = {},
+        )
     }
 }
