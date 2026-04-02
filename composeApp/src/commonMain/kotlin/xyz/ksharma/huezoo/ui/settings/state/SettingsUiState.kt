@@ -16,4 +16,8 @@ data class SettingsUiState(
     val nameInput: String = "",
     /** Version string shown at the bottom of the screen ("0.1.0" release, "0.1.0 dev" debug). */
     val appVersion: String = "",
+    /** True while a restore-purchases check is in flight. */
+    val isRestoring: Boolean = false,
+    /** Shown below the Restore button after a restore attempt — success or no-purchase message. */
+    val restoreMessage: String? = null,
 )

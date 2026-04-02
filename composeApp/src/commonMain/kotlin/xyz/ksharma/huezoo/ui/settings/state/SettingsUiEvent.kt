@@ -9,4 +9,5 @@ sealed interface SettingsUiEvent {
     data object SaveNameTapped : SettingsUiEvent
     data object ToggleForceStreakCelebration : SettingsUiEvent
     data object ToggleHideAds : SettingsUiEvent
+    data object RestorePurchasesTapped : SettingsUiEvent
 }

@@ -127,9 +127,8 @@ appears in the user's purchase list.
 
 **Note:** Google Play restores purchases automatically on reinstall for the same
 Google account. A manual "Restore Purchases" button is not required by Google
-Play policy (unlike Apple), which is why it's currently only in `UpgradeScreen`
-(shared code) but not in `SettingsScreen`.
-See `SettingsScreen.kt` ACCOUNT section TODO for adding it there later.
+Play policy (unlike Apple), but it is surfaced in both `UpgradeScreen` and
+`SettingsScreen` (ACCOUNT section) for consistency and user trust.
 
 ### Google Play setup (one-time)
 

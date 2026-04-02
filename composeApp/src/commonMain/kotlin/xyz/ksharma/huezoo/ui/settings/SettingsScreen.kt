@@ -145,9 +145,23 @@ fun SettingsScreen(
                             variant = HuezooButtonVariant.Primary,
                             modifier = Modifier.fillMaxWidth(),
                         )
-                        // TODO(android): add "Restore Purchases" button here wired to
-                        //  UpgradeViewModel.onRestorePurchases(). Not required by Google Play
-                        //  (unlike Apple), but good practice for users who reinstall.
+                        Spacer(Modifier.height(HuezooSpacing.xs))
+                        HuezooButton(
+                            text = if (state.isRestoring) "RESTORING…" else "RESTORE PURCHASES",
+                            onClick = { viewModel.onUiEvent(SettingsUiEvent.RestorePurchasesTapped) },
+                            enabled = !state.isRestoring,
+                            variant = HuezooButtonVariant.Ghost,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    if (state.restoreMessage != null) {
+                        Spacer(Modifier.height(HuezooSpacing.xs))
+                        HuezooLabelSmall(
+                            text = state.restoreMessage,
+                            color = if (state.isPaid) HuezooColors.AccentCyan else HuezooColors.AccentMagenta,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     }
                 }
 
