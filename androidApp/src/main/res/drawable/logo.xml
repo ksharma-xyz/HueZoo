@@ -1,11 +1,9 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="200dp"
-    android:height="200dp"
+    android:width="108dp"
+    android:height="108dp"
     android:viewportWidth="200"
     android:viewportHeight="200">
-  <path
-      android:pathData="M0,0h200v200h-200z"
-      android:fillColor="#000000"/>
+  <!-- No background fill — ic_launcher_background.xml provides the black background -->
   <path
       android:pathData="M21,50H36.49V90.14H53.1V50H68.59V148.59H53.1V104.22H36.49V148.59H21V50Z"
       android:strokeWidth="2"
