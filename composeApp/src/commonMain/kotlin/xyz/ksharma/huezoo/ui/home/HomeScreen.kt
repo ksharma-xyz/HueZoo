@@ -3,6 +3,8 @@ package xyz.ksharma.huezoo.ui.home
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -16,7 +18,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -74,6 +75,7 @@ import androidx.navigation3.runtime.NavKey
 import app.lexilabs.basic.ads.DependsOnGoogleMobileAds
 import app.lexilabs.basic.ads.composable.BannerAd
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
@@ -117,9 +119,24 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-private const val STAGGER_DELAY_MS = 80L
-private const val CARD_ANIM_DURATION_MS = 300
-private const val SLIDE_FRACTION = 5
+private const val STAGGER_DELAY_MS = 120L           // wider gap — each card clearly visible before next
+private const val CARD_ANIM_DURATION_MS = 220       // alpha fade per card
+private const val GREETING_TYPEWRITER_MS = 28L      // ms per character for "WELCOME,"
+private const val INITIAL_DELAY_MS = 350L           // breathing room after splash→home fade
+private const val GREETING_START_DELAY_MS = 1100L   // "WELCOME," fires after all cards have landed
+private const val CALLSIGN_LETTER_STAGGER_MS = 65L  // delay between each letter of the username
+private const val CALLSIGN_DELAY_MS = 1300L         // username starts 200 ms after "WELCOME," begins
+private const val SESSION_ANIM_DONE_MS = 1900L      // full sequence including greeting + callsign
+
+/**
+ * In-memory session flag. Set to `true` once the cold-open entrance animation finishes.
+ * On back-navigation the composable remounts and reads `hasPlayed = true` → all
+ * entrance animations are skipped immediately, keeping re-entry instant and clean.
+ * Resets when the process is killed = a new app session always gets the full show.
+ */
+private object HomeScreenAnimationState {
+    var hasPlayed: Boolean = false
+}
 
 private val ShelfColor = HuezooColors.SurfaceL4
 private val ShelfOffset = 4.dp
@@ -150,6 +167,24 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val platformOps: PlatformOps = koinInject()
 
+    // Banner defers until the full entrance animation has finished.
+    // Initialised from hasPlayed so re-entry (back-navigation) is always instant.
+    // The LaunchedEffect checks bannerVisible itself — avoids a race where
+    // hasPlayed was never written because ReadyContent left composition early.
+    var bannerVisible by remember { mutableStateOf(HomeScreenAnimationState.hasPlayed) }
+    LaunchedEffect(Unit) {
+        if (!bannerVisible) {
+            delay(SESSION_ANIM_DONE_MS)
+            bannerVisible = true
+            HomeScreenAnimationState.hasPlayed = true // belt-and-suspenders backstop
+        }
+    }
+    val bannerAlpha by animateFloatAsState(
+        targetValue = if (bannerVisible) 1f else 0f,
+        animationSpec = tween(400),
+        label = "bannerAlpha",
+    )
+
     LifecycleResumeEffect(Unit) {
         viewModel.onUiEvent(HomeUiEvent.ScreenResumed)
         onPauseOrDispose { }
@@ -174,7 +209,13 @@ fun HomeScreen(
         val readyState = uiState as? HomeUiState.Ready
         @OptIn(DependsOnGoogleMobileAds::class)
         if (readyState != null && !readyState.isPaid && !DebugFlags.hideAds) {
-            Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding()) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .graphicsLayer { alpha = bannerAlpha },
+            ) {
                 BannerAd(adUnitId = AdIds.banner)
             }
         }
@@ -249,33 +290,53 @@ private fun ReadyContent(
     }
     val isStreakCelebrating = state.forceStreakCelebration || shouldCelebrate.value
 
+    // ── Cold-open greeting animation (skipped on re-entry) ────────────────────
+    // Capture once at composition time — HomeScreenAnimationState.hasPlayed is a plain var,
+    // not a State, so reading it here gives the correct value at mount time.
+    val alreadyPlayed = remember { HomeScreenAnimationState.hasPlayed }
+    var displayedWelcome by remember { mutableStateOf(if (alreadyPlayed) "WELCOME," else "") }
+
+    // "WELCOME," types itself after all cards have landed
+    LaunchedEffect(Unit) {
+        if (!alreadyPlayed) {
+            delay(GREETING_START_DELAY_MS)
+            "WELCOME,".forEach { char ->
+                delay(GREETING_TYPEWRITER_MS)
+                displayedWelcome += char
+            }
+        }
+    }
+
+    // Mark session done → re-entries skip everything
+    LaunchedEffect(Unit) {
+        if (!alreadyPlayed) {
+            delay(SESSION_ANIM_DONE_MS)
+            HomeScreenAnimationState.hasPlayed = true
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
     ) {
-        // TopBar scrolls with content; its windowInsetsTopHeight spacer provides status-bar padding
         HuezooTopBar(onSettingsClick = onSettingsTap)
 
-        // Padded content column — TopBar stays full-width above
         Column(modifier = Modifier.padding(horizontal = HuezooSpacing.md)) {
             Spacer(Modifier.height(HuezooSpacing.md))
 
-            // Greeting — tapping name navigates to Settings to set/update it
+            // "WELCOME," types in, then callsign letters sweep up one by one
             HuezooLabelSmall(
-                text = "WELCOME,",
+                text = displayedWelcome,
                 color = HuezooColors.TextSecondary,
                 fontWeight = FontWeight.SemiBold,
             )
-            HuezooHeadlineSmall(
+            AnimatedCallsign(
                 text = if (state.userName != null) state.userName.uppercase() else "AGENT",
                 color = LocalPlayerAccentColor.current,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onSettingsTap,
-                ),
+                animate = !alreadyPlayed,
+                startDelay = CALLSIGN_DELAY_MS,
+                onClick = onSettingsTap,
             )
 
             Spacer(Modifier.height(HuezooSpacing.md))
@@ -869,6 +930,22 @@ private fun LevelProgressBar(
     val nextLevel = PlayerLevel.entries.getOrNull(currentLevel.ordinal + 1)
     val rightLabel = nextLevel?.let { "${formatGems(totalGems)} / ${formatGems(it.minGems)}" }
 
+    // Cold-open charge-up — starts at 0 and fills to actual fraction on first open only.
+    // On re-entry hasPlayed=true so we start at the real value immediately (no animation).
+    val animatedFraction = remember {
+        Animatable(if (HomeScreenAnimationState.hasPlayed) fraction else 0f)
+    }
+    LaunchedEffect(Unit) {
+        if (!HomeScreenAnimationState.hasPlayed) {
+            delay(INITIAL_DELAY_MS + 400L) // charge up mid-sequence while cards are dropping
+            animatedFraction.animateTo(fraction, tween(700, easing = EaseOutCubic))
+        }
+    }
+    // Keep bar in sync when gems change mid-session (e.g. back from a game)
+    LaunchedEffect(fraction) {
+        if (HomeScreenAnimationState.hasPlayed) animatedFraction.snapTo(fraction)
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -887,7 +964,7 @@ private fun LevelProgressBar(
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(fraction.coerceIn(0f, 1f))
+                    .fillMaxWidth(animatedFraction.value.coerceIn(0f, 1f))
                     .fillMaxHeight()
                     .background(accentColor),
             )
@@ -1441,24 +1518,127 @@ private fun DeltaEInfoCard(modifier: Modifier = Modifier) {
 
 // ── Stagger animation ─────────────────────────────────────────────────────────
 
+/**
+ * Cold-open entrance: cards slide up from below with a spring bounce.
+ * [INITIAL_DELAY_MS] breathing room before first card, then [STAGGER_DELAY_MS] per index
+ * so each card's arrival is clearly visible before the next one begins.
+ *
+ * Re-entry: [HomeScreenAnimationState.hasPlayed] = true → instant display, no replay.
+ */
 @Composable
 private fun StaggeredCard(
     index: Int,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    var visible by remember { mutableStateOf(false) }
+    val alreadyPlayed = remember { HomeScreenAnimationState.hasPlayed }
+    val alpha = remember { Animatable(if (alreadyPlayed) 1f else 0f) }
+    val translateY = remember { Animatable(if (alreadyPlayed) 0f else 36f) } // dp, slides up
+    val scale = remember { Animatable(if (alreadyPlayed) 1f else 0.88f) }
+
     LaunchedEffect(Unit) {
-        delay(index * STAGGER_DELAY_MS)
-        visible = true
+        if (!alreadyPlayed) {
+            delay(INITIAL_DELAY_MS + index * STAGGER_DELAY_MS)
+            launch { alpha.animateTo(1f, tween(CARD_ANIM_DURATION_MS)) }
+            launch {
+                translateY.animateTo(
+                    0f,
+                    spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                )
+            }
+            launch {
+                scale.animateTo(
+                    1f,
+                    spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    ),
+                )
+            }
+        }
     }
-    AnimatedVisibility(
-        visible = visible,
-        modifier = modifier,
-        enter = fadeIn(tween(CARD_ANIM_DURATION_MS)) +
-            slideInVertically(tween(CARD_ANIM_DURATION_MS)) { it / SLIDE_FRACTION },
+
+    Box(
+        modifier = modifier.graphicsLayer {
+            this.alpha = alpha.value
+            translationY = translateY.value * density
+            scaleX = scale.value
+            scaleY = scale.value
+        },
     ) {
         content()
+    }
+}
+
+// ── Callsign reveal ────────────────────────────────────────────────────────────
+
+/**
+ * Solari flip-board reveal — each character rotates from -90 ° (lying flat,
+ * edge-on and invisible) to 0 ° (facing the viewer), staggered left-to-right.
+ *
+ * The `DampingRatioMediumBouncy` spring gives a tiny overshoot past 0 ° that
+ * mimics the physical snap of a real split-flap tile hitting its mechanical stop.
+ * `cameraDistance` is raised so the perspective distortion stays subtle.
+ *
+ * - [animate] = true  → tiles flip in after [startDelay] ms (cold open only)
+ * - [animate] = false → all characters immediately visible (re-entry, zero cost)
+ */
+@Composable
+private fun AnimatedCallsign(
+    text: String,
+    color: Color,
+    animate: Boolean,
+    startDelay: Long,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    // rotationX: -90 = flat/invisible, 0 = facing viewer
+    val rotations = remember(text) { List(text.length) { Animatable(if (animate) -90f else 0f) } }
+    val alphas = remember(text) { List(text.length) { Animatable(if (animate) 0f else 1f) } }
+
+    LaunchedEffect(text) {
+        if (animate) {
+            text.indices.forEach { i ->
+                launch {
+                    delay(startDelay + i * CALLSIGN_LETTER_STAGGER_MS)
+                    // Alpha snaps in immediately so we see the full rotation arc
+                    launch { alphas[i].snapTo(1f) }
+                    // Flip tile down — MediumBouncy gives the physical stop-and-rebound feel
+                    rotations[i].animateTo(
+                        0f,
+                        spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMedium,
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
+    Row(
+        modifier = modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = onClick,
+        ),
+    ) {
+        text.forEachIndexed { i, char ->
+            HuezooHeadlineSmall(
+                text = char.toString(),
+                color = color,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.graphicsLayer {
+                    alpha = alphas[i].value
+                    rotationX = rotations[i].value
+                    // Higher camera distance = less fisheye distortion during the flip
+                    cameraDistance = 14f * density
+                },
+            )
+        }
     }
 }
 
