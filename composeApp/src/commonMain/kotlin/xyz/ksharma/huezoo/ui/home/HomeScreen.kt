@@ -122,7 +122,7 @@ import kotlin.time.Instant
 private const val STAGGER_DELAY_MS = 120L           // wider gap — each card clearly visible before next
 private const val CARD_ANIM_DURATION_MS = 220       // alpha fade per card
 private const val GREETING_TYPEWRITER_MS = 28L      // ms per character for "WELCOME,"
-private const val INITIAL_DELAY_MS = 350L           // breathing room after splash→home fade
+private const val INITIAL_DELAY_MS = 175L           // breathing room after splash→home fade (halved from 350)
 private const val GREETING_START_DELAY_MS = 1100L   // "WELCOME," fires after all cards have landed
 private const val CALLSIGN_LETTER_STAGGER_MS = 65L  // delay between each letter of the username
 private const val CALLSIGN_DELAY_MS = 1300L         // username starts 200 ms after "WELCOME," begins
@@ -167,23 +167,6 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val platformOps: PlatformOps = koinInject()
 
-    // Banner defers until the full entrance animation has finished.
-    // Initialised from hasPlayed so re-entry (back-navigation) is always instant.
-    // The LaunchedEffect checks bannerVisible itself — avoids a race where
-    // hasPlayed was never written because ReadyContent left composition early.
-    var bannerVisible by remember { mutableStateOf(HomeScreenAnimationState.hasPlayed) }
-    LaunchedEffect(Unit) {
-        if (!bannerVisible) {
-            delay(SESSION_ANIM_DONE_MS)
-            bannerVisible = true
-            HomeScreenAnimationState.hasPlayed = true // belt-and-suspenders backstop
-        }
-    }
-    val bannerAlpha by animateFloatAsState(
-        targetValue = if (bannerVisible) 1f else 0f,
-        animationSpec = tween(400),
-        label = "bannerAlpha",
-    )
 
     LifecycleResumeEffect(Unit) {
         viewModel.onUiEvent(HomeUiEvent.ScreenResumed)
@@ -213,8 +196,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .graphicsLayer { alpha = bannerAlpha },
+                    .navigationBarsPadding(),
             ) {
                 BannerAd(adUnitId = AdIds.banner)
             }
@@ -362,18 +344,20 @@ private fun ReadyContent(
 
             Spacer(Modifier.height(HuezooSpacing.lg))
 
-            LevelProgressBar(
-                fraction = levelProgressFraction(state.playerLevel, state.totalGems),
-                currentLevel = state.playerLevel,
-                totalGems = state.totalGems,
-                accentColor = state.playerLevel.levelColor,
-                onClick = { showLevelsSheet = true },
-                modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
-            )
+            StaggeredCard(index = 2) {
+                LevelProgressBar(
+                    fraction = levelProgressFraction(state.playerLevel, state.totalGems),
+                    currentLevel = state.playerLevel,
+                    totalGems = state.totalGems,
+                    accentColor = state.playerLevel.levelColor,
+                    onClick = { showLevelsSheet = true },
+                    modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
+                )
+            }
 
             Spacer(Modifier.height(HuezooSpacing.sm))
 
-            StaggeredCard(index = 2) {
+            StaggeredCard(index = 3) {
                 ThresholdHeroCard(
                     data = state.threshold,
                     isPaid = state.isPaid,
@@ -390,7 +374,7 @@ private fun ReadyContent(
 
             Spacer(Modifier.height(HuezooSpacing.lg))
 
-            StaggeredCard(index = 3) {
+            StaggeredCard(index = 4) {
                 DailyCompactCard(
                     data = state.daily,
                     challengeName = challengeName,
@@ -402,7 +386,7 @@ private fun ReadyContent(
 
             Spacer(Modifier.height(HuezooSpacing.md))
 
-            StaggeredCard(index = 4) {
+            StaggeredCard(index = 5) {
                 LeaderboardCompactCard(
                     personalBestDeltaE = state.threshold.personalBestDeltaE,
                     onClick = {
@@ -1576,14 +1560,9 @@ private fun StaggeredCard(
 // ── Callsign reveal ────────────────────────────────────────────────────────────
 
 /**
- * Solari flip-board reveal — each character rotates from -90 ° (lying flat,
- * edge-on and invisible) to 0 ° (facing the viewer), staggered left-to-right.
+ * Simple per-character fade-in reveal — each letter fades in staggered left-to-right.
  *
- * The `DampingRatioMediumBouncy` spring gives a tiny overshoot past 0 ° that
- * mimics the physical snap of a real split-flap tile hitting its mechanical stop.
- * `cameraDistance` is raised so the perspective distortion stays subtle.
- *
- * - [animate] = true  → tiles flip in after [startDelay] ms (cold open only)
+ * - [animate] = true  → letters fade in after [startDelay] ms (cold open only)
  * - [animate] = false → all characters immediately visible (re-entry, zero cost)
  */
 @Composable
@@ -1595,8 +1574,6 @@ private fun AnimatedCallsign(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // rotationX: -90 = flat/invisible, 0 = facing viewer
-    val rotations = remember(text) { List(text.length) { Animatable(if (animate) -90f else 0f) } }
     val alphas = remember(text) { List(text.length) { Animatable(if (animate) 0f else 1f) } }
 
     LaunchedEffect(text) {
@@ -1604,16 +1581,7 @@ private fun AnimatedCallsign(
             text.indices.forEach { i ->
                 launch {
                     delay(startDelay + i * CALLSIGN_LETTER_STAGGER_MS)
-                    // Alpha snaps in immediately so we see the full rotation arc
-                    launch { alphas[i].snapTo(1f) }
-                    // Flip tile down — MediumBouncy gives the physical stop-and-rebound feel
-                    rotations[i].animateTo(
-                        0f,
-                        spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessMedium,
-                        ),
-                    )
+                    alphas[i].animateTo(1f, tween(160))
                 }
             }
         }
@@ -1633,9 +1601,6 @@ private fun AnimatedCallsign(
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.graphicsLayer {
                     alpha = alphas[i].value
-                    rotationX = rotations[i].value
-                    // Higher camera distance = less fisheye distortion during the flip
-                    cameraDistance = 14f * density
                 },
             )
         }
