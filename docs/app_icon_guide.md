@@ -13,7 +13,7 @@ Android uses **adaptive icons** — two layers that the OS composites and clips 
 
 | File | Path | Size | Notes |
 |------|------|------|-------|
-| `ic_launcher_foreground.xml` or `.png` | `androidApp/src/main/res/mipmap-*/` | See below | Foreground layer — your actual icon art |
+| `logo.xml` or `.png` | `androidApp/src/main/res/mipmap-*/` | See below | Foreground layer — your actual icon art |
 | `ic_launcher_background.xml` or `.png` | Same | 108×108 dp | Background layer — solid `#0D0D16` |
 | `ic_launcher.xml` | `res/mipmap-anydpi-v26/` | XML manifest | References foreground + background layers |
 | Legacy `.png` fallback | `res/mipmap-*/` | See below | For API < 26 |
@@ -30,6 +30,92 @@ Android uses **adaptive icons** — two layers that the OS composites and clips 
 | Play Store listing | — | **512×512 px** (PNG, no alpha) |
 
 **Foreground canvas:** Design on 108×108 dp but keep all art within the safe zone — a centered 72×72 dp circle. The OS clips outside this zone on most shapes.
+
+---
+
+### Figma Logo Design Guidelines (Android Foreground)
+
+#### Frame setup
+
+Always set up **three nested guides** inside a single 108×108 Figma frame:
+
+```
+┌──────────────────────────────┐
+│          108 × 108           │  ← Figma frame — exported as foreground SVG
+│                              │    Background must be transparent (bg is a
+│   ┌──────────────────────┐   │    separate ic_launcher_background.xml file)
+│   │    72 × 72           │   │
+│   │    safe zone         │   │  ← 18px margin — circular mask cuts HERE.
+│   │                      │   │    Nothing important outside this boundary.
+│   │  ┌────────────────┐  │   │
+│   │  │   64 × 64      │  │   │  ← Put ALL logo/letter art inside here.
+│   │  │   logo area    │  │   │    22px margin gives breathing room on
+│   │  │                │  │   │    circle, squircle and teardrop shapes.
+│   │  └────────────────┘  │   │
+│   └──────────────────────┘   │
+└──────────────────────────────┘
+```
+
+| Zone | Size | Margin from edge | Rule |
+|---|---|---|---|
+| Full frame | 108×108 | — | Export size, **transparent background** |
+| Safe zone | 72×72 | 18px all sides | Hard boundary — OS circle mask clips here |
+| Logo art area | 64×64 | 22px all sides | Place all letter/logo content here |
+
+#### Rules
+
+- **Foreground = transparent background.** The black fill belongs in `ic_launcher_background.xml`, not in the foreground SVG. If your Figma frame has a coloured background, remove it before exporting.
+- **Keep all strokes/fills inside the 64×64 logo area.** Strokes have width — a 2px stroke on the edge of the 72×72 safe zone will be half-clipped.
+- **Design at 108×108, export at 108×108.** Do not export at a larger size and rely on Android to scale it down — the viewport coordinates must match 108.
+- **No drop shadows or blurs in the foreground SVG.** These don't convert cleanly to `<vector>` format. Use solid fills and strokes only.
+
+#### Workflow: Figma → Android Vector Drawable
+
+1. Design the logo inside the 64×64 centre area of the 108×108 frame.
+2. Export frame as **SVG** (no background fill).
+3. In Android Studio: `File → New → Vector Asset → Local file` — paste the SVG. AS converts it to `<vector>` XML automatically.
+4. Place the output in `androidApp/src/main/res/drawable/`.
+5. Reference it in `mipmap-anydpi-v26/ic_launcher.xml` and `ic_launcher_round.xml` as the `<foreground>` drawable.
+
+#### Fixing an existing SVG that is too wide (group transform trick)
+
+If your vector paths already exist but the logo content is too close to the edges, you can scale and centre them using a `<group>` transform — **no need to recalculate every path coordinate**:
+
+```xml
+<vector
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+
+  <!--
+    Scale the content down and re-centre it inside the 64×64 safe area.
+    Formula (replace with your own content bounds):
+      contentWidth  = maxX - minX
+      scale         = 64 / contentWidth
+      translateX    = 54 - ((minX + maxX) / 2) * scale
+      translateY    = 54 - ((minY + maxY) / 2) * scale
+  -->
+  <group
+      android:scaleX="0.741"
+      android:scaleY="0.741"
+      android:translateX="12.93"
+      android:translateY="15.22">
+
+    <!-- original paths unchanged -->
+    <path android:pathData="…" android:fillColor="#00E5FF"/>
+
+  </group>
+</vector>
+```
+
+The values used for the current `android_logo.xml` (letter paths spanning x: 12.25→98.66, y: 33.26→71.47 in a 108 viewport):
+
+| Property | Value | Explanation |
+|---|---|---|
+| `scaleX / scaleY` | `0.741` | Shrinks content to fit 64dp width |
+| `translateX` | `12.93` | Re-centres horizontally in 108dp canvas |
+| `translateY` | `15.22` | Re-centres vertically in 108dp canvas |
+
+---
 
 **Quick steps:**
 1. Export your icon art as PNG at each size above.
