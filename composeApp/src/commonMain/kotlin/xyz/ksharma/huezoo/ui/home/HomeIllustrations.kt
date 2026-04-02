@@ -341,7 +341,12 @@ internal fun GemSpillIllustration(modifier: Modifier = Modifier) {
         )
         var scanTx = w * 0.50f
         while (scanTx < w - 2.dp.toPx()) {
-            drawLine(color.copy(0.10f), Offset(scanTx, scanY - 2.5.dp.toPx()), Offset(scanTx, scanY + 2.5.dp.toPx()), sw * 0.7f)
+            drawLine(
+                color.copy(0.10f),
+                Offset(scanTx, scanY - 2.5.dp.toPx()),
+                Offset(scanTx, scanY + 2.5.dp.toPx()),
+                sw * 0.7f,
+            )
             scanTx += 16.dp.toPx()
         }
     }
@@ -452,4 +457,3 @@ private fun DrawScope.drawNeonCat(color: Color, tailAngleDeg: Float, glowAlpha: 
         drawPath(tailPath, color.copy(alpha = 0.80f), style = Stroke(sw, cap = StrokeCap.Round))
     }
 }
-

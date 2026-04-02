@@ -22,7 +22,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooHeadlineSmall
 internal const val STAGGER_DELAY_MS = 120L
 internal const val CARD_ANIM_DURATION_MS = 220
 internal const val GREETING_TYPEWRITER_MS = 28L
-internal const val INITIAL_DELAY_MS = 175L           // breathing room after splash→home fade (halved from 350)
+internal const val INITIAL_DELAY_MS = 175L // breathing room after splash→home fade (halved from 350)
 internal const val GREETING_START_DELAY_MS = 1100L
 internal const val CALLSIGN_LETTER_STAGGER_MS = 65L
 internal const val CALLSIGN_DELAY_MS = 1300L
@@ -140,4 +140,3 @@ internal fun AnimatedCallsign(
         }
     }
 }
-

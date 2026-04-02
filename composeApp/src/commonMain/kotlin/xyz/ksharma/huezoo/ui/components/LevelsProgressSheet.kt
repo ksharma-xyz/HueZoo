@@ -60,16 +60,16 @@ private val LevelShelfOffset = 4.dp
 private const val LOCKED_ALPHA = 0.38f
 
 // ── Animation timing ───────────────────────────────────────────────────────────
-private const val HEADER_TYPEWRITER_CHAR_MS = 40L   // ms per character
-private const val HEADER_ACCENT_BAR_DELAY_MS = 50L  // when accent bar starts growing
-private const val HEADER_DIVIDER_DELAY_MS = 120L    // when divider starts tracing
-private const val SCAN_START_DELAY_MS = 180L        // neon scan line sweep start
-private const val SCAN_DURATION_MS = 500            // total scan sweep duration
-private const val CARD_FIRST_DELAY_MS = 300L        // first card entry
-private const val CARD_STAGGER_MS = 130L            // gap between each card entry
+private const val HEADER_TYPEWRITER_CHAR_MS = 40L // ms per character
+private const val HEADER_ACCENT_BAR_DELAY_MS = 50L // when accent bar starts growing
+private const val HEADER_DIVIDER_DELAY_MS = 120L // when divider starts tracing
+private const val SCAN_START_DELAY_MS = 180L // neon scan line sweep start
+private const val SCAN_DURATION_MS = 500 // total scan sweep duration
+private const val CARD_FIRST_DELAY_MS = 300L // first card entry
+private const val CARD_STAGGER_MS = 130L // gap between each card entry
 private const val CARD_BORDER_TRACE_OFFSET_MS = 80L // border trace starts after card enters
-private const val CARD_BORDER_TRACE_MS = 550        // border trace total duration
-private const val LOCKED_DIM_OFFSET_MS = 650L       // after entry → locked cards dim
+private const val CARD_BORDER_TRACE_MS = 550 // border trace total duration
+private const val LOCKED_DIM_OFFSET_MS = 650L // after entry → locked cards dim
 
 /**
  * Bottom sheet showing the full 5-tier player progression system.
@@ -130,7 +130,6 @@ fun LevelsProgressSheet(
         )
         scanDone = true
     }
-
 
     HuezooBottomSheet(onDismissRequest = onDismiss) {
         // ── Sticky header — never scrolls away ────────────────────────────────
@@ -285,9 +284,9 @@ private fun LevelCard(
     // ── Entry animations ───────────────────────────────────────────────────────
     // Values start hidden; spring-bounce into position after `enterDelay`.
     val cardAlpha = remember { Animatable(0f) }
-    val cardTranslateYDp = remember { Animatable(64f) }  // dp, converted in graphicsLayer
+    val cardTranslateYDp = remember { Animatable(64f) } // dp, converted in graphicsLayer
     val cardScale = remember { Animatable(0.86f) }
-    val borderTrace = remember { Animatable(0f) }        // 0=invisible, 1=fully drawn
+    val borderTrace = remember { Animatable(0f) } // 0=invisible, 1=fully drawn
 
     LaunchedEffect(Unit) {
         delay(enterDelay)
@@ -335,7 +334,7 @@ private fun LevelCard(
                 alpha = cardAlpha.value
                 scaleX = cardScale.value
                 scaleY = cardScale.value
-                translationY = cardTranslateYDp.value * density  // dp → px
+                translationY = cardTranslateYDp.value * density // dp → px
             },
     ) {
         Column(

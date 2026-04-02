@@ -506,9 +506,9 @@ private fun RankTierRow(
     modifier: Modifier = Modifier,
 ) {
     val rowAlpha = remember { Animatable(0f) }
-    val rowTransY = remember { Animatable(28f) }   // dp
-    val accentSweep = remember { Animatable(0f) }  // top strip: 0→1, stays
-    val borderTrace = remember { Animatable(0f) }  // neon border: 0→1→0
+    val rowTransY = remember { Animatable(28f) } // dp
+    val accentSweep = remember { Animatable(0f) } // top strip: 0→1, stays
+    val borderTrace = remember { Animatable(0f) } // neon border: 0→1→0
 
     LaunchedEffect(Unit) {
         delay(enterDelay)
@@ -777,4 +777,3 @@ private fun DeltaEWorldRankUnrankedPreview() {
         )
     }
 }
-

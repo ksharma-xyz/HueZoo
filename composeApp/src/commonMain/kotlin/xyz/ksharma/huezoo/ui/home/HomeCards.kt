@@ -113,8 +113,8 @@ internal fun StatsSection(
     totalGems: Int,
     streak: Int,
     onGemsClick: () -> Unit,
-    isStreakCelebrating: Boolean = false,
     modifier: Modifier = Modifier,
+    isStreakCelebrating: Boolean = false,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -185,9 +185,9 @@ private fun StatBox(
     label: String,
     value: String,
     accentColor: Color,
+    modifier: Modifier = Modifier,
     celebrate: Boolean = false,
     hint: String? = null,
-    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
@@ -318,8 +318,8 @@ internal fun ThresholdHeroCard(
     data: ThresholdCardData,
     isPaid: Boolean,
     onEnterGame: () -> Unit,
-    onWatchAd: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onWatchAd: () -> Unit = {},
 ) {
     val triesText = when {
         isPaid -> "∞  UNLIMITED"
@@ -910,5 +910,3 @@ private fun countdownUntil(until: Instant, prefix: String): String {
     }
     return text
 }
-
-

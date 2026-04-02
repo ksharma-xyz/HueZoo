@@ -39,7 +39,6 @@ import xyz.ksharma.huezoo.ui.components.HuezooBottomSheet
 import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.LevelsProgressSheet
-import xyz.ksharma.huezoo.ui.components.PerceptionTiersSheet
 import xyz.ksharma.huezoo.ui.home.state.DailyCardData
 import xyz.ksharma.huezoo.ui.home.state.HomeUiEvent
 import xyz.ksharma.huezoo.ui.home.state.HomeUiState
@@ -240,11 +239,11 @@ private fun ReadyContent(
             Spacer(Modifier.height(HuezooSpacing.lg))
 
             StaggeredCard(index = 1) {
-        PlayerDeltaECard(
-            bestDeltaE = state.threshold.personalBestDeltaE,
-            onClick = { showDeltaESheet = true },
-            modifier = Modifier.fillMaxWidth(),
-        )
+                PlayerDeltaECard(
+                    bestDeltaE = state.threshold.personalBestDeltaE,
+                    onClick = { showDeltaESheet = true },
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
 
             Spacer(Modifier.height(HuezooSpacing.lg))
