@@ -154,10 +154,11 @@ fun SettingsScreen(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                    if (state.restoreMessage != null) {
+                    val restoreMessage = state.restoreMessage
+                    if (restoreMessage != null) {
                         Spacer(Modifier.height(HuezooSpacing.xs))
                         HuezooLabelSmall(
-                            text = state.restoreMessage,
+                            text = restoreMessage,
                             color = if (state.isPaid) HuezooColors.AccentCyan else HuezooColors.AccentMagenta,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
