@@ -103,7 +103,8 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
                 contentAlignment = Alignment.Center,
             ) {
                 BannerAd(adUnitId = AdIds.banner)

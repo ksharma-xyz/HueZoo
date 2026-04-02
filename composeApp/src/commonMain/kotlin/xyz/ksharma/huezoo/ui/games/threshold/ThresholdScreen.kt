@@ -155,7 +155,13 @@ fun ThresholdScreen(
 
         @OptIn(DependsOnGoogleMobileAds::class)
         if (!isPaid && !DebugFlags.hideAds && uiState !is ThresholdUiState.Loading) {
-            Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
+                contentAlignment = Alignment.Center,
+            ) {
                 BannerAd(adUnitId = AdIds.banner)
             }
         }

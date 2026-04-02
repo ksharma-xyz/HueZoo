@@ -121,7 +121,13 @@ fun DailyScreen(
 
         @OptIn(DependsOnGoogleMobileAds::class)
         if (!isPaid && !DebugFlags.hideAds && uiState !is DailyUiState.Loading) {
-            Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .navigationBarsPadding(),
+                contentAlignment = Alignment.Center,
+            ) {
                 BannerAd(adUnitId = AdIds.banner)
             }
         }
