@@ -263,7 +263,7 @@ fun DeltaEWorldRankSheet(
                     }
                 }
 
-                Spacer(Modifier.height(HuezooSpacing.sm))
+                Spacer(Modifier.height(HuezooSpacing.lg))
 
                 // ── Session ΔE readout (ranked only) ──────────────────────────
                 if (deltaE != null && tier != null) {
@@ -479,13 +479,14 @@ private fun PercentileArcGauge(
                 ),
                 color = tierColor,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.offset(y = 1.dp),
+                modifier = Modifier.offset(y = HuezooSpacing.lg),
             )
             HuezooLabelSmall(
                 text = "OF THE WORLD  ·  $rankLabel",
                 color = tierColor.copy(alpha = 0.72f),
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
+                modifier = Modifier.offset(y = HuezooSpacing.lg),
             )
         }
     }
