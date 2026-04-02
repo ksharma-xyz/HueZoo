@@ -4,13 +4,14 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlyticsPlugin)
 }
+
 android {
     namespace = "xyz.ksharma.huezoo"
 
     defaultConfig {
         applicationId = "xyz.ksharma.huezoo"
         minSdk = 28
-        versionCode = findProperty("versionCode")?.toString()?.toInt() ?: 2
+        versionCode = findProperty("versionCode")?.toString()?.toInt() ?: 5
         versionName = "1.0.0"
     }
 

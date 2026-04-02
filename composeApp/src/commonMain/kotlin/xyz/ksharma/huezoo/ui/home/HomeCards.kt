@@ -43,7 +43,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,7 +52,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -82,12 +80,7 @@ import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
 import xyz.ksharma.huezoo.ui.theme.rimLight
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 import xyz.ksharma.huezoo.ui.theme.shimmerCelebration
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 private val ShelfColor = HuezooColors.SurfaceL4
 private val ShelfOffset = 4.dp
@@ -249,8 +242,8 @@ internal fun LevelProgressBar(
     totalGems: Int,
     accentColor: Color,
     onClick: () -> Unit,
-    alreadyPlayed: Boolean = false,
     modifier: Modifier = Modifier,
+    alreadyPlayed: Boolean = false,
 ) {
     val nextLevel = PlayerLevel.entries.getOrNull(currentLevel.ordinal + 1)
     val rightLabel = nextLevel?.let { "${formatGems(totalGems)} / ${formatGems(it.minGems)}" }
@@ -586,38 +579,6 @@ private fun CompactCard(
 
 // ── Icon canvas drawers ───────────────────────────────────────────────────────
 
-private fun DrawScope.drawMedalStar(color: Color) {
-    val cx = size.width / 2f
-    val cy = size.height / 2f
-    val outer = size.minDimension * 0.48f
-    val inner = outer * 0.40f
-    val path = Path()
-    for (i in 0..9) {
-        val angle = (i * 36.0 - 90.0) * PI / 180.0
-        val r = if (i % 2 == 0) outer else inner
-        val x = cx + (r * cos(angle)).toFloat()
-        val y = cy + (r * sin(angle)).toFloat()
-        if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
-    }
-    path.close()
-    drawPath(path, color = color)
-}
-
-private fun DrawScope.drawLeaderboardBars(color: Color) {
-    val barW = size.width * 0.24f
-    val gap = size.width * 0.08f
-    val totalW = barW * 3 + gap * 2
-    val startX = (size.width - totalW) / 2f
-    listOf(0.45f, 0.70f, 1.0f).forEachIndexed { i, h ->
-        val barH = size.height * h
-        drawRect(
-            color = color,
-            topLeft = Offset(startX + i * (barW + gap), size.height - barH),
-            size = Size(barW, barH),
-        )
-    }
-}
-
 // ── Player ΔE card ────────────────────────────────────────────────────────────
 
 /**
@@ -859,54 +820,4 @@ internal fun UpgradeCta(
 }
 
 // ── Private helpers ───────────────────────────────────────────────────────────
-
-internal fun formatGems(gems: Int): String = when {
-    gems >= 1_000 -> "${gems / 1_000},${(gems % 1_000).toString().padStart(3, '0')}"
-    else -> "$gems"
-}
-
-private fun Float.fmtHome(): String {
-    val i = toInt()
-    val d = ((this - i) * 10).toInt()
-    return "$i.$d"
-}
-
-private fun estimatedRankLabel(deltaE: Float): String = when {
-    deltaE < 0.5f -> "TOP 1%"
-    deltaE < 1.0f -> "TOP 5%"
-    deltaE < 1.5f -> "TOP 10%"
-    deltaE < 2.0f -> "TOP 20%"
-    deltaE < 3.0f -> "TOP 40%"
-    deltaE < 4.0f -> "TOP 60%"
-    else -> "TOP 80%"
-}
-
-private fun estimatedRankDescription(deltaE: Float): String = when {
-    deltaE < 0.5f -> "Near human limits"
-    deltaE < 1.0f -> "Professional colorist"
-    deltaE < 1.5f -> "Trained eye"
-    deltaE < 2.0f -> "Designer / photographer"
-    deltaE < 3.0f -> "Above average"
-    deltaE < 4.0f -> "Average untrained"
-    else -> "Just starting out"
-}
-
-@OptIn(ExperimentalTime::class)
-@Composable
-private fun countdownUntil(until: Instant, prefix: String): String {
-    val text by produceState(initialValue = "") {
-        while (true) {
-            val remaining = until - Clock.System.now()
-            val totalSeconds = remaining.inWholeSeconds.coerceAtLeast(0)
-            value = if (totalSeconds <= 0) {
-                ""
-            } else {
-                val hours = totalSeconds / 3600
-                val minutes = (totalSeconds % 3600) / 60
-                if (hours > 0) "$prefix${hours}h ${minutes}m" else "$prefix${minutes}m"
-            }
-            delay(60_000L)
-        }
-    }
-    return text
-}
+// Helpers moved to HomeCardHelpers.kt

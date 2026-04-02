@@ -43,6 +43,7 @@ import kotlin.math.sin
  * All elements drawn in [HuezooColors.GameThreshold] (indigo-violet) with [HuezooColors.AccentCyan]
  * accents. Alpha drops off toward the left edge, keeping text readable.
  */
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun ThresholdScannerIllustration(
     enabled: Boolean,
@@ -64,20 +65,7 @@ internal fun ThresholdScannerIllustration(
         // ── 1. Dot grid ──────────────────────────────────────────────────────
         val dotStep = 22.dp.toPx()
         val dotR = 1.2.dp.toPx()
-        var gx = 0f
-        while (gx <= w) {
-            var gy = 0f
-            while (gy <= h) {
-                val fadeAlpha = ((gx / w - 0.25f) / 0.75f).coerceIn(0f, 1f)
-                drawCircle(
-                    color = baseColor.copy(alpha = 0.07f * fadeAlpha * dimFactor),
-                    radius = dotR,
-                    center = Offset(gx, gy),
-                )
-                gy += dotStep
-            }
-            gx += dotStep
-        }
+        drawThresholdDotGrid(w, h, dotStep, dotR, baseColor, dimFactor)
 
         // ── 2. Concentric range arcs ─────────────────────────────────────────
         val arcRadii = listOf(70.0, 115.0, 165.0, 222.0, 285.0).map { it.dp.toPx() }
@@ -199,9 +187,9 @@ internal fun ThresholdScannerIllustration(
             Corner(w, 0f, -1f, 1f),
             Corner(0f, h, 1f, -1f),
             Corner(w, h, -1f, -1f),
-        ).forEach { (x, y, dx, dy) ->
-            drawLine(baseColor.copy(bAlpha), Offset(x, y), Offset(x + dx * bLen, y), bSw)
-            drawLine(baseColor.copy(bAlpha), Offset(x, y), Offset(x, y + dy * bLen), bSw)
+        ).forEach { c ->
+            drawLine(baseColor.copy(bAlpha), Offset(c.x, c.y), Offset(c.x + c.dx * bLen, c.y), bSw)
+            drawLine(baseColor.copy(bAlpha), Offset(c.x, c.y), Offset(c.x, c.y + c.dy * bLen), bSw)
         }
 
         // ── 8. Horizontal data-scan line at 60% height ───────────────────────
@@ -222,6 +210,31 @@ internal fun ThresholdScannerIllustration(
             )
             tx += 18.dp.toPx()
         }
+    }
+}
+
+@Suppress("MagicNumber", "LongParameterList")
+private fun DrawScope.drawThresholdDotGrid(
+    w: Float,
+    h: Float,
+    dotStep: Float,
+    dotR: Float,
+    baseColor: Color,
+    dimFactor: Float,
+) {
+    var gx = 0f
+    while (gx <= w) {
+        var gy = 0f
+        while (gy <= h) {
+            val fadeAlpha = ((gx / w - 0.25f) / 0.75f).coerceIn(0f, 1f)
+            drawCircle(
+                color = baseColor.copy(alpha = 0.07f * fadeAlpha * dimFactor),
+                radius = dotR,
+                center = Offset(gx, gy),
+            )
+            gy += dotStep
+        }
+        gx += dotStep
     }
 }
 

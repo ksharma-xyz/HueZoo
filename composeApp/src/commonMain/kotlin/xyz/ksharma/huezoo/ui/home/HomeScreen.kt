@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -129,37 +130,23 @@ private fun ReadyContent(
     var showDeltaESheet by remember { mutableStateOf(false) }
     var showPaywallSheet by remember { mutableStateOf(false) }
 
-    if (showPaywallSheet) {
-        HuezooBottomSheet(onDismissRequest = {
+    HomeSheetOverlays(
+        showPaywallSheet = showPaywallSheet,
+        showLevelsSheet = showLevelsSheet,
+        showDeltaESheet = showDeltaESheet,
+        totalGems = state.totalGems,
+        deltaE = state.threshold.personalBestDeltaE,
+        onPaywallDismiss = {
             showPaywallSheet = false
             onTryGranted()
-        }) {
-            PaywallSheet(
-                onWatchAd = {},
-                onUnlock = {
-                    showPaywallSheet = false
-                    onUpgradeTap()
-                },
-                onDismiss = {
-                    showPaywallSheet = false
-                    onTryGranted()
-                },
-            )
-        }
-    }
-
-    if (showLevelsSheet) {
-        LevelsProgressSheet(
-            currentGems = state.totalGems,
-            onDismiss = { showLevelsSheet = false },
-        )
-    }
-    if (showDeltaESheet) {
-        DeltaEWorldRankSheet(
-            deltaE = state.threshold.personalBestDeltaE,
-            onDismiss = { showDeltaESheet = false },
-        )
-    }
+        },
+        onPaywallUpgrade = {
+            showPaywallSheet = false
+            onUpgradeTap()
+        },
+        onLevelsDismiss = { showLevelsSheet = false },
+        onDeltaEDismiss = { showDeltaESheet = false },
+    )
 
     val challengeName = remember {
         val dayOfYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).dayOfYear
@@ -313,6 +300,42 @@ private fun ReadyContent(
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeSheetOverlays(
+    showPaywallSheet: Boolean,
+    showLevelsSheet: Boolean,
+    showDeltaESheet: Boolean,
+    totalGems: Int,
+    deltaE: Float?,
+    onPaywallDismiss: () -> Unit,
+    onPaywallUpgrade: () -> Unit,
+    onLevelsDismiss: () -> Unit,
+    onDeltaEDismiss: () -> Unit,
+) {
+    if (showPaywallSheet) {
+        HuezooBottomSheet(onDismissRequest = onPaywallDismiss) {
+            PaywallSheet(
+                onWatchAd = {},
+                onUnlock = onPaywallUpgrade,
+                onDismiss = onPaywallDismiss,
+            )
+        }
+    }
+    if (showLevelsSheet) {
+        LevelsProgressSheet(
+            currentGems = totalGems,
+            onDismiss = onLevelsDismiss,
+        )
+    }
+    if (showDeltaESheet) {
+        DeltaEWorldRankSheet(
+            deltaE = deltaE,
+            onDismiss = onDeltaEDismiss,
+        )
+    }
+}
 
 private fun levelProgressFraction(level: PlayerLevel, totalGems: Int): Float {
     val next = PlayerLevel.entries.getOrNull(level.ordinal + 1) ?: return 1f
