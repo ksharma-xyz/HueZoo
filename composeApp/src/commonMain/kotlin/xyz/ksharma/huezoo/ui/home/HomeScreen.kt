@@ -34,6 +34,7 @@ import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.ads.AdIds
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
+import xyz.ksharma.huezoo.ui.components.DeltaEWorldRankSheet
 import xyz.ksharma.huezoo.ui.components.HuezooBottomSheet
 import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
@@ -126,7 +127,7 @@ private fun ReadyContent(
     modifier: Modifier = Modifier,
 ) {
     var showLevelsSheet by remember { mutableStateOf(false) }
-    var showPerceptionSheet by remember { mutableStateOf(false) }
+    var showDeltaESheet by remember { mutableStateOf(false) }
     var showPaywallSheet by remember { mutableStateOf(false) }
 
     if (showPaywallSheet) {
@@ -154,10 +155,10 @@ private fun ReadyContent(
             onDismiss = { showLevelsSheet = false },
         )
     }
-    if (showPerceptionSheet) {
-        PerceptionTiersSheet(
-            personalBestDeltaE = state.threshold.personalBestDeltaE,
-            onDismiss = { showPerceptionSheet = false },
+    if (showDeltaESheet) {
+        DeltaEWorldRankSheet(
+            deltaE = state.threshold.personalBestDeltaE,
+            onDismiss = { showDeltaESheet = false },
         )
     }
 
@@ -239,11 +240,11 @@ private fun ReadyContent(
             Spacer(Modifier.height(HuezooSpacing.lg))
 
             StaggeredCard(index = 1) {
-                PlayerDeltaECard(
-                    bestDeltaE = state.threshold.personalBestDeltaE,
-                    onClick = { showPerceptionSheet = true },
-                    modifier = Modifier.fillMaxWidth(),
-                )
+        PlayerDeltaECard(
+            bestDeltaE = state.threshold.personalBestDeltaE,
+            onClick = { showDeltaESheet = true },
+            modifier = Modifier.fillMaxWidth(),
+        )
             }
 
             Spacer(Modifier.height(HuezooSpacing.lg))

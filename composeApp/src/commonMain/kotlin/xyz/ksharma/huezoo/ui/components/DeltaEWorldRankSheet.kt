@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -56,6 +57,8 @@ import kotlinx.coroutines.launch
 import xyz.ksharma.huezoo.ui.model.PERCEPTION_TIERS
 import xyz.ksharma.huezoo.ui.model.PerceptionTier
 import xyz.ksharma.huezoo.ui.model.estimatedPerceptionTier
+import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
+import xyz.ksharma.huezoo.ui.preview.PreviewScreen
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
@@ -95,26 +98,28 @@ private fun Float.fmtDE(): String {
 // ── Public sheet ───────────────────────────────────────────────────────────────
 
 /**
- * Bottom sheet shown when the player taps the ΔE card on the Result screen.
+ * Bottom sheet shown when the player taps the ΔE card.
+ * Works on both Result screen (ranked, non-null [deltaE]) and Home screen (may be null/unranked).
  *
- * Animation sequence:
+ * Animation sequence (ranked):
  * - t=0   : header typewriter + accent-bar grow + divider trace L→R
  * - t=180 : tier-colored scan line sweeps top → bottom once
  * - t=350 : hero rank badge fades + spring-scales in
  * - t=540 : semicircle arc gauge fills (1.3 s EaseOutCubic)
  *           "YOU BEAT X%" counter ticks up in sync
  * - t=720 : tier rows spring-drop in, 110 ms stagger
- *           player's row gets clockwise border-trace highlight
+ *           player's row gets parallelogram right-side slash + top accent sweep
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeltaEWorldRankSheet(
-    deltaE: Float,
+    deltaE: Float?,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val tier = remember(deltaE) { estimatedPerceptionTier(deltaE) }
-    val beat = remember(tier) { beatPct(tier) }
+    val tier = remember(deltaE) { deltaE?.let { estimatedPerceptionTier(it) } }
+    val beat = remember(tier) { tier?.let { beatPct(it) } ?: 0 }
+    val headerAccent = tier?.color ?: HuezooColors.AccentCyan
 
     // ── Header typewriter ──────────────────────────────────────────────────────
     val fullTitle = "ΔE WORLD RANK"
@@ -168,11 +173,13 @@ fun DeltaEWorldRankSheet(
         }
     }
 
-    // ── Arc gauge fill ─────────────────────────────────────────────────────────
+    // ── Arc gauge fill (ranked only) ───────────────────────────────────────────
     val arcFraction = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
-        delay(ARC_START_MS)
-        arcFraction.animateTo(beat / 100f, tween(ARC_DUR_MS, easing = EaseOutCubic))
+        if (tier != null) {
+            delay(ARC_START_MS)
+            arcFraction.animateTo(beat / 100f, tween(ARC_DUR_MS, easing = EaseOutCubic))
+        }
     }
 
     HuezooBottomSheet(onDismissRequest = onDismiss, modifier = modifier) {
@@ -188,7 +195,7 @@ fun DeltaEWorldRankSheet(
                     modifier = Modifier
                         .width(4.dp)
                         .height(accentBarH.value.dp)
-                        .background(tier.color, RoundedCornerShape(2.dp)),
+                        .background(headerAccent, RoundedCornerShape(2.dp)),
                 )
                 Spacer(Modifier.width(HuezooSpacing.md))
                 HuezooTitleLarge(
@@ -211,7 +218,7 @@ fun DeltaEWorldRankSheet(
                     .background(
                         Brush.horizontalGradient(
                             colors = listOf(
-                                tier.color,
+                                headerAccent,
                                 HuezooColors.AccentMagenta,
                                 HuezooColors.AccentYellow,
                             ),
@@ -231,7 +238,7 @@ fun DeltaEWorldRankSheet(
                     .padding(top = HuezooSpacing.sm)
                     .padding(bottom = HuezooSpacing.xl),
             ) {
-                // ── Arc gauge hero ─────────────────────────────────────────────
+                // ── Hero section ───────────────────────────────────────────────
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -242,38 +249,43 @@ fun DeltaEWorldRankSheet(
                         },
                     contentAlignment = Alignment.Center,
                 ) {
-                    PercentileArcGauge(
-                        arcFraction = arcFraction.value,
-                        tierColor = tier.color,
-                        rankLabel = tier.rankLabel,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    if (tier != null) {
+                        PercentileArcGauge(
+                            arcFraction = arcFraction.value,
+                            tierColor = tier.color,
+                            rankLabel = tier.rankLabel,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else {
+                        UnrankedHeroBanner(modifier = Modifier.fillMaxWidth())
+                    }
                 }
 
                 Spacer(Modifier.height(HuezooSpacing.sm))
 
-                // ── Session ΔE readout ─────────────────────────────────────────
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(HuezooColors.SurfaceL3, RoundedCornerShape(HuezooSize.CornerCard))
-                        .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    HuezooLabelSmall(
-                        text = "YOUR SESSION ΔE",
-                        color = HuezooColors.TextDisabled,
-                        fontWeight = FontWeight.ExtraBold,
-                    )
-                    HuezooTitleLarge(
-                        text = "ΔE ${deltaE.fmtDE()}",
-                        color = tier.color,
-                        fontWeight = FontWeight.ExtraBold,
-                    )
+                // ── Session ΔE readout (ranked only) ──────────────────────────
+                if (deltaE != null && tier != null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(HuezooColors.SurfaceL3, RoundedCornerShape(HuezooSize.CornerCard))
+                            .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        HuezooLabelSmall(
+                            text = "YOUR SESSION ΔE",
+                            color = HuezooColors.TextDisabled,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+                        HuezooTitleLarge(
+                            text = "ΔE ${deltaE.fmtDE()}",
+                            color = tier.color,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+                    }
+                    Spacer(Modifier.height(HuezooSpacing.md))
                 }
-
-                Spacer(Modifier.height(HuezooSpacing.md))
 
                 // ── Tier ladder ────────────────────────────────────────────────
                 HuezooLabelSmall(
@@ -309,9 +321,50 @@ fun DeltaEWorldRankSheet(
             if (!scanDone) {
                 WorldRankScanLine(
                     scanProgress = scanProgress.value,
-                    tierColor = tier.color,
+                    tierColor = headerAccent,
                 )
             }
+        }
+    }
+}
+
+// ── Unranked hero banner ──────────────────────────────────────────────────────
+
+@Composable
+private fun UnrankedHeroBanner(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .background(HuezooColors.SurfaceL3, RoundedCornerShape(HuezooSize.CornerCard))
+            .drawBehind {
+                drawRect(
+                    color = HuezooColors.TextDisabled,
+                    topLeft = Offset(0f, 0f),
+                    size = Size(3.dp.toPx(), size.height),
+                )
+            }
+            .padding(
+                start = HuezooSpacing.md + 3.dp,
+                end = HuezooSpacing.md,
+                top = HuezooSpacing.md,
+                bottom = HuezooSpacing.md,
+            ),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
+            HuezooLabelSmall(
+                text = "WORLD RANK",
+                color = HuezooColors.TextDisabled,
+                fontWeight = FontWeight.ExtraBold,
+            )
+            HuezooTitleLarge(
+                text = "UNRANKED",
+                color = HuezooColors.TextDisabled,
+                fontWeight = FontWeight.ExtraBold,
+            )
+            HuezooBodyMedium(
+                text = "Play The Threshold to receive your world rank classification.",
+                color = HuezooColors.TextSecondary,
+                maxLines = Int.MAX_VALUE,
+            )
         }
     }
 }
@@ -320,7 +373,11 @@ fun DeltaEWorldRankSheet(
 
 /**
  * Animated semicircle gauge. Arc fills from left → right as [arcFraction] grows 0→beatPct/100.
- * Center text counts up in sync: "YOU BEAT X%  ·  RANK LABEL".
+ *
+ * Text layout:
+ * - "YOU BEAT" label: offset 12dp upward + [HuezooBodySmall] (14sp) for breathing room above arc
+ * - Big % counter: 1dp down offset so it sits clear of the arc track
+ * - "OF THE WORLD · RANK" label below the number
  */
 @Composable
 private fun PercentileArcGauge(
@@ -335,7 +392,7 @@ private fun PercentileArcGauge(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val cx = size.width / 2f
-            // Arc center placed at bottom edge so only upper half (semicircle) is visible
+            // Arc center placed at bottom edge so only the upper semicircle is visible
             val cy = size.height
             val radius = minOf(cx, cy) * 0.88f
             val strokeW = 14.dp.toPx()
@@ -396,16 +453,19 @@ private fun PercentileArcGauge(
             }
         }
 
-        // Center text counts up in sync with arc fill
+        // Center-aligned text group.
+        // "YOU BEAT" is pulled 12dp upward (offset) so it floats above the number with breathing room.
+        // The big % is nudged 1dp downward so it clears the arc track at the top of the gauge.
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(bottom = HuezooSpacing.xl),
         ) {
-            HuezooLabelSmall(
+            HuezooBodySmall(
                 text = "YOU BEAT",
                 color = HuezooColors.TextDisabled,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
+                modifier = Modifier.offset(y = (-12).dp),
             )
             androidx.compose.material3.Text(
                 text = "${(arcFraction * 100).toInt()}%",
@@ -416,6 +476,7 @@ private fun PercentileArcGauge(
                 ),
                 color = tierColor,
                 textAlign = TextAlign.Center,
+                modifier = Modifier.offset(y = 1.dp),
             )
             HuezooLabelSmall(
                 text = "OF THE WORLD  ·  $rankLabel",
@@ -431,7 +492,11 @@ private fun PercentileArcGauge(
 
 /**
  * Each row spring-drops in from [enterDelay].
- * The player's current tier row gets a clockwise border-trace highlight.
+ *
+ * Current-tier highlight:
+ * - Animated top 4dp accent strip sweeps L→R and stays (kinetic feel).
+ * - Tri-color neon perimeter border traces in clockwise (yellow outer aura → magenta
+ *   mid ring → tier-color crisp core), holds for ~800ms, then untraces back to nothing.
  */
 @Composable
 private fun RankTierRow(
@@ -442,7 +507,8 @@ private fun RankTierRow(
 ) {
     val rowAlpha = remember { Animatable(0f) }
     val rowTransY = remember { Animatable(28f) }   // dp
-    val borderTrace = remember { Animatable(0f) }  // 0=invisible → 1=fully traced
+    val accentSweep = remember { Animatable(0f) }  // top strip: 0→1, stays
+    val borderTrace = remember { Animatable(0f) }  // neon border: 0→1→0
 
     LaunchedEffect(Unit) {
         delay(enterDelay)
@@ -457,9 +523,17 @@ private fun RankTierRow(
             )
         }
         if (isCurrentTier) {
+            // Top accent strip sweeps in and stays
             launch {
                 delay(TIER_BORDER_OFFSET_MS)
-                borderTrace.animateTo(1f, tween(TIER_BORDER_DUR_MS, easing = LinearEasing))
+                accentSweep.animateTo(1f, tween(TIER_BORDER_DUR_MS, easing = EaseOutCubic))
+            }
+            // Tri-color neon border traces clockwise in → holds → untraces
+            launch {
+                delay(TIER_BORDER_OFFSET_MS)
+                borderTrace.animateTo(1f, tween(TIER_BORDER_DUR_MS, easing = EaseOutCubic))
+                delay(800)
+                borderTrace.animateTo(0f, tween(TIER_BORDER_DUR_MS - 50, easing = FastOutSlowInEasing))
             }
         }
     }
@@ -471,34 +545,64 @@ private fun RankTierRow(
         },
     ) {
         if (isCurrentTier) {
-            // Highlighted card with border-trace animation
+            // ── Highlighted row ────────────────────────────────────────────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(HuezooColors.SurfaceL3, RoundedCornerShape(HuezooSize.CornerCard))
+                    .clip(RoundedCornerShape(HuezooSize.CornerCard))
+                    .background(HuezooColors.SurfaceL3)
                     .drawBehind {
+                        val sweep = accentSweep.value
+                        val trace = borderTrace.value
                         val cornerPx = HuezooSize.CornerCard.toPx()
-                        val perimeter = 2f * (size.width + size.height)
-                        val phase = perimeter * (1f - borderTrace.value)
-                        // Clockwise border trace
-                        drawRoundRect(
-                            color = tier.color.copy(alpha = 0.82f),
-                            cornerRadius = CornerRadius(cornerPx),
-                            style = Stroke(
-                                width = 2.dp.toPx(),
-                                pathEffect = PathEffect.dashPathEffect(
-                                    intervals = floatArrayOf(perimeter, perimeter),
-                                    phase = phase,
+
+                        // ── Tri-color neon perimeter trace ─────────────────────
+                        // All three layers share the same clockwise phase so they
+                        // paint exactly the same arc — just at different stroke widths
+                        // and colors, creating a layered neon tube effect.
+                        if (trace > 0.01f) {
+                            val perimeter = 2f * (size.width + size.height)
+                            val phase = perimeter * (1f - trace)
+                            val dashIntervals = floatArrayOf(perimeter, perimeter)
+
+                            // Outermost: yellow bloom (widest, lowest alpha)
+                            drawRoundRect(
+                                color = HuezooColors.AccentYellow.copy(alpha = 0.16f),
+                                cornerRadius = CornerRadius(cornerPx),
+                                style = Stroke(
+                                    width = 8.dp.toPx(),
+                                    pathEffect = PathEffect.dashPathEffect(dashIntervals, phase),
                                 ),
-                            ),
-                        )
-                        // Kinetic top-accent strip sweeps L→R in sync with border
-                        drawRoundRect(
-                            color = tier.color.copy(alpha = 0.42f),
-                            topLeft = Offset(0f, 0f),
-                            size = Size(size.width * borderTrace.value, 4.dp.toPx()),
-                            cornerRadius = CornerRadius(cornerPx),
-                        )
+                            )
+                            // Mid: magenta glow
+                            drawRoundRect(
+                                color = HuezooColors.AccentMagenta.copy(alpha = 0.40f),
+                                cornerRadius = CornerRadius(cornerPx),
+                                style = Stroke(
+                                    width = 4.dp.toPx(),
+                                    pathEffect = PathEffect.dashPathEffect(dashIntervals, phase),
+                                ),
+                            )
+                            // Core: tier color — crisp, fully opaque edge
+                            drawRoundRect(
+                                color = tier.color.copy(alpha = 0.90f),
+                                cornerRadius = CornerRadius(cornerPx),
+                                style = Stroke(
+                                    width = 2.dp.toPx(),
+                                    pathEffect = PathEffect.dashPathEffect(dashIntervals, phase),
+                                ),
+                            )
+                        }
+
+                        // ── Top accent strip — sweeps L→R and stays ────────────
+                        if (sweep > 0.01f) {
+                            drawRoundRect(
+                                color = tier.color.copy(alpha = 0.38f),
+                                topLeft = Offset(0f, 0f),
+                                size = Size(size.width * sweep, 4.dp.toPx()),
+                                cornerRadius = CornerRadius(cornerPx),
+                            )
+                        }
                     }
                     .padding(HuezooSpacing.sm),
                 verticalAlignment = Alignment.CenterVertically,
@@ -543,7 +647,7 @@ private fun RankTierRow(
                 }
             }
         } else {
-            // Dimmed non-highlighted row
+            // ── Standard dimmed row ────────────────────────────────────────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -620,6 +724,56 @@ private fun BoxScope.WorldRankScanLine(scanProgress: Float, tierColor: Color) {
             start = Offset(0f, y),
             end = Offset(size.width, y),
             strokeWidth = 2.dp.toPx(),
+        )
+    }
+}
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+/** TOP 1% — gold arc gauge almost full, gold neon perimeter traces the highlighted row. */
+@PreviewScreen
+@Composable
+private fun DeltaEWorldRankTop1Preview() {
+    HuezooPreviewTheme {
+        DeltaEWorldRankSheet(
+            deltaE = 0.3f,
+            onDismiss = {},
+        )
+    }
+}
+
+/** TOP 20% — green arc gauge, green tier row highlighted. */
+@PreviewScreen
+@Composable
+private fun DeltaEWorldRankTop20Preview() {
+    HuezooPreviewTheme {
+        DeltaEWorldRankSheet(
+            deltaE = 1.8f,
+            onDismiss = {},
+        )
+    }
+}
+
+/** TOP 40% — cyan, mid-range player. */
+@PreviewScreen
+@Composable
+private fun DeltaEWorldRankTop40Preview() {
+    HuezooPreviewTheme {
+        DeltaEWorldRankSheet(
+            deltaE = 2.5f,
+            onDismiss = {},
+        )
+    }
+}
+
+/** Unranked — no arc gauge, shows UNRANKED banner, full tier ladder with no highlight. */
+@PreviewScreen
+@Composable
+private fun DeltaEWorldRankUnrankedPreview() {
+    HuezooPreviewTheme {
+        DeltaEWorldRankSheet(
+            deltaE = null,
+            onDismiss = {},
         )
     }
 }
