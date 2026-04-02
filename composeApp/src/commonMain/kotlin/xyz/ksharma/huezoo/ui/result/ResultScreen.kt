@@ -36,8 +36,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -78,6 +80,7 @@ import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.platform.ads.AdIds
 import xyz.ksharma.huezoo.platform.shareIconRes
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
+import xyz.ksharma.huezoo.ui.components.DeltaEWorldRankSheet
 import xyz.ksharma.huezoo.ui.components.HuezooBodyMedium
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
@@ -216,6 +219,8 @@ private fun ReadyContent(
     val sting = stingData(state.gameId, state.deltaE, state.roundsSurvived)
     val shareIcon = painterResource(shareIconRes())
 
+    var showDeltaESheet by remember { mutableStateOf(false) }
+
     // Slide-up entrance: content rises from 60dp below + fades in
     val slideUp = remember { Animatable(60f) }
     val fadeIn = remember { Animatable(0f) }
@@ -328,6 +333,7 @@ private fun ReadyContent(
             badgeText = sting.badge,
             stingCopy = sting.copy,
             accentColor = accentColor,
+            onClick = { showDeltaESheet = true },
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -444,6 +450,14 @@ private fun ReadyContent(
             Spacer(Modifier.height(BannerAdReservedHeight))
         }
     }
+
+    // ── ΔE World Rank sheet ────────────────────────────────────────────────────
+    if (showDeltaESheet) {
+        DeltaEWorldRankSheet(
+            deltaE = state.deltaE,
+            onDismiss = { showDeltaESheet = false },
+        )
+    }
 }
 
 // ── Sub-composables ────────────────────────────────────────────────────────────
@@ -544,6 +558,7 @@ private fun StingReadout(
     badgeText: String,
     stingCopy: String,
     accentColor: Color,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -551,7 +566,12 @@ private fun StingReadout(
             .height(IntrinsicSize.Min)
             .background(HuezooColors.SurfaceL1, CardShape)
             .rimLight(cornerRadius = 16.dp)
-            .clip(CardShape),
+            .clip(CardShape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick,
+            ),
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             // Left accent strip
@@ -577,7 +597,7 @@ private fun StingReadout(
                         style = MaterialTheme.typography.displayLarge.copy(
                             fontSize = 56.sp,
                             lineHeight = 56.sp,
-                            fontStyle = FontStyle.Italic,
+                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                         ),
                         color = accentColor,
                         modifier = Modifier.alignByBaseline(),
@@ -596,6 +616,15 @@ private fun StingReadout(
                     color = HuezooColors.TextSecondary,
                     textAlign = TextAlign.Start,
                     modifier = Modifier.fillMaxWidth(0.82f),
+                )
+
+                // Tap hint — subtle, right-aligned
+                HuezooLabelSmall(
+                    text = "WORLD RANK  ↗",
+                    color = accentColor.copy(alpha = 0.45f),
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
