@@ -11,6 +11,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
+        MobileAds.shared.requestConfiguration.maxAdContentRating = .general
         MobileAds.shared.start(completionHandler: nil)
         return true
     }

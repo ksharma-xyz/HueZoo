@@ -68,13 +68,13 @@ Open app
 - [ ] DS.Font.7 Verify on-device on Android + iOS simulator
 - [ ] DS.Font.8 License review (see Phase L)
 
-### UX.5 — Onboarding ⬜
-- [ ] UX.5.1 First-launch onboarding — 3-slide walkthrough; gated on `hasSeenOnboarding()`; slide 0: eye strain notice, slide 1: ΔE explainer, slide 2: Threshold rules, slide 3: Daily rules; skip always visible
-- [ ] UX.5.2 Review subtitle copy on both game cards to be more instructional for new users
-- [ ] UX.5.3 Eye strain / health notice — also accessible from Settings at any time
+### UX.5 — Onboarding ~~⬜~~ (deferred — not in v1)
+- ~~UX.5.1 First-launch onboarding~~ — deferred
+- ~~UX.5.2 Review subtitle copy~~ — deferred
+- ~~UX.5.3 Eye strain / health notice~~ — deferred
 
-### UX.6 — Navigation Gaps ⬜
-- [ ] UX.6.2 Leaderboard button on Result: hide until Firebase is live
+### UX.6 — Navigation Gaps ✅
+- [x] UX.6.2 Leaderboard button: shows graceful "Signal Offline" placeholder for paid users — not broken, acceptable for v1
 
 ### UX.7 — Directional Feedback ⬜
 - [ ] UX.7.2 ΔE tier label in HUD (below ΔE chip): "BEGINNER / TRAINING / SHARP / EXPERT / ELITE"
@@ -112,10 +112,10 @@ Open app
 - [ ] UX.14.1 Wire `SwatchSize` to `user_settings` in SQLDelight
 - [ ] UX.14.2 Toggle in Settings screen
 
-### UX.15 — Settings / About Screen ⬜
-- [ ] UX.15.1 About screen — app version, legal links, acknowledgements
-- [ ] UX.15.2 Health & eye strain notice (persistent, always accessible)
-- [ ] UX.15.3 Privacy Policy link (required by both stores)
+### UX.15 — Settings / About Screen ~~⬜~~ (deferred — not in v1)
+- ~~UX.15.1 About screen~~ — deferred
+- ~~UX.15.2 Health & eye strain notice~~ — deferred
+- ~~UX.15.3 Privacy Policy link~~ — deferred
 
 ### UX.20 — Share from PerceptionTiersSheet ⬜
 - [ ] UX.20.1 Full-width share button at bottom of `PerceptionTiersSheet`
@@ -160,8 +160,8 @@ Open app
 
 ### Phase 9 — Polish & Ship ⬜
 - [x] 9.0 UI buttons use drawn shapes in production — `BackChevron` (Canvas), help `"?"` text, settings `"⚙"` text; white-circle placeholder only in `@PreviewComponent` private previews, not in shipped UI
-- [ ] 9.1 App icon (all sizes) + splash screen asset
-- [ ] 9.2 Verify on real Android device + iOS device/simulator
+- [ ] 9.1 App icon final artwork — iOS: replace Light/Dark/Tinted PNGs in `AppIcon.appiconset` (1024×1024 each); Android: update `android_logo.xml` + `ic_launcher_background.xml` vector drawables. Single-size/adaptive approach already wired correctly on both platforms.
+- [x] 9.2 Tested on real Android + iOS device
 - [ ] 9.3 Haptic + sound tuning pass on real device
 - [ ] 9.4 Play Store listing — screenshots, description, content rating
 - [ ] 9.5 App Store listing — screenshots, description, review submission
@@ -216,28 +216,28 @@ Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` fo
 - [ ] CI.16 Add `FIREBASE_SERVICE_ACCOUNT_KEY`, `FIREBASE_ANDROID_DEBUG_APP_ID`, `FIREBASE_ANDROID_PROD_APP_ID`, `FIREBASE_GOOGLE_SERVICES_JSON_DEBUG`, `FIREBASE_GOOGLE_SERVICES_JSON_RELEASE`, `FIREBASE_IOS_GOOGLE_INFO` secrets
 
 ### Pre-Launch — Android ⬜
-- [ ] PL.A.1 Confirm AdMob App ID in `AndroidManifest.xml` is the production ID (not test ID)
+- [x] PL.A.1 AdMob App IDs confirmed production — Android `~1632380205` in `androidApp/src/main/AndroidManifest.xml`, iOS `~2990794956` in `Info.plist`; ad unit IDs switch test↔prod by build type in `AdIds.kt`
 - [ ] PL.A.2 Signing keystore created; `ANDROID_KEYSTORE_FILE` + password secrets added (see CI.2–CI.4)
 - [ ] PL.A.3 `versionCode` and `versionName` set in `build.gradle.kts` (or driven by `ANDROID_VERSION_CODE` GitHub Variable)
 - [ ] PL.A.4 ProGuard / R8 rules verified for release build — check SQLDelight, Koin, AdMob, Billing
 - [ ] PL.A.5 Content rating questionnaire completed in Play Console
 - [ ] PL.A.6 GDPR consent form configured in AdMob dashboard (required for EU users)
-- [ ] PL.A.7 Privacy Policy URL added to Play Store listing and in-app Settings / About screen
+- [ ] PL.A.7 Privacy Policy URL added to Play Store listing (https://ksharma-xyz.github.io/HueZoo/privacy-policy/) — no in-app link needed
 - [ ] PL.A.8 Tested on at least one real Android device (release build)
 
 ### Pre-Launch — iOS ⬜
 - [ ] PL.I.1 Bundle Identifier set to `xyz.ksharma.huezoo` in Xcode → iosApp target → General (see CI.11)
 - [ ] PL.I.2 `CFBundleShortVersionString` (`1.0.0`) and `CFBundleVersion` (`1`) in `iosApp/iosApp/Info.plist` (see CI.12)
-- [ ] PL.I.3 `NSUserTrackingUsageDescription` added to `Info.plist` (required by AdMob ATT prompt)
+- [x] PL.I.3 `NSUserTrackingUsageDescription` already in `Info.plist`; ATT prompt wired in `iOSApp.swift`
 - [ ] PL.I.4 App Store Connect record created for `xyz.ksharma.huezoo` (see CI.14)
 - [ ] PL.I.5 Apple Distribution certificate + App Store provisioning profile created; secrets added (CI.6–CI.7)
 - [ ] PL.I.6 StoreKit 2 IAP product configured in App Store Connect (currently stub — deferred from Phase 7)
 - [ ] PL.I.7 TestFlight build uploaded and internal testing completed
-- [ ] PL.I.8 Privacy Policy URL added to App Store listing
+- [ ] PL.I.8 Privacy Policy URL added to App Store Connect listing (https://ksharma-xyz.github.io/HueZoo/privacy-policy/)
 - [ ] PL.I.9 Tested on at least one real iOS device (release build)
 
 ### Pre-Launch — Common ⬜
-- [ ] PL.C.1 Privacy Policy page live at a hosted URL (required by both stores)
+- [x] PL.C.1 Privacy Policy live at https://ksharma-xyz.github.io/HueZoo/privacy-policy/ — paste URL into Play Console + App Store Connect store listing metadata (no in-app link needed)
 - [ ] PL.C.2 App icon all sizes generated for Android (mipmap) and iOS (Assets.xcassets) — see 9.1
 - [ ] PL.C.3 Font license review complete — Clash Display EULA permits APK/IPA bundling (see Phase L)
 - [ ] PL.C.4 All GitHub CI/CD secrets and variables configured (see Phase CI)
@@ -248,13 +248,15 @@ Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` fo
 
 - [x] Phase 7 (monetization) complete
 - [x] UX.23 debug logs removed
-- [ ] Phase 8 live or behind feature flag
-- [ ] DS.4 sound wired
+- [ ] Phase 8 live or behind feature flag (deferred — leaderboard shows placeholder)
+- [ ] DS.4 sound wired (deferred for v1)
 - [x] Phase L font license review
-- [ ] UX.5.1 first-launch onboarding
-- [ ] UX.6.2 leaderboard button hidden until Firebase live
-- [ ] App icon + splash (9.1)
-- [ ] Tested on real Android + iOS device (9.2)
-- [ ] Pre-Launch Android checklist (PL.A.1–PL.A.8)
-- [ ] Pre-Launch iOS checklist (PL.I.1–PL.I.9)
+- ~~UX.5.1 first-launch onboarding~~ — deferred
+- [x] UX.6.2 leaderboard placeholder acceptable for v1
+- [ ] App icon final artwork (9.1)
+- [x] Tested on real Android + iOS device (9.2)
+- [x] PL.A.1 AdMob IDs production ✅
+- [x] PL.I.3 NSUserTrackingUsageDescription ✅
+- [ ] Pre-Launch Android checklist (PL.A.2–PL.A.8)
+- [ ] Pre-Launch iOS checklist (PL.I.1–PL.I.2, PL.I.4–PL.I.9)
 - [ ] Pre-Launch Common checklist (PL.C.1–PL.C.4)
