@@ -52,7 +52,7 @@ jobs:
           xcodebuild -project iosApp/iosApp.xcodeproj \
                      -scheme iosApp \
                      -configuration Debug \
-                     -destination 'generic/platform=iOS Simulator' \
+                     -destination 'platform=iOS Simulator,name=iPhone 17' \
                      OBJROOT=$GITHUB_WORKSPACE/build/ios \
                      SYMROOT=$GITHUB_WORKSPACE/build/ios \
                      CODE_SIGN_IDENTITY="" \
