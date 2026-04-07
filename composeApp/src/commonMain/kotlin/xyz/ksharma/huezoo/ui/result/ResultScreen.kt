@@ -283,9 +283,14 @@ private fun ReadyContent(
         val bannerText = when {
             state.roundsSurvived == 0 -> "MISSION OUTCOME: FLATLINED"
             isDaily -> "MISSION OUTCOME: COMPLETE"
+            state.isLegendaryResult -> "MISSION OUTCOME: LEGENDARY"
             else -> "MISSION OUTCOME: FAILURE"
         }
-        val bannerColor = if (state.roundsSurvived == 0) HuezooColors.AccentMagenta else accentColor
+        val bannerColor = when {
+            state.roundsSurvived == 0 -> HuezooColors.AccentMagenta
+            state.isLegendaryResult -> HuezooColors.AccentYellow
+            else -> accentColor
+        }
         MissionOutcomeBanner(
             text = bannerText,
             color = bannerColor,
@@ -1086,7 +1091,7 @@ private fun NeonScreenBorder(modifier: Modifier = Modifier) {
     val phase by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(durationMillis = 4_000, easing = LinearEasing)),
+        animationSpec = infiniteRepeatable(tween(durationMillis = 2_600, easing = LinearEasing)),
         label = "neonPhase",
     )
 
