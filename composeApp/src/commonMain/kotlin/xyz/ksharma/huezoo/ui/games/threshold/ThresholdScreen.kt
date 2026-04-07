@@ -2,7 +2,7 @@
 
 package xyz.ksharma.huezoo.ui.games.threshold
 
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -12,13 +12,15 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +45,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -74,11 +78,11 @@ import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
 import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
-import xyz.ksharma.huezoo.ui.theme.HeartLife
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 import kotlin.time.Clock
@@ -197,9 +201,13 @@ fun ThresholdScreen(
             }
         }
 
-        // Perception Wall celebration — full-screen overlay, sits on top of everything.
-        // ViewModel holds this phase for ANIMATION_PERCEPTION_WALL_MS then transitions automatically.
-        if ((uiState as? ThresholdUiState.Playing)?.roundPhase == RoundPhase.PerceptionWall) {
+        // Perception Wall celebration — full-screen overlay with animated enter AND exit.
+        // ViewModel holds this phase for ANIMATION_PERCEPTION_WALL_MS then transitions out.
+        AnimatedVisibility(
+            visible = (uiState as? ThresholdUiState.Playing)?.roundPhase == RoundPhase.PerceptionWall,
+            enter = fadeIn(tween(350)) + scaleIn(tween(500, easing = FastOutSlowInEasing), initialScale = 0.75f),
+            exit = fadeOut(tween(450)) + scaleOut(tween(450, easing = FastOutSlowInEasing), targetScale = 0.88f),
+        ) {
             PerceptionWallOverlay(modifier = Modifier.fillMaxSize())
         }
     }
@@ -225,26 +233,6 @@ private fun PlayingContent(
         }
     }
 
-    // ── UX.9.3: Gem float-up ─────────────────────────────────────────────────
-    var gemFloatDelta by remember { mutableIntStateOf(0) }
-    var gemFloatVisible by remember { mutableStateOf(false) }
-    val gemFloatOffsetY = remember { Animatable(0f) }
-    val gemFloatAlpha = remember { Animatable(0f) }
-    var prevGems by remember { mutableStateOf(state.totalGems) }
-    LaunchedEffect(state.totalGems) {
-        val delta = state.totalGems - prevGems
-        prevGems = state.totalGems
-        if (delta > 0) {
-            gemFloatDelta = delta
-            gemFloatOffsetY.snapTo(0f)
-            gemFloatAlpha.snapTo(1f)
-            gemFloatVisible = true
-            gemFloatOffsetY.animateTo(-72f, tween(600, easing = FastOutSlowInEasing))
-            gemFloatAlpha.animateTo(0f, tween(200))
-            gemFloatVisible = false
-        }
-    }
-
     val accent = LocalPlayerAccentColor.current
 
     Column(
@@ -256,58 +244,18 @@ private fun PlayingContent(
     ) {
         Spacer(Modifier.height(HuezooSpacing.sm))
 
-        // ── Header row: title left, lives hearts right ────────────────────────
-        FlowRow(
+        // ── Header: title ─────────────────────────────────────────────────────
+        HuezooTitleMedium(
+            text = "IDENTIFY  THE  OUTLIER",
+            color = accent,
+            fontWeight = FontWeight.ExtraBold,
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            HuezooTitleMedium(
-                text = "IDENTIFY  THE  OUTLIER",
-                color = accent,
-                fontWeight = FontWeight.ExtraBold,
-            )
-
-            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
-                repeat(state.maxAttempts) { index ->
-                    val isRemaining = index < state.attemptsRemaining
-                    val fillColor by animateColorAsState(
-                        targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
-                        animationSpec = tween(300),
-                        label = "lifeHeart_$index",
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(HEART_SIZE)
-                            .border(
-                                width = 1.5.dp,
-                                color = accent.copy(alpha = 0.4f),
-                                shape = HeartLife,
-                            )
-                            .background(fillColor, HeartLife),
-                    )
-                }
-            }
-        }
+        )
 
         // ── ΔE hero ───────────────────────────────────────────────────────────
         Spacer(Modifier.height(HuezooSpacing.xl))
 
-        // UX.9.3: Gem float-up anchored above the DeltaEBadge
-        Box(contentAlignment = Alignment.TopCenter) {
-            DeltaEBadge(deltaE = state.deltaE)
-            if (gemFloatVisible) {
-                Text(
-                    text = "+$gemFloatDelta 💎",
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),
-                    color = HuezooColors.GemGreen,
-                    modifier = Modifier.graphicsLayer {
-                        translationY = gemFloatOffsetY.value
-                        alpha = gemFloatAlpha.value
-                    },
-                )
-            }
-        }
+        DeltaEBadge(deltaE = state.deltaE)
 
         // UX.7.4: First-round tooltip — fades out after first correct tap
         val tooltipAlpha by animateFloatAsState(
@@ -465,78 +413,63 @@ private fun BlockedContent(
 
 /**
  * Full-screen legendary overlay shown when the player correctly identifies at ΔE 0.1.
- * Animates in with fade + scale; confetti falls throughout; eagle pulses with pride.
- * The ViewModel times the exit after [ANIMATION_PERCEPTION_WALL_MS].
+ * Enter/exit is handled by the [AnimatedVisibility] parent. Confetti launches upward
+ * from the bottom (fountain style) and falls back under gravity. The perception icon pulses.
  */
 @Suppress("LongMethod")
 @Composable
 private fun PerceptionWallOverlay(modifier: Modifier = Modifier) {
-    var visible by remember { mutableStateOf(false) }
     val confettiProgress = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
-        visible = true
         confettiProgress.animateTo(
             targetValue = 1f,
             animationSpec = tween(durationMillis = WALL_CONFETTI_DURATION_MS, easing = LinearEasing),
         )
     }
 
-    val alpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(durationMillis = 350),
-        label = "wallOverlayAlpha",
-    )
-    val scale by animateFloatAsState(
-        targetValue = if (visible) 1f else 0.72f,
-        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
-        label = "wallOverlayScale",
-    )
-
-    // Eagle heartbeat — pulses between 1.0 and 1.18 continuously while visible
-    val eagleTransition = rememberInfiniteTransition(label = "eagle")
-    val eagleScale by eagleTransition.animateFloat(
+    val iconTransition = rememberInfiniteTransition(label = "perception")
+    val iconScale by iconTransition.animateFloat(
         initialValue = 1f,
-        targetValue = 1.18f,
+        targetValue = 1.14f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 500, easing = FastOutSlowInEasing),
+            animation = tween(durationMillis = 550, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse,
         ),
-        label = "eagleScale",
+        label = "iconPulse",
     )
 
     val confettiPieces = remember { generateConfetti() }
     val confettiT = confettiProgress.value
+    val confettiColors = listOf(
+        HuezooColors.AccentCyan,
+        HuezooColors.AccentMagenta,
+        HuezooColors.AccentYellow,
+        HuezooColors.AccentGreen,
+    )
 
     Box(
-        modifier = modifier
-            .graphicsLayer { this.alpha = alpha }
-            .background(HuezooColors.Background.copy(alpha = 0.93f)),
+        modifier = modifier.background(HuezooColors.Background.copy(alpha = 0.93f)),
         contentAlignment = Alignment.Center,
     ) {
-        // Confetti layer — sits behind all text content
+        // Confetti fountain — pieces launch upward from bottom, arc, and fall back
         Canvas(modifier = Modifier.fillMaxSize()) {
             if (confettiT == 0f) return@Canvas
-            val confettiColors = listOf(
-                HuezooColors.AccentCyan,
-                HuezooColors.AccentMagenta,
-                HuezooColors.AccentYellow,
-                HuezooColors.AccentGreen,
-            )
             confettiPieces.forEach { piece ->
                 val rawT = ((confettiT - piece.delay) / (1f - piece.delay)).coerceIn(0f, 1f)
                 if (rawT <= 0f) return@forEach
-                val fallY = rawT * rawT * piece.speed * size.height
+                // Parabolic arc: starts at bottom (yNorm=1.0) → peaks → returns to bottom
+                val yNorm = 1f - (1f - piece.peakY) * 4f * rawT * (1f - rawT)
                 val wobbleX = sin(rawT * piece.wobbleCycles * 2.0 * PI).toFloat() *
                     piece.wobbleAmp * size.width
-                val pieceAlpha = (1f - ((rawT - 0.7f) / 0.3f).coerceIn(0f, 1f))
+                // Fade out as piece nears bottom + in last 15% of animation
+                val bottomFade = (1f - ((yNorm - 0.85f) / 0.15f).coerceIn(0f, 1f))
+                val timeFade = (1f - ((rawT - 0.85f) / 0.15f).coerceIn(0f, 1f))
+                val pieceAlpha = minOf(bottomFade, timeFade)
                 if (pieceAlpha <= 0f) return@forEach
                 drawCircle(
                     color = confettiColors[piece.colorIndex],
                     radius = piece.size * density,
-                    center = Offset(
-                        piece.x * size.width + wobbleX,
-                        piece.startY * size.height + fallY,
-                    ),
+                    center = Offset(piece.x * size.width + wobbleX, yNorm * size.height),
                     alpha = pieceAlpha,
                 )
             }
@@ -545,21 +478,15 @@ private fun PerceptionWallOverlay(modifier: Modifier = Modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-            modifier = Modifier
-                .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                }
-                .padding(horizontal = HuezooSpacing.xl),
+            modifier = Modifier.padding(horizontal = HuezooSpacing.xl),
         ) {
-            Text(
-                text = "🦅",
-                fontSize = 72.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.graphicsLayer {
-                    scaleX = eagleScale
-                    scaleY = eagleScale
-                },
+            PerceptionIcon(
+                modifier = Modifier
+                    .size(88.dp)
+                    .graphicsLayer {
+                        scaleX = iconScale
+                        scaleY = iconScale
+                    },
             )
 
             Spacer(Modifier.height(HuezooSpacing.sm))
@@ -593,30 +520,78 @@ private fun PerceptionWallOverlay(modifier: Modifier = Modifier) {
     }
 }
 
+// Geometric "perception diamond" icon — Canvas-drawn, no emoji dependency.
+// Diamond outline + center dot + cardinal tick marks + 45° accent dots.
+@Suppress("MagicNumber")
+@Composable
+private fun PerceptionIcon(modifier: Modifier = Modifier) {
+    val accent = HuezooColors.AccentYellow
+    Canvas(modifier = modifier) {
+        val cx = size.width / 2
+        val cy = size.height / 2
+        val r = minOf(cx, cy)
+        val tip = r * 0.74f
+
+        drawCircle(color = accent, radius = r, center = Offset(cx, cy), alpha = 0.10f)
+
+        val diamond = Path().apply {
+            moveTo(cx, cy - tip)
+            lineTo(cx + tip, cy)
+            lineTo(cx, cy + tip)
+            lineTo(cx - tip, cy)
+            close()
+        }
+        drawPath(diamond, color = accent, alpha = 0.18f)
+        drawPath(diamond, color = accent, style = Stroke(width = 2.5f * density), alpha = 0.92f)
+
+        drawCircle(color = accent, radius = r * 0.15f, center = Offset(cx, cy))
+
+        // Cardinal tick marks extending outward from each diamond tip
+        listOf(Offset(0f, -1f), Offset(1f, 0f), Offset(0f, 1f), Offset(-1f, 0f)).forEach { dir ->
+            drawLine(
+                color = accent,
+                start = Offset(cx + dir.x * tip, cy + dir.y * tip),
+                end = Offset(cx + dir.x * r * 0.94f, cy + dir.y * r * 0.94f),
+                strokeWidth = 2.5f * density,
+                alpha = 0.80f,
+            )
+        }
+
+        // Small accent dots at 45° between cardinal points
+        listOf(45f, 135f, 225f, 315f).forEach { angleDeg ->
+            val rad = angleDeg * (PI / 180.0).toFloat()
+            drawCircle(
+                color = accent,
+                radius = 3f * density,
+                center = Offset(cx + cos(rad) * r * 0.60f, cy + sin(rad) * r * 0.60f),
+                alpha = 0.65f,
+            )
+        }
+    }
+}
+
 private data class ConfettiPiece(
     val x: Float, // normalized start X (0..1)
-    val startY: Float, // normalized start Y — negative = above screen
-    val speed: Float, // fall speed as fraction of screen height (per t unit)
+    val peakY: Float, // normalized Y at peak (0=top, 1=bottom — smaller = higher)
     val size: Float, // radius in dp
-    val colorIndex: Int, // index into confettiColors list
+    val colorIndex: Int, // 0=cyan, 1=magenta, 2=yellow, 3=green
     val wobbleCycles: Float,
     val wobbleAmp: Float, // horizontal wobble amplitude as fraction of screen width
-    val delay: Float, // 0..0.35 phase stagger
+    val delay: Float, // 0..0.30 phase stagger
 )
 
 @Suppress("MagicNumber")
 private fun generateConfetti(): List<ConfettiPiece> {
     val rng = Random(seed = 1337)
-    return List(32) {
+    return List(40) {
         ConfettiPiece(
             x = rng.nextFloat(),
-            startY = -0.05f - rng.nextFloat() * 0.15f,
-            speed = 0.55f + rng.nextFloat() * 0.6f,
+            peakY = 0.05f + rng.nextFloat() * 0.55f, // peaks between top 5% and 60%
             size = 4f + rng.nextFloat() * 7f,
             colorIndex = rng.nextInt(4),
             wobbleCycles = 1f + rng.nextFloat() * 2f,
             wobbleAmp = 0.015f + rng.nextFloat() * 0.035f,
-            delay = rng.nextFloat() * 0.35f,
+            delay = rng.nextFloat() * 0.30f,
         )
     }
 }
@@ -643,9 +618,6 @@ private fun countdownUntil(until: Instant) = produceState(initialValue = "") {
 
 /** Fixed height reserved for the in-game feedback message. Never changes, so nothing shifts. */
 private val FEEDBACK_SLOT_HEIGHT = 28.dp
-
-/** Size of each heart in the lives indicator. */
-private val HEART_SIZE = 14.dp
 
 // ── Cine-style background light lines ────────────────────────────────────────
 
