@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -1081,11 +1082,12 @@ private data class ConfettiParticle(
 @Composable
 private fun NeonScreenBorder(modifier: Modifier = Modifier) {
     val transition = rememberInfiniteTransition(label = "neonBorder")
-    val angle by transition.animateFloat(
+    // `phase` cycles 0→1 continuously — drives color position shift each frame.
+    val phase by transition.animateFloat(
         initialValue = 0f,
-        targetValue = 360f,
+        targetValue = 1f,
         animationSpec = infiniteRepeatable(tween(durationMillis = 4_000, easing = LinearEasing)),
-        label = "neonBorderAngle",
+        label = "neonPhase",
     )
 
     val cyan = HuezooColors.AccentCyan
@@ -1099,50 +1101,78 @@ private fun NeonScreenBorder(modifier: Modifier = Modifier) {
         val drawSize = Size(size.width - insetPx * 2, size.height - insetPx * 2)
         val centre = Offset(size.width / 2, size.height / 2)
 
-        withTransform({ rotate(angle, centre) }) {
-            val brush = Brush.sweepGradient(
-                colors = listOf(cyan, magenta, yellow, cyan),
-                center = centre,
-            )
-            // Outer glow — widest stroke, low alpha for soft bloom
-            drawRoundRect(
-                brush = brush,
-                topLeft = drawTopLeft,
-                size = drawSize,
-                cornerRadius = CornerRadius(cornerPx),
-                style = Stroke(width = NEON_BORDER_OUTER_STROKE_PX),
-                alpha = NEON_BORDER_OUTER_ALPHA,
-            )
-            // Mid bloom — narrows the glow
-            drawRoundRect(
-                brush = brush,
-                topLeft = drawTopLeft,
-                size = drawSize,
-                cornerRadius = CornerRadius(cornerPx),
-                style = Stroke(width = NEON_BORDER_MID_STROKE_PX),
-                alpha = NEON_BORDER_MID_ALPHA,
-            )
-            // Inner crisp line — sharp edge of the border
-            drawRoundRect(
-                brush = brush,
-                topLeft = drawTopLeft,
-                size = drawSize,
-                cornerRadius = CornerRadius(cornerPx),
-                style = Stroke(width = NEON_BORDER_INNER_STROKE_PX),
-                alpha = NEON_BORDER_INNER_ALPHA,
-            )
+        // Color-phase sweep: shift gradient positions by `phase` each frame so the
+        // colors travel clockwise around the border. The rectangle is never rotated —
+        // only the color positions shift, giving a pure "light chasing itself" effect.
+        fun cycleColor(t: Float): Color {
+            val p = ((t + phase) % 1f + 1f) % 1f
+            return when {
+                p < 1f / 3f -> lerp(cyan, magenta, p * 3f)
+                p < 2f / 3f -> lerp(magenta, yellow, (p - 1f / 3f) * 3f)
+                else -> lerp(yellow, cyan, (p - 2f / 3f) * 3f)
+            }
         }
+
+        val brush = Brush.sweepGradient(
+            0.0f to cycleColor(0.0f),
+            1f / 6f to cycleColor(1f / 6f),
+            1f / 3f to cycleColor(1f / 3f),
+            0.5f to cycleColor(0.5f),
+            2f / 3f to cycleColor(2f / 3f),
+            5f / 6f to cycleColor(5f / 6f),
+            1.0f to cycleColor(1.0f),
+            center = centre,
+        )
+
+        // Super-glow — massive soft bloom that bleeds far from the border edge
+        drawRoundRect(
+            brush = brush,
+            topLeft = drawTopLeft,
+            size = drawSize,
+            cornerRadius = CornerRadius(cornerPx),
+            style = Stroke(width = NEON_BORDER_SUPER_STROKE_PX),
+            alpha = NEON_BORDER_SUPER_ALPHA,
+        )
+        // Outer glow — wide stroke, soft bloom
+        drawRoundRect(
+            brush = brush,
+            topLeft = drawTopLeft,
+            size = drawSize,
+            cornerRadius = CornerRadius(cornerPx),
+            style = Stroke(width = NEON_BORDER_OUTER_STROKE_PX),
+            alpha = NEON_BORDER_OUTER_ALPHA,
+        )
+        // Mid bloom — narrows the glow
+        drawRoundRect(
+            brush = brush,
+            topLeft = drawTopLeft,
+            size = drawSize,
+            cornerRadius = CornerRadius(cornerPx),
+            style = Stroke(width = NEON_BORDER_MID_STROKE_PX),
+            alpha = NEON_BORDER_MID_ALPHA,
+        )
+        // Inner crisp line — sharp edge of the border
+        drawRoundRect(
+            brush = brush,
+            topLeft = drawTopLeft,
+            size = drawSize,
+            cornerRadius = CornerRadius(cornerPx),
+            style = Stroke(width = NEON_BORDER_INNER_STROKE_PX),
+            alpha = NEON_BORDER_INNER_ALPHA,
+        )
     }
 }
 
 private const val NEON_BORDER_INSET_DP = 6f
 private const val NEON_BORDER_CORNER_DP = 44f
-private const val NEON_BORDER_OUTER_STROKE_PX = 32f
-private const val NEON_BORDER_MID_STROKE_PX = 12f
-private const val NEON_BORDER_INNER_STROKE_PX = 3.5f
-private const val NEON_BORDER_OUTER_ALPHA = 0.22f
-private const val NEON_BORDER_MID_ALPHA = 0.52f
-private const val NEON_BORDER_INNER_ALPHA = 0.92f
+private const val NEON_BORDER_SUPER_STROKE_PX = 72f // outermost, maximum bloom radius
+private const val NEON_BORDER_OUTER_STROKE_PX = 48f // was 32 — 1.5× for stronger glow
+private const val NEON_BORDER_MID_STROKE_PX = 18f // was 12 — 1.5×
+private const val NEON_BORDER_INNER_STROKE_PX = 5.5f // was 3.5 — 1.57×
+private const val NEON_BORDER_SUPER_ALPHA = 0.07f
+private const val NEON_BORDER_OUTER_ALPHA = 0.26f // was 0.22
+private const val NEON_BORDER_MID_ALPHA = 0.56f // was 0.52
+private const val NEON_BORDER_INNER_ALPHA = 0.95f // was 0.92
 
 @Composable
 private fun ConfettiEffect(
