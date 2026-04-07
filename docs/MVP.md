@@ -112,11 +112,11 @@ Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` fo
 - [x] PL.A.1 AdMob App IDs confirmed production
 - [x] PL.A.2 Signing keystore created; secrets added
 - [x] PL.A.3 `versionCode` and `versionName` set in `build.gradle.kts`
-- [ ] PL.A.4 ProGuard / R8 rules verified for release build — check SQLDelight, Koin, AdMob, Billing
-- [ ] PL.A.5 Content rating questionnaire completed in Play Console
+- [x] PL.A.4 ProGuard / R8 rules verified for release build
+- [x] PL.A.5 Content rating questionnaire completed in Play Console
 - [ ] PL.A.6 GDPR consent form configured in AdMob dashboard (required for EU users)
 - [x] PL.A.7 Privacy Policy URL added to Play Store listing
-- [ ] PL.A.8 Tested on at least one real Android device (release build)
+- [x] PL.A.8 Tested on at least one real Android device (release build)
 
 ### Pre-Launch — iOS ⬜
 - [x] PL.I.1 Bundle Identifier set to `xyz.ksharma.huezoo`
@@ -125,7 +125,7 @@ Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` fo
 - [x] PL.I.4 App Store Connect record created
 - [x] PL.I.5 Apple Distribution certificate + provisioning profile created; secrets added
 - [ ] PL.I.6 StoreKit 2 IAP product configured in App Store Connect (currently stub)
-- [ ] PL.I.7 TestFlight build uploaded and internal testing completed
+- [x] PL.I.7 TestFlight build uploaded and internal testing completed
 - [x] PL.I.8 Privacy Policy URL added to App Store Connect listing
 - [ ] PL.I.9 Tested on at least one real iOS device (release build)
 
@@ -133,7 +133,7 @@ Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` fo
 - [x] PL.C.1 Privacy Policy live at https://ksharma-xyz.github.io/HueZoo/privacy-policy/
 - [x] PL.C.2 App icon artwork complete — iOS PNGs + Android vector
 - [x] PL.C.3 Font license review complete
-- [ ] PL.C.4 All GitHub CI/CD secrets and variables configured (see Phase CI)
+- [x] PL.C.4 All GitHub CI/CD secrets and variables configured (see Phase CI)
 
 ---
 
@@ -146,11 +146,11 @@ Workflows are in `.github/workflows/`. See `docs/ci_cd/CI_SETUP_CHECKLIST.md` fo
 - [x] Tested on real Android + iOS device
 - [x] PL.A.1 AdMob IDs production
 - [x] PL.I.3 NSUserTrackingUsageDescription
-- [ ] PL.A.4 ProGuard rules verified
-- [ ] PL.A.5 Content rating in Play Console
+- [x] PL.A.4 ProGuard rules verified
+- [x] PL.A.5 Content rating in Play Console
 - [ ] PL.A.6 GDPR consent form (AdMob)
-- [ ] PL.A.8 Real Android device — release build
+- [x] PL.A.8 Real Android device — release build
 - [ ] PL.I.6 StoreKit 2 IAP wired
-- [ ] PL.I.7 TestFlight internal testing
+- [x] PL.I.7 TestFlight internal testing
 - [ ] PL.I.9 Real iOS device — release build
-- [ ] PL.C.4 CI/CD secrets + variables complete
+- [x] PL.C.4 CI/CD secrets + variables complete
