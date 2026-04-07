@@ -2,8 +2,8 @@ package xyz.ksharma.huezoo.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -15,20 +15,26 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -49,6 +55,7 @@ import xyz.ksharma.huezoo.ui.theme.ShieldSwatch
 import xyz.ksharma.huezoo.ui.theme.SquircleMedium
 import xyz.ksharma.huezoo.ui.theme.SquircleSmall
 import xyz.ksharma.huezoo.ui.theme.SwatchPetal
+import kotlin.random.Random
 
 // ── Active swatch size ────────────────────────────────────────────────────────
 
@@ -262,7 +269,7 @@ fun RadialSwatchLayout(
 
 // ── Single tile ───────────────────────────────────────────────────────────────
 
-@Suppress("CyclomaticComplexMethod")
+@Suppress("CyclomaticComplexMethod", "LongMethod")
 @Composable
 private fun RadialTile(
     color: Color,
@@ -292,14 +299,16 @@ private fun RadialTile(
         }
     }
 
-    // ── Celebrate pop + implode on correct (UX.8.1) ──────────────────────────
-    // Three-step animation:
-    //   1. Pop    → spring to 1.18× (satisfying bloom)
-    //   2. Settle → spring back toward 1× (natural rebound)
-    //   3. Implode → fast spring collapse to 0 (swatch vanishes before FoldingOut)
-    // Total time: ~250 ms (pop+settle) + ~180 ms (implode) ≈ 430 ms, well within
-    // the 750 ms ANIMATION_CORRECT_MS window — nothing feels rushed or clipped.
+    // ── Celebrate pop + glass shatter on correct (UX.8.1) ───────────────────
+    // 1. Pop    → spring to 1.18× (satisfying bloom)
+    // 2. Settle → spring back to 1× (natural rebound)
+    // 3. Shatter → tile hides; random parallelogram shards fall + spin + fade
     val celebrateScale = remember { Animatable(1f) }
+    var isShattered by remember { mutableStateOf(false) }
+    var shardColor by remember { mutableStateOf(Color.Transparent) }
+    val shatterProgress = remember { Animatable(0f) }
+    var currentShards by remember { mutableStateOf(emptyList<GlassShard>()) }
+
     LaunchedEffect(displayState) {
         when (displayState) {
             SwatchDisplayState.Correct -> {
@@ -319,240 +328,249 @@ private fun RadialTile(
                         stiffness = Spring.StiffnessMedium,
                     ),
                 )
-                // 3. Implode — correct swatch shrinks to nothing before the next round unfolds
-                celebrateScale.animateTo(
-                    targetValue = 0f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessHigh,
-                    ),
+                // 3. Shatter — fresh random shards every time
+                shardColor = color
+                currentShards = generateShards(Random.Default)
+                isShattered = true
+                shatterProgress.snapTo(0f)
+                shatterProgress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(durationMillis = SHATTER_DURATION_MS, easing = LinearEasing),
                 )
             }
-            else -> celebrateScale.snapTo(1f)
+            else -> {
+                isShattered = false
+                currentShards = emptyList()
+                shatterProgress.snapTo(0f)
+                celebrateScale.snapTo(1f)
+            }
         }
     }
 
     // ── Border colour driven by display state ─────────────────────────────────
-    // Correct / Revealed → player's level accent (cyan at Rookie, green at Trained, etc.)
-    // Wrong              → pure white — neutral "you tapped this one" indicator
     val levelAccent = LocalPlayerAccentColor.current
+    val borderTarget = when (displayState) {
+        SwatchDisplayState.Correct -> levelAccent
+        SwatchDisplayState.Wrong -> Color.White
+        SwatchDisplayState.Revealed -> levelAccent
+        SwatchDisplayState.Default -> Color.Transparent
+    }
     val borderColor by animateColorAsState(
-        targetValue = when (displayState) {
-            SwatchDisplayState.Correct -> levelAccent
-            SwatchDisplayState.Wrong -> Color.White
-            SwatchDisplayState.Revealed -> levelAccent
-            SwatchDisplayState.Default -> Color.Transparent
-        },
-        animationSpec = tween(200),
+        targetValue = borderTarget,
+        animationSpec = if (borderTarget == Color.Transparent) tween(0) else tween(200),
         label = "tileBorder",
     )
 
     val pressScale = if (isPressed) 0.94f else 1f
 
-    // ── Pivot at the flower CENTRE (not the tile's own top edge) ─────────────
-    // The tile top-left is placed at:
-    //   x = (containerSize - tileWidth) / 2         → horizontally centred on container
-    //   y = containerSize / 2 + centerGap           → inner tip is centerGap BELOW container centre
-    //
-    // The flower centre in tile-local coordinates (origin = tile top-left) is:
-    //   local_x = tileWidth / 2                     → fraction 0.5f (horizontal centre of tile)
-    //   local_y = -(centerGap)                      → fraction = -centerGap / tileHeight
-    //                                                  (negative = ABOVE the tile's top edge)
-    //
-    // Using this as TransformOrigin means ALL rotations and scales pivot around the flower
-    // centre, so the gap is preserved for every rotation angle and every scale value.
+    // Pivot fraction in tile-local Y: the flower centre is centerGap ABOVE the tile's top edge.
     val pivotY = -(config.centerGap.value / config.tileHeight.value)
 
+    // ── Outer Box: positioning only ───────────────────────────────────────────
     Box(
         modifier = modifier
-            // ── Position: inner tip at (centerGap) below container centre ───
             .absoluteOffset(
                 x = (config.containerSize - config.tileWidth) / 2,
                 y = config.containerSize / 2 + config.centerGap,
             )
-            .size(config.tileWidth, config.tileHeight)
-            .graphicsLayer {
-                transformOrigin = TransformOrigin(0.5f, pivotY)
-                rotationZ = angleDeg
-
-                // Uniform scale (squircle, hex): tiles pop out as a whole.
-                // Directional scale (petal, spoke, diamond): tiles grow along radial axis only.
-                val s = tileScale * pressScale * celebrateScale.value
-                if (config.uniformScale) {
-                    scaleX = s
-                    scaleY = s
-                } else {
-                    scaleX = pressScale * celebrateScale.value // tangential: press + celebrate bloom
-                    scaleY = s
+            .size(config.tileWidth, config.tileHeight),
+    ) {
+        // ── Main tile ─────────────────────────────────────────────────────────
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    transformOrigin = TransformOrigin(0.5f, pivotY)
+                    rotationZ = angleDeg
+                    val s = tileScale * pressScale * celebrateScale.value
+                    if (config.uniformScale) {
+                        scaleX = s
+                        scaleY = s
+                    } else {
+                        scaleX = pressScale * celebrateScale.value
+                        scaleY = s
+                    }
+                    translationX = shakeX.value
+                    clip = displayState == SwatchDisplayState.Default || displayState == SwatchDisplayState.Wrong
+                    // Hide tile body while shards are flying — shatter Canvas takes over visually.
+                    alpha = if (isShattered) 0f else 1f
                 }
-
-                translationX = shakeX.value
-
-                // Allow neon glow to bleed outside layer bounds for Correct / Revealed.
-                clip = displayState == SwatchDisplayState.Default ||
-                    displayState == SwatchDisplayState.Wrong
-            }
-            // ── Path-accurate neon border ─────────────────────────────────
-            // Uses the same Shape path as the clip so the border always follows
-            // the tile geometry exactly (works for petals, hexagons, diamonds, etc.).
-            .drawWithContent {
-                drawContent()
-                val bc = borderColor
-                if (bc != Color.Transparent) {
-                    when (val outline = shape.createOutline(this.size, layoutDirection, this)) {
-                        is Outline.Generic -> {
-                            // Outer glow ring (wide, translucent)
-                            drawPath(
-                                path = outline.path,
-                                color = bc.copy(alpha = NEON_OUTER_ALPHA),
-                                style = Stroke(width = NEON_OUTER_STROKE_PX),
-                            )
-                            // Inner crisp ring (narrow, opaque)
-                            drawPath(
-                                path = outline.path,
+                .drawWithContent {
+                    drawContent()
+                    val bc = borderColor
+                    if (bc != Color.Transparent) {
+                        when (val outline = shape.createOutline(this.size, layoutDirection, this)) {
+                            is Outline.Generic -> {
+                                drawPath(
+                                    path = outline.path,
+                                    color = bc.copy(alpha = NEON_OUTER_ALPHA),
+                                    style = Stroke(width = NEON_OUTER_STROKE_PX),
+                                )
+                                drawPath(path = outline.path, color = bc, style = Stroke(width = NEON_INNER_STROKE_PX))
+                            }
+                            is Outline.Rounded -> drawRoundRect(
                                 color = bc,
+                                cornerRadius = outline.roundRect.topLeftCornerRadius,
                                 style = Stroke(width = NEON_INNER_STROKE_PX),
                             )
+                            is Outline.Rectangle -> drawRect(color = bc, style = Stroke(width = NEON_INNER_STROKE_PX))
                         }
-                        is Outline.Rounded -> drawRoundRect(
-                            color = bc,
-                            cornerRadius = outline.roundRect.topLeftCornerRadius,
-                            style = Stroke(width = NEON_INNER_STROKE_PX),
-                        )
-                        is Outline.Rectangle -> drawRect(
-                            color = bc,
-                            style = Stroke(width = NEON_INNER_STROKE_PX),
-                        )
+                    }
+                    if (isDebugOdd && displayState == SwatchDisplayState.Default) {
+                        when (val outline = shape.createOutline(this.size, layoutDirection, this)) {
+                            is Outline.Generic -> drawPath(
+                                path = outline.path,
+                                color = Color.White.copy(alpha = DEBUG_ODD_ALPHA),
+                                style = Stroke(width = DEBUG_ODD_STROKE_PX),
+                            )
+                            is Outline.Rounded -> drawRoundRect(
+                                color = Color.White.copy(alpha = DEBUG_ODD_ALPHA),
+                                cornerRadius = outline.roundRect.topLeftCornerRadius,
+                                style = Stroke(width = DEBUG_ODD_STROKE_PX),
+                            )
+                            is Outline.Rectangle -> drawRect(
+                                color = Color.White.copy(alpha = DEBUG_ODD_ALPHA),
+                                style = Stroke(width = DEBUG_ODD_STROKE_PX),
+                            )
+                        }
                     }
                 }
+                .background(color, shape)
+                .clip(shape)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    enabled = enabled,
+                    onClick = onClick,
+                ),
+        ) {
+            SwatchGradientOverlay()
+        }
 
-                // DEBUG ONLY: dim white border that marks the odd (correct) tile.
-                // Visible only when isDebugOdd = true, which the ViewModel sets exclusively
-                // in debug builds (PlatformOps.isDebugBuild). Never rendered in release.
-                if (isDebugOdd && displayState == SwatchDisplayState.Default) {
-                    when (val outline = shape.createOutline(this.size, layoutDirection, this)) {
-                        is Outline.Generic -> drawPath(
-                            path = outline.path,
-                            color = Color.White.copy(alpha = DEBUG_ODD_ALPHA),
-                            style = Stroke(width = DEBUG_ODD_STROKE_PX),
-                        )
-                        is Outline.Rounded -> drawRoundRect(
-                            color = Color.White.copy(alpha = DEBUG_ODD_ALPHA),
-                            cornerRadius = outline.roundRect.topLeftCornerRadius,
-                            style = Stroke(width = DEBUG_ODD_STROKE_PX),
-                        )
-                        is Outline.Rectangle -> drawRect(
-                            color = Color.White.copy(alpha = DEBUG_ODD_ALPHA),
-                            style = Stroke(width = DEBUG_ODD_STROKE_PX),
-                        )
-                    }
-                }
-            }
-            .background(color, shape)
-            .clip(shape)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                onClick = onClick,
-            ),
-    ) {
-        SwatchGradientOverlay()
-    }
-}
-
-// ── Swatch-shape progress ring ────────────────────────────────────────────────
-
-/**
- * Six ghost outlines — one per tile — positioned identically to [RadialSwatchLayout] but scaled
- * slightly outward so they glow around the real swatches.
- *
- * Place this *behind* [RadialSwatchLayout] in a stacked [Box].  Each ghost fills with the
- * player's accent colour as the consecutive-correct-tap streak climbs through six milestones.
- * Resets (drains) smoothly when [correctStreak] drops back to 0 (wrong tap / new try).
- *
- * Milestones: [1, 3, 6, 10, 15, 21] correct taps to fill each ghost fully.
- */
-@Composable
-fun SwatchShapeProgressRing(
-    layoutStyle: SwatchLayoutStyle,
-    correctStreak: Int,
-    roundPhase: RoundPhase,
-    modifier: Modifier = Modifier,
-) {
-    val config = remember(layoutStyle) { configFor(layoutStyle, ACTIVE_SWATCH_SIZE) }
-    val shape = remember(layoutStyle) { shapeFor(layoutStyle) }
-    val accent = LocalPlayerAccentColor.current
-
-    Box(modifier = modifier.size(config.containerSize)) {
-        repeat(TILE_COUNT) { idx ->
-            val angleDeg = idx * (360f / TILE_COUNT)
-            val milestone = SWATCH_PROGRESS_MILESTONES[idx]
-            val prevMilestone = if (idx == 0) 0 else SWATCH_PROGRESS_MILESTONES[idx - 1]
-            val targetFill = when {
-                correctStreak >= milestone -> 1f
-                correctStreak <= prevMilestone -> 0f
-                else -> (correctStreak - prevMilestone).toFloat() / (milestone - prevMilestone)
-            }
-            val animatedFill by animateFloatAsState(
-                targetValue = targetFill,
-                animationSpec = tween(if (roundPhase == RoundPhase.Wrong) 420 else 230),
-                label = "ghostFill_$idx",
-            )
-
-            val pivotY = -(config.centerGap.value / config.tileHeight.value)
-
+        // ── Glass shatter overlay ─────────────────────────────────────────────
+        // Rendered at the same rotation as the tile but with clip = false so shards
+        // can fly beyond the tile bounds. Reads shatterProgress.value in composable
+        // scope so recomposition drives each animation frame.
+        val t = shatterProgress.value
+        if (t > 0f) {
+            val capturedShardColor = shardColor
+            val capturedShards = currentShards
             Canvas(
                 modifier = Modifier
-                    .absoluteOffset(
-                        x = (config.containerSize - config.tileWidth) / 2,
-                        y = config.containerSize / 2 + config.centerGap,
-                    )
-                    .size(config.tileWidth, config.tileHeight)
+                    .fillMaxSize()
                     .graphicsLayer {
                         transformOrigin = TransformOrigin(0.5f, pivotY)
                         rotationZ = angleDeg
-                        // Scale outward so the ghost peeks around the real tile edges.
-                        if (config.uniformScale) {
-                            scaleX = GHOST_SCALE_UNIFORM
-                            scaleY = GHOST_SCALE_UNIFORM
-                        } else {
-                            scaleX = GHOST_SCALE_TANGENTIAL
-                            scaleY = GHOST_SCALE_RADIAL
-                        }
                         clip = false
                     },
             ) {
-                val outline = shape.createOutline(size, layoutDirection, this)
-                if (outline is Outline.Generic) {
-                    // Filled body — grows from transparent to solid as the ghost fills
-                    if (animatedFill > 0f) {
+                // Gravity fall: pieces accelerate downward (t² for quadratic curve)
+                val gravityT = t * t
+                // Time-based fade: start dissolving at t=0.5, fully gone at t=1.0
+                val timeFade = (1f - ((t - 0.5f) / 0.5f).coerceIn(0f, 1f))
+
+                capturedShards.forEach { shard ->
+                    val fallY = size.height * SHARD_FALL_DISTANCE * gravityT
+                    val driftX = shard.driftX * size.width * SHARD_DRIFT * t
+                    val spin = shard.spinDir * SHARD_SPIN_DEGREES * t
+
+                    val centroidPx = Offset(
+                        shard.centroid.x * size.width + driftX,
+                        shard.centroid.y * size.height + fallY,
+                    )
+
+                    // Parallelogram quad path — 4 vertices
+                    val path = Path().apply {
+                        moveTo(shard.p0.x * size.width + driftX, shard.p0.y * size.height + fallY)
+                        lineTo(shard.p1.x * size.width + driftX, shard.p1.y * size.height + fallY)
+                        lineTo(shard.p2.x * size.width + driftX, shard.p2.y * size.height + fallY)
+                        lineTo(shard.p3.x * size.width + driftX, shard.p3.y * size.height + fallY)
+                        close()
+                    }
+
+                    withTransform({ rotate(spin, centroidPx) }) {
+                        drawPath(path, color = capturedShardColor, alpha = timeFade)
+                        // Glass-edge shimmer — thin white stroke along each shard edge
                         drawPath(
-                            path = outline.path,
-                            color = accent.copy(alpha = animatedFill * GHOST_FILL_ALPHA),
+                            path,
+                            color = Color.White,
+                            alpha = timeFade * SHARD_SHIMMER_ALPHA,
+                            style = Stroke(width = SHARD_EDGE_STROKE_PX),
                         )
                     }
-                    // Always-visible dim stroke — brightens to neon as the ghost fills
-                    drawPath(
-                        path = outline.path,
-                        color = accent.copy(alpha = GHOST_TRACK_ALPHA + animatedFill * GHOST_GLOW_ALPHA),
-                        style = Stroke(width = GHOST_STROKE_PX),
-                    )
                 }
             }
         }
     }
 }
 
-private val SWATCH_PROGRESS_MILESTONES = intArrayOf(1, 3, 6, 10, 15, 21)
+// ── Glass shatter data ────────────────────────────────────────────────────────
 
-private const val GHOST_SCALE_UNIFORM = 1.10f // uniform shapes (hex, squircle, diamond)
-private const val GHOST_SCALE_RADIAL = 1.12f // petal/blade: grow along radial axis
-private const val GHOST_SCALE_TANGENTIAL = 1.04f // petal/blade: subtle tangential spread
-private const val GHOST_STROKE_PX = 3.5f
-private const val GHOST_TRACK_ALPHA = 0.14f // always-visible dim track
-private const val GHOST_FILL_ALPHA = 0.38f // max fill body alpha
-private const val GHOST_GLOW_ALPHA = 0.62f // additional stroke alpha when fully lit
+// Parallelogram-like quad shard in normalized 0..1 tile space.
+// p0=top-left, p1=top-right, p2=bottom-right, p3=bottom-left (roughly).
+private data class GlassShard(
+    val p0: Offset,
+    val p1: Offset,
+    val p2: Offset,
+    val p3: Offset,
+    val centroid: Offset,
+    val spinDir: Float, // +1 or -1 — adjacent shards spin opposite ways
+    val driftX: Float, // -1..1 horizontal drift multiplier
+)
+
+// Generates a randomized grid of parallelogram quads in normalized 0..1 space.
+// Called fresh per shatter so every break looks different — count, size, and lean
+// all vary. Inner vertices are jittered and a global skew makes every quad
+// look like a true parallelogram rather than a rectangle.
+@Suppress("MagicNumber")
+private fun generateShards(rng: Random): List<GlassShard> {
+    val cols = 2 + rng.nextInt(3) // 2..4 columns
+    val rows = 3 + rng.nextInt(3) // 3..5 rows
+
+    // Build jittered grid: edge vertices stay on boundary; interior vertices shift.
+    val verts = Array(rows + 1) { r ->
+        Array(cols + 1) { c ->
+            val bx = c.toFloat() / cols
+            val by = r.toFloat() / rows
+            val jx = if (c in 1 until cols) (rng.nextFloat() * 2 - 1) * 0.18f / cols else 0f
+            val jy = if (r in 1 until rows) (rng.nextFloat() * 2 - 1) * 0.18f / rows else 0f
+            Offset((bx + jx).coerceIn(0f, 1f), (by + jy).coerceIn(0f, 1f))
+        }
+    }
+    // Global parallelogram skew: shift each row's inner vertices in X so all quads
+    // share the same lean — like a glass sheet sheared before it cracked.
+    val skew = (rng.nextFloat() * 2 - 1) * 0.06f
+    for (r in 1 until rows) {
+        for (c in 1 until cols) {
+            verts[r][c] = Offset(
+                (verts[r][c].x + skew * r).coerceIn(0.02f, 0.98f),
+                verts[r][c].y,
+            )
+        }
+    }
+    return buildList {
+        for (r in 0 until rows) {
+            for (c in 0 until cols) {
+                val tl = verts[r][c]
+                val tr = verts[r][c + 1]
+                val br = verts[r + 1][c + 1]
+                val bl = verts[r + 1][c]
+                val cx = (tl.x + tr.x + br.x + bl.x) / 4f
+                val cy = (tl.y + tr.y + br.y + bl.y) / 4f
+                val spinDir = if ((r + c) % 2 == 0) 1f else -1f
+                val driftX = (rng.nextFloat() * 2f - 1f) * 0.9f
+                add(GlassShard(tl, tr, br, bl, Offset(cx, cy), spinDir, driftX))
+            }
+        }
+    }
+}
+
+private const val SHATTER_DURATION_MS = 600
+private const val SHARD_FALL_DISTANCE = 1.6f // tile-height multiples to fall under gravity
+private const val SHARD_DRIFT = 0.35f // horizontal drift as fraction of tile width
+private const val SHARD_SPIN_DEGREES = 70f
+private const val SHARD_SHIMMER_ALPHA = 0.35f
+private const val SHARD_EDGE_STROKE_PX = 1.5f
 
 // ── Previews ──────────────────────────────────────────────────────────────────
 
