@@ -292,12 +292,18 @@ private fun RadialTile(
         }
     }
 
-    // ── Celebrate pop on correct ──────────────────────────────────────────────
-    // A quick spring-bounce to 1.18× then back to 1× gives satisfying tactile feedback.
+    // ── Celebrate pop + implode on correct (UX.8.1) ──────────────────────────
+    // Three-step animation:
+    //   1. Pop    → spring to 1.18× (satisfying bloom)
+    //   2. Settle → spring back toward 1× (natural rebound)
+    //   3. Implode → fast spring collapse to 0 (swatch vanishes before FoldingOut)
+    // Total time: ~250 ms (pop+settle) + ~180 ms (implode) ≈ 430 ms, well within
+    // the 750 ms ANIMATION_CORRECT_MS window — nothing feels rushed or clipped.
     val celebrateScale = remember { Animatable(1f) }
     LaunchedEffect(displayState) {
         when (displayState) {
             SwatchDisplayState.Correct -> {
+                // 1. Pop
                 celebrateScale.animateTo(
                     targetValue = 1.18f,
                     animationSpec = spring(
@@ -305,11 +311,20 @@ private fun RadialTile(
                         stiffness = Spring.StiffnessHigh,
                     ),
                 )
+                // 2. Settle
                 celebrateScale.animateTo(
                     targetValue = 1f,
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
                         stiffness = Spring.StiffnessMedium,
+                    ),
+                )
+                // 3. Implode — correct swatch shrinks to nothing before the next round unfolds
+                celebrateScale.animateTo(
+                    targetValue = 0f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessHigh,
                     ),
                 )
             }

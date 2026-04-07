@@ -280,7 +280,7 @@ class ThresholdViewModel(
             STREAK_MILESTONE_10 -> STREAK_MILESTONE_10
             else -> 0
         }
-        val streakBonus = if (streakMilestone == STREAK_MILESTONE_10) STREAK_10_BONUS else 0
+        val streakBonus = if (streakMilestone == STREAK_MILESTONE_10) GameRewardRates.THRESHOLD_STREAK_10_BONUS else 0
 
         hapticEngine.perform(HapticType.CorrectTap)
 
@@ -530,8 +530,6 @@ class ThresholdViewModel(
         const val ANIMATION_PERCEPTION_WALL_MS = 2500L
         const val MILESTONE_HAPTIC_DELAY_MS = 200L
 
-        /** Gem bonus awarded when the player lands their 10th consecutive correct tap. */
-        const val STREAK_10_BONUS = 15
         const val STREAK_MILESTONE_5 = 5
         const val STREAK_MILESTONE_10 = 10
     }
