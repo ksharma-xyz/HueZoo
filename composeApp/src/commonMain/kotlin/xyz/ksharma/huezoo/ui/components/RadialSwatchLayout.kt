@@ -55,6 +55,9 @@ import xyz.ksharma.huezoo.ui.theme.ShieldSwatch
 import xyz.ksharma.huezoo.ui.theme.SquircleMedium
 import xyz.ksharma.huezoo.ui.theme.SquircleSmall
 import xyz.ksharma.huezoo.ui.theme.SwatchPetal
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.random.Random
 
 // ── Active swatch size ────────────────────────────────────────────────────────
@@ -469,22 +472,32 @@ private fun RadialTile(
                 // Time-based fade: start dissolving at t=0.5, fully gone at t=1.0
                 val timeFade = (1f - ((t - 0.5f) / 0.5f).coerceIn(0f, 1f))
 
+                // Screen-space fall direction in canvas-local coords.
+                // The canvas is rotated by angleDeg, so to fall screen-down we
+                // apply the inverse rotation: canvas_down = (sin θ, cos θ).
+                val angleRad = angleDeg * (PI / 180.0).toFloat()
+                val sinA = sin(angleRad)
+                val cosA = cos(angleRad)
+                val fallMag = size.height * SHARD_FALL_DISTANCE * gravityT
+
                 capturedShards.forEach { shard ->
-                    val fallY = size.height * SHARD_FALL_DISTANCE * gravityT
-                    val driftX = shard.driftX * size.width * SHARD_DRIFT * t
+                    val driftMag = shard.driftX * size.width * SHARD_DRIFT * t
+                    // Canvas-local displacement → screen-space down + lateral drift
+                    val dx = sinA * fallMag + cosA * driftMag
+                    val dy = cosA * fallMag - sinA * driftMag
                     val spin = shard.spinDir * SHARD_SPIN_DEGREES * t
 
                     val centroidPx = Offset(
-                        shard.centroid.x * size.width + driftX,
-                        shard.centroid.y * size.height + fallY,
+                        shard.centroid.x * size.width + dx,
+                        shard.centroid.y * size.height + dy,
                     )
 
                     // Parallelogram quad path — 4 vertices
                     val path = Path().apply {
-                        moveTo(shard.p0.x * size.width + driftX, shard.p0.y * size.height + fallY)
-                        lineTo(shard.p1.x * size.width + driftX, shard.p1.y * size.height + fallY)
-                        lineTo(shard.p2.x * size.width + driftX, shard.p2.y * size.height + fallY)
-                        lineTo(shard.p3.x * size.width + driftX, shard.p3.y * size.height + fallY)
+                        moveTo(shard.p0.x * size.width + dx, shard.p0.y * size.height + dy)
+                        lineTo(shard.p1.x * size.width + dx, shard.p1.y * size.height + dy)
+                        lineTo(shard.p2.x * size.width + dx, shard.p2.y * size.height + dy)
+                        lineTo(shard.p3.x * size.width + dx, shard.p3.y * size.height + dy)
                         close()
                     }
 
