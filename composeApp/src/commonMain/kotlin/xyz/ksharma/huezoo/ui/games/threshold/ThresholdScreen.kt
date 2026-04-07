@@ -66,6 +66,7 @@ import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
 import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
+import xyz.ksharma.huezoo.ui.model.estimatedPerceptionTier
 import xyz.ksharma.huezoo.ui.theme.HeartLife
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
@@ -250,6 +251,13 @@ private fun PlayingContent(
         Spacer(Modifier.height(HuezooSpacing.xl))
 
         DeltaEBadge(deltaE = state.deltaE)
+
+        // Perception tier label — updates live as ΔE changes
+        HuezooLabelSmall(
+            text = estimatedPerceptionTier(state.deltaE).rankLabel,
+            color = HuezooColors.TextSecondary,
+            fontWeight = FontWeight.Bold,
+        )
 
         Spacer(Modifier.height(HuezooSpacing.sm))
 

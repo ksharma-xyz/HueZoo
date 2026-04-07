@@ -77,7 +77,7 @@ Open app
 - [x] UX.6.2 Leaderboard button: shows graceful "Signal Offline" placeholder for paid users — not broken, acceptable for v1
 
 ### UX.7 — Directional Feedback ⬜
-- [ ] UX.7.2 ΔE tier label in HUD (below ΔE chip): "BEGINNER / TRAINING / SHARP / EXPERT / ELITE"
+- [x] UX.7.2 ΔE tier label in HUD (below ΔE chip): live `estimatedPerceptionTier(deltaE).rankLabel` shown below `DeltaEBadge`
 - [ ] UX.7.3 Tier-change animation: brief pulse when ΔE crosses a tier boundary
 - [ ] UX.7.4 First-round tooltip: "Lower ΔE = harder to spot" — one-time, dismisses on first tap
 - [ ] UX.7.5 Daily: per-round base color variety — each round seeds a different base color
@@ -101,8 +101,8 @@ Open app
 - [ ] UX.12.4 Streak counter in HUD (appears after first correct tap, gone on wrong)
 
 ### UX.13 — Result Polish ⬜
-- [ ] UX.13.1 "NEW PERSONAL BEST" badge on ΔE stat card
-- [ ] UX.13.2 ΔE tier name on result (e.g. "EXPERT" badge alongside ΔE value)
+- [x] UX.13.1 "NEW PERSONAL BEST" badge on ΔE stat card (was already implemented)
+- [x] UX.13.2 Perception tier badge on result (rankLabel + description row below StingReadout)
 - [ ] UX.13.3 Neon border redesign — Result screen gets a neon rectangular border
       inspired by the `docs/ideas/screen.png` promo art (cyan/magenta/yellow glow edges).
       Replaces or augments the current card background. Subtle animated glow on entry.
@@ -166,14 +166,14 @@ Open app
 - [ ] 9.4 Play Store listing — screenshots, description, content rating
 - [ ] 9.5 App Store listing — screenshots, description, review submission
 
-### Phase T — Testing ⬜
-- [ ] T.1 `ColorMath.deltaE()` — round-trip tests vs CIEDE2000 reference values
-- [ ] T.2 `PlayerLevel.fromGems()` — all tier boundaries
-- [ ] T.3 `GameRewardRates` — verify gem rate constants
-- [ ] T.4 `DefaultThresholdGameEngine` — ΔE progression, floor, personal best logic
-- [ ] T.5 `DefaultDailyGameEngine` — correct/wrong round handling, participation + perfect gem, 6-round-always rule
-- [ ] T.6 `ThresholdViewModel` — drive via `onUiEvent()`, verify gem accumulation, milestone bonuses, try budget exhaustion
-- [ ] T.7 `DailyViewModel` — per-round flow, perfect bonus, ΔE-in-result = highest correct round ΔE
+### Phase T — Testing ✅
+- [x] T.1 `ColorMath.deltaE()` — round-trip tests vs CIEDE2000 reference values (`ColorMathTest`)
+- [x] T.2 `PlayerLevel.fromGems()` — all tier boundaries (`PlayerLevelTest`)
+- [x] T.3 `GameRewardRates` — gem rates covered in `ThresholdGemCalculationTest` + `DailyGemCalculationTest`
+- [x] T.4 `DefaultThresholdGameEngine` — swatch count, oddIndex, ΔE accuracy, determinism (`DefaultThresholdGameEngineTest`)
+- [x] T.5 `DefaultDailyGameEngine` — deltaECurve, round generation, determinism (`DefaultDailyGameEngineTest`)
+- [x] T.6 `ThresholdViewModel` — ΔE progression, milestones, gem accumulation, attempt window (`ThresholdDeltaEProgressionTest`, `ThresholdGemCalculationTest`, `ThresholdAttemptWindowTest`)
+- [x] T.7 `DailyViewModel` — per-round flow, gem breakdown, streak, personal best (`DailyGemCalculationTest`, `DailyStreakAndPersonalBestTest`)
 - [x] T.8 Attempt window — 8h window logic, free vs paid caps, expiry reset (`ThresholdAttemptWindowTest`)
 - [x] T.8.1 Bonus try availability — `bonusTries > 0` when base exhausted → Available (regression for double-shrink formula)
 - [x] T.8.2 Earn→play→earn cycle — stays Available after second ad reward (exact regression case)

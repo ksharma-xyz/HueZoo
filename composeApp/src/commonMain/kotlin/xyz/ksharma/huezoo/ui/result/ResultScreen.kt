@@ -86,6 +86,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
+import xyz.ksharma.huezoo.ui.model.estimatedPerceptionTier
 import xyz.ksharma.huezoo.ui.result.state.ResultUiState
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
@@ -336,6 +337,32 @@ private fun ReadyContent(
             onClick = { showDeltaESheet = true },
             modifier = Modifier.fillMaxWidth(),
         )
+
+        // ── 3b. Perception tier badge ─────────────────────────────────────────
+        val tier = estimatedPerceptionTier(state.deltaE)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = HuezooSpacing.xs),
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(tier.color.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                    .padding(horizontal = HuezooSpacing.xs, vertical = 2.dp),
+            ) {
+                HuezooLabelSmall(
+                    text = tier.rankLabel,
+                    color = tier.color,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+            }
+            HuezooLabelSmall(
+                text = tier.description,
+                color = HuezooColors.TextSecondary,
+            )
+        }
 
         Spacer(Modifier.height(HuezooSpacing.sm))
 
