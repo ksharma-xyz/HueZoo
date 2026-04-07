@@ -332,14 +332,15 @@ class ThresholdViewModel(
             }
             playerState.updateGems(totalGems)
 
-            // Check if this correct tap hit the perception wall (ΔE already at floor).
-            // Award the legendary bonus once per session and end the life triumphantly.
-            if (currentDeltaE <= ThresholdGameEngine.MIN_DELTA_E && !hitPerceptionWall) {
-                hitPerceptionWall = true
-                totalGems = settingsRepository.addGems(GameRewardRates.THRESHOLD_PERCEPTION_WALL)
-                sessionGems += GameRewardRates.THRESHOLD_PERCEPTION_WALL
-                playerState.updateGems(totalGems)
-
+            // Check if this correct tap hit the perception wall (ΔE at floor).
+            // The life ALWAYS ends at MIN_DELTA_E — the bonus is awarded only once per session.
+            if (currentDeltaE <= ThresholdGameEngine.MIN_DELTA_E) {
+                if (!hitPerceptionWall) {
+                    hitPerceptionWall = true
+                    totalGems = settingsRepository.addGems(GameRewardRates.THRESHOLD_PERCEPTION_WALL)
+                    sessionGems += GameRewardRates.THRESHOLD_PERCEPTION_WALL
+                    playerState.updateGems(totalGems)
+                }
                 (_uiState.value as? ThresholdUiState.Playing)?.let {
                     _uiState.value = it.copy(
                         roundPhase = RoundPhase.PerceptionWall,

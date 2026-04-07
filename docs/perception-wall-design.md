@@ -2,7 +2,7 @@
 
 *Feature: what happens when a player correctly identifies ΔE = 0.1 (the floor)*
 
-Status: **Designed, not yet built** (April 2026)
+Status: **Implemented — Phases 1–3 complete** (April 2026)
 
 ---
 
@@ -140,11 +140,29 @@ Result screen reads this flag to conditionally show the neon border.
 
 ---
 
+## Multi-wall sessions (clarification added April 2026)
+
+A player can reach MIN_DELTA_E in more than one try within a single session:
+
+- **Life always ends at MIN_DELTA_E** — regardless of whether `hitPerceptionWall`
+  is already `true`. The player is never stuck in an infinite loop at ΔE 0.1.
+- **5 000-gem bonus is awarded at most once per session** — even if the player
+  reaches MIN_DELTA_E in every try. The first wall hit sets `hitPerceptionWall = true`;
+  subsequent wall hits skip the gem award but still end the life triumphantly.
+- **`hitPerceptionWall` in `SessionResult`** is `true` for the entire session if the
+  wall was hit at least once; no per-try tracking is stored.
+
+This is covered by `ThresholdPerceptionWallTest` in the test suite.
+
+---
+
 ## Decisions (locked April 2026)
 
 - **Wall consumes a try** — life is over, can't go lower. Rewarded with 5000 gems.
 - **Neon border is always cyan/magenta/yellow** — fixed, iconic, matches promo art.
   Makes the legendary state instantly recognizable regardless of round color.
+  Colors flow *around* the border (phase-shifted sweep gradient); the rectangle
+  itself never rotates.
 - **Eagle appears at ΔE < 0.5** — not only at the exact floor. The 0.5 crossing
   is where human perception ends; Eagle marks that whole territory.
 - **`hitPerceptionWall` leaderboard badge** — persist to DB, future work.
