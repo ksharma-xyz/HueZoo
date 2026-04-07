@@ -118,10 +118,11 @@ class DefaultColorEngine(private val random: Random = Random.Default) : ColorEng
 
     // ─── Deterministic Daily Color ────────────────────────────────────────────
 
-    override fun seededColorForDate(date: LocalDate): Color {
-        val seed = date.year.toLong() * 10_000L +
+    override fun seededColorForDate(date: LocalDate, roundIndex: Int): Color {
+        val daySeed = date.year.toLong() * 10_000L +
             (date.month.ordinal + 1).toLong() * 100L +
             date.day.toLong()
+        val seed = daySeed * 100L + roundIndex
 
         val hue = lcgHash(seed, multiplier = LCG_MULT_HUE, increment = LCG_INC_HUE)
             .let { abs(it) / LCG_MAX.toFloat() * 360f }

@@ -80,9 +80,6 @@ class DailyViewModel(
     private var roundGeneration = 0
     private var lastLayoutStyle: SwatchLayoutStyle? = null
 
-    // Current player level — loaded on game start; drives hue exclusion for base colors.
-    private var playerLevel: PlayerLevel = PlayerLevel.Rookie
-
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init {
@@ -133,8 +130,7 @@ class DailyViewModel(
             } else {
                 totalGems = settingsRepository.getGems()
                 playerState.updateGems(totalGems)
-                playerLevel = PlayerLevel.fromGems(totalGems)
-                emitRound(colorEngine.randomVividColorExcluding(playerLevel.levelHue))
+                emitRound(colorEngine.seededColorForDate(date, roundIndex))
             }
         }
     }
@@ -209,7 +205,7 @@ class DailyViewModel(
                 }
                 delay(ANIMATION_FOLD_MS)
                 roundIndex++
-                emitRound(colorEngine.randomVividColorExcluding(playerLevel.levelHue))
+                emitRound(colorEngine.seededColorForDate(today, roundIndex))
             }
         }
     }
@@ -240,7 +236,7 @@ class DailyViewModel(
                 }
                 delay(ANIMATION_FOLD_MS)
                 roundIndex++
-                emitRound(colorEngine.randomVividColorExcluding(playerLevel.levelHue))
+                emitRound(colorEngine.seededColorForDate(today, roundIndex))
             }
         }
     }
