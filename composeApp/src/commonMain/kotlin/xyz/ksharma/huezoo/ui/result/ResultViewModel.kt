@@ -85,7 +85,12 @@ class ResultViewModel(
             isPaid = isPaid,
             levelUpTo = sessionResult.levelUpTo,
             priceLabel = priceLabel,
-            isLegendaryResult = sessionResult.hitPerceptionWall,
+            isLegendaryResult = sessionResult.hitPerceptionWall || sessionResult.deltaE <= LEGENDARY_DELTA_E_THRESHOLD,
         )
+    }
+
+    companion object {
+        /** Session best ΔE at or below this value triggers the legendary neon border on the result screen. */
+        const val LEGENDARY_DELTA_E_THRESHOLD = 1.0f
     }
 }
