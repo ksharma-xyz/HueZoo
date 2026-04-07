@@ -10,6 +10,8 @@ edit_uri: ""
 theme:
   name: material
   custom_dir: overrides
+  favicon: assets/huezoo-icon.png
+  logo: assets/huezoo-icon.png
   palette:
     scheme: slate
     primary: black
@@ -25,6 +27,9 @@ theme:
     - content.code.copy
   icon:
     repo: fontawesome/brands/github
+
+extra_css:
+  - assets/extra.css
 
 plugins:
   - search
