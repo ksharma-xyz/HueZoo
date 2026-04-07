@@ -9,7 +9,7 @@ fun initMobileAds(context: Context) {
     MobileAds.setRequestConfiguration(
         RequestConfiguration.Builder()
             .setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_G)
-            .build()
+            .build(),
     )
     MobileAds.initialize(context)
 }
