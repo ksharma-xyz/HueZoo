@@ -4,7 +4,10 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -110,6 +113,9 @@ private val BannerAdReservedHeight = 56.dp
 private val StatIconSize = 28.dp
 private val CardShelfHeight = 4.dp
 
+// ΔE below which the rotating neon border is shown — elite perception territory (UX.13.3)
+private const val NEON_BORDER_DELTA_E_THRESHOLD = 1.0f
+
 @Composable
 fun ResultScreen(
     gameId: String,
@@ -164,6 +170,14 @@ fun ResultScreen(
             Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
                 BannerAd(adUnitId = AdIds.banner)
             }
+        }
+
+        // UX.13.3: Rotating neon border — only when the player hit ΔE < 1.0 (elite perception).
+        // Permanent animation: cyan → magenta → yellow → cyan cycling every 4 s.
+        // Drawn last so it sits on top of all content without clipping it — the border
+        // is inset from the screen edges so nothing is covered.
+        if (readyState != null && readyState.deltaE < NEON_BORDER_DELTA_E_THRESHOLD) {
+            NeonScreenBorder(modifier = Modifier.fillMaxSize())
         }
     }
 }
@@ -1051,6 +1065,84 @@ private data class ConfettiParticle(
     val sizeDp: Float,
     val shape: ConfettiShape,
 )
+
+// ── UX.13.3: Rotating neon border ────────────────────────────────────────────
+
+/**
+ * Full-screen rotating neon border shown on the result screen when the player achieved
+ * ΔE < 1.0 (elite perception territory).
+ *
+ * Renders as three concentric strokes (outer glow → mid bloom → inner crisp) drawn on a
+ * [Canvas] that fills the screen. A [rememberInfiniteTransition] rotates a
+ * [Brush.sweepGradient] — cyan → magenta → yellow → cyan — creating an eternal colour-cycling
+ * halo. The border is inset from the physical screen edges so it never clips any content;
+ * the large corner radius makes the glow bleed visibly inward for a "legendary frame" effect.
+ */
+@Composable
+private fun NeonScreenBorder(modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "neonBorder")
+    val angle by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(tween(durationMillis = 4_000, easing = LinearEasing)),
+        label = "neonBorderAngle",
+    )
+
+    val cyan = HuezooColors.AccentCyan
+    val magenta = HuezooColors.AccentMagenta
+    val yellow = HuezooColors.AccentYellow
+
+    Canvas(modifier = modifier) {
+        val insetPx = NEON_BORDER_INSET_DP * density
+        val cornerPx = NEON_BORDER_CORNER_DP * density
+        val drawTopLeft = Offset(insetPx, insetPx)
+        val drawSize = Size(size.width - insetPx * 2, size.height - insetPx * 2)
+        val centre = Offset(size.width / 2, size.height / 2)
+
+        withTransform({ rotate(angle, centre) }) {
+            val brush = Brush.sweepGradient(
+                colors = listOf(cyan, magenta, yellow, cyan),
+                center = centre,
+            )
+            // Outer glow — widest stroke, low alpha for soft bloom
+            drawRoundRect(
+                brush = brush,
+                topLeft = drawTopLeft,
+                size = drawSize,
+                cornerRadius = CornerRadius(cornerPx),
+                style = Stroke(width = NEON_BORDER_OUTER_STROKE_PX),
+                alpha = NEON_BORDER_OUTER_ALPHA,
+            )
+            // Mid bloom — narrows the glow
+            drawRoundRect(
+                brush = brush,
+                topLeft = drawTopLeft,
+                size = drawSize,
+                cornerRadius = CornerRadius(cornerPx),
+                style = Stroke(width = NEON_BORDER_MID_STROKE_PX),
+                alpha = NEON_BORDER_MID_ALPHA,
+            )
+            // Inner crisp line — sharp edge of the border
+            drawRoundRect(
+                brush = brush,
+                topLeft = drawTopLeft,
+                size = drawSize,
+                cornerRadius = CornerRadius(cornerPx),
+                style = Stroke(width = NEON_BORDER_INNER_STROKE_PX),
+                alpha = NEON_BORDER_INNER_ALPHA,
+            )
+        }
+    }
+}
+
+private const val NEON_BORDER_INSET_DP = 6f
+private const val NEON_BORDER_CORNER_DP = 44f
+private const val NEON_BORDER_OUTER_STROKE_PX = 32f
+private const val NEON_BORDER_MID_STROKE_PX = 12f
+private const val NEON_BORDER_INNER_STROKE_PX = 3.5f
+private const val NEON_BORDER_OUTER_ALPHA = 0.22f
+private const val NEON_BORDER_MID_ALPHA = 0.52f
+private const val NEON_BORDER_INNER_ALPHA = 0.92f
 
 @Composable
 private fun ConfettiEffect(

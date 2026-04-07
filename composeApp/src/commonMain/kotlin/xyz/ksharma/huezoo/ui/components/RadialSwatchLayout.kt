@@ -147,6 +147,10 @@ private const val NEON_OUTER_STROKE_PX = 12f
 private const val NEON_INNER_STROKE_PX = 6f
 private const val NEON_OUTER_ALPHA = 0.30f
 
+// DEBUG ONLY — debug odd-swatch border constants. Only used when SwatchUiModel.isDebugOdd = true.
+private const val DEBUG_ODD_STROKE_PX = 4f
+private const val DEBUG_ODD_ALPHA = 0.55f
+
 // ── Public composable ─────────────────────────────────────────────────────────
 
 /**
@@ -250,6 +254,7 @@ fun RadialSwatchLayout(
                 enabled = roundPhase == RoundPhase.Idle &&
                     swatch.displayState == SwatchDisplayState.Default,
                 onClick = { onSwatchTap(idx) },
+                isDebugOdd = swatch.isDebugOdd,
             )
         }
     }
@@ -257,6 +262,7 @@ fun RadialSwatchLayout(
 
 // ── Single tile ───────────────────────────────────────────────────────────────
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 private fun RadialTile(
     color: Color,
@@ -268,6 +274,9 @@ private fun RadialTile(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    // DEBUG ONLY — always false in release builds. Renders a subtle white border
+    // on this tile so manual testers can identify the correct answer without guessing.
+    isDebugOdd: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -398,6 +407,28 @@ private fun RadialTile(
                         is Outline.Rectangle -> drawRect(
                             color = bc,
                             style = Stroke(width = NEON_INNER_STROKE_PX),
+                        )
+                    }
+                }
+
+                // DEBUG ONLY: dim white border that marks the odd (correct) tile.
+                // Visible only when isDebugOdd = true, which the ViewModel sets exclusively
+                // in debug builds (PlatformOps.isDebugBuild). Never rendered in release.
+                if (isDebugOdd && displayState == SwatchDisplayState.Default) {
+                    when (val outline = shape.createOutline(this.size, layoutDirection, this)) {
+                        is Outline.Generic -> drawPath(
+                            path = outline.path,
+                            color = Color.White.copy(alpha = DEBUG_ODD_ALPHA),
+                            style = Stroke(width = DEBUG_ODD_STROKE_PX),
+                        )
+                        is Outline.Rounded -> drawRoundRect(
+                            color = Color.White.copy(alpha = DEBUG_ODD_ALPHA),
+                            cornerRadius = outline.roundRect.topLeftCornerRadius,
+                            style = Stroke(width = DEBUG_ODD_STROKE_PX),
+                        )
+                        is Outline.Rectangle -> drawRect(
+                            color = Color.White.copy(alpha = DEBUG_ODD_ALPHA),
+                            style = Stroke(width = DEBUG_ODD_STROKE_PX),
                         )
                     }
                 }

@@ -3,8 +3,11 @@
 package xyz.ksharma.huezoo.ui.games.threshold
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -28,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -60,6 +64,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTitleMedium
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
+import xyz.ksharma.huezoo.ui.components.SwatchShapeProgressRing
 import xyz.ksharma.huezoo.ui.components.ThresholdHelpSheet
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdNavEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
@@ -195,143 +200,268 @@ fun ThresholdScreen(
     }
 }
 
+@Suppress("LongMethod")
 @Composable
 private fun PlayingContent(
     state: ThresholdUiState.Playing,
     onSwatchTap: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(HuezooSpacing.md),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Spacer(Modifier.height(HuezooSpacing.sm))
+    // ── UX.12: Streak milestone banner ────────────────────────────────────────
+    // One-shot event: streakMilestone is 5 or 10 in the Correct phase copy only;
+    // 0 every other time. Show the banner for 1.8 s then hide.
+    var showStreakBanner by remember { mutableStateOf(false) }
+    var bannerMilestone by remember { mutableIntStateOf(0) }
+    LaunchedEffect(state.streakMilestone) {
+        if (state.streakMilestone > 0) {
+            bannerMilestone = state.streakMilestone
+            showStreakBanner = true
+            delay(1800L)
+            showStreakBanner = false
+        }
+    }
+    val streakBannerAlpha by animateFloatAsState(
+        targetValue = if (showStreakBanner) 1f else 0f,
+        animationSpec = tween(300),
+        label = "streakBannerAlpha",
+    )
 
-        val accent = LocalPlayerAccentColor.current
-        // ── Header row: title left, lives hearts right ────────────────────────
-        // FlowRow so the title can wrap to a second line at large font scales
-        // while hearts always sit at the trailing end of the first line.
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            HuezooTitleMedium(
-                text = "IDENTIFY  THE  OUTLIER",
-                color = accent,
-                fontWeight = FontWeight.ExtraBold,
+    // ── UX.9.3: Gem float-up ─────────────────────────────────────────────────
+    // Detects when totalGems increases, shows "+N 💎" floating upward from the badge.
+    var gemFloatDelta by remember { mutableIntStateOf(0) }
+    var gemFloatVisible by remember { mutableStateOf(false) }
+    val gemFloatOffsetY = remember { Animatable(0f) }
+    val gemFloatAlpha = remember { Animatable(0f) }
+    var prevGems by remember { mutableStateOf(state.totalGems) }
+    LaunchedEffect(state.totalGems) {
+        val delta = state.totalGems - prevGems
+        prevGems = state.totalGems
+        if (delta > 0) {
+            gemFloatDelta = delta
+            gemFloatOffsetY.snapTo(0f)
+            gemFloatAlpha.snapTo(1f)
+            gemFloatVisible = true
+            // Float upward (600 ms), then fade out (200 ms)
+            gemFloatOffsetY.animateTo(-72f, tween(600, easing = FastOutSlowInEasing))
+            gemFloatAlpha.animateTo(0f, tween(200))
+            gemFloatVisible = false
+        }
+    }
+
+    // ── UX.7.3: Tier-change pulse ─────────────────────────────────────────────
+    // Snaps the tier label to 1.25× then springs back to 1× when the tier changes.
+    val currentTier = estimatedPerceptionTier(state.deltaE)
+    val tierPulseScale = remember { Animatable(1f) }
+    var prevTier by remember { mutableStateOf<Any?>(null) }
+    LaunchedEffect(currentTier) {
+        if (prevTier != null && prevTier != currentTier) {
+            tierPulseScale.snapTo(1.28f)
+            tierPulseScale.animateTo(
+                1f,
+                spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessMedium),
             )
+        }
+        prevTier = currentTier
+    }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
-                repeat(state.maxAttempts) { index ->
-                    val isRemaining = index < state.attemptsRemaining
-                    val fillColor by animateColorAsState(
-                        targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
-                        animationSpec = tween(300),
-                        label = "lifeHeart_$index",
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(HEART_SIZE)
-                            .border(
-                                width = 1.5.dp,
-                                color = accent.copy(alpha = 0.4f),
-                                shape = HeartLife,
-                            )
-                            .background(fillColor, HeartLife),
+    Box(modifier = modifier) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(HuezooSpacing.md),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(Modifier.height(HuezooSpacing.sm))
+
+            val accent = LocalPlayerAccentColor.current
+            // ── Header row: title left, lives hearts right ────────────────────
+            // FlowRow so the title can wrap to a second line at large font scales
+            // while hearts always sit at the trailing end of the first line.
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                HuezooTitleMedium(
+                    text = "IDENTIFY  THE  OUTLIER",
+                    color = accent,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+
+                Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
+                    repeat(state.maxAttempts) { index ->
+                        val isRemaining = index < state.attemptsRemaining
+                        val fillColor by animateColorAsState(
+                            targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
+                            animationSpec = tween(300),
+                            label = "lifeHeart_$index",
+                        )
+                        Box(
+                            modifier = Modifier
+                                .size(HEART_SIZE)
+                                .border(
+                                    width = 1.5.dp,
+                                    color = accent.copy(alpha = 0.4f),
+                                    shape = HeartLife,
+                                )
+                                .background(fillColor, HeartLife),
+                        )
+                    }
+                }
+            }
+
+            // ── ΔE hero — generous space above so it feels like a stage ──────
+            Spacer(Modifier.height(HuezooSpacing.xl))
+
+            // UX.9.3: Gem float-up anchored above the DeltaEBadge
+            Box(contentAlignment = Alignment.TopCenter) {
+                DeltaEBadge(deltaE = state.deltaE)
+                if (gemFloatVisible) {
+                    Text(
+                        text = "+$gemFloatDelta 💎",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.ExtraBold),
+                        color = HuezooColors.GemGreen,
+                        modifier = Modifier.graphicsLayer {
+                            translationY = gemFloatOffsetY.value
+                            alpha = gemFloatAlpha.value
+                        },
                     )
                 }
             }
-        }
 
-        // ── ΔE hero — generous space above so it feels like a stage ──────────
-        Spacer(Modifier.height(HuezooSpacing.xl))
-
-        DeltaEBadge(deltaE = state.deltaE)
-
-        // Perception tier label — updates live as ΔE changes
-        HuezooLabelSmall(
-            text = estimatedPerceptionTier(state.deltaE).rankLabel,
-            color = HuezooColors.TextSecondary,
-            fontWeight = FontWeight.Bold,
-        )
-
-        Spacer(Modifier.height(HuezooSpacing.sm))
-
-        // SESSION BEST — fades in after first correct tap, stays for the session
-        val bestAlpha by animateFloatAsState(
-            targetValue = if (state.sessionBestDeltaE != null) 1f else 0f,
-            animationSpec = tween(durationMillis = 400),
-            label = "bestDeltaEAlpha",
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.graphicsLayer { alpha = bestAlpha },
-        ) {
-            HuezooLabelSmall(text = "SESSION BEST", color = HuezooColors.TextSecondary)
+            // UX.7.3: Tier label with bounce-pulse on tier change
             HuezooLabelSmall(
-                text = state.sessionBestDeltaE?.fmt() ?: "--",
-                color = HuezooColors.AccentGreen,
+                text = currentTier.rankLabel,
+                color = HuezooColors.TextSecondary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.graphicsLayer {
+                    scaleX = tierPulseScale.value
+                    scaleY = tierPulseScale.value
+                },
             )
+
+            // UX.7.4: First-round tooltip — fades out after first correct tap
+            val tooltipAlpha by animateFloatAsState(
+                targetValue = if (state.tap == 1 && state.roundPhase == RoundPhase.Idle) 1f else 0f,
+                animationSpec = tween(500),
+                label = "tooltipAlpha",
+            )
+            HuezooLabelSmall(
+                text = "Lower ΔE = harder to spot",
+                color = HuezooColors.TextSecondary.copy(alpha = 0.55f),
+                modifier = Modifier.graphicsLayer { alpha = tooltipAlpha },
+            )
+
+            Spacer(Modifier.height(HuezooSpacing.sm))
+
+            // SESSION BEST — fades in after first correct tap, stays for the session
+            val bestAlpha by animateFloatAsState(
+                targetValue = if (state.sessionBestDeltaE != null) 1f else 0f,
+                animationSpec = tween(durationMillis = 400),
+                label = "bestDeltaEAlpha",
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.graphicsLayer { alpha = bestAlpha },
+            ) {
+                HuezooLabelSmall(text = "SESSION BEST", color = HuezooColors.TextSecondary)
+                HuezooLabelSmall(
+                    text = state.sessionBestDeltaE?.fmt() ?: "--",
+                    color = HuezooColors.AccentGreen,
+                )
+            }
+
+            Spacer(Modifier.height(HuezooSpacing.md))
+
+            // ── Fixed-height feedback slot ────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(FEEDBACK_SLOT_HEIGHT),
+                contentAlignment = Alignment.Center,
+            ) {
+                val correctAlpha by animateFloatAsState(
+                    targetValue = if (state.roundPhase == RoundPhase.Correct) 1f else 0f,
+                    animationSpec = tween(durationMillis = 160),
+                    label = "feedbackCorrectAlpha",
+                )
+                Text(
+                    text = "↓ ΔE ${state.deltaE.fmt()} — SHARPER",
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = HuezooColors.AccentGreen,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    modifier = Modifier.graphicsLayer { alpha = correctAlpha },
+                )
+
+                val wrongAlpha by animateFloatAsState(
+                    targetValue = if (state.roundPhase == RoundPhase.Wrong) 1f else 0f,
+                    animationSpec = tween(durationMillis = 160),
+                    label = "feedbackWrongAlpha",
+                )
+                Text(
+                    text = state.stingCopy.orEmpty(),
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = HuezooColors.AccentMagenta,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.graphicsLayer { alpha = wrongAlpha },
+                )
+            }
+
+            // Flex gap — pushes swatch toward centre/slightly below rather than
+            // cramming it directly under the feedback line.
+            Spacer(Modifier.height(HuezooSpacing.md))
+
+            // ── UX.12: Swatch ring + radial layout stacked ────────────────────
+            // SwatchShapeProgressRing sits behind the real tiles; ghost shapes fill
+            // as the streak climbs through milestones [1, 3, 6, 10, 15, 21].
+            Box(contentAlignment = Alignment.Center) {
+                SwatchShapeProgressRing(
+                    layoutStyle = state.layoutStyle,
+                    correctStreak = state.streakCount,
+                    roundPhase = state.roundPhase,
+                )
+                RadialSwatchLayout(
+                    swatches = state.swatches,
+                    roundPhase = state.roundPhase,
+                    roundKey = state.roundGeneration,
+                    layoutStyle = state.layoutStyle,
+                    onSwatchTap = onSwatchTap,
+                )
+            }
+
+            Spacer(Modifier.height(HuezooSpacing.md))
         }
 
-        Spacer(Modifier.height(HuezooSpacing.md))
-
-        // ── Fixed-height feedback slot ────────────────────────────────────────
+        // ── UX.12: Streak milestone banner ────────────────────────────────────
+        // Centred overlay that appears for 1.8 s on 5× or 10× streak milestones.
+        // Uses alpha animation so it fades in/out without layout shifts.
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(FEEDBACK_SLOT_HEIGHT),
+                .align(Alignment.Center)
+                .graphicsLayer { alpha = streakBannerAlpha },
             contentAlignment = Alignment.Center,
         ) {
-            val correctAlpha by animateFloatAsState(
-                targetValue = if (state.roundPhase == RoundPhase.Correct) 1f else 0f,
-                animationSpec = tween(durationMillis = 160),
-                label = "feedbackCorrectAlpha",
-            )
-            Text(
-                text = "↓ ΔE ${state.deltaE.fmt()} — SHARPER",
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = HuezooColors.AccentGreen,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                modifier = Modifier.graphicsLayer { alpha = correctAlpha },
-            )
-
-            val wrongAlpha by animateFloatAsState(
-                targetValue = if (state.roundPhase == RoundPhase.Wrong) 1f else 0f,
-                animationSpec = tween(durationMillis = 160),
-                label = "feedbackWrongAlpha",
-            )
-            Text(
-                text = state.stingCopy.orEmpty(),
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = HuezooColors.AccentMagenta,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.graphicsLayer { alpha = wrongAlpha },
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
+                modifier = Modifier
+                    .background(HuezooColors.Background.copy(alpha = 0.82f))
+                    .padding(horizontal = HuezooSpacing.xl, vertical = HuezooSpacing.md),
+            ) {
+                Text(text = "🔥", fontSize = 44.sp)
+                HuezooLabelSmall(
+                    text = "$bannerMilestone× STREAK!",
+                    color = HuezooColors.AccentYellow,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+            }
         }
-
-        // Flex gap — pushes swatch toward centre/slightly below rather than
-        // cramming it directly under the feedback line.
-        Spacer(Modifier.height(HuezooSpacing.md))
-
-        // ── Radial swatch layout ──────────────────────────────────────────────
-        RadialSwatchLayout(
-            swatches = state.swatches,
-            roundPhase = state.roundPhase,
-            roundKey = state.roundGeneration,
-            layoutStyle = state.layoutStyle,
-            onSwatchTap = onSwatchTap,
-        )
-
-        Spacer(Modifier.height(HuezooSpacing.md))
     }
 }
 

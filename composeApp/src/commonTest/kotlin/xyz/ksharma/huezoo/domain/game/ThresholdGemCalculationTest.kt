@@ -14,6 +14,7 @@ import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine.Companion.MAX_ATTEMPTS
 import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
 import xyz.ksharma.huezoo.testutil.FakeHapticEngine
+import xyz.ksharma.huezoo.testutil.FakePlatformOps
 import xyz.ksharma.huezoo.testutil.FakeSettingsRepository
 import xyz.ksharma.huezoo.testutil.FakeThresholdGameEngine
 import xyz.ksharma.huezoo.testutil.FakeThresholdRepository
@@ -74,6 +75,7 @@ class ThresholdGemCalculationTest {
             hapticEngine = FakeHapticEngine(),
             sessionResultCache = cache,
             adOrchestrator = AdOrchestrator(),
+            platformOps = FakePlatformOps(),
         )
         return vm to cache
     }

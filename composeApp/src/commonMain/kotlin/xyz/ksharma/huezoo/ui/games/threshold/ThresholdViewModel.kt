@@ -26,6 +26,7 @@ import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.SessionResult
+import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
 import xyz.ksharma.huezoo.platform.haptics.HapticEngine
 import xyz.ksharma.huezoo.platform.haptics.HapticType
@@ -43,6 +44,7 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
+@Suppress("LongParameterList")
 class ThresholdViewModel(
     private val gameEngine: ThresholdGameEngine,
     private val repository: ThresholdRepository,
@@ -52,6 +54,7 @@ class ThresholdViewModel(
     private val hapticEngine: HapticEngine,
     private val sessionResultCache: SessionResultCache,
     private val adOrchestrator: AdOrchestrator,
+    private val platformOps: PlatformOps,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ThresholdUiState>(ThresholdUiState.Loading)
@@ -123,6 +126,8 @@ class ThresholdViewModel(
      * Cleared on every wrong tap so each new try can earn milestones fresh.
      */
     private val awardedMilestones = mutableSetOf<Float>()
+
+    private var consecutiveCorrect = 0
 
     /**
      * Increments on every [emitRound] call — correct AND wrong-tap-resets.
@@ -214,6 +219,7 @@ class ThresholdViewModel(
         triesRemaining = status.maxAttempts - status.attemptsUsed
         maxAttempts = status.maxAttempts
         awardedMilestones.clear()
+        consecutiveCorrect = 0
         emitRound()
     }
 
@@ -222,7 +228,12 @@ class ThresholdViewModel(
         oddIndex = round.oddIndex
         roundGeneration++
         _uiState.value = ThresholdUiState.Playing(
-            swatches = round.swatches.map { SwatchUiModel(it) },
+            // In debug builds each SwatchUiModel carries isDebugOdd = true on the odd tile so
+            // the UI can render a subtle white border — helps verify the correct swatch during
+            // manual testing. Always false in release builds (platformOps.isDebugBuild = false).
+            swatches = round.swatches.mapIndexed { i, color ->
+                SwatchUiModel(color, isDebugOdd = platformOps.isDebugBuild && i == oddIndex)
+            },
             deltaE = currentDeltaE,
             tap = tapCount,
             attemptsRemaining = triesRemaining,
@@ -232,6 +243,8 @@ class ThresholdViewModel(
             layoutStyle = pickLayoutStyle(),
             roundGeneration = roundGeneration,
             sessionBestDeltaE = bestDeltaE,
+            streakCount = consecutiveCorrect,
+            // streakMilestone defaults to 0 — milestone is a one-shot event set only in handleCorrectTap
         )
     }
 
@@ -247,7 +260,7 @@ class ThresholdViewModel(
         if (index == oddIndex) handleCorrectTap(state) else handleWrongTap(state, tappedIndex = index)
     }
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "CyclomaticComplexMethod")
     private fun handleCorrectTap(state: ThresholdUiState.Playing) {
         bestDeltaE = bestDeltaE?.let { minOf(it, currentDeltaE) } ?: currentDeltaE
 
@@ -261,6 +274,14 @@ class ThresholdViewModel(
         val milestoneBonus = checkAndAwardMilestone(currentDeltaE)
         val gemsThisTap = GameRewardRates.THRESHOLD_CORRECT_TAP + milestoneBonus
 
+        consecutiveCorrect++
+        val streakMilestone = when (consecutiveCorrect) {
+            STREAK_MILESTONE_5 -> STREAK_MILESTONE_5
+            STREAK_MILESTONE_10 -> STREAK_MILESTONE_10
+            else -> 0
+        }
+        val streakBonus = if (streakMilestone == STREAK_MILESTONE_10) STREAK_10_BONUS else 0
+
         hapticEngine.perform(HapticType.CorrectTap)
 
         _uiState.value = state.copy(
@@ -268,6 +289,8 @@ class ThresholdViewModel(
                 if (i == oddIndex) s.copy(displayState = SwatchDisplayState.Correct) else s
             },
             roundPhase = RoundPhase.Correct,
+            streakCount = consecutiveCorrect,
+            streakMilestone = streakMilestone,
         )
         safeLaunch {
             // Milestone thud lands 200 ms after the CorrectTap snap — layered, not simultaneous.
@@ -288,6 +311,13 @@ class ThresholdViewModel(
             sessionGems += gemsThisTap
             sessionTapGems += GameRewardRates.THRESHOLD_CORRECT_TAP
             sessionMilestoneGems += milestoneBonus
+
+            // Streak-10 bonus: awarded once when the player hits 10 consecutive correct taps.
+            if (streakBonus > 0) {
+                totalGems = settingsRepository.addGems(streakBonus)
+                sessionGems += streakBonus
+                sessionMilestoneGems += streakBonus
+            }
 
             // Level-up bonus
             val levelAfter = PlayerLevel.fromGems(totalGems)
@@ -338,6 +368,9 @@ class ThresholdViewModel(
     private fun handleWrongTap(state: ThresholdUiState.Playing, tappedIndex: Int) {
         hapticEngine.perform(HapticType.WrongTap)
 
+        // Streak resets to 0 on every wrong tap — the new try starts fresh.
+        consecutiveCorrect = 0
+
         val sting = wrongStingCopy(currentDeltaE)
         _uiState.value = state.copy(
             swatches = state.swatches.mapIndexed { i, s ->
@@ -349,6 +382,7 @@ class ThresholdViewModel(
             },
             roundPhase = RoundPhase.Wrong,
             stingCopy = sting,
+            streakCount = 0,
         )
         safeLaunch {
             // Timeout so a slow/hanging DB write never permanently locks the game UI
@@ -495,5 +529,10 @@ class ThresholdViewModel(
         const val ANIMATION_FOLD_MS = 520L
         const val ANIMATION_PERCEPTION_WALL_MS = 2500L
         const val MILESTONE_HAPTIC_DELAY_MS = 200L
+
+        /** Gem bonus awarded when the player lands their 10th consecutive correct tap. */
+        const val STREAK_10_BONUS = 15
+        const val STREAK_MILESTONE_5 = 5
+        const val STREAK_MILESTONE_10 = 10
     }
 }
