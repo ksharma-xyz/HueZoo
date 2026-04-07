@@ -244,13 +244,24 @@ private fun PlayingContent(
     ) {
         Spacer(Modifier.height(HuezooSpacing.sm))
 
-        // ── Header: title ─────────────────────────────────────────────────────
-        HuezooTitleMedium(
-            text = "IDENTIFY  THE  OUTLIER",
-            color = accent,
-            fontWeight = FontWeight.ExtraBold,
+        // ── Header: title + lives ─────────────────────────────────────────────
+        Row(
             modifier = Modifier.fillMaxWidth(),
-        )
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            HuezooTitleMedium(
+                text = "IDENTIFY  THE  OUTLIER",
+                color = accent,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.weight(1f),
+            )
+            HeartLife(
+                livesRemaining = state.attemptsRemaining,
+                maxLives = state.maxAttempts,
+                color = accent,
+            )
+        }
 
         // ── ΔE hero ───────────────────────────────────────────────────────────
         Spacer(Modifier.height(HuezooSpacing.xl))
@@ -569,6 +580,47 @@ private fun PerceptionIcon(modifier: Modifier = Modifier) {
         }
     }
 }
+
+// ── Lives indicator ───────────────────────────────────────────────────────────
+
+/**
+ * Row of heart icons showing lives remaining.
+ * Filled hearts = lives left; dimmed hearts = lives spent.
+ */
+@Suppress("MagicNumber")
+@Composable
+private fun HeartLife(
+    livesRemaining: Int,
+    maxLives: Int,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        repeat(maxLives) { index ->
+            val filled = index < livesRemaining
+            Canvas(modifier = Modifier.size(HEART_SIZE)) {
+                val cx = size.width / 2f
+                val cy = size.height / 2f
+                val r = size.width / 2f
+                val path = Path().apply {
+                    moveTo(cx, cy + r * 0.35f)
+                    cubicTo(cx - r, cy - r * 0.15f, cx - r, cy - r * 0.85f, cx - r * 0.5f, cy - r * 0.85f)
+                    cubicTo(cx - r * 0.15f, cy - r * 0.85f, cx, cy - r * 0.5f, cx, cy - r * 0.35f)
+                    cubicTo(cx, cy - r * 0.5f, cx + r * 0.15f, cy - r * 0.85f, cx + r * 0.5f, cy - r * 0.85f)
+                    cubicTo(cx + r, cy - r * 0.85f, cx + r, cy - r * 0.15f, cx, cy + r * 0.35f)
+                    close()
+                }
+                drawPath(path, color, alpha = if (filled) 0.9f else 0.18f)
+            }
+        }
+    }
+}
+
+private val HEART_SIZE = 14.dp
 
 private data class ConfettiPiece(
     val x: Float, // normalized start X (0..1)
