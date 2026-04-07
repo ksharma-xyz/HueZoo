@@ -3,6 +3,7 @@
 package xyz.ksharma.huezoo.ui.games.threshold
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -18,9 +19,11 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,6 +81,7 @@ import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
 import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
+import xyz.ksharma.huezoo.ui.theme.HeartLife
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
@@ -244,23 +248,37 @@ private fun PlayingContent(
     ) {
         Spacer(Modifier.height(HuezooSpacing.sm))
 
-        // ── Header: title + lives ─────────────────────────────────────────────
-        Row(
+        // ── Header row: title left, lives hearts right ────────────────────────
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.Center,
         ) {
             HuezooTitleMedium(
                 text = "IDENTIFY  THE  OUTLIER",
                 color = accent,
                 fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.weight(1f),
             )
-            HeartLife(
-                livesRemaining = state.attemptsRemaining,
-                maxLives = state.maxAttempts,
-                color = accent,
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
+                repeat(state.maxAttempts) { index ->
+                    val isRemaining = index < state.attemptsRemaining
+                    val fillColor by animateColorAsState(
+                        targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
+                        animationSpec = tween(300),
+                        label = "lifeHeart_$index",
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(HEART_SIZE)
+                            .border(
+                                width = 1.5.dp,
+                                color = accent.copy(alpha = 0.4f),
+                                shape = HeartLife,
+                            )
+                            .background(fillColor, HeartLife),
+                    )
+                }
+            }
         }
 
         // ── ΔE hero ───────────────────────────────────────────────────────────
@@ -577,45 +595,6 @@ private fun PerceptionIcon(modifier: Modifier = Modifier) {
                 center = Offset(cx + cos(rad) * r * 0.60f, cy + sin(rad) * r * 0.60f),
                 alpha = 0.65f,
             )
-        }
-    }
-}
-
-// ── Lives indicator ───────────────────────────────────────────────────────────
-
-/**
- * Row of heart icons showing lives remaining.
- * Filled hearts = lives left; dimmed hearts = lives spent.
- */
-@Suppress("MagicNumber")
-@Composable
-private fun HeartLife(
-    livesRemaining: Int,
-    maxLives: Int,
-    color: Color,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        repeat(maxLives) { index ->
-            val filled = index < livesRemaining
-            Canvas(modifier = Modifier.size(HEART_SIZE)) {
-                val cx = size.width / 2f
-                val cy = size.height / 2f
-                val r = size.width / 2f
-                val path = Path().apply {
-                    moveTo(cx, cy + r * 0.35f)
-                    cubicTo(cx - r, cy - r * 0.15f, cx - r, cy - r * 0.85f, cx - r * 0.5f, cy - r * 0.85f)
-                    cubicTo(cx - r * 0.15f, cy - r * 0.85f, cx, cy - r * 0.5f, cx, cy - r * 0.35f)
-                    cubicTo(cx, cy - r * 0.5f, cx + r * 0.15f, cy - r * 0.85f, cx + r * 0.5f, cy - r * 0.85f)
-                    cubicTo(cx + r, cy - r * 0.85f, cx + r, cy - r * 0.15f, cx, cy + r * 0.35f)
-                    close()
-                }
-                drawPath(path, color, alpha = if (filled) 0.9f else 0.18f)
-            }
         }
     }
 }
