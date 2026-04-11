@@ -590,22 +590,22 @@ private fun levelPerks(level: PlayerLevel): List<Pair<String, String>> = when (l
     PlayerLevel.Trained -> listOf(
         "Difficulty" to "Wider gamut",
         "Rewards" to "1.0× GEMS",
-        "Badge" to "Glow frame",
+        "Badge" to "Glow Frame",
     )
     PlayerLevel.Sharp -> listOf(
         "Difficulty" to "Subtle shifts",
         "Rewards" to "1.2× GEMS",
-        "Badge" to "Neon aura",
+        "Badge" to "Neon Aura",
     )
     PlayerLevel.Elite -> listOf(
         "Difficulty" to "Near-invisible",
         "Rewards" to "1.5× GEMS",
-        "Badge" to "Elite insignia",
+        "Badge" to "Elite Insignia",
     )
     PlayerLevel.Master -> listOf(
         "Difficulty" to "Chromatic limits",
         "Rewards" to "2.0× GEMS",
-        "Badge" to "Master crown",
+        "Badge" to "Master Crown",
     )
 }
 

@@ -2,10 +2,21 @@
 
 package xyz.ksharma.huezoo.ui.games.threshold
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -35,6 +47,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -70,6 +85,10 @@ import xyz.ksharma.huezoo.ui.theme.HeartLife
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -186,20 +205,40 @@ fun ThresholdScreen(
             }
         }
 
-        // Perception Wall celebration — full-screen overlay, sits on top of everything.
-        // ViewModel holds this phase for ANIMATION_PERCEPTION_WALL_MS then transitions automatically.
-        if ((uiState as? ThresholdUiState.Playing)?.roundPhase == RoundPhase.PerceptionWall) {
+        // Perception Wall celebration — full-screen overlay with animated enter AND exit.
+        // ViewModel holds this phase for ANIMATION_PERCEPTION_WALL_MS then transitions out.
+        AnimatedVisibility(
+            visible = (uiState as? ThresholdUiState.Playing)?.roundPhase == RoundPhase.PerceptionWall,
+            enter = fadeIn(tween(350)) + scaleIn(tween(500, easing = FastOutSlowInEasing), initialScale = 0.75f),
+            exit = fadeOut(tween(450)) + scaleOut(tween(450, easing = FastOutSlowInEasing), targetScale = 0.88f),
+        ) {
             PerceptionWallOverlay(modifier = Modifier.fillMaxSize())
         }
     }
 }
 
+@Suppress("LongMethod")
 @Composable
 private fun PlayingContent(
     state: ThresholdUiState.Playing,
     onSwatchTap: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // ── UX.12: Streak milestone burst trigger ─────────────────────────────────
+    // streakMilestone is 5 or 10 in the Correct phase copy only; 0 every other time.
+    var showStreakBurst by remember { mutableStateOf(false) }
+    var burstMilestone by remember { mutableIntStateOf(0) }
+    LaunchedEffect(state.streakMilestone) {
+        if (state.streakMilestone > 0) {
+            burstMilestone = state.streakMilestone
+            showStreakBurst = true
+            delay(1800L)
+            showStreakBurst = false
+        }
+    }
+
+    val accent = LocalPlayerAccentColor.current
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -209,10 +248,7 @@ private fun PlayingContent(
     ) {
         Spacer(Modifier.height(HuezooSpacing.sm))
 
-        val accent = LocalPlayerAccentColor.current
         // ── Header row: title left, lives hearts right ────────────────────────
-        // FlowRow so the title can wrap to a second line at large font scales
-        // while hearts always sit at the trailing end of the first line.
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -223,7 +259,6 @@ private fun PlayingContent(
                 color = accent,
                 fontWeight = FontWeight.ExtraBold,
             )
-
             Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
                 repeat(state.maxAttempts) { index ->
                     val isRemaining = index < state.attemptsRemaining
@@ -246,10 +281,22 @@ private fun PlayingContent(
             }
         }
 
-        // ── ΔE hero — generous space above so it feels like a stage ──────────
+        // ── ΔE hero ───────────────────────────────────────────────────────────
         Spacer(Modifier.height(HuezooSpacing.xl))
 
         DeltaEBadge(deltaE = state.deltaE)
+
+        // UX.7.4: First-round tooltip — fades out after first correct tap
+        val tooltipAlpha by animateFloatAsState(
+            targetValue = if (state.tap == 1 && state.roundPhase == RoundPhase.Idle) 1f else 0f,
+            animationSpec = tween(500),
+            label = "tooltipAlpha",
+        )
+        HuezooLabelSmall(
+            text = "Lower ΔE = harder to spot",
+            color = HuezooColors.TextSecondary.copy(alpha = 0.55f),
+            modifier = Modifier.graphicsLayer { alpha = tooltipAlpha },
+        )
 
         Spacer(Modifier.height(HuezooSpacing.sm))
 
@@ -310,18 +357,26 @@ private fun PlayingContent(
             )
         }
 
-        // Flex gap — pushes swatch toward centre/slightly below rather than
-        // cramming it directly under the feedback line.
         Spacer(Modifier.height(HuezooSpacing.md))
 
-        // ── Radial swatch layout ──────────────────────────────────────────────
-        RadialSwatchLayout(
-            swatches = state.swatches,
-            roundPhase = state.roundPhase,
-            roundKey = state.roundGeneration,
-            layoutStyle = state.layoutStyle,
-            onSwatchTap = onSwatchTap,
-        )
+        // ── UX.12: Swatch layout + streak particle burst ──────────────────────
+        // StreakBurstOverlay is a transparent Canvas — doesn't consume touches.
+        Box(contentAlignment = Alignment.Center) {
+            RadialSwatchLayout(
+                swatches = state.swatches,
+                roundPhase = state.roundPhase,
+                roundKey = state.roundGeneration,
+                layoutStyle = state.layoutStyle,
+                onSwatchTap = onSwatchTap,
+            )
+            // Floating particles rise up and fade — no background, no touch blocking
+            StreakBurstOverlay(
+                milestone = burstMilestone,
+                active = showStreakBurst,
+                accentColor = accent,
+                modifier = Modifier.matchParentSize(),
+            )
+        }
 
         Spacer(Modifier.height(HuezooSpacing.md))
     }
@@ -387,50 +442,86 @@ private fun BlockedContent(
 
 /**
  * Full-screen legendary overlay shown when the player correctly identifies at ΔE 0.1.
- * Animates in with fade + scale; the ViewModel times the exit after [ANIMATION_PERCEPTION_WALL_MS].
+ * Enter/exit is handled by the [AnimatedVisibility] parent. Confetti launches upward
+ * from the bottom (fountain style) and falls back under gravity. The perception icon pulses.
  */
+@Suppress("LongMethod")
 @Composable
 private fun PerceptionWallOverlay(modifier: Modifier = Modifier) {
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { visible = true }
+    val confettiProgress = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        confettiProgress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = WALL_CONFETTI_DURATION_MS, easing = LinearEasing),
+        )
+    }
 
-    val alpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(durationMillis = 350),
-        label = "wallOverlayAlpha",
+    val iconTransition = rememberInfiniteTransition(label = "perception")
+    val iconScale by iconTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.14f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 550, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "iconPulse",
     )
-    val scale by animateFloatAsState(
-        targetValue = if (visible) 1f else 0.72f,
-        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
-        label = "wallOverlayScale",
+
+    val confettiPieces = remember { generateConfetti() }
+    val confettiT = confettiProgress.value
+    val confettiColors = listOf(
+        HuezooColors.AccentCyan,
+        HuezooColors.AccentMagenta,
+        HuezooColors.AccentYellow,
+        HuezooColors.AccentGreen,
     )
 
     Box(
-        modifier = modifier
-            .graphicsLayer { this.alpha = alpha }
-            .background(HuezooColors.Background.copy(alpha = 0.93f)),
+        modifier = modifier.background(HuezooColors.Background.copy(alpha = 0.93f)),
         contentAlignment = Alignment.Center,
     ) {
+        // Confetti fountain — pieces launch upward from bottom, arc, and fall back
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            if (confettiT == 0f) return@Canvas
+            confettiPieces.forEach { piece ->
+                val rawT = ((confettiT - piece.delay) / (1f - piece.delay)).coerceIn(0f, 1f)
+                if (rawT <= 0f) return@forEach
+                // Parabolic arc: starts at bottom (yNorm=1.0) → peaks → returns to bottom
+                val yNorm = 1f - (1f - piece.peakY) * 4f * rawT * (1f - rawT)
+                val wobbleX = sin(rawT * piece.wobbleCycles * 2.0 * PI).toFloat() *
+                    piece.wobbleAmp * size.width
+                // Fade out as piece nears bottom + in last 15% of animation
+                val bottomFade = (1f - ((yNorm - 0.85f) / 0.15f).coerceIn(0f, 1f))
+                val timeFade = (1f - ((rawT - 0.85f) / 0.15f).coerceIn(0f, 1f))
+                val pieceAlpha = minOf(bottomFade, timeFade)
+                if (pieceAlpha <= 0f) return@forEach
+                drawCircle(
+                    color = confettiColors[piece.colorIndex],
+                    radius = piece.size * density,
+                    center = Offset(piece.x * size.width + wobbleX, yNorm * size.height),
+                    alpha = pieceAlpha,
+                )
+            }
+        }
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-            modifier = Modifier
-                .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                }
-                .padding(horizontal = HuezooSpacing.xl),
+            modifier = Modifier.padding(horizontal = HuezooSpacing.xl),
         ) {
-            Text(
-                text = "🦅",
-                fontSize = 72.sp,
-                textAlign = TextAlign.Center,
+            PerceptionIcon(
+                modifier = Modifier
+                    .size(88.dp)
+                    .graphicsLayer {
+                        scaleX = iconScale
+                        scaleY = iconScale
+                    },
             )
 
             Spacer(Modifier.height(HuezooSpacing.sm))
 
             Text(
-                text = "PERCEPTION LIMIT REACHED",
+                text = "YOU SHATTERED THE LIMIT",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.ExtraBold,
                 color = HuezooColors.AccentYellow,
@@ -439,7 +530,7 @@ private fun PerceptionWallOverlay(modifier: Modifier = Modifier) {
             )
 
             Text(
-                text = "ΔE 0.1 — Beyond human vision",
+                text = "ΔE 0.1 · Most humans can't see this far",
                 style = MaterialTheme.typography.bodyLarge,
                 color = HuezooColors.TextSecondary,
                 textAlign = TextAlign.Center,
@@ -457,6 +548,86 @@ private fun PerceptionWallOverlay(modifier: Modifier = Modifier) {
         }
     }
 }
+
+// Geometric "perception diamond" icon — Canvas-drawn, no emoji dependency.
+// Diamond outline + center dot + cardinal tick marks + 45° accent dots.
+@Suppress("MagicNumber")
+@Composable
+private fun PerceptionIcon(modifier: Modifier = Modifier) {
+    val accent = HuezooColors.AccentYellow
+    Canvas(modifier = modifier) {
+        val cx = size.width / 2
+        val cy = size.height / 2
+        val r = minOf(cx, cy)
+        val tip = r * 0.74f
+
+        drawCircle(color = accent, radius = r, center = Offset(cx, cy), alpha = 0.10f)
+
+        val diamond = Path().apply {
+            moveTo(cx, cy - tip)
+            lineTo(cx + tip, cy)
+            lineTo(cx, cy + tip)
+            lineTo(cx - tip, cy)
+            close()
+        }
+        drawPath(diamond, color = accent, alpha = 0.18f)
+        drawPath(diamond, color = accent, style = Stroke(width = 2.5f * density), alpha = 0.92f)
+
+        drawCircle(color = accent, radius = r * 0.15f, center = Offset(cx, cy))
+
+        // Cardinal tick marks extending outward from each diamond tip
+        listOf(Offset(0f, -1f), Offset(1f, 0f), Offset(0f, 1f), Offset(-1f, 0f)).forEach { dir ->
+            drawLine(
+                color = accent,
+                start = Offset(cx + dir.x * tip, cy + dir.y * tip),
+                end = Offset(cx + dir.x * r * 0.94f, cy + dir.y * r * 0.94f),
+                strokeWidth = 2.5f * density,
+                alpha = 0.80f,
+            )
+        }
+
+        // Small accent dots at 45° between cardinal points
+        listOf(45f, 135f, 225f, 315f).forEach { angleDeg ->
+            val rad = angleDeg * (PI / 180.0).toFloat()
+            drawCircle(
+                color = accent,
+                radius = 3f * density,
+                center = Offset(cx + cos(rad) * r * 0.60f, cy + sin(rad) * r * 0.60f),
+                alpha = 0.65f,
+            )
+        }
+    }
+}
+
+private val HEART_SIZE = 14.dp
+
+private data class ConfettiPiece(
+    val x: Float, // normalized start X (0..1)
+    val peakY: Float, // normalized Y at peak (0=top, 1=bottom — smaller = higher)
+    val size: Float, // radius in dp
+    val colorIndex: Int, // 0=cyan, 1=magenta, 2=yellow, 3=green
+    val wobbleCycles: Float,
+    val wobbleAmp: Float, // horizontal wobble amplitude as fraction of screen width
+    val delay: Float, // 0..0.30 phase stagger
+)
+
+@Suppress("MagicNumber")
+private fun generateConfetti(): List<ConfettiPiece> {
+    val rng = Random(seed = 1337)
+    return List(40) {
+        ConfettiPiece(
+            x = rng.nextFloat(),
+            peakY = 0.05f + rng.nextFloat() * 0.55f, // peaks between top 5% and 60%
+            size = 4f + rng.nextFloat() * 7f,
+            colorIndex = rng.nextInt(4),
+            wobbleCycles = 1f + rng.nextFloat() * 2f,
+            wobbleAmp = 0.015f + rng.nextFloat() * 0.035f,
+            delay = rng.nextFloat() * 0.30f,
+        )
+    }
+}
+
+private const val WALL_CONFETTI_DURATION_MS = 2_500
 
 /** Returns a live-updating "Xh Xm" string, ticking every 60 s. */
 @OptIn(ExperimentalTime::class)
@@ -478,9 +649,6 @@ private fun countdownUntil(until: Instant) = produceState(initialValue = "") {
 
 /** Fixed height reserved for the in-game feedback message. Never changes, so nothing shifts. */
 private val FEEDBACK_SLOT_HEIGHT = 28.dp
-
-/** Size of each heart in the lives indicator. */
-private val HEART_SIZE = 14.dp
 
 // ── Cine-style background light lines ────────────────────────────────────────
 
@@ -525,6 +693,92 @@ private fun ThresholdLightLines(modifier: Modifier = Modifier) {
         }
     }
 }
+
+// ── Streak burst overlay ──────────────────────────────────────────────────────
+
+/**
+ * Transparent Canvas-based particle burst that celebrates a streak milestone.
+ *
+ * Renders rising, wobbling circles in the player's accent color.
+ * Does not draw any background and is layered as a Spacer — touches fall through.
+ * Duration matches the 1 800 ms window kept open by [PlayingContent].
+ */
+@Composable
+@Suppress("LongMethod")
+private fun StreakBurstOverlay(
+    milestone: Int,
+    active: Boolean,
+    accentColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    val progress = remember { Animatable(0f) }
+    LaunchedEffect(active, milestone) {
+        if (active) {
+            progress.snapTo(0f)
+            progress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = BURST_DURATION_MS.toInt(), easing = LinearEasing),
+            )
+        } else {
+            progress.snapTo(0f)
+        }
+    }
+
+    val particles = remember(milestone) { generateBurstParticles(milestone) }
+    val t = progress.value // read in composable scope — drives recomposition each frame
+
+    Canvas(modifier = modifier) {
+        if (t == 0f) return@Canvas
+        particles.forEach { p ->
+            val rawLifetime = (t - p.phaseOffset) / (1f - p.phaseOffset).coerceAtLeast(0.01f)
+            if (rawLifetime <= 0f || rawLifetime >= 1f) return@forEach
+
+            val alpha = p.maxAlpha * (1f - rawLifetime * rawLifetime) // quadratic fade-out
+            val riseY = rawLifetime * p.riseDistanceDp.dp.toPx()
+            val wobbleX = sin(rawLifetime * p.wobbleCycles * 2.0 * PI).toFloat() *
+                p.wobbleAmplitudeDp.dp.toPx()
+
+            drawCircle(
+                color = accentColor,
+                radius = p.radiusDp.dp.toPx(),
+                center = Offset(p.startXFrac * size.width + wobbleX, p.startYFrac * size.height - riseY),
+                alpha = alpha,
+            )
+        }
+    }
+}
+
+private data class BurstParticle(
+    val startXFrac: Float,
+    val startYFrac: Float,
+    val radiusDp: Float,
+    val riseDistanceDp: Float,
+    val wobbleAmplitudeDp: Float,
+    val wobbleCycles: Float,
+    val phaseOffset: Float, // 0..0.5 — staggered launch within animation window
+    val maxAlpha: Float,
+)
+
+@Suppress("MagicNumber")
+private fun generateBurstParticles(milestone: Int): List<BurstParticle> {
+    val rng = Random(seed = milestone)
+    val count = if (milestone >= 10) 20 else 12
+    val maxRadius = if (milestone >= 10) 8f else 5f
+    return List(count) {
+        BurstParticle(
+            startXFrac = 0.1f + rng.nextFloat() * 0.8f,
+            startYFrac = 0.3f + rng.nextFloat() * 0.5f,
+            radiusDp = 3f + rng.nextFloat() * maxRadius,
+            riseDistanceDp = 40f + rng.nextFloat() * 80f,
+            wobbleAmplitudeDp = 4f + rng.nextFloat() * 12f,
+            wobbleCycles = 0.8f + rng.nextFloat() * 1.5f,
+            phaseOffset = rng.nextFloat() * 0.5f,
+            maxAlpha = 0.45f + rng.nextFloat() * 0.45f,
+        )
+    }
+}
+
+private const val BURST_DURATION_MS = 1_600L
 
 private fun Float.fmt(): String {
     val i = toInt()

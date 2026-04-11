@@ -4,7 +4,10 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -54,6 +57,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -86,6 +90,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
+import xyz.ksharma.huezoo.ui.model.estimatedPerceptionTier
 import xyz.ksharma.huezoo.ui.result.state.ResultUiState
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
@@ -108,6 +113,9 @@ private val CardShape = RoundedCornerShape(16.dp)
 private val BannerAdReservedHeight = 56.dp
 private val StatIconSize = 28.dp
 private val CardShelfHeight = 4.dp
+
+// ΔE below which the rotating neon border is shown — elite perception territory (UX.13.3)
+private const val NEON_BORDER_DELTA_E_THRESHOLD = 1.0f
 
 @Composable
 fun ResultScreen(
@@ -163,6 +171,14 @@ fun ResultScreen(
             Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
                 BannerAd(adUnitId = AdIds.banner)
             }
+        }
+
+        // UX.13.3: Rotating neon border — only when the player hit ΔE < 1.0 (elite perception).
+        // Permanent animation: cyan → magenta → yellow → cyan cycling every 4 s.
+        // Drawn last so it sits on top of all content without clipping it — the border
+        // is inset from the screen edges so nothing is covered.
+        if (readyState != null && readyState.deltaE < NEON_BORDER_DELTA_E_THRESHOLD) {
+            NeonScreenBorder(modifier = Modifier.fillMaxSize())
         }
     }
 }
@@ -267,9 +283,14 @@ private fun ReadyContent(
         val bannerText = when {
             state.roundsSurvived == 0 -> "MISSION OUTCOME: FLATLINED"
             isDaily -> "MISSION OUTCOME: COMPLETE"
+            state.isLegendaryResult -> "MISSION OUTCOME: LEGENDARY"
             else -> "MISSION OUTCOME: FAILURE"
         }
-        val bannerColor = if (state.roundsSurvived == 0) HuezooColors.AccentMagenta else accentColor
+        val bannerColor = when {
+            state.roundsSurvived == 0 -> HuezooColors.AccentMagenta
+            state.isLegendaryResult -> HuezooColors.AccentYellow
+            else -> accentColor
+        }
         MissionOutcomeBanner(
             text = bannerText,
             color = bannerColor,
@@ -336,6 +357,32 @@ private fun ReadyContent(
             onClick = { showDeltaESheet = true },
             modifier = Modifier.fillMaxWidth(),
         )
+
+        // ── 3b. Perception tier badge ─────────────────────────────────────────
+        val tier = estimatedPerceptionTier(state.deltaE)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = HuezooSpacing.xs),
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(tier.color.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                    .padding(horizontal = HuezooSpacing.xs, vertical = 2.dp),
+            ) {
+                HuezooLabelSmall(
+                    text = tier.rankLabel,
+                    color = tier.color,
+                    fontWeight = FontWeight.ExtraBold,
+                )
+            }
+            HuezooLabelSmall(
+                text = tier.description,
+                color = HuezooColors.TextSecondary,
+            )
+        }
 
         Spacer(Modifier.height(HuezooSpacing.sm))
 
@@ -1024,6 +1071,113 @@ private data class ConfettiParticle(
     val sizeDp: Float,
     val shape: ConfettiShape,
 )
+
+// ── UX.13.3: Rotating neon border ────────────────────────────────────────────
+
+/**
+ * Full-screen rotating neon border shown on the result screen when the player achieved
+ * ΔE < 1.0 (elite perception territory).
+ *
+ * Renders as three concentric strokes (outer glow → mid bloom → inner crisp) drawn on a
+ * [Canvas] that fills the screen. A [rememberInfiniteTransition] rotates a
+ * [Brush.sweepGradient] — cyan → magenta → yellow → cyan — creating an eternal colour-cycling
+ * halo. The border is inset from the physical screen edges so it never clips any content;
+ * the large corner radius makes the glow bleed visibly inward for a "legendary frame" effect.
+ */
+@Composable
+private fun NeonScreenBorder(modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "neonBorder")
+    // `phase` cycles 0→1 continuously — drives color position shift each frame.
+    val phase by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(durationMillis = 2_600, easing = LinearEasing)),
+        label = "neonPhase",
+    )
+
+    val cyan = HuezooColors.AccentCyan
+    val magenta = HuezooColors.AccentMagenta
+    val yellow = HuezooColors.AccentYellow
+
+    Canvas(modifier = modifier) {
+        val insetPx = NEON_BORDER_INSET_DP * density
+        val cornerPx = NEON_BORDER_CORNER_DP * density
+        val drawTopLeft = Offset(insetPx, insetPx)
+        val drawSize = Size(size.width - insetPx * 2, size.height - insetPx * 2)
+        val centre = Offset(size.width / 2, size.height / 2)
+
+        // Color-phase sweep: shift gradient positions by `phase` each frame so the
+        // colors travel clockwise around the border. The rectangle is never rotated —
+        // only the color positions shift, giving a pure "light chasing itself" effect.
+        fun cycleColor(t: Float): Color {
+            val p = ((t + phase) % 1f + 1f) % 1f
+            return when {
+                p < 1f / 3f -> lerp(cyan, magenta, p * 3f)
+                p < 2f / 3f -> lerp(magenta, yellow, (p - 1f / 3f) * 3f)
+                else -> lerp(yellow, cyan, (p - 2f / 3f) * 3f)
+            }
+        }
+
+        val brush = Brush.sweepGradient(
+            0.0f to cycleColor(0.0f),
+            1f / 6f to cycleColor(1f / 6f),
+            1f / 3f to cycleColor(1f / 3f),
+            0.5f to cycleColor(0.5f),
+            2f / 3f to cycleColor(2f / 3f),
+            5f / 6f to cycleColor(5f / 6f),
+            1.0f to cycleColor(1.0f),
+            center = centre,
+        )
+
+        // Super-glow — massive soft bloom that bleeds far from the border edge
+        drawRoundRect(
+            brush = brush,
+            topLeft = drawTopLeft,
+            size = drawSize,
+            cornerRadius = CornerRadius(cornerPx),
+            style = Stroke(width = NEON_BORDER_SUPER_STROKE_PX),
+            alpha = NEON_BORDER_SUPER_ALPHA,
+        )
+        // Outer glow — wide stroke, soft bloom
+        drawRoundRect(
+            brush = brush,
+            topLeft = drawTopLeft,
+            size = drawSize,
+            cornerRadius = CornerRadius(cornerPx),
+            style = Stroke(width = NEON_BORDER_OUTER_STROKE_PX),
+            alpha = NEON_BORDER_OUTER_ALPHA,
+        )
+        // Mid bloom — narrows the glow
+        drawRoundRect(
+            brush = brush,
+            topLeft = drawTopLeft,
+            size = drawSize,
+            cornerRadius = CornerRadius(cornerPx),
+            style = Stroke(width = NEON_BORDER_MID_STROKE_PX),
+            alpha = NEON_BORDER_MID_ALPHA,
+        )
+        // Inner crisp line — sharp edge of the border
+        drawRoundRect(
+            brush = brush,
+            topLeft = drawTopLeft,
+            size = drawSize,
+            cornerRadius = CornerRadius(cornerPx),
+            style = Stroke(width = NEON_BORDER_INNER_STROKE_PX),
+            alpha = NEON_BORDER_INNER_ALPHA,
+        )
+    }
+}
+
+private const val NEON_BORDER_INSET_DP = 6f
+private const val NEON_BORDER_CORNER_DP = 44f
+private const val NEON_BORDER_SUPER_STROKE_PX = 72f // outermost, maximum bloom radius
+private const val NEON_BORDER_OUTER_STROKE_PX = 48f // was 32 — 1.5× for stronger glow
+private const val NEON_BORDER_MID_STROKE_PX = 18f // was 12 — 1.5×
+private const val NEON_BORDER_INNER_STROKE_PX = 5.5f // was 3.5 — 1.57×
+private const val NEON_BORDER_SUPER_ALPHA = 0.07f
+private const val NEON_BORDER_OUTER_ALPHA = 0.26f // was 0.22
+private const val NEON_BORDER_MID_ALPHA = 0.56f // was 0.52
+private const val NEON_BORDER_INNER_ALPHA = 0.95f // was 0.92
 
 @Composable
 private fun ConfettiEffect(

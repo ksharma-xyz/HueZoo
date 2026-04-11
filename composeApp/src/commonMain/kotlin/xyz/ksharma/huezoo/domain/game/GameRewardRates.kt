@@ -26,6 +26,9 @@ object GameRewardRates {
     const val THRESHOLD_MILESTONE_EXPERT = 10 // ΔE < 1.0
     const val THRESHOLD_MILESTONE_ELITE = 25 // ΔE < 0.5
 
+    /** Awarded once when a player lands 10 consecutive correct taps within a single try. */
+    const val THRESHOLD_STREAK_10_BONUS = 15
+
     /** ΔE boundaries for milestone bonuses (descending — evaluated in order). */
     val THRESHOLD_MILESTONES: List<Pair<Float, Int>> = listOf(
         0.5f to THRESHOLD_MILESTONE_ELITE,

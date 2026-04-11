@@ -53,11 +53,15 @@ interface ColorEngine {
     fun generateOddSwatch(base: Color, targetDeltaE: Float): Color
 
     /**
-     * Returns a deterministic vivid color for [date].
+     * Returns a deterministic vivid color for [date] and [roundIndex].
      *
-     * Every player on the same calendar day gets the same base color, making
-     * the Daily Challenge fair and score-comparable. The mapping is a pure
-     * function of (year, month, day) — no server call required.
+     * Every player on the same calendar day and round gets the same base color,
+     * making the Daily Challenge fair and score-comparable across devices.
+     * The mapping is a pure function of (year, month, day, roundIndex) — no
+     * server call required.
+     *
+     * @param roundIndex Round number within the daily session (0-based). Different
+     *   rounds on the same day produce different colors for visual variety.
      */
-    fun seededColorForDate(date: LocalDate): Color
+    fun seededColorForDate(date: LocalDate, roundIndex: Int = 0): Color
 }

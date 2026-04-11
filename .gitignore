@@ -27,3 +27,6 @@ GoogleService-Info.plist
 
 # Firebase service account keys
 *-adminsdk-*.json
+
+# MkDocs build output
+site/

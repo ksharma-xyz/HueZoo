@@ -76,6 +76,7 @@ class ThresholdDeltaEProgressionTest {
             hapticEngine = FakeHapticEngine(),
             sessionResultCache = cache,
             adOrchestrator = AdOrchestrator(),
+            platformOps = FakePlatformOps(),
         )
         return vm to cache
     }

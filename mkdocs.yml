@@ -1,5 +1,5 @@
 site_name: Huezoo
-site_url: https://ksharma-xyz.github.io/Huezoo/
+site_url: https://ksharma-xyz.github.io/HueZoo/
 site_author: ksharma-xyz
 site_description: A color-matching game for curious minds.
 
@@ -9,21 +9,15 @@ edit_uri: ""
 
 theme:
   name: material
+  custom_dir: overrides
+  favicon: assets/huezoo-icon.png
+  logo: assets/huezoo-icon.png
   palette:
-    - scheme: slate
-      primary: deep purple
-      accent: purple
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-    - scheme: default
-      primary: deep purple
-      accent: purple
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
+    scheme: slate
+    primary: black
+    accent: deep purple
   font:
-    text: Roboto
+    text: Space Grotesk
     code: Roboto Mono
   features:
     - navigation.top
@@ -33,6 +27,9 @@ theme:
     - content.code.copy
   icon:
     repo: fontawesome/brands/github
+
+extra_css:
+  - assets/extra.css
 
 plugins:
   - search

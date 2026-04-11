@@ -27,5 +27,5 @@ class FakeColorEngine(
     override fun randomVividColor(): Color = vividColor
     override fun randomVividColorExcluding(excludeHue: Float, excludeHueWidth: Float): Color = vividColor
     override fun generateOddSwatch(base: Color, targetDeltaE: Float): Color = oddSwatch
-    override fun seededColorForDate(date: LocalDate): Color = dailyColor
+    override fun seededColorForDate(date: LocalDate, roundIndex: Int): Color = dailyColor
 }

@@ -44,5 +44,16 @@ sealed interface ThresholdUiState {
          * Null until the player lands their first correct tap.
          */
         val sessionBestDeltaE: Float? = null,
+        /**
+         * Consecutive correct taps in the current try.
+         * 0 = no streak. Resets to 0 on every wrong tap or new try.
+         */
+        val streakCount: Int = 0,
+        /**
+         * 5 or 10 when the player just hit that streak milestone this tap; 0 otherwise.
+         * One-shot event — lives only in the [RoundPhase.Correct] state copy; always
+         * 0 in the next [emitRound].
+         */
+        val streakMilestone: Int = 0,
     ) : ThresholdUiState
 }

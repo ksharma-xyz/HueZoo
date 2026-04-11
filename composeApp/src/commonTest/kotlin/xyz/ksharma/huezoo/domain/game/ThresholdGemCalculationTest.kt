@@ -14,6 +14,7 @@ import xyz.ksharma.huezoo.domain.game.ThresholdGameEngine.Companion.MAX_ATTEMPTS
 import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
 import xyz.ksharma.huezoo.testutil.FakeHapticEngine
+import xyz.ksharma.huezoo.testutil.FakePlatformOps
 import xyz.ksharma.huezoo.testutil.FakeSettingsRepository
 import xyz.ksharma.huezoo.testutil.FakeThresholdGameEngine
 import xyz.ksharma.huezoo.testutil.FakeThresholdRepository
@@ -74,6 +75,7 @@ class ThresholdGemCalculationTest {
             hapticEngine = FakeHapticEngine(),
             sessionResultCache = cache,
             adOrchestrator = AdOrchestrator(),
+            platformOps = FakePlatformOps(),
         )
         return vm to cache
     }
@@ -226,6 +228,57 @@ class ThresholdGemCalculationTest {
         val (vm, cache) = buildViewModel()
         val result = driveSession(vm, cache, 3, 4)
         assertEquals((3 + 4) * GameRewardRates.THRESHOLD_CORRECT_TAP, result.gemsEarned)
+    }
+
+    // ── Streak-10 bonus ───────────────────────────────────────────────────────
+
+    @Test
+    fun `10 consecutive correct taps in one try awards streak bonus of 15 gems`() = runTest(testDispatcher) {
+        // 10 taps reach ΔE = 5.0 - 9×0.3 = 2.3 — no milestone crossed yet.
+        // Only gem sources: 10 tap rewards + THRESHOLD_STREAK_10_BONUS.
+        val (vm, cache) = buildViewModel()
+        val result = driveSession(vm, cache, 10)
+        val expected = 10 * GameRewardRates.THRESHOLD_CORRECT_TAP + GameRewardRates.THRESHOLD_STREAK_10_BONUS
+        assertEquals(expected, result.gemsEarned)
+    }
+
+    @Test
+    fun `streak bonus not awarded for 9 consecutive taps`() = runTest(testDispatcher) {
+        // 9 taps: streak is 9, never hits 10 → no bonus
+        val (vm, cache) = buildViewModel()
+        val result = driveSession(vm, cache, 9)
+        assertEquals(9 * GameRewardRates.THRESHOLD_CORRECT_TAP, result.gemsEarned)
+    }
+
+    @Test
+    fun `wrong tap resets streak so partial streak in try 1 does not carry into try 2`() = runTest(testDispatcher) {
+        // Try 1: 9 correct → wrong (consecutiveCorrect resets to 0)
+        // Try 2: 9 correct → wrong (streak reaches 9 again, not 18 — no bonus)
+        // No streak bonus expected in either try.
+        val (vm, cache) = buildViewModel()
+        val result = driveSession(vm, cache, 9, 9)
+        val expected = (9 + 9) * GameRewardRates.THRESHOLD_CORRECT_TAP
+        assertEquals(expected, result.gemsEarned)
+    }
+
+    @Test
+    fun `streak bonus can be re-earned in a fresh try after a wrong tap`() = runTest(testDispatcher) {
+        // Try 1: 9 correct → wrong (no streak bonus; consecutiveCorrect resets)
+        // Try 2: 10 correct → streak bonus awarded; then wrong tap ends try
+        val (vm, cache) = buildViewModel()
+        val result = driveSession(vm, cache, 9, 10)
+        val tapGems = (9 + 10) * GameRewardRates.THRESHOLD_CORRECT_TAP
+        assertEquals(tapGems + GameRewardRates.THRESHOLD_STREAK_10_BONUS, result.gemsEarned)
+    }
+
+    @Test
+    fun `streak bonus appears in gem breakdown under milestone bonuses`() = runTest(testDispatcher) {
+        // 10 taps → streak bonus goes into sessionMilestoneGems → "Milestone bonuses" line
+        val (vm, cache) = buildViewModel()
+        val result = driveSession(vm, cache, 10)
+        val milestoneLine = result.gemBreakdown.find { it.label == "Milestone bonuses" }
+        assertNotNull(milestoneLine, "Milestone bonuses line must be present when streak bonus earned")
+        assertEquals(GameRewardRates.THRESHOLD_STREAK_10_BONUS, milestoneLine.amount)
     }
 
     // ── GemBreakdown structure ────────────────────────────────────────────────
