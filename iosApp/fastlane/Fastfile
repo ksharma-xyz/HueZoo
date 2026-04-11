@@ -24,10 +24,16 @@ platform :ios do
     # Stamp the build number from the IOS_BUILD_NUMBER CI variable so every TestFlight
     # upload has a strictly incrementing CFBundleVersion. Skipped when running locally
     # (IOS_BUILD_NUMBER not set) — local builds use whatever is in the project file.
+    #
+    # Uses set_info_plist_value instead of increment_build_number(xcodeproj:) because
+    # the Huezoo project does not declare CURRENT_PROJECT_VERSION in its build settings,
+    # making the xcodeproj-based approach a silent no-op. Patching the plist directly
+    # is reliable regardless of the Xcode project versioning configuration.
     if ENV['IOS_BUILD_NUMBER'] && !ENV['IOS_BUILD_NUMBER'].empty?
-      increment_build_number(
-        xcodeproj: "iosApp.xcodeproj",
-        build_number: ENV['IOS_BUILD_NUMBER']
+      set_info_plist_value(
+        path: "iosApp/Info.plist",
+        key: "CFBundleVersion",
+        value: ENV['IOS_BUILD_NUMBER']
       )
     end
 
