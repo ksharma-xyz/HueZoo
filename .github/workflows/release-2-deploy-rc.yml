@@ -11,6 +11,13 @@ on:
   push:
     branches: ['prod/**']
 
+# Only one RC deploy per branch at a time.
+# When a new push lands on prod/x.y.z while a previous run is still in progress,
+# the older run is cancelled automatically so build numbers are never double-spent.
+concurrency:
+  group: rc-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   actions: write  # allows build-android.yml to write back ANDROID_VERSION_CODE
   contents: write # allows RC tag creation
