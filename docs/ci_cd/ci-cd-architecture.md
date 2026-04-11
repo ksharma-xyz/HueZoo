@@ -84,6 +84,63 @@
 
 **Monotonically increasing build numbers** — `ANDROID_VERSION_CODE` and `IOS_BUILD_NUMBER` are stored as GitHub repository variables, auto-incremented by CI on each release/TestFlight build, and written back via the GitHub API. They survive workflow renames because they live in Settings, not in workflow files.
 
+### How iOS build number stamping works (important — read before modifying)
+
+`distribute-testflight.yml` runs these three steps **in order, in the same job**:
+
+```
+1. Set iOS build number   →  reads IOS_BUILD_NUMBER (e.g. 13)
+                              computes NEXT = 14
+                              writes 14 back to GitHub Variables via gh api
+                              exports IOS_BUILD_NUMBER=14 to $GITHUB_ENV
+
+2. Build iOS App          →  fastlane build_release
+                              set_info_plist_value patches iosApp/Info.plist
+                              CFBundleVersion → 14   ← happens BEFORE build_app
+                              IPA is baked with build number 14 ✓
+
+3. Upload to TestFlight   →  fastlane upload_testflight
+                              uploads the IPA (CFBundleVersion=14)
+                              Apple accepts: 14 > previous ✓
+```
+
+**Why `set_info_plist_value` and NOT `increment_build_number(xcodeproj:)`:**
+
+Fastlane's `increment_build_number(xcodeproj:)` internally calls `agvtool`, which requires
+`CURRENT_PROJECT_VERSION` to be declared in the target's Xcode build settings. If it is
+absent the call is a **silent no-op** — Fastlane prints nothing, the plist is never updated,
+and every IPA after the first RC is rejected by Apple with:
+
+```
+The bundle version must be higher than the previously uploaded version
+```
+
+This is exactly what happened during the v1.0.0 RC cycle: the Huezoo xcodeproj was missing
+`CURRENT_PROJECT_VERSION` (unlike Krail, which always had it). CI incremented `IOS_BUILD_NUMBER`
+correctly (7 → 8 → 9 … → 13) but every IPA was still built with the hardcoded plist value `7`,
+causing repeated Apple rejections.
+
+**Fix applied (April 2026):**
+
+1. `Fastfile` — replaced `increment_build_number(xcodeproj:)` with `set_info_plist_value`
+   which patches `iosApp/Info.plist → CFBundleVersion` directly before `build_app` runs.
+   No xcodeproj dependency; works regardless of `CURRENT_PROJECT_VERSION` being present.
+
+2. `project.pbxproj` — added `CURRENT_PROJECT_VERSION = 13` to both Debug and Release
+   target build configs (mirrors Krail). Enables `increment_build_number` as a future fallback.
+
+3. `Info.plist` — bumped hardcoded `CFBundleVersion` from `7` to `13` to match the GitHub
+   variable state after the failed RC attempts.
+
+**Krail vs Huezoo diff that caused the bug:**
+
+| Setting | Krail | Huezoo (before fix) |
+|---|---|---|
+| `CURRENT_PROJECT_VERSION` in xcodeproj | ✅ `= 11` | ❌ missing |
+| `GENERATE_INFOPLIST_FILE` | not set | `YES` |
+| `increment_build_number(xcodeproj:)` result | Works correctly | Silent no-op |
+| IPA build number source | CI variable ✓ | Hardcoded plist value ✗ |
+
 ---
 
 ## Environments
