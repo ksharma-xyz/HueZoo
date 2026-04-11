@@ -84,6 +84,22 @@
 
 **Monotonically increasing build numbers** — `ANDROID_VERSION_CODE` and `IOS_BUILD_NUMBER` are stored as GitHub repository variables, auto-incremented by CI on each release/TestFlight build, and written back via the GitHub API. They survive workflow renames because they live in Settings, not in workflow files.
 
+**One RC deploy at a time per branch** — `release-2-deploy-rc.yml` uses a `concurrency` group
+scoped to the branch ref. If a new push lands on `prod/x.y.z` while a previous run is still
+in progress, GitHub automatically cancels the older run before starting the new one. This
+prevents the same `IOS_BUILD_NUMBER` or `ANDROID_VERSION_CODE` being consumed by two
+simultaneous runs (one of which would fail anyway).
+
+```yaml
+concurrency:
+  group: rc-deploy-${{ github.ref }}   # unique per prod/* branch
+  cancel-in-progress: true
+```
+
+> This was added after the v1.0.0 RC cycle where two runs (#4 and #5) were triggered back-to-back
+> by rapid successive pushes to `prod/1.0.0` and ran in parallel, each incrementing build numbers
+> independently.
+
 ### How iOS build number stamping works (important — read before modifying)
 
 `distribute-testflight.yml` runs these three steps **in order, in the same job**:
