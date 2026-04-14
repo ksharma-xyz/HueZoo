@@ -461,7 +461,7 @@ private fun UpgradeBottomCta(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        if (state.error != null) {
+        /*if (state.error != null) {
             Spacer(Modifier.height(HuezooSpacing.xs))
             HuezooLabelSmall(
                 text = state.error,
@@ -469,18 +469,9 @@ private fun UpgradeBottomCta(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
-        }
+        }*/
 
-        Spacer(Modifier.height(HuezooSpacing.sm))
-
-        HuezooLabelSmall(
-            text = "Supports indie development ♥",
-            color = HuezooColors.TextDisabled,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        Spacer(Modifier.height(HuezooSpacing.xs))
+        Spacer(Modifier.height(HuezooSpacing.lg))
 
         HuezooButton(
             text = if (state.isRestoring) "RESTORING…" else "RESTORE PURCHASES",
