@@ -28,10 +28,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // MARK: - UMP consent → ATT → MobileAds
 
     private func gatherConsentThenStartAds() {
-        let params = UMPRequestParameters()
-        params.tagForUnderAgeOfConsent = false
+        let params = RequestParameters()
+        params.isTaggedForUnderAgeOfConsent = false
 
-        UMPConsentInformation.sharedInstance.requestConsentInfoUpdate(with: params) { [weak self] _ in
+        ConsentInformation.shared.requestConsentInfoUpdate(with: params) { [weak self] _ in
             guard let self else { return }
 
             // Resolve the root view controller for presenting the consent form.
@@ -43,7 +43,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             DispatchQueue.main.async {
                 // loadAndPresentIfRequired is a no-op when consent is not required
                 // or has already been obtained — safe to call on every foreground.
-                UMPConsentForm.loadAndPresentIfRequired(from: rootVC) { [weak self] _ in
+                ConsentForm.loadAndPresentIfRequired(from: rootVC) { [weak self] _ in
                     guard let self else { return }
                     // Consent form dismissed (or wasn't needed) — now safe to request ATT.
                     self.requestATT()
@@ -63,7 +63,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     private func startMobileAdsIfAllowed() {
         guard !mobileAdsStarted,
-              UMPConsentInformation.sharedInstance.canRequestAds else { return }
+              ConsentInformation.shared.canRequestAds else { return }
         mobileAdsStarted = true
         MobileAds.shared.requestConfiguration.maxAdContentRating = .general
         MobileAds.shared.start(completionHandler: nil)
