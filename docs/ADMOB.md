@@ -76,24 +76,52 @@ The live list is in `iosApp/iosApp/Info.plist`.
 
 ### 3. SDK initialisation — AppDelegate
 
+The correct order is: **UMP consent → ATT → MobileAds.start()**.
+`MobileAds.shared.start()` must only be called when `canRequestAds == true`.
+
 ```swift
 import GoogleMobileAds
 import AppTrackingTransparency
+import UserMessagingPlatform
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-    ) -> Bool {
+
+    private var mobileAdsStarted = false
+
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: ...) -> Bool {
         FirebaseApp.configure()
-        MobileAds.shared.start(completionHandler: nil)  // must be before any ad loads
         return true
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // Request ATT once the app is fully active.
-        // AdMob reads the authorisation status internally — no action needed in the callback.
-        // The system only shows the dialog once; subsequent calls return the cached status.
+        gatherConsentThenStartAds()
+    }
+
+    private func gatherConsentThenStartAds() {
+        let params = UMPRequestParameters()
+        params.tagForUnderAgeOfConsent = false
+        UMPConsentInformation.sharedInstance.requestConsentInfoUpdate(with: params) { _ in
+            let rootVC = /* resolve key window root VC */
+            DispatchQueue.main.async {
+                UMPConsentForm.loadAndPresentIfRequired(from: rootVC) { _ in
+                    self.requestATT()
+                    self.startMobileAdsIfAllowed()
+                }
+                self.startMobileAdsIfAllowed()  // no-op if canRequestAds == false
+            }
+        }
+        startMobileAdsIfAllowed()  // prior-session consent already in place
+    }
+
+    private func startMobileAdsIfAllowed() {
+        guard !mobileAdsStarted,
+              UMPConsentInformation.sharedInstance.canRequestAds else { return }
+        mobileAdsStarted = true
+        MobileAds.shared.start(completionHandler: nil)
+    }
+
+    private func requestATT() {
         if #available(iOS 14, *) {
             ATTrackingManager.requestTrackingAuthorization { _ in }
         }
@@ -101,18 +129,34 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 }
 ```
 
+**Why UMP before MobileAds.start()?**
+Since 2024 Google requires a GDPR/CCPA consent form for EEA users via the
+User Messaging Platform SDK. Without it AdMob will not serve ads to EEA users
+and may suppress global fill. `canRequestAds` acts as the gate.
+
 **Why `applicationDidBecomeActive` and not `didFinishLaunchingWithOptions`?**
 Apple requires the ATT dialog to appear only after the app's UI is visible.
 Requesting it during launch can cause the dialog to be suppressed or rejected
-by Apple review.
+by Apple review. The UMP consent form has the same constraint.
 
 ### 4. ATT (App Tracking Transparency)
 
 - Requires `NSUserTrackingUsageDescription` in Info.plist (already present)
 - Without ATT permission, IDFA is all zeros → AdMob serves non-personalised
   ads only, with significantly lower fill rate and eCPM
+- ATT is now requested **inside the UMP callback** so the two system dialogs
+  never stack on top of each other
 - The `AppTrackingTransparency` framework is built into iOS 14+ — no extra
   SPM dependency needed; just import it in Swift
+
+### 5. UMP (User Messaging Platform / GDPR consent)
+
+- SPM package: `swift-package-manager-google-user-messaging-platform` (already in Package.resolved)
+- `UMPConsentInformation.sharedInstance.requestConsentInfoUpdate` must be
+  called on every app foreground to refresh consent status
+- `loadAndPresentIfRequired(from:)` is a no-op when consent is not required
+  or already obtained — safe to call unconditionally
+- `canRequestAds` is the single gate before `MobileAds.shared.start()`
 
 ---
 
@@ -219,9 +263,10 @@ hides all ad composables — useful for UI screenshots.
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
+| **Ads show in debug, not production (iOS)** | UMP consent form never presented → `canRequestAds` is false for EEA users → `MobileAds.start()` never called | Implement `UMPConsentForm.loadAndPresentIfRequired` before `MobileAds.shared.start()` — see iOSApp.swift |
 | No ads on iOS new install | SKAdNetworkItems incomplete | Copy full list from Google sample repo BannerExample/Info.plist |
 | No ads after updating SDK | `GADMobileAds` renamed | Use `MobileAds.shared.start()` (SDK 11+) |
-| No ads, ATT not prompted | Missing ATT request | Add `ATTrackingManager.requestTrackingAuthorization` in `applicationDidBecomeActive` |
+| No ads, ATT not prompted | Missing ATT request | `requestATT()` is now called inside the UMP consent callback in `iOSApp.swift` |
 | Ads show in debug, not release | `isDebugBuild` wrong or AdMob app not verified | Check `Platform.isDebugBinary` return value; check AdMob Console for verification banner |
 | Very low fill rate on new app | AdMob account/app not yet verified | Wait 24–48h after first traffic; check AdMob Console for policy issues |
 | `GADMobileAds` not found | Wrong SDK version | Use `MobileAds.shared` — renamed in SDK 11 |
