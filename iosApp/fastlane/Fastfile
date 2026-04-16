@@ -21,20 +21,16 @@ platform :ios do
     # xcversion is not used — the underlying xcode-install gem is sunsetted and
     # broken on macos-15 runners (fastlane/fastlane#29469).
 
-    # Stamp the build number from the IOS_BUILD_NUMBER CI variable so every TestFlight
-    # upload has a strictly incrementing CFBundleVersion. Skipped when running locally
-    # (IOS_BUILD_NUMBER not set) — local builds use whatever is in the project file.
-    #
-    # Uses set_info_plist_value instead of increment_build_number(xcodeproj:) because
-    # the Huezoo project does not declare CURRENT_PROJECT_VERSION in its build settings,
-    # making the xcodeproj-based approach a silent no-op. Patching the plist directly
-    # is reliable regardless of the Xcode project versioning configuration.
-    if ENV['IOS_BUILD_NUMBER'] && !ENV['IOS_BUILD_NUMBER'].empty?
-      set_info_plist_value(
-        path: "iosApp/Info.plist",
-        key: "CFBundleVersion",
-        value: ENV['IOS_BUILD_NUMBER']
-      )
+    # The project has GENERATE_INFOPLIST_FILE = YES, so Xcode generates Info.plist
+    # at build time from CURRENT_PROJECT_VERSION — patching the plist file on disk
+    # (set_info_plist_value) has no effect. The correct approach is to pass
+    # CURRENT_PROJECT_VERSION via xcargs, overriding the hardcoded project value.
+    # IOS_BUILD_NUMBER is set by the CI workflow step before this lane runs.
+    # Skipped for local builds (IOS_BUILD_NUMBER not set).
+    build_number = ENV['IOS_BUILD_NUMBER']
+    if build_number.nil? || build_number.empty?
+      UI.message("IOS_BUILD_NUMBER not set — using CURRENT_PROJECT_VERSION from xcodeproj (local build).")
+      build_number = nil
     end
 
     # Set provisioning profile ONLY for the iosApp target by modifying the project file.
@@ -60,12 +56,16 @@ platform :ios do
       buildlog_path: "./build/logs",
       clean: true,
       skip_package_dependencies_resolution: true,
-      # DEVELOPMENT_TEAM in xcargs ensures SPM packages (separate targets) also have
-      # a team set — required for them to compile. PROVISIONING_PROFILE_SPECIFIER is
-      # NOT here; it was set per-target above via update_code_signing_settings.
-      xcargs: "CODE_SIGN_STYLE=Manual " \
-              "CODE_SIGN_IDENTITY='Apple Distribution' " \
-              "DEVELOPMENT_TEAM='#{ENV["DEVELOPMENT_TEAM"]}'",
+      # CURRENT_PROJECT_VERSION overrides the hardcoded value in the xcodeproj so the
+      # generated Info.plist gets the correct CFBundleVersion.
+      # DEVELOPMENT_TEAM ensures SPM package targets also have a team set.
+      # PROVISIONING_PROFILE_SPECIFIER is NOT here — set per-target above.
+      xcargs: [
+        "CODE_SIGN_STYLE=Manual",
+        "CODE_SIGN_IDENTITY='Apple Distribution'",
+        "DEVELOPMENT_TEAM='#{ENV["DEVELOPMENT_TEAM"]}'",
+        build_number ? "CURRENT_PROJECT_VERSION=#{build_number}" : nil
+      ].compact.join(" "),
       export_options: {
         signingStyle: "manual",
         provisioningProfiles: {
