@@ -101,9 +101,12 @@ jobs:
           IOS_BUILD_NUMBER_FLOOR: ${{ vars.IOS_BUILD_NUMBER }}
         run: |
           set -e
-          pip3 install --quiet PyJWT cryptography
+          # Use a venv to avoid PEP 668 "externally-managed-environment" errors
+          # on Homebrew Python (macOS GitHub-hosted runners).
+          python3 -m venv .venv
+          .venv/bin/pip install --quiet PyJWT cryptography
 
-          NEXT=$(python3 scripts/ios_next_build_number.py)
+          NEXT=$(.venv/bin/python scripts/ios_next_build_number.py)
           echo "IOS_BUILD_NUMBER=${NEXT}" >> $GITHUB_ENV
 
           # Update GitHub variable as an audit trail (best-effort, non-fatal).
