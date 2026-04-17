@@ -136,7 +136,7 @@ This is exactly what happened during the v1.0.0 RC cycle: the Huezoo xcodeproj w
 correctly (7 → 8 → 9 … → 13) but every IPA was still built with the hardcoded plist value `7`,
 causing repeated Apple rejections.
 
-**Fix applied (April 2026):**
+**Fix applied (April 2026 — RC cycle):**
 
 1. `Fastfile` — replaced `increment_build_number(xcodeproj:)` with `set_info_plist_value`
    which patches `iosApp/Info.plist → CFBundleVersion` directly before `build_app` runs.
@@ -147,6 +147,26 @@ causing repeated Apple rejections.
 
 3. `Info.plist` — bumped hardcoded `CFBundleVersion` from `7` to `13` to match the GitHub
    variable state after the failed RC attempts.
+
+**Second bug found (April 2026 — v1.1.0 RC):**
+
+Apple rejected the v1.1.0 upload with:
+```
+CFBundleShortVersionString [1.0] must contain a higher version than previously approved [1.0]
+Invalid Pre-Release Train. The train version '1.0' is closed for new build submissions
+```
+
+`Config.xcconfig` had `MARKETING_VERSION=1.1.0` but the IPA was still built with `1.0`.
+Root cause: with `GENERATE_INFOPLIST_FILE = YES`, Xcode generates `Info.plist` at archive
+time from build settings. `Config.xcconfig` provides the value to Xcode when building
+locally, but Fastlane's `build_app` invokes `xcodebuild` without inheriting the xcconfig
+context for `MARKETING_VERSION` — so `xcodebuild` fell back to whatever was hardcoded in
+`project.pbxproj` (which still said `1.0`).
+
+**Fix:** `Fastfile` now reads `MARKETING_VERSION` from `Config.xcconfig` at lane runtime
+and passes it via `xcargs`, exactly the same pattern used for `CURRENT_PROJECT_VERSION`.
+`Config.xcconfig` remains the single source of truth — bump it there and both version
+strings flow through to the IPA automatically.
 
 **Krail vs Huezoo diff that caused the bug:**
 
