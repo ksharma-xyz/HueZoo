@@ -1,0 +1,737 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A color-matching game for curious minds.">
+      
+      
+        <meta name="author" content="ksharma-xyz">
+      
+      
+        <link rel="canonical" href="https://ksharma-xyz.github.io/HueZoo/ci_cd/ci-cd-architecture/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/huezoo-icon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>CI/CD Architecture - Huezoo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Space+Grotesk:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Space Grotesk";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cicd-architecture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Huezoo" class="md-header__button md-logo" aria-label="Huezoo" data-md-component="logo">
+      
+  <img src="../../assets/huezoo-icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Huezoo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CI/CD Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ksharma-xyz/Huezoo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ksharma-xyz/Huezoo
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Huezoo" class="md-nav__button md-logo" aria-label="Huezoo" data-md-component="logo">
+      
+  <img src="../../assets/huezoo-icon.png" alt="logo">
+
+    </a>
+    Huezoo
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ksharma-xyz/Huezoo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ksharma-xyz/Huezoo
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../privacy-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Principles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-ios-build-number-stamping-works-important-read-before-modifying" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How iOS build number stamping works (important — read before modifying)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environments
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#firebase-app-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firebase App Distribution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets-vs-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secrets vs Variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="cicd-architecture">CI/CD Architecture<a class="headerlink" href="#cicd-architecture" title="Permanent link">&para;</a></h1>
+<h2 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
+<pre><code>┌─────────────────┐
+│   code-quality  │  ← Detekt static analysis
+└─────────┬───────┘
+          │ (blocks until passes)
+          ▼
+  ┌───────────────────────────────────┐
+  │        Build Jobs (Parallel)      │
+  ├─────────────┬─────────────┬───────┤
+  │build-android│build-android│build  │
+  │   -debug    │  -release   │ -ios  │
+  └─────────────┴─────────────┴───────┘
+          │           │
+          ▼           ▼
+  ┌─────────────┬─────────────┐
+  │ distribute  │ distribute  │    ← only on push to main
+  │  -debug     │  -release   │
+  │  Firebase   │  Firebase   │
+  └─────────────┴─────────────┘
+</code></pre>
+<hr />
+<h2 id="workflow-files">Workflow Files<a class="headerlink" href="#workflow-files" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Trigger</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>build.yml</code></td>
+<td>Push to <code>main</code>, PRs to <code>main</code>/<code>prod/*</code></td>
+<td>Main orchestration</td>
+</tr>
+<tr>
+<td><code>code-quality.yml</code></td>
+<td>Called by <code>build.yml</code>, <code>release-2-deploy-rc.yml</code></td>
+<td>Detekt</td>
+</tr>
+<tr>
+<td><code>build-android.yml</code></td>
+<td>Called by orchestrators</td>
+<td>Android debug + release build</td>
+</tr>
+<tr>
+<td><code>build-ios.yml</code></td>
+<td>Called by orchestrators</td>
+<td>iOS debug build (no signing)</td>
+</tr>
+<tr>
+<td><code>distribute-firebase.yml</code></td>
+<td>Called by <code>build.yml</code> (main push only)</td>
+<td>Firebase App Distribution</td>
+</tr>
+<tr>
+<td><code>distribute-google-play.yml</code></td>
+<td>Called by <code>release-2-deploy-rc.yml</code> or manual</td>
+<td>Google Play Internal upload</td>
+</tr>
+<tr>
+<td><code>distribute-testflight.yml</code></td>
+<td>Called by <code>release-2-deploy-rc.yml</code> or manual</td>
+<td>iOS build + TestFlight upload</td>
+</tr>
+<tr>
+<td><code>release-1-cut.yml</code></td>
+<td>Manual</td>
+<td>Create <code>prod/{version}</code> branch + bump <code>main</code></td>
+</tr>
+<tr>
+<td><code>release-2-deploy-rc.yml</code></td>
+<td>Auto on <code>prod/**</code> push</td>
+<td>RC tag + GP Internal + TestFlight</td>
+</tr>
+<tr>
+<td><code>release-3-tag.yml</code></td>
+<td>Manual</td>
+<td>Create final <code>v{version}</code> tag</td>
+</tr>
+<tr>
+<td><code>create-github-release.yml</code></td>
+<td>Auto on <code>v*</code> tag (non-RC), or manual</td>
+<td>Draft GitHub Release</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="release-pipeline">Release Pipeline<a class="headerlink" href="#release-pipeline" title="Permanent link">&para;</a></h2>
+<pre><code>[Manual] 1. Cut Release Branch
+   → creates prod/1.0.0, bumps main to 1.1.0
+
+[Auto] 2. Deploy RC  (triggered by every push to prod/1.0.0)
+   code-quality
+       └── build-android-release
+               └── tag-release-candidate  →  v1.0.0-RC1
+                       └── distribute-google-play  →  Internal track
+
+   distribute-testflight  →  iOS build → TestFlight  (parallel)
+
+[Manual] 3. Tag Release
+   → creates v1.0.0
+
+[Auto] Create GitHub Release
+   → draft release with auto-generated notes
+
+[Manual] Promote to Production
+   Android → Google Play Console
+   iOS     → App Store Connect
+</code></pre>
+<hr />
+<h2 id="design-principles">Design Principles<a class="headerlink" href="#design-principles" title="Permanent link">&para;</a></h2>
+<p><strong>Single responsibility per workflow file</strong> — build logic is separate from distribution logic. Changes to one don't affect the other.</p>
+<p><strong>Quality gate before builds</strong> — Detekt must pass before any build starts. Fail fast, save CI minutes.</p>
+<p><strong>Parallel builds</strong> — Android debug, Android release, and iOS build all run simultaneously after the quality gate.</p>
+<p><strong>Independent checkouts</strong> — each job checks out the repo independently. This is intentional and follows industry standard practice (GitHub, Google, Microsoft all use this pattern). Checkout is fast (~15-30s with shallow clones and CDN caching); sharing via artifacts adds complexity for minimal gain.</p>
+<p><strong>Production promotion is always manual</strong> — CI never pushes to Google Play production or submits to App Store review. Human sign-off required.</p>
+<p><strong>Monotonically increasing build numbers</strong> — <code>ANDROID_VERSION_CODE</code> and <code>IOS_BUILD_NUMBER</code> are stored as GitHub repository variables, auto-incremented by CI on each release/TestFlight build, and written back via the GitHub API. They survive workflow renames because they live in Settings, not in workflow files.</p>
+<p><strong>One RC deploy at a time per branch</strong> — <code>release-2-deploy-rc.yml</code> uses a <code>concurrency</code> group
+scoped to the branch ref. If a new push lands on <code>prod/x.y.z</code> while a previous run is still
+in progress, GitHub automatically cancels the older run before starting the new one. This
+prevents the same <code>IOS_BUILD_NUMBER</code> or <code>ANDROID_VERSION_CODE</code> being consumed by two
+simultaneous runs (one of which would fail anyway).</p>
+<pre><code class="language-yaml">concurrency:
+  group: rc-deploy-${{ github.ref }}   # unique per prod/* branch
+  cancel-in-progress: true
+</code></pre>
+<blockquote>
+<p>This was added after the v1.0.0 RC cycle where two runs (#4 and #5) were triggered back-to-back
+by rapid successive pushes to <code>prod/1.0.0</code> and ran in parallel, each incrementing build numbers
+independently.</p>
+</blockquote>
+<h3 id="how-ios-build-number-stamping-works-important-read-before-modifying">How iOS build number stamping works (important — read before modifying)<a class="headerlink" href="#how-ios-build-number-stamping-works-important-read-before-modifying" title="Permanent link">&para;</a></h3>
+<p><code>distribute-testflight.yml</code> runs these three steps <strong>in order, in the same job</strong>:</p>
+<pre><code>1. Set iOS build number   →  reads IOS_BUILD_NUMBER (e.g. 13)
+                              computes NEXT = 14
+                              writes 14 back to GitHub Variables via gh api
+                              exports IOS_BUILD_NUMBER=14 to $GITHUB_ENV
+
+2. Build iOS App          →  fastlane build_release
+                              set_info_plist_value patches iosApp/Info.plist
+                              CFBundleVersion → 14   ← happens BEFORE build_app
+                              IPA is baked with build number 14 ✓
+
+3. Upload to TestFlight   →  fastlane upload_testflight
+                              uploads the IPA (CFBundleVersion=14)
+                              Apple accepts: 14 &gt; previous ✓
+</code></pre>
+<p><strong>Why <code>set_info_plist_value</code> and NOT <code>increment_build_number(xcodeproj:)</code>:</strong></p>
+<p>Fastlane's <code>increment_build_number(xcodeproj:)</code> internally calls <code>agvtool</code>, which requires
+<code>CURRENT_PROJECT_VERSION</code> to be declared in the target's Xcode build settings. If it is
+absent the call is a <strong>silent no-op</strong> — Fastlane prints nothing, the plist is never updated,
+and every IPA after the first RC is rejected by Apple with:</p>
+<pre><code>The bundle version must be higher than the previously uploaded version
+</code></pre>
+<p>This is exactly what happened during the v1.0.0 RC cycle: the Huezoo xcodeproj was missing
+<code>CURRENT_PROJECT_VERSION</code> (unlike Krail, which always had it). CI incremented <code>IOS_BUILD_NUMBER</code>
+correctly (7 → 8 → 9 … → 13) but every IPA was still built with the hardcoded plist value <code>7</code>,
+causing repeated Apple rejections.</p>
+<p><strong>Fix applied (April 2026 — RC cycle):</strong></p>
+<ol>
+<li>
+<p><code>Fastfile</code> — replaced <code>increment_build_number(xcodeproj:)</code> with <code>set_info_plist_value</code>
+   which patches <code>iosApp/Info.plist → CFBundleVersion</code> directly before <code>build_app</code> runs.
+   No xcodeproj dependency; works regardless of <code>CURRENT_PROJECT_VERSION</code> being present.</p>
+</li>
+<li>
+<p><code>project.pbxproj</code> — added <code>CURRENT_PROJECT_VERSION = 13</code> to both Debug and Release
+   target build configs (mirrors Krail). Enables <code>increment_build_number</code> as a future fallback.</p>
+</li>
+<li>
+<p><code>Info.plist</code> — bumped hardcoded <code>CFBundleVersion</code> from <code>7</code> to <code>13</code> to match the GitHub
+   variable state after the failed RC attempts.</p>
+</li>
+</ol>
+<p><strong>Second bug found (April 2026 — v1.1.0 RC):</strong></p>
+<p>Apple rejected the v1.1.0 upload with:</p>
+<pre><code>CFBundleShortVersionString [1.0] must contain a higher version than previously approved [1.0]
+Invalid Pre-Release Train. The train version '1.0' is closed for new build submissions
+</code></pre>
+<p><code>Config.xcconfig</code> had <code>MARKETING_VERSION=1.1.0</code> but the IPA was still built with <code>1.0</code>.
+Root cause: with <code>GENERATE_INFOPLIST_FILE = YES</code>, Xcode generates <code>Info.plist</code> at archive
+time from build settings. <code>Config.xcconfig</code> provides the value to Xcode when building
+locally, but Fastlane's <code>build_app</code> invokes <code>xcodebuild</code> without inheriting the xcconfig
+context for <code>MARKETING_VERSION</code> — so <code>xcodebuild</code> fell back to whatever was hardcoded in
+<code>project.pbxproj</code> (which still said <code>1.0</code>).</p>
+<p><strong>Fix:</strong> <code>Fastfile</code> now reads <code>MARKETING_VERSION</code> from <code>Config.xcconfig</code> at lane runtime
+and passes it via <code>xcargs</code>, exactly the same pattern used for <code>CURRENT_PROJECT_VERSION</code>.
+<code>Config.xcconfig</code> remains the single source of truth — bump it there and both version
+strings flow through to the IPA automatically.</p>
+<p><strong>Krail vs Huezoo diff that caused the bug:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Krail</th>
+<th>Huezoo (before fix)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CURRENT_PROJECT_VERSION</code> in xcodeproj</td>
+<td>✅ <code>= 11</code></td>
+<td>❌ missing</td>
+</tr>
+<tr>
+<td><code>GENERATE_INFOPLIST_FILE</code></td>
+<td>not set</td>
+<td><code>YES</code></td>
+</tr>
+<tr>
+<td><code>increment_build_number(xcodeproj:)</code> result</td>
+<td>Works correctly</td>
+<td>Silent no-op</td>
+</tr>
+<tr>
+<td>IPA build number source</td>
+<td>CI variable ✓</td>
+<td>Hardcoded plist value ✗</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="environments">Environments<a class="headerlink" href="#environments" title="Permanent link">&para;</a></h2>
+<p>The <code>Firebase</code> GitHub environment gates access to secrets related to signing, distribution,
+and Firebase. All jobs that need secrets are in this environment.</p>
+<hr />
+<h2 id="firebase-app-distribution">Firebase App Distribution<a class="headerlink" href="#firebase-app-distribution" title="Permanent link">&para;</a></h2>
+<p>On every push to <code>main</code>, after a successful build:
+- Debug APK → distributed to <code>Internal</code> group
+- Release APK → distributed to <code>Friends</code> group</p>
+<p>This gives continuous delivery of every merged commit without going through Google Play.</p>
+<p><em>Note: Firebase App Distribution requires a Firebase project to be set up (Phase 8). The
+workflows are in place — activate by configuring the required secrets.</em></p>
+<hr />
+<h2 id="secrets-vs-variables">Secrets vs Variables<a class="headerlink" href="#secrets-vs-variables" title="Permanent link">&para;</a></h2>
+<p><strong>Secrets</strong> (encrypted, never logged): signing keys, API keys, service account JSON, passwords.</p>
+<p><strong>Variables</strong> (plain text, visible in logs): <code>ANDROID_VERSION_CODE</code>, <code>IOS_BUILD_NUMBER</code>,
+<code>DEVELOPMENT_TEAM</code>. These are counters and IDs that CI reads and writes back, not sensitive data.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 ksharma-xyz
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/ksharma-xyz" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

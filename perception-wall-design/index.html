@@ -1,0 +1,692 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A color-matching game for curious minds.">
+      
+      
+        <meta name="author" content="ksharma-xyz">
+      
+      
+        <link rel="canonical" href="https://ksharma-xyz.github.io/HueZoo/perception-wall-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/huezoo-icon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>The Perception Wall — Design Doc - Huezoo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Space+Grotesk:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Space Grotesk";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#the-perception-wall-design-doc" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Huezoo" class="md-header__button md-logo" aria-label="Huezoo" data-md-component="logo">
+      
+  <img src="../assets/huezoo-icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Huezoo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              The Perception Wall — Design Doc
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ksharma-xyz/Huezoo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ksharma-xyz/Huezoo
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Huezoo" class="md-nav__button md-logo" aria-label="Huezoo" data-md-component="logo">
+      
+  <img src="../assets/huezoo-icon.png" alt="logo">
+
+    </a>
+    Huezoo
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ksharma-xyz/Huezoo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ksharma-xyz/Huezoo
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../privacy-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-mechanic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Mechanic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ui-moments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI Moments
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UI Moments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-in-game-wall-hit-celebration-new-state-roundphaseperceptionwall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. In-game "Wall Hit" celebration (new state: RoundPhase.PerceptionWall)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-result-screen-neon-border-conditional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Result screen — Neon Border (conditional)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#animal-mascots-difficulty-tiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Animal Mascots — Difficulty Tiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#session-result-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session Result Changes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build Order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-wall-sessions-clarification-added-april-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-wall sessions (clarification added April 2026)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisions-locked-april-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisions (locked April 2026)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="the-perception-wall-design-doc">The Perception Wall — Design Doc<a class="headerlink" href="#the-perception-wall-design-doc" title="Permanent link">&para;</a></h1>
+<p><em>Feature: what happens when a player correctly identifies ΔE = 0.1 (the floor)</em></p>
+<p>Status: <strong>Implemented — Phases 1–3 complete</strong> (April 2026)</p>
+<hr />
+<h2 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h2>
+<p><code>ThresholdGameEngine.MIN_DELTA_E = 0.1</code> is the current floor.
+When a player answers correctly at 0.1, the game currently silently stays at 0.1
+forever (<code>coerceAtLeast</code>) until they eventually miss. That is a missed dramatic
+opportunity — reaching 0.1 is a genuinely exceptional achievement.</p>
+<p>Human color discrimination limits under ideal conditions: ~0.5–1.0 ΔE.
+Below 0.5 is statistically indistinguishable for most humans.
+At 0.1 it is essentially a coin flip. A machine, or an extraordinarily lucky
+human, can get there.</p>
+<hr />
+<h2 id="the-mechanic">The Mechanic<a class="headerlink" href="#the-mechanic" title="Permanent link">&para;</a></h2>
+<p>When a player correctly identifies the odd swatch at <code>ΔE ≤ MIN_DELTA_E</code>:</p>
+<ol>
+<li>
+<p><strong>That life ends in triumph</strong> — not failure.
+   The perception wall has been broken. A special "LEGENDARY" celebration fires
+   (distinct from a normal correct tap).</p>
+</li>
+<li>
+<p><strong>New life starts from <code>STARTING_DELTA_E</code> (5.0)</strong> — same as after a wrong
+   answer, but with full pomp instead of failure animation.
+   Tries remaining is decremented (same as a wrong answer), because the life
+   is truly over — you can't go lower.</p>
+</li>
+<li>
+<p><strong><code>hitPerceptionWall = true</code></strong> is stored in session state — used later on
+   the result screen.</p>
+</li>
+</ol>
+<p>This means players can still use remaining tries after hitting the wall.
+The wall is not game-over — it is a milestone within a session.</p>
+<hr />
+<h2 id="ui-moments">UI Moments<a class="headerlink" href="#ui-moments" title="Permanent link">&para;</a></h2>
+<h3 id="1-in-game-wall-hit-celebration-new-state-roundphaseperceptionwall">1. In-game "Wall Hit" celebration (new state: <code>RoundPhase.PerceptionWall</code>)<a class="headerlink" href="#1-in-game-wall-hit-celebration-new-state-roundphaseperceptionwall" title="Permanent link">&para;</a></h3>
+<p>Sequence (replaces the normal correct-tap flow when at the floor):</p>
+<pre><code>Correct tap at MIN_DELTA_E
+  → All swatches flash gold/white (not the normal green)
+  → Eagle mascot animates in (large, centered, ~1.5s)
+  → Copy overlay:
+      Line 1: &quot;PERCEPTION LIMIT REACHED&quot;
+      Line 2: &quot;ΔE 0.1 — Beyond human vision&quot;
+  → Haptic: long sustained rumble (distinct from normal correct)
+  → After ~2.5s: fold out, new life starts at 5.0
+</code></pre>
+<h3 id="2-result-screen-neon-border-conditional">2. Result screen — Neon Border (conditional)<a class="headerlink" href="#2-result-screen-neon-border-conditional" title="Permanent link">&para;</a></h3>
+<p>The neon rectangular border (inspired by <code>docs/ideas/screen.png</code>) appears
+<strong>only</strong> when <code>hitPerceptionWall = true</code> in the session result.</p>
+<ul>
+<li>Normal result: current card design, no border</li>
+<li>Legendary result: neon glowing border (cyan → magenta → yellow gradient,
+  animated shimmer on entry). Same screen layout, same stats — just the border
+  transforms the visual weight of the moment.</li>
+<li>Special copy beneath ΔE: <code>"PERCEPTION LIMIT REACHED"</code> badge (small, gold)</li>
+</ul>
+<p>This makes the neon border <strong>earned</strong> and <strong>rare</strong>. Most players will never see
+it. Those who do will screenshot it.</p>
+<hr />
+<h2 id="animal-mascots-difficulty-tiers">Animal Mascots — Difficulty Tiers<a class="headerlink" href="#animal-mascots-difficulty-tiers" title="Permanent link">&para;</a></h2>
+<p>Each ΔE range surfaces a different animal watermark inside the swatch.
+Appears as a faint icon (low opacity, centered, non-interactive).
+Also flashes briefly on correct-answer reveal (full opacity, 300ms).</p>
+<table>
+<thead>
+<tr>
+<th>ΔE range</th>
+<th>Animal</th>
+<th>Character</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5.0 → 3.0</td>
+<td>🐻 Bear</td>
+<td>Relaxed, warm</td>
+</tr>
+<tr>
+<td>3.0 → 2.0</td>
+<td>🦊 Fox</td>
+<td>Alert, clever</td>
+</tr>
+<tr>
+<td>2.0 → 1.0</td>
+<td>🐸 Frog</td>
+<td>Precise, focused</td>
+</tr>
+<tr>
+<td>1.0 → 0.5</td>
+<td>🐙 Octopus</td>
+<td>Strange, exceptional</td>
+</tr>
+<tr>
+<td>&lt; 0.5</td>
+<td>🦅 Eagle</td>
+<td>Legendary, beyond human</td>
+</tr>
+</tbody>
+</table>
+<p>The Eagle is the only animal that appears at the perception wall.
+It should feel like encountering something rare.</p>
+<p>Assets needed: 5 animal icons (line-art style, single color, works on any
+colored swatch background). SVG or vector preferred for crispness at small sizes.</p>
+<hr />
+<h2 id="session-result-changes">Session Result Changes<a class="headerlink" href="#session-result-changes" title="Permanent link">&para;</a></h2>
+<p><code>SessionResult</code> (or the ViewModel's result cache) gains:</p>
+<pre><code class="language-kotlin">val hitPerceptionWall: Boolean = false
+</code></pre>
+<p>Set to <code>true</code> in <code>handleCorrectTap()</code> when <code>currentDeltaE &lt;= MIN_DELTA_E</code>.</p>
+<p><code>ResultUiState.Ready</code> gains:</p>
+<pre><code class="language-kotlin">val isLegendaryResult: Boolean = false
+</code></pre>
+<p>Result screen reads this flag to conditionally show the neon border.</p>
+<hr />
+<h2 id="build-order">Build Order<a class="headerlink" href="#build-order" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Phase 1 — Wall mechanic</strong> (ViewModel + game flow only, no new UI)</li>
+<li>Detect floor hit in <code>handleCorrectTap</code></li>
+<li>Award <strong>5000 gems</strong> instantly on wall hit</li>
+<li>End life triumphantly (decrement tries, reset ΔE, store flag)</li>
+<li>Add <code>RoundPhase.PerceptionWall</code></li>
+<li>
+<p>Add <code>hitPerceptionWall</code> to session result</p>
+</li>
+<li>
+<p><strong>Phase 2 — In-game celebration UI</strong></p>
+</li>
+<li>Eagle overlay animation + copy</li>
+<li>Gold swatch flash</li>
+<li>
+<p>Distinct haptic</p>
+</li>
+<li>
+<p><strong>Phase 3 — Result screen neon border</strong></p>
+</li>
+<li>Conditional neon border composable (animated shimmer)</li>
+<li><code>"PERCEPTION LIMIT REACHED"</code> badge on ΔE stat card</li>
+<li>
+<p>Only renders when <code>isLegendaryResult = true</code></p>
+</li>
+<li>
+<p><strong>Phase 4 — Animal mascots</strong></p>
+</li>
+<li>Needs asset delivery first (5 SVG icons)</li>
+<li>Watermark in swatch composable, keyed on current ΔE range</li>
+<li>Flash on correct reveal</li>
+</ol>
+<hr />
+<h2 id="multi-wall-sessions-clarification-added-april-2026">Multi-wall sessions (clarification added April 2026)<a class="headerlink" href="#multi-wall-sessions-clarification-added-april-2026" title="Permanent link">&para;</a></h2>
+<p>A player can reach MIN_DELTA_E in more than one try within a single session:</p>
+<ul>
+<li><strong>Life always ends at MIN_DELTA_E</strong> — regardless of whether <code>hitPerceptionWall</code>
+  is already <code>true</code>. The player is never stuck in an infinite loop at ΔE 0.1.</li>
+<li><strong>5 000-gem bonus is awarded at most once per session</strong> — even if the player
+  reaches MIN_DELTA_E in every try. The first wall hit sets <code>hitPerceptionWall = true</code>;
+  subsequent wall hits skip the gem award but still end the life triumphantly.</li>
+<li><strong><code>hitPerceptionWall</code> in <code>SessionResult</code></strong> is <code>true</code> for the entire session if the
+  wall was hit at least once; no per-try tracking is stored.</li>
+</ul>
+<p>This is covered by <code>ThresholdPerceptionWallTest</code> in the test suite.</p>
+<hr />
+<h2 id="decisions-locked-april-2026">Decisions (locked April 2026)<a class="headerlink" href="#decisions-locked-april-2026" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Wall consumes a try</strong> — life is over, can't go lower. Rewarded with 5000 gems.</li>
+<li><strong>Neon border is always cyan/magenta/yellow</strong> — fixed, iconic, matches promo art.
+  Makes the legendary state instantly recognizable regardless of round color.
+  Colors flow <em>around</em> the border (phase-shifted sweep gradient); the rectangle
+  itself never rotates.</li>
+<li><strong>Eagle appears at ΔE &lt; 0.5</strong> — not only at the exact floor. The 0.5 crossing
+  is where human perception ends; Eagle marks that whole territory.</li>
+<li><strong><code>hitPerceptionWall</code> leaderboard badge</strong> — persist to DB, future work.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 ksharma-xyz
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/ksharma-xyz" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

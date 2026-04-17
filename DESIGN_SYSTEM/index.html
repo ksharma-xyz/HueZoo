@@ -1,0 +1,2136 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A color-matching game for curious minds.">
+      
+      
+        <meta name="author" content="ksharma-xyz">
+      
+      
+        <link rel="canonical" href="https://ksharma-xyz.github.io/HueZoo/DESIGN_SYSTEM/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/huezoo-icon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Huezoo — Design System - Huezoo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Space+Grotesk:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Space Grotesk";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#huezoo-design-system" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Huezoo" class="md-header__button md-logo" aria-label="Huezoo" data-md-component="logo">
+      
+  <img src="../assets/huezoo-icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Huezoo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Huezoo — Design System
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ksharma-xyz/Huezoo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ksharma-xyz/Huezoo
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Huezoo" class="md-nav__button md-logo" aria-label="Huezoo" data-md-component="logo">
+      
+  <img src="../assets/huezoo-icon.png" alt="logo">
+
+    </a>
+    Huezoo
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ksharma-xyz/Huezoo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ksharma-xyz/Huezoo
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../privacy-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-philosophy-north-star" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Philosophy &amp; North Star
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-sting-principle-core-ux-copy-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The Sting Principle — Core UX + Copy Rule
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. The Sting Principle — Core UX + Copy Rule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rules-for-all-in-app-copy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rules for All In-App Copy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#copy-tone-by-moment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Copy Tone by Moment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sting-copy-pool-result-screen-by-e-achieved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sting Copy Pool — Result Screen (by ΔE achieved)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wrong-answer-copy-pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wrong Answer Copy Pool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#home-screen-copy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Home Screen Copy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-color-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Color System
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Color System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#surfaces-static-dark-never-change-with-system-theme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Surfaces (static dark — never change with system theme)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#accents-neon-interactive-elements-identity-colors-glows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accents (neon — interactive elements, identity colors, glows)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#game-identity-colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game Identity Colors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#text-always-on-dark-surfaces-use-these-not-materialthemecolorscheme-on-cards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Text (always on dark surfaces — use these, NOT MaterialTheme.colorScheme on cards)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-two-surface-rule-critical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Two-Surface Rule — Critical
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contrast-color-safety-colorextkt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contrast &amp; Color Safety (ColorExt.kt)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-typography" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Typography
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Typography">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#font-families-three-fonts-strict-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Font Families — Three Fonts, Strict Roles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-type-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full Type Scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#font-licenses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Font Licenses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-visual-language-neo-brutalist-kinetic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Visual Language — Neo-Brutalist Kinetic
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Visual Language — Neo-Brutalist Kinetic">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-physical-shelf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Physical Shelf
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neon-rim-light-no-line-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Neon Rim Light — No-Line Rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ambientglowbackground" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AmbientGlowBackground
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-to-edge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge-to-Edge
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-modifier-toolkit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Modifier Toolkit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Modifier Toolkit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shapedshadowshape-color-offsetx-offsety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        shapedShadow(shape, color, offsetX, offsetY)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rimlightcornerradius" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rimLight(cornerRadius)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-order-on-a-typical-card" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage order on a typical card
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-shapes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Shapes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#huezootopbar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HuezooTopBar
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#huezoobutton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HuezooButton
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#huezooiconbutton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HuezooIconButton
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pricebutton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PriceButton
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swatchblock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SwatchBlock
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#radialswatchlayout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RadialSwatchLayout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#swatchgradientoverlay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SwatchGradientOverlay
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skewedstatchip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SkewedStatChip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deltaebadge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeltaEBadge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#roundindicator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RoundIndicator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resultcard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ResultCard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gamecard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GameCard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#currencypill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CurrencyPill
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ambientglowbackground_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AmbientGlowBackground
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#huezoobottomsheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HuezooBottomSheet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-illustration-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Illustration System
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Illustration System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#philosophy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Philosophy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-apply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to Apply
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#threshold-scanner-illustration-thresholdscannerillustration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threshold Scanner Illustration (ThresholdScannerIllustration)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-new-illustration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a New Illustration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#canvas-icon-drawers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canvas Icon Drawers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-screen-designs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Screen Designs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Screen Designs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#home-screen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Home Screen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-threshold-game-screen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Threshold Game Screen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#daily-challenge-game-screen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Daily Challenge Game Screen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result-screen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result Screen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#already-played-blocked-screens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Already-Played / Blocked Screens
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-game-identity-colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Game Identity Colors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-levels-economy-progression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Levels, Economy &amp; Progression
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Levels, Economy &amp; Progression">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#player-level-playerlevelkt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Player Level (PlayerLevel.kt)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gem-economy-current-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gem Economy (current implementation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attempt-window-threshold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attempt Window (Threshold)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e-tier-labels-reference-not-yet-wired-into-hud" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ΔE Tier Labels (reference — not yet wired into HUD)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-ux-rules-moments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. UX Rules &amp; Moments
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. UX Rules &amp; Moments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#missing-ux-moments-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Missing UX Moments (status)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e-info-card-deltaeinfocard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ΔE Info Card (DeltaEInfoCard)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navigation-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigation Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-non-negotiables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Non-Negotiables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-what-never-to-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. What Never to Do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-file-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. File Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="huezoo-design-system">Huezoo — Design System<a class="headerlink" href="#huezoo-design-system" title="Permanent link">&para;</a></h1>
+<p><em>Single source of truth. Supersedes: TYPOGRAPHY.md, kinetic_neon/DESIGN.md, STITCH_DESIGN_REVIEW.md, IMPLEMENTATION_PLAN_LEVELS_ECONOMY_UX.md, ux.md.</em>
+<em>Companion docs still active: <code>MVP.md</code> (implementation tracker) · <code>VISION.md</code> (product roadmap)</em></p>
+<hr />
+<h2 id="1-philosophy-north-star">1. Philosophy &amp; North Star<a class="headerlink" href="#1-philosophy-north-star" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>"The Kinetic Vault"</strong> — a high-end, tactile instrument where light behaves as a physical material.</p>
+</blockquote>
+<p>This is not a settings screen. Not Material 3 defaults. Not a web dashboard.
+Every tap should feel like something happened. Every correct answer should feel satisfying.
+Every wrong answer should <strong>sting</strong> — politely, but deeply.</p>
+<p>The visual language is <strong>dark, vibrant, neo-brutalist, illustrated</strong>.
+- Sharp rectangular corners on panels (0dp radius) — architectural, aggressive
+- Neon rim lighting defines edges, not traditional borders
+- "Physical shelves" under buttons and cards — depth through offset shadows, not blur
+- Canvas-drawn illustrations built from geometric lines — GI Joe / military-sensor aesthetic
+- Every screen should feel like something a player is proud to screenshot</p>
+<hr />
+<h2 id="2-the-sting-principle-core-ux-copy-rule">2. The Sting Principle — Core UX + Copy Rule<a class="headerlink" href="#2-the-sting-principle-core-ux-copy-rule" title="Permanent link">&para;</a></h2>
+<p><strong>This is the most important rule in the app. Never forget it.</strong></p>
+<p>Wrong answers don't say "Oops! Try again :)" — that's a toddler app.
+Wrong answers tease. They challenge. They make the player feel like they <em>almost</em> had it
+and now they <em>have</em> to go again.</p>
+<blockquote>
+<p>Polite enough that it doesn't feel mean. Sharp enough that you can't just close the app.</p>
+</blockquote>
+<p><strong>Emotion designed for:</strong> Not shame. Not frustration. <strong>Determination.</strong></p>
+<h3 id="rules-for-all-in-app-copy">Rules for All In-App Copy<a class="headerlink" href="#rules-for-all-in-app-copy" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Never say sorry. The app never apologizes.</li>
+<li>Never use exclamation marks on wrong answers. "Wrong!" feels aggressive. "That wasn't it." feels like a raised eyebrow.</li>
+<li>Always leave a door open. Every loss message implies the next attempt is closer.</li>
+<li>Reference their specific failure. "ΔE 2.4 got you" stings more than generic "You missed."</li>
+<li>Tease the ceiling. Show them the gap between where they are and where they could be.</li>
+<li>On wins, be cool not hype. Don't over-celebrate easy wins.</li>
+</ol>
+<h3 id="copy-tone-by-moment">Copy Tone by Moment<a class="headerlink" href="#copy-tone-by-moment" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Moment</th>
+<th>Tone</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Game start</td>
+<td>Confident dare</td>
+<td>"Let's see what you've got."</td>
+</tr>
+<tr>
+<td>Correct (easy)</td>
+<td>Understated</td>
+<td>"Not bad."</td>
+</tr>
+<tr>
+<td>Correct (hard)</td>
+<td>Genuine respect</td>
+<td>"Okay. That one was real."</td>
+</tr>
+<tr>
+<td>Wrong (early)</td>
+<td>Light tease</td>
+<td>"ΔE 3.1 already? Hmm."</td>
+</tr>
+<tr>
+<td>Wrong (deep)</td>
+<td>Real sting</td>
+<td>"You were at ΔE 1.4. So close it hurts."</td>
+</tr>
+<tr>
+<td>New personal best</td>
+<td>Cool, not hype</td>
+<td>"ΔE 1.1. That's actually impressive."</td>
+</tr>
+<tr>
+<td>No improvement</td>
+<td>Dare</td>
+<td>"Same as last time. You sure that's your limit?"</td>
+</tr>
+<tr>
+<td>Daily done</td>
+<td>Matter-of-fact</td>
+<td>"Day 47. Done. Come back tomorrow."</td>
+</tr>
+<tr>
+<td>Out of tries</td>
+<td>Wry</td>
+<td>"5 tries. Still not satisfied? Respect."</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sting-copy-pool-result-screen-by-e-achieved">Sting Copy Pool — Result Screen (by ΔE achieved)<a class="headerlink" href="#sting-copy-pool-result-screen-by-e-achieved" title="Permanent link">&para;</a></h3>
+<pre><code>ΔE &lt; 0.5  → &quot;Superhuman. Seriously.&quot;
+ΔE &lt; 1.0  → &quot;Your eyes are elite.&quot;
+ΔE &lt; 1.5  → &quot;Sharp. Very sharp.&quot;
+ΔE &lt; 2.0  → &quot;Better than most.&quot;
+ΔE &lt; 3.0  → &quot;Solid perception.&quot;
+ΔE &lt; 4.0  → &quot;Room to grow.&quot;
+ΔE ≥ 4.0  → &quot;Keep training.&quot;
+Daily &gt;800 → &quot;Perfect run.&quot;
+Daily &gt;500 → &quot;Strong.&quot;
+Daily &gt;200 → &quot;Not bad.&quot;
+Daily else → &quot;Try again tomorrow.&quot;
+</code></pre>
+<h3 id="wrong-answer-copy-pool">Wrong Answer Copy Pool<a class="headerlink" href="#wrong-answer-copy-pool" title="Permanent link">&para;</a></h3>
+<p><strong>Early miss (ΔE ~3.0+):</strong> "That one wasn't even close." / "ΔE 3.1. Your eyes were off today." / "Warmer. Not warm enough."</p>
+<p><strong>Mid-game (ΔE ~1.5–3.0):</strong> "ΔE {X} got you. Most people tap out here." / "That gap was real. You almost saw it."</p>
+<p><strong>Deep miss (ΔE &lt; 1.5):</strong> "ΔE {X}. That's sub-pixel territory. Seriously impressive." / "ΔE {X}. The difference was barely real. You still missed it."</p>
+<h3 id="home-screen-copy">Home Screen Copy<a class="headerlink" href="#home-screen-copy" title="Permanent link">&para;</a></h3>
+<ul>
+<li>App tagline: <strong>"How sharp are your eyes?"</strong></li>
+<li>The Threshold subtitle: <strong>"One miss. That's all it takes."</strong></li>
+<li>Daily Challenge subtitle: <strong>"Everyone gets the same puzzle. Not everyone survives it."</strong></li>
+</ul>
+<hr />
+<h2 id="3-color-system">3. Color System<a class="headerlink" href="#3-color-system" title="Permanent link">&para;</a></h2>
+<h3 id="surfaces-static-dark-never-change-with-system-theme">Surfaces (static dark — never change with system theme)<a class="headerlink" href="#surfaces-static-dark-never-change-with-system-theme" title="Permanent link">&para;</a></h3>
+<pre><code>Background    #080810   deep space void — screen root
+SurfaceL0     #0D0D18   deepest panel inset
+SurfaceL1     #12121E   card face, game board
+SurfaceL2     #1C1C2E   elevated panels, sheets, inner card panels
+SurfaceL3     #26263A   pressed states, stat box backgrounds
+SurfaceL4     #34343F   shelf color (shadow offset target), separators
+</code></pre>
+<h3 id="accents-neon-interactive-elements-identity-colors-glows">Accents (neon — interactive elements, identity colors, glows)<a class="headerlink" href="#accents-neon-interactive-elements-identity-colors-glows" title="Permanent link">&para;</a></h3>
+<pre><code>AccentCyan     #00E5FF   primary CTA, &quot;correct&quot;, Threshold active, Level 1
+AccentMagenta  #FF2D78   wrong answer, danger, Level 2 / Skilled
+AccentYellow   #FFE600   Daily Challenge identity, Level 3 / Master
+AccentPurple   #9B5DE5   secondary purple accent
+AccentGreen    #00F5A0   success, streak complete, ActionConfirm
+WarmOrange     #FF8A50   warm accent
+</code></pre>
+<h3 id="game-identity-colors">Game Identity Colors<a class="headerlink" href="#game-identity-colors" title="Permanent link">&para;</a></h3>
+<pre><code>GameThreshold  #7B6FF0   indigo-violet — used in ThresholdHeroCard illustration + tints
+GameDaily      #FFE600   AccentYellow — Daily Challenge
+</code></pre>
+<h3 id="text-always-on-dark-surfaces-use-these-not-materialthemecolorscheme-on-cards">Text (always on dark surfaces — use these, NOT MaterialTheme.colorScheme on cards)<a class="headerlink" href="#text-always-on-dark-surfaces-use-these-not-materialthemecolorscheme-on-cards" title="Permanent link">&para;</a></h3>
+<pre><code>TextPrimary    #FFFFFF   all primary text on dark cards/panels
+TextSecondary  #9898BB   subtitles, metadata, secondary labels (~5.5:1 on SurfaceL1)
+TextDisabled   #777799   personal best, helper labels, faded states (~4.5:1 on SurfaceL1)
+</code></pre>
+<h3 id="the-two-surface-rule-critical">The Two-Surface Rule — Critical<a class="headerlink" href="#the-two-surface-rule-critical" title="Permanent link">&para;</a></h3>
+<p>Huezoo has two surface types:</p>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Background</th>
+<th>Text tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Static dark</strong> (cards, buttons, sheets, game panels)</td>
+<td><code>HuezooColors.SurfaceL1/L2</code> — NEVER changes with theme</td>
+<td><code>HuezooColors.TextPrimary / TextSecondary / TextDisabled</code> — always explicit</td>
+</tr>
+<tr>
+<td><strong>App page background</strong> (screen root)</td>
+<td><code>MaterialTheme.colorScheme.background</code></td>
+<td><code>MaterialTheme.colorScheme.onBackground</code> — defaults OK</td>
+</tr>
+</tbody>
+</table>
+<p><code>MaterialTheme.colorScheme.onBackground</code> is near-black in light mode. Cards are always dark.
+Near-black on dark card = invisible. Always use explicit <code>HuezooColors.Text*</code> on cards.</p>
+<h3 id="contrast-color-safety-colorextkt">Contrast &amp; Color Safety (<code>ColorExt.kt</code>)<a class="headerlink" href="#contrast-color-safety-colorextkt" title="Permanent link">&para;</a></h3>
+<pre><code class="language-kotlin">// Always use on colored backgrounds (buttons, badges, identity chips)
+val textColor = faceColor.onColor          // → #0D0D1A (dark) or #FFFFFF (white)
+
+// Explicit contrast check
+val ratio = HuezooColors.AccentCyan.contrastRatio(HuezooColors.Background) // ~12.9
+
+// With preferred color
+val label = HuezooColors.AccentCyan.foregroundColor(preferred = Color.White) // → #0D0D1A (fails)
+</code></pre>
+<p>AccentPurple is the only accent that gets white text — all others get near-black text via <code>onColor</code>.</p>
+<hr />
+<h2 id="4-typography">4. Typography<a class="headerlink" href="#4-typography" title="Permanent link">&para;</a></h2>
+<h3 id="font-families-three-fonts-strict-roles">Font Families — Three Fonts, Strict Roles<a class="headerlink" href="#font-families-three-fonts-strict-roles" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Font</th>
+<th>Role</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bebas Neue</strong></td>
+<td>Bold condensed display (replaces Antonio)</td>
+<td>Numbers, scores, ΔE values, app name, hero text</td>
+</tr>
+<tr>
+<td><strong>Clash Display</strong></td>
+<td>Round, architectural (replaces Fredoka)</td>
+<td>Card titles, section headings, paywall title</td>
+</tr>
+<tr>
+<td><strong>Space Grotesk</strong></td>
+<td>Geometric sans-serif</td>
+<td>Body copy, button labels, metadata, badges, all small UI</td>
+</tr>
+</tbody>
+</table>
+<p>Never use <code>Text()</code> directly. Always use typed <code>HuezooText</code> composables from <code>HuezooText.kt</code>.</p>
+<h3 id="full-type-scale">Full Type Scale<a class="headerlink" href="#full-type-scale" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Slot</th>
+<th>Composable</th>
+<th>Font</th>
+<th>Weight</th>
+<th>Size</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>displayLarge</code></td>
+<td><code>HuezooDisplayLarge</code></td>
+<td>Bebas Neue</td>
+<td>Bold</td>
+<td>56sp</td>
+<td>ΔE hero on ResultCard</td>
+</tr>
+<tr>
+<td><code>displayMedium</code></td>
+<td><code>HuezooDisplayMedium</code></td>
+<td>Bebas Neue</td>
+<td>Bold</td>
+<td>40sp</td>
+<td>Gems count, SCORE stat</td>
+</tr>
+<tr>
+<td><code>displaySmall</code></td>
+<td><code>HuezooDisplaySmall</code></td>
+<td>Bebas Neue</td>
+<td>Bold</td>
+<td>28sp</td>
+<td>DeltaEBadge number</td>
+</tr>
+<tr>
+<td><code>headlineLarge</code></td>
+<td><code>HuezooHeadlineLarge</code></td>
+<td>Bebas Neue</td>
+<td>Bold</td>
+<td>40sp</td>
+<td>App name, screen hero</td>
+</tr>
+<tr>
+<td><code>headlineMedium</code></td>
+<td><code>HuezooHeadlineMedium</code></td>
+<td>Clash Display</td>
+<td>SemiBold</td>
+<td>28sp</td>
+<td>Section headings, dialog titles</td>
+</tr>
+<tr>
+<td><code>headlineSmall</code></td>
+<td><code>HuezooHeadlineSmall</code></td>
+<td>Bebas Neue</td>
+<td>Medium</td>
+<td>20sp</td>
+<td>Currency pill, inline numbers</td>
+</tr>
+<tr>
+<td><code>titleLarge</code></td>
+<td><code>HuezooTitleLarge</code></td>
+<td>Clash Display</td>
+<td>Bold</td>
+<td>22sp</td>
+<td>Card headers "THE THRESHOLD"</td>
+</tr>
+<tr>
+<td><code>titleMedium</code></td>
+<td><code>HuezooTitleMedium</code></td>
+<td>Clash Display</td>
+<td>SemiBold</td>
+<td>20sp</td>
+<td>GameCard title</td>
+</tr>
+<tr>
+<td><code>titleSmall</code></td>
+<td><code>HuezooTitleSmall</code></td>
+<td>Clash Display</td>
+<td>Regular</td>
+<td>16sp</td>
+<td>Secondary titles</td>
+</tr>
+<tr>
+<td><code>bodyLarge</code></td>
+<td><code>HuezooBodyLarge</code></td>
+<td>Space Grotesk</td>
+<td>Regular</td>
+<td>18sp</td>
+<td>Long-form description</td>
+</tr>
+<tr>
+<td><code>bodyMedium</code></td>
+<td><code>HuezooBodyMedium</code></td>
+<td>Space Grotesk</td>
+<td>Regular</td>
+<td>16sp</td>
+<td>Card subtitle, description</td>
+</tr>
+<tr>
+<td><code>bodySmall</code></td>
+<td><code>HuezooBodySmall</code></td>
+<td>Space Grotesk</td>
+<td>Regular</td>
+<td>14sp</td>
+<td>Captions, hints</td>
+</tr>
+<tr>
+<td><code>labelLarge</code></td>
+<td><code>HuezooLabelLarge</code></td>
+<td>Space Grotesk</td>
+<td>Bold</td>
+<td>16sp</td>
+<td>Button labels, chips</td>
+</tr>
+<tr>
+<td><code>labelMedium</code></td>
+<td><code>HuezooLabelMedium</code></td>
+<td>Space Grotesk</td>
+<td>Medium</td>
+<td>13sp</td>
+<td>Secondary labels</td>
+</tr>
+<tr>
+<td><code>labelSmall</code></td>
+<td><code>HuezooLabelSmall</code></td>
+<td>Space Grotesk</td>
+<td>Medium</td>
+<td>12sp</td>
+<td>Badges, stat headers, tries text</td>
+</tr>
+</tbody>
+</table>
+<h3 id="font-licenses">Font Licenses<a class="headerlink" href="#font-licenses" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Bebas Neue</strong> — SIL OFL 1.1 (no action needed)</li>
+<li><strong>Clash Display</strong> — Fontshare FF EULA — verify bundling in APK/IPA is acceptable before App Store submission; fallback: DM Serif Display (SIL OFL)</li>
+<li><strong>Space Grotesk</strong> — SIL OFL 1.1 (no action needed)</li>
+</ul>
+<hr />
+<h2 id="5-visual-language-neo-brutalist-kinetic">5. Visual Language — Neo-Brutalist Kinetic<a class="headerlink" href="#5-visual-language-neo-brutalist-kinetic" title="Permanent link">&para;</a></h2>
+<h3 id="the-physical-shelf">The Physical Shelf<a class="headerlink" href="#the-physical-shelf" title="Permanent link">&para;</a></h3>
+<p>Depth is achieved by offset hard-edge shadows — not blur, not soft glow.
+Every elevated element sits on a "shelf": a darker layer offset (+4dp, +4dp) bottom-right.</p>
+<pre><code class="language-kotlin">// Applied via Modifier.shapedShadow() from Modifiers.kt
+modifier.shapedShadow(
+    shape = RectangleShape,
+    color = HuezooColors.SurfaceL4,
+    offsetX = 4.dp,
+    offsetY = 4.dp,
+)
+</code></pre>
+<h3 id="neon-rim-light-no-line-rule">Neon Rim Light — No-Line Rule<a class="headerlink" href="#neon-rim-light-no-line-rule" title="Permanent link">&para;</a></h3>
+<p><strong>Prohibit 1px solid borders.</strong> Edges are defined by light. Use <code>rimLight()</code> modifier to simulate a physical light source hitting the top-left corner of a surface:</p>
+<pre><code class="language-kotlin">modifier.rimLight(cornerRadius = 0.dp)
+// Draws a faint inset highlight on top + left edges in AccentCyan at ~0.30 alpha
+</code></pre>
+<h3 id="ambientglowbackground">AmbientGlowBackground<a class="headerlink" href="#ambientglowbackground" title="Permanent link">&para;</a></h3>
+<p>Every screen root uses two large radial gradients anchored at opposite corners — top-start (primary) and bottom-end (secondary) — at 10% alpha. This creates ambient identity color bleed without affecting color accuracy in game panels.</p>
+<pre><code class="language-kotlin">AmbientGlowBackground(
+    primaryColor = HuezooColors.AccentCyan,   // default
+    secondaryColor = HuezooColors.AccentMagenta,
+) { content() }
+</code></pre>
+<h3 id="edge-to-edge">Edge-to-Edge<a class="headerlink" href="#edge-to-edge" title="Permanent link">&para;</a></h3>
+<p><code>enableEdgeToEdge()</code> is called in <code>MainActivity</code>. <code>AmbientGlowBackground</code> fills under the status bar.
+Status bar padding is applied via <code>WindowInsets.statusBars</code> inside <code>HuezooTopBar</code>.
+<strong>On the Home screen, <code>HuezooTopBar</code> is inside the scrollable Column</strong> — it scrolls with content (not pinned), and its <code>windowInsetsTopHeight</code> spacer handles the status bar gap.</p>
+<hr />
+<h2 id="6-modifier-toolkit">6. Modifier Toolkit<a class="headerlink" href="#6-modifier-toolkit" title="Permanent link">&para;</a></h2>
+<p>All custom modifiers live in <code>ui/theme/Modifiers.kt</code>.</p>
+<h3 id="shapedshadowshape-color-offsetx-offsety"><code>shapedShadow(shape, color, offsetX, offsetY)</code><a class="headerlink" href="#shapedshadowshape-color-offsetx-offsety" title="Permanent link">&para;</a></h3>
+<p>Neo-brutal offset shadow. Draws a filled shape at <code>(+offsetX, +offsetY)</code> behind the component.
+Works with any <code>Shape</code>; <code>RectangleShape</code> uses the fast <code>Outline.Rectangle</code> branch.
+Always apply <strong>before</strong> <code>.background()</code> in the modifier chain.</p>
+<h3 id="rimlightcornerradius"><code>rimLight(cornerRadius)</code><a class="headerlink" href="#rimlightcornerradius" title="Permanent link">&para;</a></h3>
+<p>Top + left inset highlight in <code>AccentCyan.copy(0.30f)</code>.
+Simulates a physical light source at the top-left corner of a card.
+Apply as the <strong>last</strong> modifier after <code>.background()</code>.</p>
+<h3 id="usage-order-on-a-typical-card">Usage order on a typical card<a class="headerlink" href="#usage-order-on-a-typical-card" title="Permanent link">&para;</a></h3>
+<pre><code class="language-kotlin">modifier
+    .shapedShadow(RectangleShape, HuezooColors.SurfaceL4, 4.dp, 4.dp) // shadow behind
+    .background(HuezooColors.SurfaceL2)                                 // fill
+    .rimLight(cornerRadius = 0.dp)                                       // light on top
+</code></pre>
+<hr />
+<h2 id="7-shapes">7. Shapes<a class="headerlink" href="#7-shapes" title="Permanent link">&para;</a></h2>
+<pre><code>ParallelogramBack     Custom GenericShape   Back button (skewed left)
+RectangleShape        System               All panel cards, hero cards, stat boxes
+RoundedCornerShape    System (per use)     DeltaEInfoCard (CornerCard token)
+</code></pre>
+<p><code>HuezooSize.CornerCard</code> = the standard corner radius for any card that uses rounded corners (e.g. <code>DeltaEInfoCard</code>). All hero cards / panel cards use <code>RectangleShape</code> (0dp radius — architectural sharp).</p>
+<p><code>HuezooSpacing.*</code> provides the spacing scale: <code>xs, sm, md, lg, xl</code>.</p>
+<hr />
+<h2 id="8-components">8. Components<a class="headerlink" href="#8-components" title="Permanent link">&para;</a></h2>
+<p>All in <code>composeApp/src/commonMain/kotlin/xyz/ksharma/huezoo/ui/components/</code>.</p>
+<h3 id="huezootopbar">HuezooTopBar<a class="headerlink" href="#huezootopbar" title="Permanent link">&para;</a></h3>
+<p>Glassmorphic bar. Vertical frost gradient Background 95%→82%. 4dp bottom border in <code>SurfaceL1</code>.
+- Home/root screen: shows wordmark <code>HUEZ</code> (Bebas Neue italic, AccentCyan) — no gems
+- Inner screens: shows parallelogram back button (cyan shadow, <code>SurfaceL3</code> face)
+- <code>windowInsetsTopHeight(WindowInsets.statusBars)</code> spacer handles status bar
+- Scrolls with content on Home screen (not fixed)</p>
+<h3 id="huezoobutton">HuezooButton<a class="headerlink" href="#huezoobutton" title="Permanent link">&para;</a></h3>
+<p>Pill-shaped. Variants: <code>Primary</code> (Cyan), <code>Confirm</code> (Green), <code>Danger</code> (Magenta), <code>Score</code> (Yellow), <code>Ghost</code> (transparent + cyan border), <code>GhostDanger</code> (transparent + magenta border).
+Text: <code>HuezooLabelLarge</code>, color via <code>.onColor</code>. No X shadow — bottom-only shelf.</p>
+<h3 id="huezooiconbutton">HuezooIconButton<a class="headerlink" href="#huezooiconbutton" title="Permanent link">&para;</a></h3>
+<p>Squircle 48×48dp, 4dp bottom shelf. Variants: Dismiss (red), Confirm (green), Back (dark), Info (cyan). Use instead of any <code>TopAppBar</code> back arrow in game screens.</p>
+<h3 id="pricebutton">PriceButton<a class="headerlink" href="#pricebutton" title="Permanent link">&para;</a></h3>
+<p>Wide pill, 56dp tall. Bright green face. Used only for purchase CTAs.</p>
+<h3 id="swatchblock">SwatchBlock<a class="headerlink" href="#swatchblock" title="Permanent link">&para;</a></h3>
+<p>Color swatch with states: default / pressed / correct / wrong / revealed.
+Shake animation (ShakeX) on wrong. Scale spring on appear.</p>
+<h3 id="radialswatchlayout">RadialSwatchLayout<a class="headerlink" href="#radialswatchlayout" title="Permanent link">&para;</a></h3>
+<p>Flower-petal radial arrangement of swatches (6 petals). Used in both Threshold and Daily games.</p>
+<h3 id="swatchgradientoverlay">SwatchGradientOverlay<a class="headerlink" href="#swatchgradientoverlay" title="Permanent link">&para;</a></h3>
+<p>Top-left highlight + bottom-right shadow over a swatch for physical chip look.</p>
+<h3 id="skewedstatchip">SkewedStatChip<a class="headerlink" href="#skewedstatchip" title="Permanent link">&para;</a></h3>
+<p>Parallelogram-shaped HUD chip (skewed). Shows game stats (ROUND, TRIES). Add ~3dp <code>paddingStart</code> offset to clear the angled boundary on the left edge.</p>
+<h3 id="deltaebadge">DeltaEBadge<a class="headerlink" href="#deltaebadge" title="Permanent link">&para;</a></h3>
+<p>Animated ΔE readout. Color shifts: <code>AccentCyan</code> (easy, &gt;3.0) → <code>AccentYellow</code> (medium, 1.5–3.0) → <code>AccentMagenta</code> (hard, &lt;1.5). Bebas Neue Bold for the number.</p>
+<h3 id="roundindicator">RoundIndicator<a class="headerlink" href="#roundindicator" title="Permanent link">&para;</a></h3>
+<p>Row of dots: inactive / active (pulse + scale 1.2f + white border) / completed (accent green).</p>
+<h3 id="resultcard">ResultCard<a class="headerlink" href="#resultcard" title="Permanent link">&para;</a></h3>
+<p>Share-ready end-of-game card. Spring entrance (slide up 60dp + scale 0.9→1.0). Count-up animation for score and ΔE. Sting copy based on ΔE achieved.</p>
+<h3 id="gamecard">GameCard<a class="headerlink" href="#gamecard" title="Permanent link">&para;</a></h3>
+<p>Legacy card component. Hero illustration area (90dp). Identity color accent bar. Personal best. Still used in some contexts; Home screen now uses custom card components instead.</p>
+<h3 id="currencypill">CurrencyPill<a class="headerlink" href="#currencypill" title="Permanent link">&para;</a></h3>
+<p>Display-only pill. SurfaceL2 background. No press animation. Not shown on Home screen TopBar — gems are in the Home Stats Section only.</p>
+<h3 id="ambientglowbackground_1">AmbientGlowBackground<a class="headerlink" href="#ambientglowbackground_1" title="Permanent link">&para;</a></h3>
+<p>Screen-level background. Two radial gradients at 10% alpha anchored at opposite corners. Never intercepts touch events. See §5.</p>
+<h3 id="huezoobottomsheet">HuezooBottomSheet<a class="headerlink" href="#huezoobottomsheet" title="Permanent link">&para;</a></h3>
+<p>Game-styled modal sheet. 32dp top corners, handle bar. Used for paywall.</p>
+<hr />
+<h2 id="9-illustration-system">9. Illustration System<a class="headerlink" href="#9-illustration-system" title="Permanent link">&para;</a></h2>
+<p><strong>Rule:</strong> Every major game card should have a canvas-drawn illustration that communicates its personality through geometry and lines — not photographs or generic gradients.</p>
+<h3 id="philosophy">Philosophy<a class="headerlink" href="#philosophy" title="Permanent link">&para;</a></h3>
+<p>Illustrations are drawn entirely from <strong>lines, arcs, dots, and geometric shapes</strong> in the game's identity color at low opacity. They sit behind content as a full-card background layer. The visual metaphor matches the game's theme:
+- <strong>Threshold</strong> → Tactical scanner / targeting computer (precision, military sensor)
+- <strong>Daily</strong> → Pending design (see below)</p>
+<h3 id="how-to-apply">How to Apply<a class="headerlink" href="#how-to-apply" title="Permanent link">&para;</a></h3>
+<pre><code class="language-kotlin">Box(modifier = cardModifier) {
+    // Illustration fills the full card behind content
+    MyGameIllustration(
+        enabled = enabled,
+        modifier = Modifier.matchParentSize(),
+    )
+    // Content column on top
+    Column(modifier = Modifier.fillMaxWidth().padding(...)) { ... }
+}
+</code></pre>
+<p>The illustration composable wraps a <code>Canvas(modifier = modifier)</code> that draws into the full card bounds.
+Canvas clips automatically to its bounds — elements drawn beyond <code>size.width</code> are cut off cleanly.</p>
+<h3 id="threshold-scanner-illustration-thresholdscannerillustration">Threshold Scanner Illustration (<code>ThresholdScannerIllustration</code>)<a class="headerlink" href="#threshold-scanner-illustration-thresholdscannerillustration" title="Permanent link">&para;</a></h3>
+<p>Built from these layers, all in <code>HuezooColors.GameThreshold</code> + <code>AccentCyan</code> accents:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What it draws</th>
+<th>Alpha</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dot grid</td>
+<td>Evenly spaced dots, fades left (protecting text readability)</td>
+<td>0.07</td>
+</tr>
+<tr>
+<td>Range arcs (×5)</td>
+<td>Concentric partial arcs from right edge (~190° sweep)</td>
+<td>0.22 → 0.10</td>
+</tr>
+<tr>
+<td>Arc tick marks</td>
+<td>Major (every 4th) + minor ticks on each arc</td>
+<td>0.25 → 0.12</td>
+</tr>
+<tr>
+<td>Crosshair</td>
+<td>H + V lines through reticle center, gapped around focal point</td>
+<td>0.13</td>
+</tr>
+<tr>
+<td>Sweep arm</td>
+<td>Primary arm + ghost trailing arm 14° behind</td>
+<td>0.30 / 0.10</td>
+</tr>
+<tr>
+<td>Center ornament</td>
+<td>Diamond (stroked, not filled) + AccentCyan dot</td>
+<td>0.45 / 0.80</td>
+</tr>
+<tr>
+<td>Data blips</td>
+<td>Small squares at specific arc/angle positions; accent blips in cyan</td>
+<td>0.35–0.60</td>
+</tr>
+<tr>
+<td>Corner brackets</td>
+<td>Military L-shaped markers at all 4 corners</td>
+<td>0.22</td>
+</tr>
+<tr>
+<td>Data scan line</td>
+<td>Horizontal line at 60% height + tick marks</td>
+<td>0.08–0.12</td>
+</tr>
+</tbody>
+</table>
+<p>All alphas multiply by <code>dimFactor</code> (1.0 enabled, 0.35 when card is blocked/disabled).</p>
+<h3 id="adding-a-new-illustration">Adding a New Illustration<a class="headerlink" href="#adding-a-new-illustration" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Create <code>private fun DrawScope.draw[Name]Illustration()</code> or a <code>@Composable fun [Name]Illustration(modifier)</code>.</li>
+<li>Pick a visual metaphor that matches the game's personality.</li>
+<li>Draw only with strokes and geometric fills — no raster images.</li>
+<li>Anchor focal elements to one edge (usually right) so they bleed off screen slightly.</li>
+<li>Fade elements on the left third of the card (use alpha gradient logic on x-position) to keep text legible.</li>
+<li>Accept <code>enabled: Boolean</code> and multiply all alphas by <code>dimFactor = if (enabled) 1f else 0.35f</code>.</li>
+<li>Use the game's identity color as the primary drawing color + <code>AccentCyan</code> for focal accents.</li>
+</ol>
+<h3 id="canvas-icon-drawers">Canvas Icon Drawers<a class="headerlink" href="#canvas-icon-drawers" title="Permanent link">&para;</a></h3>
+<p>For compact card icons (36dp size), use <code>DrawScope</code> extension functions typed as <code>DrawScope.(Color) -&gt; Unit</code>:</p>
+<pre><code class="language-kotlin">// ✅ Correct — DrawScope extension, called inside Canvas {}
+private fun DrawScope.drawMedalStar(color: Color) { ... }
+Canvas(Modifier.size(36.dp)) { drawMedalStar(accentColor) }
+
+// ❌ Wrong — @Composable lambda cannot be called inside Canvas {}
+val icon: @Composable (Color) -&gt; Unit = { c -&gt; Icon(...) } // won't compile
+</code></pre>
+<p>Existing canvas icons: <code>drawMedalStar</code> (5-pointed star), <code>drawLeaderboardBars</code> (ascending bars).</p>
+<hr />
+<h2 id="10-screen-designs">10. Screen Designs<a class="headerlink" href="#10-screen-designs" title="Permanent link">&para;</a></h2>
+<h3 id="home-screen">Home Screen<a class="headerlink" href="#home-screen" title="Permanent link">&para;</a></h3>
+<p>Scrollable, edge-to-edge. TopBar scrolls with content (not pinned).</p>
+<pre><code>HuezooTopBar               ← wordmark, scrolls away with content
+──────────────────────────
+CURRENT INVENTORY          ← HuezooLabelSmall, TextDisabled
+┌─ Cyan bar ─────────────┐
+│  1,250  GEMS            │  ← shapedShadow, IntrinsicSize.Min Row
+└────────────────────────┘
+┌──────────┐  ┌──────────┐
+│ STREAK   │  │  RANK    │  ← StatBox, equal weight(1f)
+│ 0 DAYS   │  │  —       │
+└──────────┘  └──────────┘
+
+┌──────────────────────────┐
+│ ThresholdScannerIllus... │  ← matchParentSize Canvas behind content
+│ • ACTIVE MISSION         │
+│ THE THRESHOLD            │
+│ Description...           │
+│ 5 / 5 TRIES REMAINING    │
+│ [ENTER SIMULATION]       │  ← only this button navigates, not the card
+│ ████░░ ROOKIE  SKILLED   │  ← LevelProgressBar
+└──────────────────────────┘
+
+┌──────────────────────────┐
+│ ★  DAILY CHALLENGE       │  ← AccentMagenta, fullWidth
+│    ULTRAVIOLET BURST     │
+│    Available now         │
+└──────────────────────────┘
+
+┌──────────────────────────┐
+│ ▐▌ GLOBAL LEADERBOARD    │  ← AccentYellow, fullWidth, disabled
+│    TOP 5% WORLDWIDE      │
+│    Claim weekly rewards  │
+└──────────────────────────┘
+
+▼ WHAT IS ΔE? ▲            ← DeltaEInfoCard, expand/collapse, always visible
+</code></pre>
+<p><strong>Key rules:</strong>
+- Gems shown in StatsSection only — NOT in TopBar
+- Threshold hero card is NOT tappable — only the "ENTER SIMULATION" button navigates
+- Compact cards (Daily, Leaderboard) are full-width, stacked in a Column (not Row)
+- Challenge name is date-seeded from <code>CHALLENGE_NAMES[dayOfYear % size]</code>
+- All cards stagger-animate in (80ms delay per index)</p>
+<h3 id="the-threshold-game-screen">The Threshold Game Screen<a class="headerlink" href="#the-threshold-game-screen" title="Permanent link">&para;</a></h3>
+<p>Skewed stat chips (ROUND + TRIES). Radial swatch layout. Fixed-height feedback slot (graphicsLayer alpha — no layout shift). DeltaEBadge (color by difficulty tier). ΔE correct-tap label animates in/out.</p>
+<h3 id="daily-challenge-game-screen">Daily Challenge Game Screen<a class="headerlink" href="#daily-challenge-game-screen" title="Permanent link">&para;</a></h3>
+<p>Same layout as Threshold. Shows today's date subtitle ("March 20 · Same for everyone"). Final round (6/6): feedback slot shows "Last one — make it count" on tap.</p>
+<h3 id="result-screen">Result Screen<a class="headerlink" href="#result-screen" title="Permanent link">&para;</a></h3>
+<p>Slide-up ResultCard entrance (offset 60dp + scale 0.9→1.0, spring). Count-up for ΔE and score. Confetti burst (identity color particles). Sting copy by ΔE. Share button → native sheet. Play Again button checks attempt gate (shows "NO TRIES LEFT" + <code>GhostDanger</code> variant when <code>!canPlayAgain</code>).</p>
+<h3 id="already-played-blocked-screens">Already-Played / Blocked Screens<a class="headerlink" href="#already-played-blocked-screens" title="Permanent link">&para;</a></h3>
+<p>Daily already-played: "ALREADY PLAYED" styled header + score card read-only + live countdown to next puzzle + "BACK TO HOME" primary button.</p>
+<p>Threshold blocked: live "Resets in Xh Xm" countdown + "Back to Home" primary button + personal best as consolation.</p>
+<hr />
+<h2 id="11-game-identity-colors">11. Game Identity Colors<a class="headerlink" href="#11-game-identity-colors" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Game</th>
+<th>Color token</th>
+<th>Hex</th>
+<th>Level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The Threshold</td>
+<td><code>GameThreshold</code></td>
+<td><code>#7B6FF0</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Daily Challenge</td>
+<td><code>AccentYellow</code></td>
+<td><code>#FFE600</code></td>
+<td>Level 3 / Master</td>
+</tr>
+<tr>
+<td>Level 1 / Rookie</td>
+<td><code>AccentCyan</code></td>
+<td><code>#00E5FF</code></td>
+<td>Cyan</td>
+</tr>
+<tr>
+<td>Level 2 / Skilled</td>
+<td><code>AccentMagenta</code></td>
+<td><code>#FF2D78</code></td>
+<td>Magenta</td>
+</tr>
+<tr>
+<td>Level 3 / Master</td>
+<td><code>AccentYellow</code></td>
+<td><code>#FFE600</code></td>
+<td>Gold</td>
+</tr>
+</tbody>
+</table>
+<p>Identity color is used as: card accent bar, card background tint, ΔE badge color, result card glow, <code>rimLight</code> tint, <code>AmbientGlowBackground</code> primary color.</p>
+<hr />
+<h2 id="12-levels-economy-progression">12. Levels, Economy &amp; Progression<a class="headerlink" href="#12-levels-economy-progression" title="Permanent link">&para;</a></h2>
+<h3 id="player-level-playerlevelkt">Player Level (<code>PlayerLevel.kt</code>)<a class="headerlink" href="#player-level-playerlevelkt" title="Permanent link">&para;</a></h3>
+<pre><code class="language-kotlin">enum class PlayerLevel(val displayName: String, val minGems: Int, val levelColor: Color) {
+    Rookie(displayName = &quot;ROOKIE&quot;,  minGems = 0,       levelColor = HuezooColors.AccentCyan),
+    Skilled(displayName = &quot;SKILLED&quot;, minGems = 400,     levelColor = HuezooColors.AccentMagenta),
+    Master(displayName = &quot;MASTER&quot;,  minGems = 100_000, levelColor = HuezooColors.AccentYellow);
+    companion object {
+        fun fromGems(gems: Int): PlayerLevel = when {
+            gems &gt;= 100_000 -&gt; Master; gems &gt;= 400 -&gt; Skilled; else -&gt; Rookie
+        }
+    }
+}
+</code></pre>
+<p>Level progress bar shown at bottom of Threshold hero card. Streak and Rank shown as stat boxes on Home screen (stubbed at 0 / null until Firebase wired — Phase 8.9 / 8.10).</p>
+<h3 id="gem-economy-current-implementation">Gem Economy (current implementation)<a class="headerlink" href="#gem-economy-current-implementation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Earning</strong>: gems accumulated via <code>SettingsRepository.addGems()</code>; earn rate defined per gameplay session</li>
+<li><strong>Display</strong>: <code>HomeUiState.Ready.totalGems</code> → formatted as <code>1,250</code> via <code>formatGems()</code></li>
+<li><strong>Spending</strong>: Threshold refill (300 gems → 10 questions) — not yet wired, Phase 7</li>
+</ul>
+<h3 id="attempt-window-threshold">Attempt Window (Threshold)<a class="headerlink" href="#attempt-window-threshold" title="Permanent link">&para;</a></h3>
+<p>5 tries per 8-hour window. <code>next_reset_at</code> stored as ISO timestamp in SQLDelight.
+<code>ThresholdRepository.getAttemptStatus(now)</code> returns <code>AttemptStatus.Available</code> or <code>AttemptStatus.Exhausted(nextResetAt)</code>.</p>
+<h3 id="e-tier-labels-reference-not-yet-wired-into-hud">ΔE Tier Labels (reference — not yet wired into HUD)<a class="headerlink" href="#e-tier-labels-reference-not-yet-wired-into-hud" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ΔE range</th>
+<th>Label</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5.0–10.0</td>
+<td>BEGINNER</td>
+<td>Easy — obvious difference</td>
+</tr>
+<tr>
+<td>3.0–5.0</td>
+<td>TRAINING</td>
+<td>Visible but not trivial</td>
+</tr>
+<tr>
+<td>2.0–3.0</td>
+<td>SHARP</td>
+<td>Requires focus</td>
+</tr>
+<tr>
+<td>1.0–2.0</td>
+<td>EXPERT</td>
+<td>Hard — expert territory</td>
+</tr>
+<tr>
+<td>0.5–1.0</td>
+<td>ELITE</td>
+<td>Very hard — professional colorist level</td>
+</tr>
+<tr>
+<td>&lt; 0.5</td>
+<td>SUPERHUMAN</td>
+<td>Near limits of human vision</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-ux-rules-moments">13. UX Rules &amp; Moments<a class="headerlink" href="#13-ux-rules-moments" title="Permanent link">&para;</a></h2>
+<h3 id="missing-ux-moments-status">Missing UX Moments (status)<a class="headerlink" href="#missing-ux-moments-status" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Moment</th>
+<th>Status</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New user opens app</td>
+<td>✅ DeltaEInfoCard always visible, expand/collapse</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Correct tap</td>
+<td>✅ "↓ ΔE X.X — SHARPER" label 700ms</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Wrong tap</td>
+<td>✅ Shake + reveal, 450ms delay</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Result with great score</td>
+<td>✅ Confetti + sting copy</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Daily complete, home</td>
+<td>✅ "Done" + score + countdown</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Threshold blocked, home</td>
+<td>✅ "No tries" + reset countdown</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Share score</td>
+<td>✅ Share button → native sheet</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Play Again when tries exhausted</td>
+<td>✅ "NO TRIES LEFT" GhostDanger</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Streak tracking</td>
+<td>⬜ Wired to 0 placeholder</td>
+<td>Phase 8.10</td>
+</tr>
+<tr>
+<td>Player rank</td>
+<td>⬜ Wired to null placeholder</td>
+<td>Phase 8.9</td>
+</tr>
+<tr>
+<td>Confetti threshold (only good scores)</td>
+<td>⬜</td>
+<td>UX.11</td>
+</tr>
+</tbody>
+</table>
+<h3 id="e-info-card-deltaeinfocard">ΔE Info Card (DeltaEInfoCard)<a class="headerlink" href="#e-info-card-deltaeinfocard" title="Permanent link">&para;</a></h3>
+<p>Always visible on Home screen. Expand/collapse with animated chevron. Local <code>remember</code> state (not persisted). Never dismissable. Always the last item before debug reset.</p>
+<h3 id="navigation-rules">Navigation Rules<a class="headerlink" href="#navigation-rules" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Home → Threshold game: <code>onNavigate(ThresholdGame)</code></li>
+<li>Home → Daily game: <code>onNavigate(DailyGame)</code></li>
+<li>Game → Result: carries <code>GameId</code>, <code>deltaE</code>, <code>score</code>, <code>gameType</code></li>
+<li>Result → Home: pop back stack</li>
+<li>Result → Play Again: only if attempts available (checked in <code>ResultViewModel</code>)</li>
+<li>Leaderboard button: hidden until Firebase integrated</li>
+</ul>
+<hr />
+<h2 id="14-non-negotiables">14. Non-Negotiables<a class="headerlink" href="#14-non-negotiables" title="Permanent link">&para;</a></h2>
+<p>These must survive every future iteration:</p>
+<ol>
+<li><code>HUEZ</code> wordmark in Bebas Neue italic — every screen</li>
+<li>3 levels: Rookie / Skilled / Master (gem thresholds: 0 / 400 / 100,000)</li>
+<li>Level colors: Cyan (L1) / Magenta (L2) / Gold (L3)</li>
+<li>Fixed-height feedback slot during gameplay — no layout shift</li>
+<li>Economy: gems earned in gameplay, 300 gems = 10 tries refill</li>
+<li>No forced ads mid-round</li>
+<li>TopBar is NOT a Material3 <code>TopAppBar</code> — use <code>HuezooTopBar</code> only</li>
+<li>No bare <code>Text()</code> composable — always <code>HuezooText</code> variants</li>
+<li>No hardcoded <code>Color.White</code> on colored backgrounds — use <code>.onColor</code></li>
+<li>No light theme — Huezoo is permanently dark</li>
+</ol>
+<hr />
+<h2 id="15-what-never-to-do">15. What Never to Do<a class="headerlink" href="#15-what-never-to-do" title="Permanent link">&para;</a></h2>
+<pre><code>❌ NEVER use TopAppBar with back arrow in game screens
+✅ Use HuezooIconButton(variant = Back / Dismiss) instead
+
+❌ NEVER use diagonal/blurry drop shadow
+✅ shapedShadow() — hard-edge offset, bottom-right only
+
+❌ NEVER use emoji as UI elements
+✅ Vector composables from composeResources/drawable/
+
+❌ NEVER use bare Text() anywhere in screens or components
+✅ HuezooText variants from HuezooText.kt
+
+❌ NEVER use MaterialTheme.colorScheme.onBackground on card/button surfaces
+✅ HuezooColors.TextPrimary / TextSecondary / TextDisabled explicitly
+
+❌ NEVER hardcode Color.White or Color.Black for text on colored backgrounds
+✅ .onColor from ColorExt.kt
+
+❌ NEVER use light theme — Huezoo is dark-only permanently
+
+❌ NEVER put gems in the TopBar on Home screen
+✅ Gems live in the StatsSection below the TopBar only
+
+❌ NEVER make the entire Threshold hero card tappable
+✅ Only the &quot;ENTER SIMULATION&quot; button navigates
+
+❌ NEVER use @Composable lambdas as Canvas icon content
+✅ DrawScope.(Color) -&gt; Unit extension functions, called inside Canvas {}
+
+❌ NEVER blur values over 5px
+✅ Hard-edge depth (shelf + rimLight) — no soft glows
+</code></pre>
+<hr />
+<h2 id="16-file-reference">16. File Reference<a class="headerlink" href="#16-file-reference" title="Permanent link">&para;</a></h2>
+<pre><code>composeApp/src/commonMain/
+├── composeResources/
+│   ├── drawable/          ← all vectors (ic_close, ic_check, game art, etc.)
+│   └── font/              ← bebas_neue_regular, clash_display_*, space_grotesk_* .ttf
+└── kotlin/xyz/ksharma/huezoo/
+    ├── App.kt                          ← nav host, screen wiring
+    ├── navigation/                     ← route objects (ThresholdGame, DailyGame, Result…)
+    ├── domain/
+    │   ├── color/
+    │   │   ├── ColorMath.kt            ← rgbToLab, CIEDE2000 deltaE
+    │   │   ├── ColorEngine.kt          ← randomVividColor, generateOddSwatch, scoreFromDeltaE
+    │   │   └── Lab.kt                  ← Lab data class + Lab.toColor()
+    │   └── game/
+    │       ├── ThresholdGameEngine.kt  ← game loop logic
+    │       ├── DefaultDailyGameEngine.kt
+    │       └── model/AttemptStatus.kt
+    ├── data/
+    │   ├── db/                         ← SQLDelight schema + generated queries
+    │   └── repository/
+    │       ├── ThresholdRepository.kt  ← getAttemptStatus, getPersonalBest
+    │       ├── DailyRepository.kt      ← getChallenge, markCompleted
+    │       └── SettingsRepository.kt   ← isPaid, getGems, addGems, resetAll
+    ├── platform/
+    │   └── PlatformOps.kt              ← shareText, isDebugBuild (expect/actual)
+    └── ui/
+        ├── theme/
+        │   ├── Color.kt                ← HuezooColors token object
+        │   ├── ColorExt.kt             ← contrastRatio, foregroundColor, onColor
+        │   ├── Typography.kt           ← BebasNeue/ClashDisplay/SpaceGrotesk + scale
+        │   ├── Shape.kt                ← ParallelogramBack + HuezooSize/HuezooSpacing tokens
+        │   ├── Modifiers.kt            ← shapedShadow, rimLight
+        │   ├── Dimensions.kt           ← HuezooSpacing, HuezooSize dimension tokens
+        │   └── Theme.kt                ← HuezooTheme (dark-only)
+        ├── components/
+        │   ├── HuezooText.kt           ← ALL typed text composables — only file using Text()
+        │   ├── HuezooButton.kt         ← pill + shelf, Primary/Confirm/Danger/Ghost/GhostDanger
+        │   ├── HuezooIconButton.kt     ← squircle icon buttons (X, ✓, back, info)
+        │   ├── HuezooTopBar.kt         ← wordmark + back button + status bar spacer
+        │   ├── PriceButton.kt          ← purchase CTA
+        │   ├── AmbientGlow.kt          ← screen-level background glow
+        │   ├── GameCard.kt             ← legacy card (frame + inner panel + shelf)
+        │   ├── ResultCard.kt           ← end-of-game share card
+        │   ├── SwatchBlock.kt          ← color swatch with states + shake animation
+        │   ├── RadialSwatchLayout.kt   ← 6-petal flower arrangement
+        │   ├── SwatchGradientOverlay.kt← top-left highlight chip effect
+        │   ├── SkewedStatChip.kt       ← parallelogram HUD chip
+        │   ├── DeltaEBadge.kt          ← animated ΔE display (color by difficulty)
+        │   ├── RoundIndicator.kt       ← round progress dots
+        │   ├── CurrencyPill.kt         ← gem + amount display
+        │   └── HuezooBottomSheet.kt    ← game-styled paywall sheet
+        ├── model/
+        │   ├── PlayerLevel.kt          ← Rookie/Skilled/Master enum + fromGems()
+        │   ├── RoundPhase.kt           ← game round phase enum
+        │   ├── SwatchLayoutStyle.kt    ← layout style enum
+        │   └── SwatchUiModel.kt        ← swatch UI model
+        ├── home/
+        │   ├── HomeScreen.kt           ← full redesign (scanner illustration, scrolling TopBar)
+        │   ├── HomeViewModel.kt
+        │   └── state/HomeUiState.kt / HomeUiEvent.kt
+        ├── games/
+        │   ├── threshold/
+        │   │   ├── ThresholdScreen.kt
+        │   │   ├── ThresholdViewModel.kt
+        │   │   └── state/ThresholdUiState.kt / ThresholdUiEvent.kt / ThresholdNavEvent.kt
+        │   └── daily/
+        │       ├── DailyScreen.kt
+        │       ├── DailyViewModel.kt
+        │       └── state/DailyUiState.kt / DailyUiEvent.kt / DailyNavEvent.kt
+        ├── result/
+        │   ├── ResultScreen.kt         ← confetti, sting copy, canPlayAgain gate
+        │   ├── ResultViewModel.kt
+        │   └── state/ResultUiState.kt
+        ├── leaderboard/
+        │   └── LeaderboardScreen.kt    ← stub, pending Firebase (Phase 8)
+        └── paywall/
+            └── PaywallSheet.kt
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 ksharma-xyz
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/ksharma-xyz" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

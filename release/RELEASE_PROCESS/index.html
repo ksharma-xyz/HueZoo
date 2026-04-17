@@ -1,0 +1,1282 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A color-matching game for curious minds.">
+      
+      
+        <meta name="author" content="ksharma-xyz">
+      
+      
+        <link rel="canonical" href="https://ksharma-xyz.github.io/HueZoo/release/RELEASE_PROCESS/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/huezoo-icon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Huezoo Release Process - Huezoo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Space+Grotesk:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Space Grotesk";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#huezoo-release-process" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Huezoo" class="md-header__button md-logo" aria-label="Huezoo" data-md-component="logo">
+      
+  <img src="../../assets/huezoo-icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Huezoo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Huezoo Release Process
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ksharma-xyz/Huezoo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ksharma-xyz/Huezoo
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Huezoo" class="md-nav__button md-logo" aria-label="Huezoo" data-md-component="logo">
+      
+  <img src="../../assets/huezoo-icon.png" alt="logo">
+
+    </a>
+    Huezoo
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ksharma-xyz/Huezoo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ksharma-xyz/Huezoo
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../privacy-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflows-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflows at a Glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-by-step-starting-a-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step-by-Step: Starting a Release
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step-by-Step: Starting a Release">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-kick-off-the-release-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Kick off the release branch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-watch-the-automatic-release-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Watch the automatic release pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-test-on-google-play-internal-and-testflight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Test on Google Play Internal and TestFlight
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-by-step-shipping-to-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step-by-Step: Shipping to Production
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step-by-Step: Shipping to Production">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-tag-the-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Tag the release
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-promote-to-production-manual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Promote to production (manual)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-publish-the-github-release-draft" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Publish the GitHub Release draft
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#branching-convention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Branching Convention
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#versioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Versioning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#android" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Android
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        iOS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git tags
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#google-play-tracks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Google Play Tracks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hotfixes-during-rc-after-shipping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hotfixes During RC / After Shipping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checklist-before-running-release-3-tagyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checklist Before Running release-3-tag.yml
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#one-time-setup-github-repository-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One-Time Setup: GitHub Repository Variables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="One-Time Setup: GitHub Repository Variables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#android_version_code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ANDROID_VERSION_CODE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ios_build_number" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IOS_BUILD_NUMBER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development_team" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DEVELOPMENT_TEAM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#required-github-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required GitHub Secrets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#required-github-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required GitHub Variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#one-time-ios-setup-before-first-testflight-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One-Time iOS Setup (Before First TestFlight Upload)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cicd-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI/CD Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CI/CD Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#android-not-yet-end-to-end-tested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Android — ⬜ Not yet end-to-end tested
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ios-not-yet-end-to-end-tested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        iOS — ⬜ Not yet end-to-end tested
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="huezoo-release-process">Huezoo Release Process<a class="headerlink" href="#huezoo-release-process" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<pre><code>main (versionName = 1.0.0)
+  │
+  │  ← development happens here
+  │
+  ├─ Cut Release Branch ──► prod/1.0.0 ──[fix]──[fix]
+  │         │                    │            │      │
+  │  main bumped to 1.1.0    RC1 tag      RC2 tag  RC3 tag
+  │                               │            │      │
+  │                           GP Internal  GP Internal  GP Internal
+  │                           TF build     TF build     TF build
+  │
+  │                          (happy with RC3? run Tag Release)
+  │
+  │  ◄── Tag Release creates v1.0.0 tag + draft GitHub Release
+  │
+  │  Manual promotion:
+  │    Android → promote in Google Play Console
+  │    iOS     → submit in App Store Connect
+  │
+main (versionName = 1.1.0)   ← already bumped when branch was cut
+</code></pre>
+<p>Both <strong>Android</strong> and <strong>iOS</strong> are fully automated on every push to <code>prod/**</code>.</p>
+<p><strong>Key principle</strong>: <code>main</code> always carries the <em>next</em> version. <code>versionName</code> is bumped
+automatically on <code>main</code> right when the release branch is cut — you never bump it manually.</p>
+<hr />
+<h2 id="workflows-at-a-glance">Workflows at a Glance<a class="headerlink" href="#workflows-at-a-glance" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Workflow file</th>
+<th>UI name</th>
+<th>Trigger</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>build.yml</code></td>
+<td>Huezoo App CI</td>
+<td>Push to <code>main</code>, PRs</td>
+<td>Quality gate + debug/release build + Firebase distribution</td>
+</tr>
+<tr>
+<td><code>release-1-cut.yml</code></td>
+<td>1. Cut Release Branch</td>
+<td>Manual</td>
+<td>Creates <code>prod/{version}</code> branch + bumps <code>main</code> to next version</td>
+</tr>
+<tr>
+<td><code>release-2-deploy-rc.yml</code></td>
+<td>2. Deploy RC</td>
+<td>Auto on <code>prod/**</code> push</td>
+<td>Android RC tag + Google Play Internal + iOS TestFlight</td>
+</tr>
+<tr>
+<td><code>release-3-tag.yml</code></td>
+<td>3. Tag Release</td>
+<td>Manual</td>
+<td>Creates final <code>v{version}</code> tag</td>
+</tr>
+<tr>
+<td><code>create-github-release.yml</code></td>
+<td>Create GitHub Release</td>
+<td>Auto on <code>v*</code> tag push (non-RC), or manual</td>
+<td>Creates draft GitHub Release</td>
+</tr>
+<tr>
+<td><code>distribute-testflight.yml</code></td>
+<td>Distribute TestFlight</td>
+<td>Auto (called by release-2) or Manual</td>
+<td>iOS build + TestFlight upload</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-by-step-starting-a-release">Step-by-Step: Starting a Release<a class="headerlink" href="#step-by-step-starting-a-release" title="Permanent link">&para;</a></h2>
+<h3 id="1-kick-off-the-release-branch">1. Kick off the release branch<a class="headerlink" href="#1-kick-off-the-release-branch" title="Permanent link">&para;</a></h3>
+<p><code>main</code> already has the correct <code>versionName</code> (bumped automatically when the previous
+release branch was cut). Just go to <strong>Actions → 1. Cut Release Branch → Run workflow</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base branch</td>
+<td><code>main</code> (default)</td>
+</tr>
+<tr>
+<td>Next version</td>
+<td><em>(leave blank)</em> auto-increments minor: <code>1.1.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>This workflow:
+- Reads <code>versionName</code> from <code>main</code>'s <code>androidApp/build.gradle.kts</code> (e.g. <code>1.0.0</code>)
+- Creates and pushes <code>prod/1.0.0</code>
+- Immediately bumps <code>versionName</code> on <code>main</code> to <code>1.1.0</code> (commit tagged <code>[skip ci]</code>)
+- Pushing the branch automatically triggers <code>release-2-deploy-rc.yml</code></p>
+<h3 id="2-watch-the-automatic-release-pipeline">2. Watch the automatic release pipeline<a class="headerlink" href="#2-watch-the-automatic-release-pipeline" title="Permanent link">&para;</a></h3>
+<p><code>release-2-deploy-rc.yml</code> runs on every push to <code>prod/**</code>:</p>
+<pre><code>code-quality
+    └── build-android-release (signed AAB)
+            └── tag-release-candidate  →  creates v1.0.0-RC1
+                    └── distribute-google-play  →  uploads to GP Internal track
+
+distribute-testflight  →  builds IPA + uploads to TestFlight  (runs in parallel)
+</code></pre>
+<p>The first push creates <code>v1.0.0-RC1</code>. Every subsequent push to the same branch
+increments the counter: <code>v1.0.0-RC2</code>, <code>v1.0.0-RC3</code>, etc.</p>
+<h3 id="3-test-on-google-play-internal-and-testflight">3. Test on Google Play Internal and TestFlight<a class="headerlink" href="#3-test-on-google-play-internal-and-testflight" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Install via Google Play internal track and TestFlight</li>
+<li>Validate both Android and iOS builds</li>
+<li>If a fix is needed: commit to <code>prod/1.0.0</code> and push → automatic RC bump + new GP + TF upload</li>
+</ul>
+<hr />
+<h2 id="step-by-step-shipping-to-production">Step-by-Step: Shipping to Production<a class="headerlink" href="#step-by-step-shipping-to-production" title="Permanent link">&para;</a></h2>
+<p>Once internal testing passes:</p>
+<h3 id="1-tag-the-release">1. Tag the release<a class="headerlink" href="#1-tag-the-release" title="Permanent link">&para;</a></h3>
+<p>Run <strong>Actions → 3. Tag Release → Run workflow</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Version</td>
+<td><code>1.0.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>This workflow:
+1. Validates <code>prod/1.0.0</code> exists
+2. Creates and pushes the final <code>v1.0.0</code> tag
+3. Pushing the tag automatically triggers <code>create-github-release.yml</code> → draft GitHub Release</p>
+<h3 id="2-promote-to-production-manual">2. Promote to production (manual)<a class="headerlink" href="#2-promote-to-production-manual" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Android</strong>: Google Play Console → your app → the latest internal build → Promote to Production</li>
+<li><strong>iOS</strong>: App Store Connect → TestFlight → the latest build → Submit for App Store review</li>
+</ul>
+<h3 id="3-publish-the-github-release-draft">3. Publish the GitHub Release draft<a class="headerlink" href="#3-publish-the-github-release-draft" title="Permanent link">&para;</a></h3>
+<p>Review and publish the draft created by <code>create-github-release.yml</code>.</p>
+<hr />
+<h2 id="branching-convention">Branching Convention<a class="headerlink" href="#branching-convention" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Branch</th>
+<th>Purpose</th>
+<th>CI/CD triggered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>main</code></td>
+<td>Active development</td>
+<td>Build + Firebase distribution</td>
+</tr>
+<tr>
+<td><code>prod/{version}</code></td>
+<td>Release stabilisation</td>
+<td>Android RC + Google Play Internal + iOS TestFlight</td>
+</tr>
+<tr>
+<td><code>{date}-{description}</code></td>
+<td>Feature/fix branches</td>
+<td>Nothing (only on PR to main)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Never commit directly to <code>main</code> for a release.</strong> Always go through a <code>prod/*</code> branch so
+the RC tagging and Google Play upload pipeline runs.</p>
+<hr />
+<h2 id="versioning">Versioning<a class="headerlink" href="#versioning" title="Permanent link">&para;</a></h2>
+<h3 id="android">Android<a class="headerlink" href="#android" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Where</th>
+<th>Who updates it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>versionName</code></td>
+<td><code>androidApp/build.gradle.kts</code></td>
+<td><code>release-1-cut.yml</code> (bumps <code>main</code> immediately after cutting the branch)</td>
+</tr>
+<tr>
+<td><code>versionCode</code></td>
+<td>GitHub repo variable <code>ANDROID_VERSION_CODE</code></td>
+<td>CI (increments on every release build)</td>
+</tr>
+</tbody>
+</table>
+<p>Each release build reads <code>ANDROID_VERSION_CODE</code>, increments it by 1, writes the new
+value back to the variable, and passes it to Gradle. Debug builds read the value
+without incrementing. The counter survives workflow renames because it lives in GitHub
+Settings, not inside any workflow file.</p>
+<h3 id="ios">iOS<a class="headerlink" href="#ios" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Where</th>
+<th>Who updates it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CFBundleShortVersionString</code></td>
+<td><code>iosApp/iosApp/Info.plist</code></td>
+<td><code>release-1-cut.yml</code> (bumps <code>main</code> after cutting the branch)</td>
+</tr>
+<tr>
+<td><code>CFBundleVersion</code></td>
+<td>GitHub repo variable <code>IOS_BUILD_NUMBER</code></td>
+<td>CI (increments on every TestFlight upload)</td>
+</tr>
+</tbody>
+</table>
+<p><code>CFBundleVersion</code> must be globally and strictly increasing across all App Store / TestFlight
+uploads — it does <strong>not</strong> reset when the marketing version changes.</p>
+<h3 id="git-tags">Git tags<a class="headerlink" href="#git-tags" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Meaning</th>
+<th>Created by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>v1.0.0-RC1</code></td>
+<td>First release candidate</td>
+<td><code>release-2-deploy-rc.yml</code> (automatic)</td>
+</tr>
+<tr>
+<td><code>v1.0.0-RC2</code></td>
+<td>Second RC after a fix</td>
+<td><code>release-2-deploy-rc.yml</code> (automatic)</td>
+</tr>
+<tr>
+<td><code>v1.0.0</code></td>
+<td>Final production release</td>
+<td><code>release-3-tag.yml</code> (manual)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="google-play-tracks">Google Play Tracks<a class="headerlink" href="#google-play-tracks" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Track</th>
+<th>Use for</th>
+<th>How to target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>internal</code></td>
+<td>Team dogfooding during RC cycle</td>
+<td>Automatic via <code>release-2-deploy-rc.yml</code></td>
+</tr>
+<tr>
+<td><code>production</code></td>
+<td>Full release</td>
+<td>Google Play Console → promote from internal</td>
+</tr>
+</tbody>
+</table>
+<p><strong>There is no CI workflow for production upload.</strong> Promoting from internal to production
+is done manually in Google Play Console — this gives explicit human sign-off before
+anything reaches users.</p>
+<hr />
+<h2 id="hotfixes-during-rc-after-shipping">Hotfixes During RC / After Shipping<a class="headerlink" href="#hotfixes-during-rc-after-shipping" title="Permanent link">&para;</a></h2>
+<p><strong>Fix flow: <code>main</code> first, then cherry-pick to <code>prod/*</code>.</strong></p>
+<p>Never commit a fix directly only to the prod branch — it would be lost when the next
+release cycle starts from <code>main</code>.</p>
+<ol>
+<li>Fix the bug on <code>main</code> (commit normally, goes through PR/review as usual)</li>
+<li>Cherry-pick the fix commit onto the prod branch:
+   <code>git cherry-pick &lt;commit-sha&gt;
+   git push origin prod/1.0.0</code></li>
+<li>Push to <code>prod/1.0.0</code> triggers <code>release-2-deploy-rc.yml</code> → new RC tag → GP Internal + TestFlight</li>
+<li>Validate on both platforms, then run <code>release-3-tag.yml</code> when ready</li>
+</ol>
+<hr />
+<h2 id="checklist-before-running-release-3-tagyml">Checklist Before Running <code>release-3-tag.yml</code><a class="headerlink" href="#checklist-before-running-release-3-tagyml" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Latest RC has been installed from Google Play Internal and validated</li>
+<li>[ ] Latest TestFlight build validated on iOS</li>
+<li>[ ] All required commits are on <code>prod/{version}</code> (no pending fixes)</li>
+<li>[ ] Release notes / changelog reviewed</li>
+</ul>
+<hr />
+<h2 id="one-time-setup-github-repository-variables">One-Time Setup: GitHub Repository Variables<a class="headerlink" href="#one-time-setup-github-repository-variables" title="Permanent link">&para;</a></h2>
+<h3 id="android_version_code">ANDROID_VERSION_CODE<a class="headerlink" href="#android_version_code" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Go to GitHub → Settings → Secrets and variables → Actions → <strong>Variables</strong> tab</li>
+<li>Click <strong>New repository variable</strong></li>
+<li>Name: <code>ANDROID_VERSION_CODE</code></li>
+<li>Value: <code>1</code> <em>(start from 1, or higher than any manually uploaded versionCode)</em></li>
+<li>Done — all future release builds will auto-increment this and write it back</li>
+</ol>
+<h3 id="ios_build_number">IOS_BUILD_NUMBER<a class="headerlink" href="#ios_build_number" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Go to GitHub → Settings → Secrets and variables → Actions → <strong>Variables</strong> tab</li>
+<li>Click <strong>New repository variable</strong></li>
+<li>Name: <code>IOS_BUILD_NUMBER</code></li>
+<li>Value: <code>1</code> <em>(start from 1, or higher than any previous TestFlight upload)</em></li>
+<li>Done — all future TestFlight uploads will auto-increment this and write it back</li>
+</ol>
+<h3 id="development_team">DEVELOPMENT_TEAM<a class="headerlink" href="#development_team" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Go to GitHub → Settings → Secrets and variables → Actions → <strong>Variables</strong> tab</li>
+<li>Click <strong>New repository variable</strong></li>
+<li>Name: <code>DEVELOPMENT_TEAM</code></li>
+<li>Value: <em>(your Apple Developer Team ID — find it in developer.apple.com → Membership)</em></li>
+</ol>
+<hr />
+<h2 id="required-github-secrets">Required GitHub Secrets<a class="headerlink" href="#required-github-secrets" title="Permanent link">&para;</a></h2>
+<p>Configure all secrets in GitHub → Settings → Secrets and variables → Actions → <strong>Secrets</strong> tab.</p>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Used by</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PAT_HUEZOO_GITHUB</code></td>
+<td>RC/final tag creation, GitHub Release, version code write-back</td>
+<td>Classic PAT with <code>repo</code> scope, or fine-grained PAT with <code>Contents: Read and write</code> + <code>Variables: Read and write</code></td>
+</tr>
+<tr>
+<td><code>ANDROID_KEYSTORE_FILE</code></td>
+<td>Android AAB signing</td>
+<td>Base64-encoded <code>.jks</code> file</td>
+</tr>
+<tr>
+<td><code>ANDROID_KEYSTORE_PASSWORD</code></td>
+<td>Android AAB signing</td>
+<td></td>
+</tr>
+<tr>
+<td><code>ANDROID_KEY_ALIAS</code></td>
+<td>Android AAB signing</td>
+<td></td>
+</tr>
+<tr>
+<td><code>ANDROID_KEY_PASSWORD</code></td>
+<td>Android AAB signing</td>
+<td></td>
+</tr>
+<tr>
+<td><code>GOOGLE_PLAY_SERVICE_ACCOUNT_JSON</code></td>
+<td>Google Play upload</td>
+<td>JSON key from Google Play Console service account</td>
+</tr>
+<tr>
+<td><code>APPSTORE_PRIVATE_KEY</code></td>
+<td>iOS TestFlight</td>
+<td><code>.p8</code> key content from App Store Connect</td>
+</tr>
+<tr>
+<td><code>APPSTORE_KEY_ID</code></td>
+<td>iOS TestFlight</td>
+<td>Key ID from App Store Connect</td>
+</tr>
+<tr>
+<td><code>APPSTORE_ISSUER_ID</code></td>
+<td>iOS TestFlight</td>
+<td>Issuer ID from App Store Connect</td>
+</tr>
+<tr>
+<td><code>IOS_DIST_SIGNING_KEY_BASE64</code></td>
+<td>iOS code signing</td>
+<td>Base64-encoded <code>.p12</code> distribution certificate</td>
+</tr>
+<tr>
+<td><code>IOS_DIST_SIGNING_KEY_PASSWORD</code></td>
+<td>iOS code signing</td>
+<td>Password for the <code>.p12</code> file</td>
+</tr>
+<tr>
+<td><code>IOS_PROVISIONING_PROFILE_NAME</code></td>
+<td>iOS provisioning profile</td>
+<td>Name as shown in Xcode / Apple Developer portal</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Firebase secrets</strong> (required once Firebase is integrated — Phase 8):</p>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FIREBASE_GOOGLE_SERVICES_JSON_DEBUG</code></td>
+<td>Android Firebase (debug)</td>
+</tr>
+<tr>
+<td><code>FIREBASE_GOOGLE_SERVICES_JSON_RELEASE</code></td>
+<td>Android Firebase (release)</td>
+</tr>
+<tr>
+<td><code>FIREBASE_IOS_GOOGLE_INFO</code></td>
+<td>iOS Firebase</td>
+</tr>
+<tr>
+<td><code>FIREBASE_SERVICE_ACCOUNT_KEY</code></td>
+<td>Firebase App Distribution</td>
+</tr>
+<tr>
+<td><code>FIREBASE_ANDROID_DEBUG_APP_ID</code></td>
+<td>Firebase App Distribution (debug)</td>
+</tr>
+<tr>
+<td><code>FIREBASE_ANDROID_PROD_APP_ID</code></td>
+<td>Firebase App Distribution (release)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="required-github-variables">Required GitHub Variables<a class="headerlink" href="#required-github-variables" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ANDROID_VERSION_CODE</code></td>
+<td>Android versionCode (auto-incremented on every release build)</td>
+</tr>
+<tr>
+<td><code>IOS_BUILD_NUMBER</code></td>
+<td>iOS CFBundleVersion (auto-incremented on every TestFlight upload)</td>
+</tr>
+<tr>
+<td><code>DEVELOPMENT_TEAM</code></td>
+<td>iOS Xcode signing (Apple Team ID)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="one-time-ios-setup-before-first-testflight-upload">One-Time iOS Setup (Before First TestFlight Upload)<a class="headerlink" href="#one-time-ios-setup-before-first-testflight-upload" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Set Bundle Identifier</strong> in Xcode: open <code>iosApp/iosApp.xcodeproj</code> → iosApp target →
+   General → Bundle Identifier → set to <code>xyz.ksharma.huezoo</code></p>
+</li>
+<li>
+<p><strong>Add version fields to Info.plist</strong>: open <code>iosApp/iosApp/Info.plist</code> and add:
+   <code>xml
+   &lt;key&gt;CFBundleShortVersionString&lt;/key&gt;
+   &lt;string&gt;1.0.0&lt;/string&gt;
+   &lt;key&gt;CFBundleVersion&lt;/key&gt;
+   &lt;string&gt;1&lt;/string&gt;</code>
+   These are required for <code>release-1-cut.yml</code> to bump the marketing version and for
+   Fastlane's <code>increment_build_number</code> to work.</p>
+</li>
+<li>
+<p><strong>Create App Store Connect app</strong>: register <code>xyz.ksharma.huezoo</code> in App Store Connect.</p>
+</li>
+<li>
+<p><strong>Generate App Store Connect API key</strong>: App Store Connect → Users and Access → Integrations →
+   App Store Connect API → generate a key with App Manager role. Save the <code>.p8</code> file,
+   Key ID, and Issuer ID as GitHub secrets.</p>
+</li>
+<li>
+<p><strong>Create distribution certificate + provisioning profile</strong> in Apple Developer portal.
+   Export the <code>.p12</code> and note the provisioning profile name.</p>
+</li>
+</ol>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<p><strong>RC tag already pushed but Google Play upload failed</strong>
+Re-run only the <code>distribute-google-play</code> job from the failed workflow run
+(GitHub Actions → re-run failed jobs).</p>
+<p><strong><code>release-1-cut.yml</code> fails with "branch already exists"</strong>
+The branch <code>prod/{version}</code> was already created. Push directly to that branch
+or choose a new version number.</p>
+<p><strong><code>release-3-tag.yml</code> fails with "tag already exists"</strong>
+Delete the tag manually: <code>git push origin :refs/tags/v{version}</code> then re-run.</p>
+<p><strong>TestFlight upload rejected: bundle version must be higher</strong>
+Update <code>IOS_BUILD_NUMBER</code> in GitHub → Settings → Variables to a value higher
+than the last uploaded <code>CFBundleVersion</code>.</p>
+<p><strong><code>increment_build_number</code> fails in Fastlane</strong>
+<code>CURRENT_PROJECT_VERSION</code> is not set in the Xcode project. Open Xcode,
+go to the iosApp target → Build Settings → search "Current Project Version"
+and set it to <code>1</code>. Then commit the updated <code>.pbxproj</code>.</p>
+<p><strong>Android release build fails: <code>keystore.jks</code> not found</strong>
+The <code>ANDROID_KEYSTORE_FILE</code> secret is not set or is incorrectly base64-encoded.
+Encode it with: <code>base64 -i your-keystore.jks | pbcopy</code></p>
+<hr />
+<h2 id="cicd-status">CI/CD Status<a class="headerlink" href="#cicd-status" title="Permanent link">&para;</a></h2>
+<h3 id="android-not-yet-end-to-end-tested">Android — ⬜ Not yet end-to-end tested<a class="headerlink" href="#android-not-yet-end-to-end-tested" title="Permanent link">&para;</a></h3>
+<p>Requires one-time setup:
+- [ ] Keystore generated and secrets configured
+- [ ] <code>ANDROID_VERSION_CODE</code> repo variable created
+- [ ] <code>GOOGLE_PLAY_SERVICE_ACCOUNT_JSON</code> secret configured
+- [ ] App registered in Google Play Console</p>
+<h3 id="ios-not-yet-end-to-end-tested">iOS — ⬜ Not yet end-to-end tested<a class="headerlink" href="#ios-not-yet-end-to-end-tested" title="Permanent link">&para;</a></h3>
+<p>Requires one-time setup:
+- [ ] Bundle Identifier set to <code>xyz.ksharma.huezoo</code> in Xcode
+- [ ] <code>CFBundleShortVersionString</code> / <code>CFBundleVersion</code> added to <code>Info.plist</code>
+- [ ] <code>CURRENT_PROJECT_VERSION</code> set in Xcode build settings
+- [ ] App Store Connect app created
+- [ ] API key, distribution cert, and provisioning profile configured
+- [ ] <code>IOS_BUILD_NUMBER</code> and <code>DEVELOPMENT_TEAM</code> repo variables created</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 ksharma-xyz
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/ksharma-xyz" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
