@@ -186,18 +186,18 @@ fun ThresholdScreen(
         }
 
         // Only show when the pre-loaded ad is READY — calling InterstitialAd before the
-        // async load completes crashes with "InterstitialAd not loaded yet".
+        // async load completes crashes with "InterstitialAd not loaded yet". Once shown,
+        // keep the composable mounted through SHOWING/SHOWN so its DisposableEffect doesn't
+        // release the underlying iOS GADInterstitialAd while UIKit is still presenting it
+        // (that path crashes inside basic-ads' InterstitialAd on iOS).
         @OptIn(DependsOnGoogleMobileAds::class)
         if (showInterstitial && !DebugFlags.hideAds) {
             when (interstitialAdState.value.state) {
-                AdState.READY -> InterstitialAd(
+                AdState.READY, AdState.SHOWING, AdState.SHOWN -> InterstitialAd(
                     loadedAd = interstitialAdState.value,
                     onDismissed = { viewModel.onInterstitialDone() },
                     onFailure = { _ -> viewModel.onInterstitialDone() },
                 )
-                AdState.SHOWING, AdState.SHOWN -> {
-                    // Ad is on screen — onDismissed will call onInterstitialDone()
-                }
                 else -> {
                     // Ad not ready (still loading or failed) — skip ad and go to result
                     LaunchedEffect(showInterstitial) { viewModel.onInterstitialDone() }

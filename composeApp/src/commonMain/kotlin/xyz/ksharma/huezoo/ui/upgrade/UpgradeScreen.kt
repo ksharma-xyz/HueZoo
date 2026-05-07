@@ -461,7 +461,7 @@ private fun UpgradeBottomCta(
             modifier = Modifier.fillMaxWidth(),
         )
 
-        /*if (state.error != null) {
+        if (state.error != null) {
             Spacer(Modifier.height(HuezooSpacing.xs))
             HuezooLabelSmall(
                 text = state.error,
@@ -469,7 +469,7 @@ private fun UpgradeBottomCta(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
-        }*/
+        }
 
         Spacer(Modifier.height(HuezooSpacing.lg))
 
