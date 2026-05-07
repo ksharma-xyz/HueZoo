@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -69,10 +71,11 @@ fun EyeStrainNoticeScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(48.dp))
 
             // ── Icon ──────────────────────────────────────────────────────────
             EyeIcon(
@@ -121,7 +124,7 @@ fun EyeStrainNoticeScreen(
                     "There's no penalty for pausing.",
             )
 
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(40.dp))
 
             // ── Dismiss ───────────────────────────────────────────────────────
             HuezooButton(
