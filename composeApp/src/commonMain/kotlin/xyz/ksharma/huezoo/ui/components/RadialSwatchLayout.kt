@@ -46,6 +46,7 @@ import xyz.ksharma.huezoo.ui.model.SwatchSize
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
+import xyz.ksharma.huezoo.ui.theme.CarrotSwatch
 import xyz.ksharma.huezoo.ui.theme.CitrusSwatch
 import xyz.ksharma.huezoo.ui.theme.DiamondSwatch
 import xyz.ksharma.huezoo.ui.theme.HexagonSwatch
@@ -135,6 +136,11 @@ private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig 
         SwatchSize.Normal -> RadialConfig(88.dp, 52.dp, SHARED_CONTAINER, centerGap = 30.dp, uniformScale = true)
         SwatchSize.Medium -> RadialConfig(106.dp, 62.dp, SHARED_CONTAINER, centerGap = 34.dp, uniformScale = true)
     }
+    SwatchLayoutStyle.Carrot -> when (size) {
+        // Long, narrow taper.  Wider frilly inner edge, point at outer.
+        SwatchSize.Normal -> RadialConfig(56.dp, 130.dp, SHARED_CONTAINER, centerGap = 14.dp)
+        SwatchSize.Medium -> RadialConfig(68.dp, 144.dp, SHARED_CONTAINER, centerGap = 6.dp)
+    }
 }
 
 private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
@@ -145,6 +151,7 @@ private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
     SwatchLayoutStyle.DiamondHalo -> DiamondSwatch
     SwatchLayoutStyle.ShieldRing -> ShieldSwatch
     SwatchLayoutStyle.CitrusSlice -> CitrusSwatch
+    SwatchLayoutStyle.Carrot -> CarrotSwatch
 }
 
 // ── Animation constants ───────────────────────────────────────────────────────
@@ -736,6 +743,20 @@ private fun RadialCitrusSlicePreview() {
             roundPhase = RoundPhase.Idle,
             roundKey = 1,
             layoutStyle = SwatchLayoutStyle.CitrusSlice,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialCarrotPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 3),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.Carrot,
             onSwatchTap = {},
         )
     }

@@ -55,4 +55,10 @@ enum class SwatchLayoutStyle {
      * Inspired by [docs/ideas/swatch_fruit.png].
      */
     CitrusSlice,
+
+    /**
+     * 6 long carrot tapers — frilly leafy inner edge (zigzag peaks) close to the centre,
+     * narrow pointed root tip at the outer end.
+     */
+    Carrot,
 }
