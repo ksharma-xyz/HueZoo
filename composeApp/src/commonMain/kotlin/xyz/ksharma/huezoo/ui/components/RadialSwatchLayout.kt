@@ -46,16 +46,21 @@ import xyz.ksharma.huezoo.ui.model.SwatchSize
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
+import xyz.ksharma.huezoo.ui.theme.AlloyArrowSwatch
 import xyz.ksharma.huezoo.ui.theme.CarrotSwatch
 import xyz.ksharma.huezoo.ui.theme.CitrusSwatch
+import xyz.ksharma.huezoo.ui.theme.CutoutChevronSwatch
 import xyz.ksharma.huezoo.ui.theme.DiamondSwatch
 import xyz.ksharma.huezoo.ui.theme.HexagonSwatch
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.MjolnirSwatch
 import xyz.ksharma.huezoo.ui.theme.ShieldSwatch
 import xyz.ksharma.huezoo.ui.theme.SquircleMedium
 import xyz.ksharma.huezoo.ui.theme.SquircleSmall
 import xyz.ksharma.huezoo.ui.theme.SwatchPetal
+import xyz.ksharma.huezoo.ui.theme.TridentSpokeSwatch
+import xyz.ksharma.huezoo.ui.theme.YSpokeSwatch
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -89,6 +94,13 @@ private data class RadialConfig(
     val containerSize: Dp,
     val centerGap: Dp,
     val uniformScale: Boolean = false,
+    /**
+     * Extra rotation (degrees) applied during the unfold animation, decaying to 0° as the
+     * tile reaches full scale.  Positive values spin clockwise; negative anti-clockwise.
+     * Useful for shapes that benefit from a "wheel locking into place" feel (turbine, alloy).
+     * Default 0f = no spin.
+     */
+    val entranceSpinDeg: Float = 0f,
 )
 
 private val SHARED_CONTAINER = 300.dp
@@ -141,6 +153,32 @@ private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig 
         SwatchSize.Normal -> RadialConfig(56.dp, 130.dp, SHARED_CONTAINER, centerGap = 14.dp)
         SwatchSize.Medium -> RadialConfig(68.dp, 144.dp, SHARED_CONTAINER, centerGap = 6.dp)
     }
+    SwatchLayoutStyle.AlloyArrow -> when (size) {
+        // Tall arrowhead with chevron notch.  CW spin to lock-in like an alloy bolt tightening.
+        SwatchSize.Normal -> RadialConfig(70.dp, 110.dp, SHARED_CONTAINER, centerGap = 18.dp, entranceSpinDeg = 28f)
+        SwatchSize.Medium -> RadialConfig(84.dp, 130.dp, SHARED_CONTAINER, centerGap = 10.dp, entranceSpinDeg = 28f)
+    }
+    SwatchLayoutStyle.YSpoke -> when (size) {
+        // Twin-fork — narrow upper, deep V-notch.  Slightly stronger CW spin than AlloyArrow.
+        SwatchSize.Normal -> RadialConfig(70.dp, 110.dp, SHARED_CONTAINER, centerGap = 18.dp, entranceSpinDeg = 32f)
+        SwatchSize.Medium -> RadialConfig(84.dp, 130.dp, SHARED_CONTAINER, centerGap = 10.dp, entranceSpinDeg = 32f)
+    }
+    SwatchLayoutStyle.TridentSpoke -> when (size) {
+        // Wider tile to accommodate three outer prongs without them looking pinched.
+        SwatchSize.Normal -> RadialConfig(82.dp, 110.dp, SHARED_CONTAINER, centerGap = 18.dp, entranceSpinDeg = 24f)
+        SwatchSize.Medium -> RadialConfig(98.dp, 130.dp, SHARED_CONTAINER, centerGap = 10.dp, entranceSpinDeg = 24f)
+    }
+    SwatchLayoutStyle.CutoutChevron -> when (size) {
+        // Same envelope as AlloyArrow; gentler spin to let the curved jet-wing edges read.
+        SwatchSize.Normal -> RadialConfig(72.dp, 110.dp, SHARED_CONTAINER, centerGap = 18.dp, entranceSpinDeg = 18f)
+        SwatchSize.Medium -> RadialConfig(86.dp, 130.dp, SHARED_CONTAINER, centerGap = 10.dp, entranceSpinDeg = 18f)
+    }
+    SwatchLayoutStyle.Mjolnir -> when (size) {
+        // Wide head — needs a slightly larger tile width for the hammer to read.
+        // Strong CW spin so it lands like a hammer thrown into place.
+        SwatchSize.Normal -> RadialConfig(86.dp, 110.dp, SHARED_CONTAINER, centerGap = 16.dp, entranceSpinDeg = 25f)
+        SwatchSize.Medium -> RadialConfig(102.dp, 130.dp, SHARED_CONTAINER, centerGap = 8.dp, entranceSpinDeg = 25f)
+    }
 }
 
 private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
@@ -152,6 +190,11 @@ private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
     SwatchLayoutStyle.ShieldRing -> ShieldSwatch
     SwatchLayoutStyle.CitrusSlice -> CitrusSwatch
     SwatchLayoutStyle.Carrot -> CarrotSwatch
+    SwatchLayoutStyle.AlloyArrow -> AlloyArrowSwatch
+    SwatchLayoutStyle.YSpoke -> YSpokeSwatch
+    SwatchLayoutStyle.TridentSpoke -> TridentSpokeSwatch
+    SwatchLayoutStyle.CutoutChevron -> CutoutChevronSwatch
+    SwatchLayoutStyle.Mjolnir -> MjolnirSwatch
 }
 
 // ── Animation constants ───────────────────────────────────────────────────────
@@ -391,7 +434,9 @@ private fun RadialTile(
                 .fillMaxSize()
                 .graphicsLayer {
                     transformOrigin = TransformOrigin(0.5f, pivotY)
-                    rotationZ = angleDeg
+                    // Entrance spin decays linearly as tileScale grows 0 → 1, then sits at 0°.
+                    val spin = config.entranceSpinDeg * (1f - tileScale)
+                    rotationZ = angleDeg + spin
                     val s = tileScale * pressScale * celebrateScale.value
                     if (config.uniformScale) {
                         scaleX = s
@@ -757,6 +802,76 @@ private fun RadialCarrotPreview() {
             roundPhase = RoundPhase.Idle,
             roundKey = 1,
             layoutStyle = SwatchLayoutStyle.Carrot,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialAlloyArrowPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 4),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.AlloyArrow,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialYSpokePreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 1),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.YSpoke,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialTridentSpokePreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 2),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.TridentSpoke,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialCutoutChevronPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 5),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.CutoutChevron,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialMjolnirPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 3),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.Mjolnir,
             onSwatchTap = {},
         )
     }
