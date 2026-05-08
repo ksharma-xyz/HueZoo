@@ -367,26 +367,23 @@ class CarrotShape : Shape {
         val w = size.width
         val h = size.height
         val cx = w / 2f
-        val frillBaseY = h * 0.18f // depth of the frill valleys (peaks sit at y=0)
+        val frillBaseY = h * 0.18f
         return Path().apply {
-            // Frilly leafy crown — 3 peaks at y=0, 4 valleys at y=frillBaseY.
-            moveTo(0f, frillBaseY) // left valley
-            lineTo(w * 0.17f, 0f) // peak 1
-            lineTo(w * 0.33f, frillBaseY) // valley
-            lineTo(w * 0.50f, 0f) // peak 2 (centre — tallest frill visually since centred)
-            lineTo(w * 0.67f, frillBaseY) // valley
-            lineTo(w * 0.83f, 0f) // peak 3
-            lineTo(w, frillBaseY) // right valley
-            // Right side — gentle outward bow tapering to the outer tip.
+            moveTo(0f, frillBaseY)
+            lineTo(w * 0.17f, 0f)
+            lineTo(w * 0.33f, frillBaseY)
+            lineTo(w * 0.50f, 0f)
+            lineTo(w * 0.67f, frillBaseY)
+            lineTo(w * 0.83f, 0f)
+            lineTo(w, frillBaseY)
             cubicTo(
                 w * 0.96f,
                 h * 0.55f,
                 w * 0.74f,
                 h * 0.92f,
                 cx,
-                h, // outer tip (single point at outer-bottom-centre)
+                h,
             )
-            // Left side — mirror back to start.
             cubicTo(
                 w * 0.26f,
                 h * 0.92f,
@@ -402,3 +399,236 @@ class CarrotShape : Shape {
 
 /** Carrot tile for the Carrot swatch layout. */
 val CarrotSwatch = CarrotShape()
+
+/**
+ * Alloy-wheel arrow tile — pentagonal arrowhead with a chevron notch carved into the outer
+ * edge.  Inner tip points toward the layout centre; outer edge has a V-shaped indent.
+ */
+class AlloyArrowShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(alloyPath(size))
+
+    @Suppress("MagicNumber")
+    private fun alloyPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val shoulderY = h * 0.58f
+        val notchInY = h * 0.78f
+        return Path().apply {
+            moveTo(cx, 0f)
+            lineTo(w, shoulderY)
+            lineTo(w, h)
+            lineTo(cx, notchInY)
+            lineTo(0f, h)
+            lineTo(0f, shoulderY)
+            close()
+        }
+    }
+}
+
+/** Alloy-spoke arrowhead tile. */
+val AlloyArrowSwatch = AlloyArrowShape()
+
+/**
+ * Y-spoke alloy tile — twin-fork silhouette.  Narrow stem at the inner edge widens at the
+ * shoulders into two prongs separated by a deep V-notch at the outer edge.  Audi-style.
+ */
+class YSpokeShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(yPath(size))
+
+    @Suppress("MagicNumber")
+    private fun yPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val shoulderY = h * 0.32f
+        val notchInY = h * 0.55f
+        return Path().apply {
+            moveTo(cx, 0f)
+            lineTo(w, shoulderY)
+            lineTo(w, h)
+            lineTo(cx, notchInY)
+            lineTo(0f, h)
+            lineTo(0f, shoulderY)
+            close()
+        }
+    }
+}
+
+/** Y-spoke twin-fork alloy tile. */
+val YSpokeSwatch = YSpokeShape()
+
+/**
+ * Trident-spoke alloy tile — three flat outer prongs separated by two V-notches.
+ * Mercedes-AMG split-spoke aesthetic.  9 vertices.
+ */
+class TridentSpokeShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(tridentPath(size))
+
+    @Suppress("MagicNumber")
+    private fun tridentPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val shoulderY = h * 0.50f
+        val notchInY = h * 0.78f
+        return Path().apply {
+            moveTo(cx, 0f)
+            lineTo(w, shoulderY)
+            lineTo(w, h)
+            lineTo(w * 0.67f, notchInY)
+            lineTo(w * 0.55f, h)
+            lineTo(w * 0.45f, h)
+            lineTo(w * 0.33f, notchInY)
+            lineTo(0f, h)
+            lineTo(0f, shoulderY)
+            close()
+        }
+    }
+}
+
+/** Trident 3-prong alloy spoke tile. */
+val TridentSpokeSwatch = TridentSpokeShape()
+
+/**
+ * Cutout-chevron alloy tile — same 6-corner anchor template as [AlloyArrowShape] but with
+ * concave (cubic) sweeps between shoulders and outer corners on both sides — sharp
+ * jet-wing silhouette.
+ */
+class CutoutChevronShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(chevronPath(size))
+
+    @Suppress("MagicNumber")
+    private fun chevronPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val shoulderY = h * 0.55f
+        val notchInY = h * 0.78f
+        return Path().apply {
+            moveTo(cx, 0f)
+            lineTo(w, shoulderY)
+            cubicTo(
+                w * 0.92f,
+                h * 0.72f,
+                w * 0.88f,
+                h * 0.92f,
+                w,
+                h,
+            )
+            lineTo(cx, notchInY)
+            lineTo(0f, h)
+            cubicTo(
+                w * 0.12f,
+                h * 0.92f,
+                w * 0.08f,
+                h * 0.72f,
+                0f,
+                shoulderY,
+            )
+            close()
+        }
+    }
+}
+
+/** Cutout-chevron jet-wing alloy tile. */
+val CutoutChevronSwatch = CutoutChevronShape()
+
+/**
+ * Mjolnir-hammer silhouette — narrow rounded handle at the inner edge, filleted shoulders
+ * curving smoothly out into a chamfered hammer head at the outer edge.  Head body is 84 % of
+ * tile width with cubic-rounded outer corners.
+ */
+class MjolnirShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(mjolnirPath(size))
+
+    @Suppress("MagicNumber", "LongMethod")
+    private fun mjolnirPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val handleHalfW = w * 0.11f
+        val gripDomeY = h * 0.05f
+        val handleBaseY = h * 0.30f
+        val shoulderEndY = h * 0.42f
+        val headHalfW = w * 0.42f
+        val cornerR = w * 0.07f
+        return Path().apply {
+            moveTo(cx - handleHalfW, gripDomeY)
+            cubicTo(
+                cx - handleHalfW,
+                0f,
+                cx + handleHalfW,
+                0f,
+                cx + handleHalfW,
+                gripDomeY,
+            )
+            lineTo(cx + handleHalfW, handleBaseY)
+            cubicTo(
+                cx + handleHalfW,
+                shoulderEndY,
+                cx + headHalfW,
+                handleBaseY,
+                cx + headHalfW,
+                shoulderEndY,
+            )
+            lineTo(cx + headHalfW, h - cornerR)
+            cubicTo(
+                cx + headHalfW,
+                h,
+                cx + headHalfW - cornerR * 0.45f,
+                h,
+                cx + headHalfW - cornerR,
+                h,
+            )
+            lineTo(cx - headHalfW + cornerR, h)
+            cubicTo(
+                cx - headHalfW + cornerR * 0.45f,
+                h,
+                cx - headHalfW,
+                h,
+                cx - headHalfW,
+                h - cornerR,
+            )
+            lineTo(cx - headHalfW, shoulderEndY)
+            cubicTo(
+                cx - headHalfW,
+                handleBaseY,
+                cx - handleHalfW,
+                shoulderEndY,
+                cx - handleHalfW,
+                handleBaseY,
+            )
+            lineTo(cx - handleHalfW, gripDomeY)
+            close()
+        }
+    }
+}
+
+/** Mjolnir-hammer tile. */
+val MjolnirSwatch = MjolnirShape()

@@ -61,4 +61,37 @@ enum class SwatchLayoutStyle {
      * narrow pointed root tip at the outer end.
      */
     Carrot,
+
+    /**
+     * 6 pentagonal arrowheads pointing inward, with a chevron notch carved into the outer
+     * edge.  Combined radially they form an alloy-wheel pattern with twin-spoke overlap.
+     * Pairs with an entrance-spin animation that rotates each tile into place like a wheel.
+     */
+    AlloyArrow,
+
+    /**
+     * 6 twin-fork "Y" alloy spokes — narrow stem at the inner edge widening into two prongs
+     * separated by a deep V-notch at the outer edge.  Six tiles → 12 outer prongs around a
+     * tight hub.  Audi-style Y-spoke alloy.
+     */
+    YSpoke,
+
+    /**
+     * 6 three-prong trident alloys — single inner tip, two V-notches carving the outer edge
+     * into three flat prongs.  Mercedes-AMG split-spoke aesthetic.
+     */
+    TridentSpoke,
+
+    /**
+     * 6 chevron arrowheads with concave (cutout) outer-side edges — gives a sharp jet-wing
+     * silhouette.  Same 6-corner anchor template as AlloyArrow but with curved sweeps
+     * between corners instead of straight lines.
+     */
+    CutoutChevron,
+
+    /**
+     * 6 Mjolnir-hammer silhouettes — narrow handle with a rounded grip at the inner edge,
+     * widening into a chamfered hammer head that faces outward.
+     */
+    Mjolnir,
 }
