@@ -47,17 +47,24 @@ import xyz.ksharma.huezoo.ui.model.SwatchUiModel
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.AlloyArrowSwatch
+import xyz.ksharma.huezoo.ui.theme.AppleSwatch
 import xyz.ksharma.huezoo.ui.theme.CarrotSwatch
 import xyz.ksharma.huezoo.ui.theme.CitrusSwatch
+import xyz.ksharma.huezoo.ui.theme.CrownSwatch
 import xyz.ksharma.huezoo.ui.theme.CutoutChevronSwatch
 import xyz.ksharma.huezoo.ui.theme.DiamondSwatch
+import xyz.ksharma.huezoo.ui.theme.FishSwatch
+import xyz.ksharma.huezoo.ui.theme.HeartLife
 import xyz.ksharma.huezoo.ui.theme.HexagonSwatch
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.KiteSwatch
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.MjolnirSwatch
+import xyz.ksharma.huezoo.ui.theme.MushroomSwatch
 import xyz.ksharma.huezoo.ui.theme.ShieldSwatch
 import xyz.ksharma.huezoo.ui.theme.SquircleMedium
 import xyz.ksharma.huezoo.ui.theme.SquircleSmall
+import xyz.ksharma.huezoo.ui.theme.StarSwatch
 import xyz.ksharma.huezoo.ui.theme.SwatchPetal
 import xyz.ksharma.huezoo.ui.theme.TridentSpokeSwatch
 import xyz.ksharma.huezoo.ui.theme.YSpokeSwatch
@@ -116,6 +123,7 @@ private val SHARED_CONTAINER = 300.dp
  *   max tile reach = containerSize/2 + centerGap + tileHeight ≤ containerSize
  *   → centerGap ≤ containerSize/2 − tileHeight
  */
+@Suppress("LongMethod") // Per-style configs are easier to scan in one when() than split up.
 private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig = when (style) {
     SwatchLayoutStyle.Flower -> when (size) {
         SwatchSize.Normal -> RadialConfig(84.dp, 116.dp, SHARED_CONTAINER, centerGap = 18.dp)
@@ -179,6 +187,41 @@ private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig 
         SwatchSize.Normal -> RadialConfig(86.dp, 110.dp, SHARED_CONTAINER, centerGap = 16.dp, entranceSpinDeg = 25f)
         SwatchSize.Medium -> RadialConfig(102.dp, 130.dp, SHARED_CONTAINER, centerGap = 8.dp, entranceSpinDeg = 25f)
     }
+    SwatchLayoutStyle.Star -> when (size) {
+        // Roughly square tile so the star reads as a classic 5-point shape.
+        SwatchSize.Normal -> RadialConfig(86.dp, 86.dp, SHARED_CONTAINER, centerGap = 18.dp, uniformScale = true)
+        SwatchSize.Medium -> RadialConfig(102.dp, 102.dp, SHARED_CONTAINER, centerGap = 18.dp, uniformScale = true)
+    }
+    SwatchLayoutStyle.Heart -> when (size) {
+        // Slightly taller than wide so the lobes and tip both have room.
+        SwatchSize.Normal -> RadialConfig(80.dp, 90.dp, SHARED_CONTAINER, centerGap = 22.dp)
+        SwatchSize.Medium -> RadialConfig(96.dp, 108.dp, SHARED_CONTAINER, centerGap = 18.dp)
+    }
+    SwatchLayoutStyle.Fish -> when (size) {
+        // Tall tile — body + tail need vertical room.
+        SwatchSize.Normal -> RadialConfig(82.dp, 110.dp, SHARED_CONTAINER, centerGap = 18.dp)
+        SwatchSize.Medium -> RadialConfig(98.dp, 132.dp, SHARED_CONTAINER, centerGap = 12.dp)
+    }
+    SwatchLayoutStyle.Kite -> when (size) {
+        // Very tall, narrow — kite proportions.
+        SwatchSize.Normal -> RadialConfig(70.dp, 120.dp, SHARED_CONTAINER, centerGap = 14.dp)
+        SwatchSize.Medium -> RadialConfig(84.dp, 142.dp, SHARED_CONTAINER, centerGap = 4.dp)
+    }
+    SwatchLayoutStyle.Mushroom -> when (size) {
+        // Tall tile — cap + stem.
+        SwatchSize.Normal -> RadialConfig(78.dp, 116.dp, SHARED_CONTAINER, centerGap = 16.dp)
+        SwatchSize.Medium -> RadialConfig(94.dp, 138.dp, SHARED_CONTAINER, centerGap = 10.dp)
+    }
+    SwatchLayoutStyle.Crown -> when (size) {
+        // Wider than tall — three peaks need horizontal room.
+        SwatchSize.Normal -> RadialConfig(96.dp, 86.dp, SHARED_CONTAINER, centerGap = 22.dp)
+        SwatchSize.Medium -> RadialConfig(112.dp, 102.dp, SHARED_CONTAINER, centerGap = 22.dp)
+    }
+    SwatchLayoutStyle.Apple -> when (size) {
+        // Roughly square apple body.
+        SwatchSize.Normal -> RadialConfig(86.dp, 96.dp, SHARED_CONTAINER, centerGap = 18.dp)
+        SwatchSize.Medium -> RadialConfig(102.dp, 112.dp, SHARED_CONTAINER, centerGap = 14.dp)
+    }
 }
 
 private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
@@ -195,6 +238,13 @@ private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
     SwatchLayoutStyle.TridentSpoke -> TridentSpokeSwatch
     SwatchLayoutStyle.CutoutChevron -> CutoutChevronSwatch
     SwatchLayoutStyle.Mjolnir -> MjolnirSwatch
+    SwatchLayoutStyle.Star -> StarSwatch
+    SwatchLayoutStyle.Heart -> HeartLife
+    SwatchLayoutStyle.Fish -> FishSwatch
+    SwatchLayoutStyle.Kite -> KiteSwatch
+    SwatchLayoutStyle.Mushroom -> MushroomSwatch
+    SwatchLayoutStyle.Crown -> CrownSwatch
+    SwatchLayoutStyle.Apple -> AppleSwatch
 }
 
 // ── Animation constants ───────────────────────────────────────────────────────
@@ -872,6 +922,104 @@ private fun RadialMjolnirPreview() {
             roundPhase = RoundPhase.Idle,
             roundKey = 1,
             layoutStyle = SwatchLayoutStyle.Mjolnir,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialStarPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 1),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.Star,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialHeartPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 3),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.Heart,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialFishPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 5),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.Fish,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialKitePreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 0),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.Kite,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialMushroomPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 2),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.Mushroom,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialCrownPreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 4),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.Crown,
+            onSwatchTap = {},
+        )
+    }
+}
+
+@PreviewComponent
+@Composable
+private fun RadialApplePreview() {
+    HuezooPreviewTheme {
+        RadialSwatchLayout(
+            swatches = previewSwatches(oddIndex = 1),
+            roundPhase = RoundPhase.Idle,
+            roundKey = 1,
+            layoutStyle = SwatchLayoutStyle.Apple,
             onSwatchTap = {},
         )
     }
