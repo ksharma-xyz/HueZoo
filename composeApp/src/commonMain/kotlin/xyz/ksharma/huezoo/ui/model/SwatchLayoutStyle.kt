@@ -94,4 +94,45 @@ enum class SwatchLayoutStyle {
      * widening into a chamfered hammer head that faces outward.
      */
     Mjolnir,
+
+    /**
+     * 6 classic 5-point stars — one outer point of each star points to the layout centre.
+     * 10-vertex zigzag, alternating outer / inner radii.
+     */
+    Star,
+
+    /**
+     * 6 hearts — pointed tip faces outward, twin lobes converge at the centre forming a
+     * bouquet-of-hearts hub.  Reuses [HeartShape].
+     */
+    Heart,
+
+    /**
+     * 6 cartoon fish — head is the inner tip, oval body in the middle, V-tail at the outer
+     * edge.  Six fish swimming outward from a shared centre.
+     */
+    Fish,
+
+    /**
+     * 6 toy kites — elongated rhombus with side points high (~0.32 h) so the silhouette
+     * tapers down to a long outer point, like a kid's drawing of a kite.
+     */
+    Kite,
+
+    /**
+     * 6 mushrooms — rounded dome cap at the inner edge, narrow rectangular stem extending
+     * outward, with concave under-cap shoulders for that toadstool feel.
+     */
+    Mushroom,
+
+    /**
+     * 6 three-peak crowns — three triangular peaks at the inner edge, flat outer base.
+     */
+    Crown,
+
+    /**
+     * 6 apples — rounded body, V-shaped stem notch at the inner edge.  Six stems point to
+     * the centre; six round bodies fan outward.
+     */
+    Apple,
 }

@@ -632,3 +632,250 @@ class MjolnirShape : Shape {
 
 /** Mjolnir-hammer tile. */
 val MjolnirSwatch = MjolnirShape()
+
+/**
+ * Classic 5-point star — alternating outer / inner radii on an ellipse fitted to the tile
+ * bounding box.  The top outer point sits at (cx, 0) so it faces the layout centre.
+ */
+class StarShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(starPath(size))
+
+    @Suppress("MagicNumber")
+    private fun starPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val cy = h / 2f
+        val rxOuter = w * 0.50f
+        val ryOuter = h * 0.50f
+        val rxInner = w * 0.20f
+        val ryInner = h * 0.20f
+        return Path().apply {
+            for (i in 0..9) {
+                val angle = -PI / 2.0 + i * PI / 5.0
+                val rx = if (i % 2 == 0) rxOuter else rxInner
+                val ry = if (i % 2 == 0) ryOuter else ryInner
+                val px = (cx + rx * cos(angle)).toFloat()
+                val py = (cy + ry * sin(angle)).toFloat()
+                if (i == 0) moveTo(px, py) else lineTo(px, py)
+            }
+            close()
+        }
+    }
+}
+
+/** 5-point star tile. */
+val StarSwatch = StarShape()
+
+/**
+ * Cartoon fish — rounded snout at the inner edge, oval body, V-shaped tail at the outer
+ * edge with two pointed tail tips at the bottom corners.
+ */
+class FishShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(fishPath(size))
+
+    @Suppress("MagicNumber", "LongMethod")
+    private fun fishPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val snoutHalfW = w * 0.07f
+        val snoutAnchorY = h * 0.04f
+        return Path().apply {
+            moveTo(cx - snoutHalfW, snoutAnchorY)
+            cubicTo(
+                cx - snoutHalfW,
+                0f,
+                cx + snoutHalfW,
+                0f,
+                cx + snoutHalfW,
+                snoutAnchorY,
+            )
+            cubicTo(
+                w * 0.95f,
+                h * 0.12f,
+                w,
+                h * 0.32f,
+                w * 0.85f,
+                h * 0.55f,
+            )
+            lineTo(w * 0.65f, h * 0.65f)
+            lineTo(w, h * 0.95f)
+            lineTo(cx, h * 0.78f)
+            lineTo(0f, h * 0.95f)
+            lineTo(w * 0.35f, h * 0.65f)
+            cubicTo(
+                0f,
+                h * 0.32f,
+                w * 0.05f,
+                h * 0.12f,
+                cx - snoutHalfW,
+                snoutAnchorY,
+            )
+            close()
+        }
+    }
+}
+
+/** Cartoon fish tile. */
+val FishSwatch = FishShape()
+
+/**
+ * Toy-kite silhouette — elongated rhombus with side points at 32 % from the inner edge.
+ */
+class KiteShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(kitePath(size))
+
+    @Suppress("MagicNumber")
+    private fun kitePath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        return Path().apply {
+            moveTo(cx, 0f)
+            lineTo(w, h * 0.32f)
+            lineTo(cx, h)
+            lineTo(0f, h * 0.32f)
+            close()
+        }
+    }
+}
+
+/** Toy-kite tile. */
+val KiteSwatch = KiteShape()
+
+/**
+ * Mushroom silhouette — rounded dome cap at the inner edge with a narrow rectangular stem
+ * extending outward.  Concave under-cap shoulders connect cap to stem.
+ */
+class MushroomShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(mushroomPath(size))
+
+    @Suppress("MagicNumber", "LongMethod")
+    private fun mushroomPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val capH = h * 0.42f
+        val stemHalfW = w * 0.20f
+        val stemTopY = h * 0.46f
+        return Path().apply {
+            moveTo(0f, capH)
+            cubicTo(0f, h * 0.05f, w * 0.20f, 0f, cx, 0f)
+            cubicTo(w * 0.80f, 0f, w, h * 0.05f, w, capH)
+            cubicTo(
+                w * 0.85f,
+                capH,
+                cx + stemHalfW * 1.5f,
+                h * 0.45f,
+                cx + stemHalfW,
+                stemTopY,
+            )
+            lineTo(cx + stemHalfW, h)
+            lineTo(cx - stemHalfW, h)
+            lineTo(cx - stemHalfW, stemTopY)
+            cubicTo(
+                cx - stemHalfW * 1.5f,
+                h * 0.45f,
+                w * 0.15f,
+                capH,
+                0f,
+                capH,
+            )
+            close()
+        }
+    }
+}
+
+/** Mushroom tile. */
+val MushroomSwatch = MushroomShape()
+
+/**
+ * Three-peak crown silhouette — three triangular peaks across the inner edge, flat outer
+ * base.  Centre peak is tallest.
+ */
+class CrownShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(crownPath(size))
+
+    @Suppress("MagicNumber")
+    private fun crownPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val valleyY = h * 0.42f
+        return Path().apply {
+            moveTo(0f, valleyY)
+            lineTo(w * 0.17f, 0f)
+            lineTo(w * 0.33f, valleyY)
+            lineTo(cx, 0f)
+            lineTo(w * 0.67f, valleyY)
+            lineTo(w * 0.83f, 0f)
+            lineTo(w, valleyY)
+            lineTo(w, h)
+            lineTo(0f, h)
+            close()
+        }
+    }
+}
+
+/** Three-peak crown tile. */
+val CrownSwatch = CrownShape()
+
+/**
+ * Apple silhouette — rounded body with a small V-shaped stem notch at the inner edge.
+ */
+class AppleShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(applePath(size))
+
+    @Suppress("MagicNumber", "LongMethod")
+    private fun applePath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val notchD = h * 0.12f
+        val shoulderY = h * 0.04f
+        return Path().apply {
+            moveTo(cx - w * 0.10f, shoulderY)
+            lineTo(cx, notchD)
+            lineTo(cx + w * 0.10f, shoulderY)
+            cubicTo(w * 0.85f, shoulderY, w, h * 0.18f, w, h * 0.45f)
+            cubicTo(w, h * 0.85f, w * 0.85f, h * 0.97f, cx, h * 0.97f)
+            cubicTo(w * 0.15f, h * 0.97f, 0f, h * 0.85f, 0f, h * 0.45f)
+            cubicTo(0f, h * 0.18f, w * 0.15f, shoulderY, cx - w * 0.10f, shoulderY)
+            close()
+        }
+    }
+}
+
+/** Apple tile. */
+val AppleSwatch = AppleShape()
