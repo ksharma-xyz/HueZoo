@@ -16,7 +16,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +39,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -260,6 +264,7 @@ private const val NEON_OUTER_ALPHA = 0.30f
 // DEBUG ONLY — debug odd-swatch border constants. Only used when SwatchUiModel.isDebugOdd = true.
 private const val DEBUG_ODD_STROKE_PX = 4f
 private const val DEBUG_ODD_ALPHA = 0.55f
+private const val DEBUG_LABEL_ALPHA = 0.6f
 
 // ── Public composable ─────────────────────────────────────────────────────────
 
@@ -365,6 +370,22 @@ fun RadialSwatchLayout(
                     swatch.displayState == SwatchDisplayState.Default,
                 onClick = { onSwatchTap(idx) },
                 isDebugOdd = swatch.isDebugOdd,
+            )
+        }
+
+        // DEBUG ONLY — show the active layout style name at the centre of the layout so manual
+        // testers know which shape they're looking at without having to inspect the code.
+        // Gated on the same isDebugOdd flag the ViewModels already populate from
+        // platformOps.isDebugBuild — release builds never set this and the label never renders.
+        if (swatches.any { it.isDebugOdd }) {
+            Text(
+                text = layoutStyle.name,
+                style = MaterialTheme.typography.labelSmall,
+                color = HuezooColors.TextSecondary.copy(alpha = DEBUG_LABEL_ALPHA),
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(top = 2.dp),
             )
         }
     }
