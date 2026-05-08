@@ -348,3 +348,57 @@ class HeartShape : Shape {
 
 /** Heart shape for the Threshold lives indicator. */
 val HeartLife = HeartShape()
+
+/**
+ * Carrot silhouette — frilly leafy inner edge (3-peak zigzag crown at the top) tapering to a
+ * narrow pointed tip at the outer end.  Both side edges are gently curved (slight outward
+ * bow) so the carrot reads as plump rather than a flat triangle.
+ */
+class CarrotShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(carrotPath(size))
+
+    @Suppress("MagicNumber")
+    private fun carrotPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        val frillBaseY = h * 0.18f // depth of the frill valleys (peaks sit at y=0)
+        return Path().apply {
+            // Frilly leafy crown — 3 peaks at y=0, 4 valleys at y=frillBaseY.
+            moveTo(0f, frillBaseY) // left valley
+            lineTo(w * 0.17f, 0f) // peak 1
+            lineTo(w * 0.33f, frillBaseY) // valley
+            lineTo(w * 0.50f, 0f) // peak 2 (centre — tallest frill visually since centred)
+            lineTo(w * 0.67f, frillBaseY) // valley
+            lineTo(w * 0.83f, 0f) // peak 3
+            lineTo(w, frillBaseY) // right valley
+            // Right side — gentle outward bow tapering to the outer tip.
+            cubicTo(
+                w * 0.96f,
+                h * 0.55f,
+                w * 0.74f,
+                h * 0.92f,
+                cx,
+                h, // outer tip (single point at outer-bottom-centre)
+            )
+            // Left side — mirror back to start.
+            cubicTo(
+                w * 0.26f,
+                h * 0.92f,
+                w * 0.04f,
+                h * 0.55f,
+                0f,
+                frillBaseY,
+            )
+            close()
+        }
+    }
+}
+
+/** Carrot tile for the Carrot swatch layout. */
+val CarrotSwatch = CarrotShape()
