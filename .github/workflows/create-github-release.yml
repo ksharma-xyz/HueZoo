@@ -21,6 +21,12 @@ on:
         required: true
         type: string
 
+# softprops/action-gh-release calls the Releases API, which needs contents: write.
+# Granted at the workflow level so the default GITHUB_TOKEN has the right scope —
+# no PAT required.
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -30,9 +36,8 @@ jobs:
     steps:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_HUEZOO_GITHUB }}
         with:
           tag_name: ${{ inputs.tag_name || github.ref_name }}
           generate_release_notes: true
           draft: true
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -66,6 +66,15 @@ jobs:
         run: |
           git checkout -b "prod/${{ steps.version.outputs.name }}"
           git push origin "prod/${{ steps.version.outputs.name }}"
+
+          # main's HEAD always carries `[skip ci]` from the previous cut's main-bump commit
+          # (we use [skip ci] there to avoid running main's CI for a version-only change).
+          # That `[skip ci]` propagates to the prod branch's HEAD and silently skips
+          # release-2-deploy-rc.yml on this push. Add a fresh empty commit so the
+          # workflow always fires for RC1.
+          git commit --allow-empty -m "chore: kick off RC build for prod/${{ steps.version.outputs.name }}"
+          git push origin "prod/${{ steps.version.outputs.name }}"
+
           echo "::notice::Created prod/${{ steps.version.outputs.name }} — release-2-deploy-rc.yml will now build RC1"
 
       # ── Bump version on main immediately after cutting the release branch ───────
