@@ -102,8 +102,8 @@ enum class SwatchLayoutStyle {
     Star,
 
     /**
-     * 6 hearts — pointed tip faces outward, twin lobes converge at the centre forming a
-     * bouquet-of-hearts hub.  Reuses [HeartShape].
+     * 6 hearts — sharp tip points to the centre, plump rounded lobes face outward.  Tiles
+     * arranged radially form a flower of hearts with tips converging at a single hub.
      */
     Heart,
 
@@ -120,19 +120,14 @@ enum class SwatchLayoutStyle {
     Kite,
 
     /**
-     * 6 mushrooms — rounded dome cap at the inner edge, narrow rectangular stem extending
-     * outward, with concave under-cap shoulders for that toadstool feel.
-     */
-    Mushroom,
-
-    /**
-     * 6 three-peak crowns — three triangular peaks at the inner edge, flat outer base.
+     * 6 three-dome crowns — three rounded arches across the inner edge (no sharp peaks),
+     * flat outer base.
      */
     Crown,
 
     /**
-     * 6 apples — rounded body, V-shaped stem notch at the inner edge.  Six stems point to
-     * the centre; six round bodies fan outward.
+     * 6 apple slices — sharp inner tip (where the core was), straight cut sides, gently
+     * convex skin at the outer edge.  Six slices fanned out like a chef's plate.
      */
     Apple,
 }

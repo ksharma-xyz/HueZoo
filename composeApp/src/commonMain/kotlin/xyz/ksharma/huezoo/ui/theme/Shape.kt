@@ -350,6 +350,72 @@ class HeartShape : Shape {
 val HeartLife = HeartShape()
 
 /**
+ * Heart silhouette for the radial swatch layout — flipped from [HeartShape] so the sharp
+ * tip points to the **inner** edge (centre) and the plump rounded lobes face outward.
+ * Six tiles arranged radially form a flower of hearts with their tips converging at a
+ * single hub and lobes blooming around the rim.
+ */
+class HeartSwatchShape : Shape {
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(heartSwatchPath(size))
+
+    @Suppress("MagicNumber", "LongMethod")
+    private fun heartSwatchPath(size: Size): Path {
+        val w = size.width
+        val h = size.height
+        val cx = w / 2f
+        return Path().apply {
+            // Sharp inner tip at top.
+            moveTo(cx, 0f)
+            // Right side — sweeps from tip down to the right widest point.
+            cubicTo(
+                w * 0.55f,
+                h * 0.04f,
+                w * 1.02f,
+                h * 0.20f,
+                w,
+                h * 0.55f,
+            )
+            // Right lobe — plump rounded curve down to the centre notch at the outer edge.
+            cubicTo(
+                w,
+                h * 0.92f,
+                w * 0.70f,
+                h,
+                cx,
+                h * 0.86f,
+            )
+            // Left lobe — mirror back to the left widest point.
+            cubicTo(
+                w * 0.30f,
+                h,
+                0f,
+                h * 0.92f,
+                0f,
+                h * 0.55f,
+            )
+            // Left side — back up to the inner tip.
+            cubicTo(
+                w * -0.02f,
+                h * 0.20f,
+                w * 0.45f,
+                h * 0.04f,
+                cx,
+                0f,
+            )
+            close()
+        }
+    }
+}
+
+/** Heart tile for the radial swatch layout — tip points inward, lobes outward. */
+val HeartSwatch = HeartSwatchShape()
+
+/**
  * Carrot silhouette — frilly leafy inner edge (3-peak zigzag crown at the top) tapering to a
  * narrow pointed tip at the outer end.  Both side edges are gently curved (slight outward
  * bow) so the carrot reads as plump rather than a flat triangle.
@@ -480,7 +546,7 @@ class TridentSpokeShape : Shape {
         density: Density,
     ): Outline = Outline.Generic(tridentPath(size))
 
-    @Suppress("MagicNumber")
+    @Suppress("MagicNumber", "LongMethod")
     private fun tridentPath(size: Size): Path {
         val w = size.width
         val h = size.height
@@ -488,15 +554,33 @@ class TridentSpokeShape : Shape {
         val shoulderY = h * 0.50f
         val notchInY = h * 0.78f
         return Path().apply {
+            // Sharp inner tip.
             moveTo(cx, 0f)
-            lineTo(w, shoulderY)
-            lineTo(w, h)
-            lineTo(w * 0.67f, notchInY)
-            lineTo(w * 0.55f, h)
-            lineTo(w * 0.45f, h)
-            lineTo(w * 0.33f, notchInY)
-            lineTo(0f, h)
-            lineTo(0f, shoulderY)
+            // Right side — gentle convex sweep from tip down to the shoulder (was a straight
+            // line; the curve makes it feel sculpted rather than cleavered).
+            cubicTo(
+                w * 0.78f,
+                h * 0.10f,
+                w * 1.02f,
+                h * 0.30f,
+                w,
+                shoulderY,
+            )
+            lineTo(w, h) // outer-right prong corner
+            lineTo(w * 0.67f, notchInY) // right notch apex
+            lineTo(w * 0.55f, h) // mid-prong right base
+            lineTo(w * 0.45f, h) // mid-prong left base
+            lineTo(w * 0.33f, notchInY) // left notch apex
+            lineTo(0f, h) // outer-left prong corner
+            // Left side — mirror back up to the inner tip.
+            cubicTo(
+                w * -0.02f,
+                h * 0.30f,
+                w * 0.22f,
+                h * 0.10f,
+                cx,
+                0f,
+            )
             close()
         }
     }
@@ -651,10 +735,11 @@ class StarShape : Shape {
         val h = size.height
         val cx = w / 2f
         val cy = h / 2f
-        val rxOuter = w * 0.50f
-        val ryOuter = h * 0.50f
-        val rxInner = w * 0.20f
-        val ryInner = h * 0.20f
+        val rxOuter = w * 0.48f
+        val ryOuter = h * 0.48f
+        // Inner radius is 70 % of outer (was 40 %) — chunkier, less spiky, kid-friendlier.
+        val rxInner = w * 0.34f
+        val ryInner = h * 0.34f
         return Path().apply {
             for (i in 0..9) {
                 val angle = -PI / 2.0 + i * PI / 5.0
@@ -760,59 +845,8 @@ class KiteShape : Shape {
 val KiteSwatch = KiteShape()
 
 /**
- * Mushroom silhouette — rounded dome cap at the inner edge with a narrow rectangular stem
- * extending outward.  Concave under-cap shoulders connect cap to stem.
- */
-class MushroomShape : Shape {
-
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): Outline = Outline.Generic(mushroomPath(size))
-
-    @Suppress("MagicNumber", "LongMethod")
-    private fun mushroomPath(size: Size): Path {
-        val w = size.width
-        val h = size.height
-        val cx = w / 2f
-        val capH = h * 0.42f
-        val stemHalfW = w * 0.20f
-        val stemTopY = h * 0.46f
-        return Path().apply {
-            moveTo(0f, capH)
-            cubicTo(0f, h * 0.05f, w * 0.20f, 0f, cx, 0f)
-            cubicTo(w * 0.80f, 0f, w, h * 0.05f, w, capH)
-            cubicTo(
-                w * 0.85f,
-                capH,
-                cx + stemHalfW * 1.5f,
-                h * 0.45f,
-                cx + stemHalfW,
-                stemTopY,
-            )
-            lineTo(cx + stemHalfW, h)
-            lineTo(cx - stemHalfW, h)
-            lineTo(cx - stemHalfW, stemTopY)
-            cubicTo(
-                cx - stemHalfW * 1.5f,
-                h * 0.45f,
-                w * 0.15f,
-                capH,
-                0f,
-                capH,
-            )
-            close()
-        }
-    }
-}
-
-/** Mushroom tile. */
-val MushroomSwatch = MushroomShape()
-
-/**
- * Three-peak crown silhouette — three triangular peaks across the inner edge, flat outer
- * base.  Centre peak is tallest.
+ * Three-dome crown silhouette — three rounded arches across the inner edge (no sharp peaks),
+ * flat outer base.  The centre arch is the tallest; the two side arches are shorter.
  */
 class CrownShape : Shape {
 
@@ -822,20 +856,42 @@ class CrownShape : Shape {
         density: Density,
     ): Outline = Outline.Generic(crownPath(size))
 
-    @Suppress("MagicNumber")
+    @Suppress("MagicNumber", "LongMethod")
     private fun crownPath(size: Size): Path {
         val w = size.width
         val h = size.height
-        val cx = w / 2f
-        val valleyY = h * 0.42f
+        val sideArchTop = h * 0.10f
+        val midArchTop = 0f
+        val valleyY = h * 0.45f
         return Path().apply {
             moveTo(0f, valleyY)
-            lineTo(w * 0.17f, 0f)
-            lineTo(w * 0.33f, valleyY)
-            lineTo(cx, 0f)
-            lineTo(w * 0.67f, valleyY)
-            lineTo(w * 0.83f, 0f)
-            lineTo(w, valleyY)
+            // Left arch — dome up to (w*0.33, valleyY).
+            cubicTo(
+                0f,
+                sideArchTop,
+                w * 0.33f,
+                sideArchTop,
+                w * 0.33f,
+                valleyY,
+            )
+            // Centre arch — taller; reaches y = 0 at its peak.
+            cubicTo(
+                w * 0.33f,
+                midArchTop,
+                w * 0.67f,
+                midArchTop,
+                w * 0.67f,
+                valleyY,
+            )
+            // Right arch — mirror of the left.
+            cubicTo(
+                w * 0.67f,
+                sideArchTop,
+                w,
+                sideArchTop,
+                w,
+                valleyY,
+            )
             lineTo(w, h)
             lineTo(0f, h)
             close()
@@ -843,11 +899,13 @@ class CrownShape : Shape {
     }
 }
 
-/** Three-peak crown tile. */
+/** Three-dome crown tile. */
 val CrownSwatch = CrownShape()
 
 /**
- * Apple silhouette — rounded body with a small V-shaped stem notch at the inner edge.
+ * Apple-slice silhouette — sharp inner tip (where the apple's core was), straight cut
+ * sides, gently convex skin curve at the outer edge.  Six slices arranged radially form a
+ * chef's-plate of apple slices.
  */
 class AppleShape : Shape {
 
@@ -857,25 +915,29 @@ class AppleShape : Shape {
         density: Density,
     ): Outline = Outline.Generic(applePath(size))
 
-    @Suppress("MagicNumber", "LongMethod")
+    @Suppress("MagicNumber")
     private fun applePath(size: Size): Path {
         val w = size.width
         val h = size.height
         val cx = w / 2f
-        val notchD = h * 0.12f
-        val shoulderY = h * 0.04f
+        val skinAnchorY = h * 0.65f
         return Path().apply {
-            moveTo(cx - w * 0.10f, shoulderY)
-            lineTo(cx, notchD)
-            lineTo(cx + w * 0.10f, shoulderY)
-            cubicTo(w * 0.85f, shoulderY, w, h * 0.18f, w, h * 0.45f)
-            cubicTo(w, h * 0.85f, w * 0.85f, h * 0.97f, cx, h * 0.97f)
-            cubicTo(w * 0.15f, h * 0.97f, 0f, h * 0.85f, 0f, h * 0.45f)
-            cubicTo(0f, h * 0.18f, w * 0.15f, shoulderY, cx - w * 0.10f, shoulderY)
+            moveTo(cx, 0f) // sharp inner tip (core point)
+            lineTo(w * 0.95f, skinAnchorY) // right cut edge
+            // Apple skin — gentle convex sweep across the outer edge.
+            cubicTo(
+                w * 0.85f,
+                h * 1.02f,
+                w * 0.15f,
+                h * 1.02f,
+                w * 0.05f,
+                skinAnchorY,
+            )
+            lineTo(cx, 0f) // left cut edge back to tip
             close()
         }
     }
 }
 
-/** Apple tile. */
+/** Apple-slice tile. */
 val AppleSwatch = AppleShape()

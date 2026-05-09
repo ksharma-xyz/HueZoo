@@ -58,13 +58,12 @@ import xyz.ksharma.huezoo.ui.theme.CrownSwatch
 import xyz.ksharma.huezoo.ui.theme.CutoutChevronSwatch
 import xyz.ksharma.huezoo.ui.theme.DiamondSwatch
 import xyz.ksharma.huezoo.ui.theme.FishSwatch
-import xyz.ksharma.huezoo.ui.theme.HeartLife
+import xyz.ksharma.huezoo.ui.theme.HeartSwatch
 import xyz.ksharma.huezoo.ui.theme.HexagonSwatch
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.KiteSwatch
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.MjolnirSwatch
-import xyz.ksharma.huezoo.ui.theme.MushroomSwatch
 import xyz.ksharma.huezoo.ui.theme.ShieldSwatch
 import xyz.ksharma.huezoo.ui.theme.SquircleMedium
 import xyz.ksharma.huezoo.ui.theme.SquircleSmall
@@ -211,20 +210,15 @@ private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig 
         SwatchSize.Normal -> RadialConfig(70.dp, 120.dp, SHARED_CONTAINER, centerGap = 14.dp)
         SwatchSize.Medium -> RadialConfig(84.dp, 142.dp, SHARED_CONTAINER, centerGap = 4.dp)
     }
-    SwatchLayoutStyle.Mushroom -> when (size) {
-        // Tall tile — cap + stem.
-        SwatchSize.Normal -> RadialConfig(78.dp, 116.dp, SHARED_CONTAINER, centerGap = 16.dp)
-        SwatchSize.Medium -> RadialConfig(94.dp, 138.dp, SHARED_CONTAINER, centerGap = 10.dp)
-    }
     SwatchLayoutStyle.Crown -> when (size) {
-        // Wider than tall — three peaks need horizontal room.
+        // Wider than tall — three rounded arches need horizontal room.
         SwatchSize.Normal -> RadialConfig(96.dp, 86.dp, SHARED_CONTAINER, centerGap = 22.dp)
         SwatchSize.Medium -> RadialConfig(112.dp, 102.dp, SHARED_CONTAINER, centerGap = 22.dp)
     }
     SwatchLayoutStyle.Apple -> when (size) {
-        // Roughly square apple body.
-        SwatchSize.Normal -> RadialConfig(86.dp, 96.dp, SHARED_CONTAINER, centerGap = 18.dp)
-        SwatchSize.Medium -> RadialConfig(102.dp, 112.dp, SHARED_CONTAINER, centerGap = 14.dp)
+        // Wedge slice — wider than tall so the curved skin reads at the outer edge.
+        SwatchSize.Normal -> RadialConfig(96.dp, 86.dp, SHARED_CONTAINER, centerGap = 22.dp)
+        SwatchSize.Medium -> RadialConfig(114.dp, 102.dp, SHARED_CONTAINER, centerGap = 22.dp)
     }
 }
 
@@ -243,10 +237,9 @@ private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
     SwatchLayoutStyle.CutoutChevron -> CutoutChevronSwatch
     SwatchLayoutStyle.Mjolnir -> MjolnirSwatch
     SwatchLayoutStyle.Star -> StarSwatch
-    SwatchLayoutStyle.Heart -> HeartLife
+    SwatchLayoutStyle.Heart -> HeartSwatch
     SwatchLayoutStyle.Fish -> FishSwatch
     SwatchLayoutStyle.Kite -> KiteSwatch
-    SwatchLayoutStyle.Mushroom -> MushroomSwatch
     SwatchLayoutStyle.Crown -> CrownSwatch
     SwatchLayoutStyle.Apple -> AppleSwatch
 }
@@ -1002,20 +995,6 @@ private fun RadialKitePreview() {
             roundPhase = RoundPhase.Idle,
             roundKey = 1,
             layoutStyle = SwatchLayoutStyle.Kite,
-            onSwatchTap = {},
-        )
-    }
-}
-
-@PreviewComponent
-@Composable
-private fun RadialMushroomPreview() {
-    HuezooPreviewTheme {
-        RadialSwatchLayout(
-            swatches = previewSwatches(oddIndex = 2),
-            roundPhase = RoundPhase.Idle,
-            roundKey = 1,
-            layoutStyle = SwatchLayoutStyle.Mushroom,
             onSwatchTap = {},
         )
     }
