@@ -108,12 +108,6 @@ enum class SwatchLayoutStyle {
     Heart,
 
     /**
-     * 6 cartoon fish — head is the inner tip, oval body in the middle, V-tail at the outer
-     * edge.  Six fish swimming outward from a shared centre.
-     */
-    Fish,
-
-    /**
      * 6 toy kites — elongated rhombus with side points high (~0.32 h) so the silhouette
      * tapers down to a long outer point, like a kid's drawing of a kite.
      */

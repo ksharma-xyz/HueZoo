@@ -758,64 +758,6 @@ class StarShape : Shape {
 val StarSwatch = StarShape()
 
 /**
- * Cartoon fish — rounded snout at the inner edge, oval body, V-shaped tail at the outer
- * edge with two pointed tail tips at the bottom corners.
- */
-class FishShape : Shape {
-
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ): Outline = Outline.Generic(fishPath(size))
-
-    @Suppress("MagicNumber", "LongMethod")
-    private fun fishPath(size: Size): Path {
-        val w = size.width
-        val h = size.height
-        val cx = w / 2f
-        val snoutHalfW = w * 0.07f
-        val snoutAnchorY = h * 0.04f
-        return Path().apply {
-            moveTo(cx - snoutHalfW, snoutAnchorY)
-            cubicTo(
-                cx - snoutHalfW,
-                0f,
-                cx + snoutHalfW,
-                0f,
-                cx + snoutHalfW,
-                snoutAnchorY,
-            )
-            cubicTo(
-                w * 0.95f,
-                h * 0.12f,
-                w,
-                h * 0.32f,
-                w * 0.85f,
-                h * 0.55f,
-            )
-            lineTo(w * 0.65f, h * 0.65f)
-            lineTo(w, h * 0.95f)
-            lineTo(cx, h * 0.78f)
-            lineTo(0f, h * 0.95f)
-            lineTo(w * 0.35f, h * 0.65f)
-            cubicTo(
-                0f,
-                h * 0.32f,
-                w * 0.05f,
-                h * 0.12f,
-                cx - snoutHalfW,
-                snoutAnchorY,
-            )
-            close()
-        }
-    }
-}
-
-/** Cartoon fish tile. */
-val FishSwatch = FishShape()
-
-/**
  * Toy-kite silhouette — elongated rhombus with side points at 32 % from the inner edge.
  */
 class KiteShape : Shape {

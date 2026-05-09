@@ -57,7 +57,6 @@ import xyz.ksharma.huezoo.ui.theme.CitrusSwatch
 import xyz.ksharma.huezoo.ui.theme.CrownSwatch
 import xyz.ksharma.huezoo.ui.theme.CutoutChevronSwatch
 import xyz.ksharma.huezoo.ui.theme.DiamondSwatch
-import xyz.ksharma.huezoo.ui.theme.FishSwatch
 import xyz.ksharma.huezoo.ui.theme.HeartSwatch
 import xyz.ksharma.huezoo.ui.theme.HexagonSwatch
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
@@ -200,11 +199,6 @@ private fun configFor(style: SwatchLayoutStyle, size: SwatchSize): RadialConfig 
         SwatchSize.Normal -> RadialConfig(80.dp, 90.dp, SHARED_CONTAINER, centerGap = 22.dp)
         SwatchSize.Medium -> RadialConfig(96.dp, 108.dp, SHARED_CONTAINER, centerGap = 18.dp)
     }
-    SwatchLayoutStyle.Fish -> when (size) {
-        // Tall tile — body + tail need vertical room.
-        SwatchSize.Normal -> RadialConfig(82.dp, 110.dp, SHARED_CONTAINER, centerGap = 18.dp)
-        SwatchSize.Medium -> RadialConfig(98.dp, 132.dp, SHARED_CONTAINER, centerGap = 12.dp)
-    }
     SwatchLayoutStyle.Kite -> when (size) {
         // Very tall, narrow — kite proportions.
         SwatchSize.Normal -> RadialConfig(70.dp, 120.dp, SHARED_CONTAINER, centerGap = 14.dp)
@@ -238,7 +232,6 @@ private fun shapeFor(style: SwatchLayoutStyle): Shape = when (style) {
     SwatchLayoutStyle.Mjolnir -> MjolnirSwatch
     SwatchLayoutStyle.Star -> StarSwatch
     SwatchLayoutStyle.Heart -> HeartSwatch
-    SwatchLayoutStyle.Fish -> FishSwatch
     SwatchLayoutStyle.Kite -> KiteSwatch
     SwatchLayoutStyle.Crown -> CrownSwatch
     SwatchLayoutStyle.Apple -> AppleSwatch
@@ -967,20 +960,6 @@ private fun RadialHeartPreview() {
             roundPhase = RoundPhase.Idle,
             roundKey = 1,
             layoutStyle = SwatchLayoutStyle.Heart,
-            onSwatchTap = {},
-        )
-    }
-}
-
-@PreviewComponent
-@Composable
-private fun RadialFishPreview() {
-    HuezooPreviewTheme {
-        RadialSwatchLayout(
-            swatches = previewSwatches(oddIndex = 5),
-            roundPhase = RoundPhase.Idle,
-            roundKey = 1,
-            layoutStyle = SwatchLayoutStyle.Fish,
             onSwatchTap = {},
         )
     }
