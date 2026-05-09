@@ -356,37 +356,40 @@ fun RadialSwatchLayout(
         }
     }
 
-    Box(modifier = modifier.size(config.containerSize)) {
-        swatches.take(TILE_COUNT).forEachIndexed { idx, swatch ->
-            val angleDeg = idx * (360f / TILE_COUNT)
-            RadialTile(
-                color = swatch.color,
-                displayState = swatch.displayState,
-                angleDeg = angleDeg,
-                tileScale = tileScales[idx].value,
-                config = config,
-                shape = shape,
-                enabled = roundPhase == RoundPhase.Idle &&
-                    swatch.displayState == SwatchDisplayState.Default,
-                onClick = { onSwatchTap(idx) },
-                isDebugOdd = swatch.isDebugOdd,
-            )
-        }
-
-        // DEBUG ONLY — show the active layout style name at the centre of the layout so manual
-        // testers know which shape they're looking at without having to inspect the code.
-        // Gated on the same isDebugOdd flag the ViewModels already populate from
-        // platformOps.isDebugBuild — release builds never set this and the label never renders.
-        if (swatches.any { it.isDebugOdd }) {
+    // DEBUG ONLY — show the active layout style name ABOVE the swatch cluster so it doesn't
+    // overlap the inner tile tips at the centre.  Gated on the same isDebugOdd flag the
+    // ViewModels populate from platformOps.isDebugBuild — release builds never set this and
+    // the label never renders.
+    val showDebugLabel = swatches.any { it.isDebugOdd }
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (showDebugLabel) {
             Text(
                 text = layoutStyle.name,
                 style = MaterialTheme.typography.labelSmall,
                 color = HuezooColors.TextSecondary.copy(alpha = DEBUG_LABEL_ALPHA),
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(top = 2.dp),
+                modifier = Modifier.padding(bottom = 6.dp),
             )
+        }
+        Box(modifier = Modifier.size(config.containerSize)) {
+            swatches.take(TILE_COUNT).forEachIndexed { idx, swatch ->
+                val angleDeg = idx * (360f / TILE_COUNT)
+                RadialTile(
+                    color = swatch.color,
+                    displayState = swatch.displayState,
+                    angleDeg = angleDeg,
+                    tileScale = tileScales[idx].value,
+                    config = config,
+                    shape = shape,
+                    enabled = roundPhase == RoundPhase.Idle &&
+                        swatch.displayState == SwatchDisplayState.Default,
+                    onClick = { onSwatchTap(idx) },
+                    isDebugOdd = swatch.isDebugOdd,
+                )
+            }
         }
     }
 }
