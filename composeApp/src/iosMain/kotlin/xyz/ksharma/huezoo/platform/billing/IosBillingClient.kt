@@ -44,9 +44,8 @@ class IosBillingClient : BillingClient {
 
     private var pendingPurchase: CompletableDeferred<PurchaseResult>? = null
     private var pendingRestore: CompletableDeferred<Set<String>>? = null
-
-    /** Accumulates product IDs seen during a restoreCompletedTransactions call. */
     private val restoredIds = mutableSetOf<String>()
+    private var lastInvalidIds: Set<String> = emptySet()
 
     // ── Transaction observer ──────────────────────────────────────────────────
 
@@ -129,8 +128,14 @@ class IosBillingClient : BillingClient {
         if (!SKPaymentQueue.canMakePayments()) {
             return PurchaseResult.Error("Purchases are not allowed on this device")
         }
-        val product = fetchProduct(productId)
-            ?: return PurchaseResult.Error("Product not found: $productId")
+        val product = fetchProduct(productId) ?: run {
+            val reason = if (productId in lastInvalidIds) {
+                "This purchase is temporarily unavailable. Please try again later."
+            } else {
+                "Could not connect to the App Store. Please check your connection and try again."
+            }
+            return PurchaseResult.Error(reason)
+        }
         val deferred = CompletableDeferred<PurchaseResult>()
         pendingPurchase = deferred
         SKPaymentQueue.defaultQueue().addPayment(SKPayment.paymentWithProduct(product))
@@ -162,7 +167,8 @@ class IosBillingClient : BillingClient {
     private suspend fun fetchProduct(productId: String): SKProduct? =
         suspendCancellableCoroutine { cont ->
             val request = SKProductsRequest(productIdentifiers = setOf(productId))
-            val delegate = SelfRetainingProductsDelegate { product ->
+            val delegate = SelfRetainingProductsDelegate { product, invalidIds ->
+                lastInvalidIds = invalidIds
                 if (cont.isActive) cont.resume(product)
             }
             request.delegate = delegate
@@ -181,7 +187,7 @@ class IosBillingClient : BillingClient {
  * once the delegate's work is done.
  */
 private class SelfRetainingProductsDelegate(
-    private val onResult: (SKProduct?) -> Unit,
+    private val onResult: (SKProduct?, Set<String>) -> Unit,
 ) : NSObject(), SKProductsRequestDelegateProtocol {
 
     @Suppress("unused")
@@ -193,11 +199,15 @@ private class SelfRetainingProductsDelegate(
     ) {
         selfRetain = null
         @Suppress("UNCHECKED_CAST")
-        onResult((didReceiveResponse.products as List<SKProduct>).firstOrNull())
+        val product = (didReceiveResponse.products as List<SKProduct>).firstOrNull()
+
+        @Suppress("UNCHECKED_CAST")
+        val invalid = (didReceiveResponse.invalidProductIdentifiers as List<String>).toSet()
+        onResult(product, invalid)
     }
 
     override fun request(request: SKRequest, didFailWithError: NSError) {
         selfRetain = null
-        onResult(null)
+        onResult(null, emptySet())
     }
 }
