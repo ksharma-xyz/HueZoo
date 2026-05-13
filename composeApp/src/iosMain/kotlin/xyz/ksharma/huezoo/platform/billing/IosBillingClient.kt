@@ -80,9 +80,7 @@ class IosBillingClient : BillingClient {
                             val result = if (isCancelled) {
                                 PurchaseResult.Cancelled
                             } else {
-                                PurchaseResult.Error(
-                                    tx.error?.localizedDescription ?: "Purchase failed",
-                                )
+                                PurchaseResult.Error("Something went wrong — please try again.")
                             }
                             val deferred = pendingPurchase.also { pendingPurchase = null }
                             deferred?.complete(result)
