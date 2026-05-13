@@ -46,6 +46,10 @@ class IosBillingClient : BillingClient {
     private var pendingRestore: CompletableDeferred<Set<String>>? = null
     private val restoredIds = mutableSetOf<String>()
     private var lastInvalidIds: Set<String> = emptySet()
+    // Strong ref to the active fetch delegate — SKProductsRequest.delegate is weak on iOS,
+    // and Kotlin/Native's tracing GC collects isolated self-retain cycles, so the only
+    // reliable anchor is a field on this singleton.
+    private var activeFetchDelegate: SelfRetainingProductsDelegate? = null
 
     // ── Transaction observer ──────────────────────────────────────────────────
 
@@ -167,10 +171,15 @@ class IosBillingClient : BillingClient {
             val request = SKProductsRequest(productIdentifiers = setOf(productId))
             val delegate = SelfRetainingProductsDelegate { product, invalidIds ->
                 lastInvalidIds = invalidIds
+                activeFetchDelegate = null
                 if (cont.isActive) cont.resume(product)
             }
+            activeFetchDelegate = delegate
             request.delegate = delegate
-            cont.invokeOnCancellation { request.cancel() }
+            cont.invokeOnCancellation {
+                request.cancel()
+                activeFetchDelegate = null
+            }
             request.start()
         }
 }
