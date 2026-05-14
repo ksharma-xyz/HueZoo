@@ -38,7 +38,9 @@ private const val SK_ERROR_PAYMENT_CANCELLED = 2
  * Once the product exists and the build is signed with your distribution certificate,
  * [queryPrice] returns the user's local currency string (€, ₹, £ etc.)
  */
-class IosBillingClient : BillingClient {
+class IosBillingClient(
+    private val onPurchaseSuccess: () -> Unit = {},
+) : BillingClient {
 
     // ── Pending async operations ──────────────────────────────────────────────
 
@@ -46,6 +48,7 @@ class IosBillingClient : BillingClient {
     private var pendingRestore: CompletableDeferred<Set<String>>? = null
     private val restoredIds = mutableSetOf<String>()
     private var lastInvalidIds: Set<String> = emptySet()
+
     // Both fields kept as strong refs: SKProductsRequest.delegate is weak on iOS,
     // and Kotlin/Native's tracing GC collects isolated self-retain cycles, so the only
     // reliable anchors are fields on this singleton.
@@ -68,12 +71,16 @@ class IosBillingClient : BillingClient {
                     when (tx.transactionState) {
                         SKPaymentTransactionState.SKPaymentTransactionStatePurchased -> {
                             queue.finishTransaction(tx)
+                            // Always grant — covers in-app purchases, offer code redemptions,
+                            // and orphaned transactions delivered at startup.
+                            onPurchaseSuccess()
                             val deferred = pendingPurchase.also { pendingPurchase = null }
                             deferred?.complete(PurchaseResult.Success)
                         }
                         SKPaymentTransactionState.SKPaymentTransactionStateRestored -> {
-                            // Collect IDs during restore; deferred completes in
-                            // paymentQueueRestoreCompletedTransactionsFinished
+                            // Always grant for restored transactions too — covers fresh installs
+                            // and observer-registration delivery of prior-session transactions.
+                            onPurchaseSuccess()
                             tx.originalTransaction?.payment?.productIdentifier
                                 ?.let { restoredIds += it }
                             queue.finishTransaction(tx)
