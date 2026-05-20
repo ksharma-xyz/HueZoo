@@ -14,6 +14,10 @@ import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import xyz.ksharma.huezoo.platform.AndroidActivityProvider
 import kotlin.coroutines.resume
@@ -22,8 +26,10 @@ import com.android.billingclient.api.BillingClient as GoogleBillingClient
 class AndroidBillingClient(
     private val activityProvider: AndroidActivityProvider,
     context: Context,
+    private val onPurchaseSuccess: () -> Unit = {},
 ) : BillingClient {
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var pendingPurchase: CompletableDeferred<PurchaseResult>? = null
 
     private val googleClient: GoogleBillingClient = GoogleBillingClient.newBuilder(context)
@@ -33,15 +39,64 @@ class AndroidBillingClient(
         .setListener(purchasesUpdatedListener())
         .build()
 
+    init {
+        // Eager connection so startup reconciliation runs without waiting for the user
+        // to open the upgrade or settings screen. If the user already owns
+        // [PRODUCT_UNLIMITED] — including via a purchase that was acknowledged but never
+        // committed to DataStore due to a prior crash — onPurchaseSuccess re-grants it.
+        connectAndReconcile()
+    }
+
+    private fun connectAndReconcile() {
+        if (googleClient.isReady) {
+            scope.launch { queryExistingPurchases() }
+            return
+        }
+        googleClient.startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(result: BillingResult) {
+                if (result.responseCode == GoogleBillingClient.BillingResponseCode.OK) {
+                    scope.launch { queryExistingPurchases() }
+                }
+            }
+            override fun onBillingServiceDisconnected() {
+                // Will reconnect on next operation via ensureConnected()
+            }
+        })
+    }
+
+    private suspend fun queryExistingPurchases() {
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(GoogleBillingClient.ProductType.INAPP)
+            .build()
+        val result = runCatching { googleClient.queryPurchasesAsync(params) }.getOrNull() ?: return
+        if (result.billingResult.responseCode != GoogleBillingClient.BillingResponseCode.OK) return
+        val owned = result.purchasesList.any { purchase ->
+            purchase.products.contains(PRODUCT_UNLIMITED) &&
+                purchase.purchaseState == Purchase.PurchaseState.PURCHASED
+        }
+        if (owned) onPurchaseSuccess()
+    }
+
     private fun purchasesUpdatedListener() = PurchasesUpdatedListener { result, purchases ->
-        val deferred = pendingPurchase ?: return@PurchasesUpdatedListener
-        pendingPurchase = null
+        // Always grant entitlement for any PURCHASED purchase BEFORE touching the
+        // pending deferred. Covers orphaned purchases delivered without a live
+        // deferred (process death between acknowledge and DataStore commit, promo
+        // redemptions, queued updates after reconnect).
+        if (result.responseCode == GoogleBillingClient.BillingResponseCode.OK) {
+            purchases?.forEach { purchase ->
+                if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                    acknowledgePurchase(purchase)
+                    onPurchaseSuccess()
+                }
+            }
+        }
+
+        val deferred = pendingPurchase.also { pendingPurchase = null }
+            ?: return@PurchasesUpdatedListener
         when {
             result.responseCode == GoogleBillingClient.BillingResponseCode.OK &&
-                !purchases.isNullOrEmpty() -> {
-                acknowledgePurchase(purchases.first())
+                !purchases.isNullOrEmpty() ->
                 deferred.complete(PurchaseResult.Success)
-            }
             result.responseCode == GoogleBillingClient.BillingResponseCode.USER_CANCELED ->
                 deferred.complete(PurchaseResult.Cancelled)
             else ->
@@ -62,7 +117,7 @@ class AndroidBillingClient(
         suspendCancellableCoroutine<Unit> { cont ->
             googleClient.startConnection(object : BillingClientStateListener {
                 override fun onBillingSetupFinished(result: BillingResult) {
-                    cont.resume(Unit)
+                    if (cont.isActive) cont.resume(Unit)
                 }
                 override fun onBillingServiceDisconnected() {
                     // Will reconnect on next call
