@@ -262,7 +262,7 @@ private fun ReadyContent(
     val shareText = buildString {
         append("I detected ΔE ${state.deltaE.fmt()} on Huezoo\n")
         append(sting.copy)
-        append("\nCan you beat it? huezoo.app")
+        append("\nCan you beat it? https://ksharma-xyz.github.io/HueZoo/")
     }
 
     Column(
