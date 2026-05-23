@@ -3,11 +3,56 @@
 {% block tabs %}{% endblock %}
 
 {% block extrahead %}
+<meta name="theme-color" content="#0D0D16">
+
+<!-- Open Graph (Facebook, LinkedIn, iMessage) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Huezoo">
+<meta property="og:url" content="{{ config.site_url }}">
+<meta property="og:title" content="Huezoo: a color-matching game for curious minds">
+<meta property="og:description" content="{{ config.site_description }}">
+<meta property="og:image" content="{{ config.site_url }}assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_AU">
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Huezoo: a color-matching game for curious minds">
+<meta name="twitter:description" content="{{ config.site_description }}">
+<meta name="twitter:image" content="{{ config.site_url }}assets/og-cover.png">
+
+<!-- Structured data — lets Google show a rich app card -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  "name": "Huezoo",
+  "operatingSystem": "iOS, Android",
+  "applicationCategory": "GameApplication",
+  "applicationSubCategory": "Puzzle",
+  "description": "{{ config.site_description }}",
+  "url": "{{ config.site_url }}",
+  "image": "{{ config.site_url }}assets/og-cover.png",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AUD" },
+  "downloadUrl": "https://apps.apple.com/us/app/huezoo/id6761459879",
+  "author": { "@type": "Person", "name": "Karan Sharma", "url": "https://ksharma.xyz" }
+}
+</script>
+
+<link rel="apple-touch-icon" href="{{ config.site_url }}assets/huezoo-icon.png">
+<link rel="icon" type="image/png" href="{{ config.site_url }}assets/huezoo-icon.png">
+
+<!-- Async-load web fonts via the print-onload swap so they don't block first paint. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" rel="stylesheet">
-<link rel="icon" type="image/png" href="{{ config.site_url }}assets/huezoo-icon.png">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap">
+<noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap">
+</noscript>
 <style>
 /* ── TOKENS ─────────────────────────────────────────────────── */
 :root {
@@ -141,6 +186,11 @@
 .store-badge--android { border-color:rgba(0,245,160,.18); }
 .store-badge--android:hover { border-color:rgba(0,245,160,.42); box-shadow:4px 4px 0 rgba(0,0,0,.5),0 0 24px rgba(0,245,160,.08); }
 .store-badge--android .store-badge__icon svg { color:var(--green); }
+/* The badge matching the visitor's device gets a resting offset shadow + ring
+   so the right store reads as primary. Set by the get-app detection script. */
+.store-badge--target { box-shadow:4px 4px 0 rgba(0,0,0,.5); }
+.store-badge--ios.store-badge--target     { border-color:rgba(0,229,255,.5); }
+.store-badge--android.store-badge--target { border-color:rgba(0,245,160,.42); }
 
 /* ── GOAL SECTION ───────────────────────────────────────────── */
 .goal-section { padding:72px 0 88px; }
@@ -541,7 +591,7 @@
     <footer class="footer">
       <span class="footer__brand">HUEZOO</span>
       <div class="footer__links">
-        <a href="{{ config.site_url }}privacy-policy/">Privacy Policy</a>
+        <a href="privacy-policy/">Privacy Policy</a>
         <a href="https://github.com/ksharma-xyz/Huezoo">GitHub</a>
       </div>
       <span class="footer__copy">© 2025 ksharma-xyz</span>
@@ -740,6 +790,17 @@ if('IntersectionObserver' in window){
   const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');obs.unobserve(e.target);}});},{threshold:.12});
   revs.forEach(el=>obs.observe(el));
 }else revs.forEach(el=>el.classList.add('on'));
+
+/* Get-app platform detection — highlight the store matching the visitor's
+   device (iOS → App Store, Android → Google Play). Desktop leaves both equal. */
+(function(){
+  var ua=navigator.userAgent||'';
+  var sel=/iPhone|iPad|iPod/i.test(ua)?'.store-badge--ios'
+         :/Android/i.test(ua)?'.store-badge--android':null;
+  if(!sel)return;
+  var b=document.querySelector(sel);
+  if(b)b.classList.add('store-badge--target');
+})();
 
 })();
 </script>

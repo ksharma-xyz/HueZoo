@@ -1,0 +1,80 @@
+name: Lighthouse audit
+
+# Audits the live GitHub Pages site (desktop + mobile) on every push to main
+# and on demand. Scores land in the run summary; full HTML reports upload as
+# artifacts (90-day retention). Performance / Accessibility / Best Practices / SEO.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'overrides/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/lighthouse.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SITE_URL: https://ksharma-xyz.github.io/Huezoo/
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Lighthouse
+        run: npm install -g lighthouse@latest
+
+      - name: Wait for GitHub Pages to publish this commit
+        run: |
+          echo "Giving Pages ~90s to deploy before auditing $SITE_URL"
+          sleep 90
+          curl -sI "$SITE_URL" | head -5
+
+      - name: Run Lighthouse · desktop
+        run: |
+          mkdir -p audit
+          lighthouse "$SITE_URL" \
+            --output=json --output=html \
+            --output-path=./audit/lighthouse \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --quiet --preset=desktop
+
+      - name: Run Lighthouse · mobile
+        run: |
+          lighthouse "$SITE_URL" \
+            --output=json --output=html \
+            --output-path=./audit/lighthouse-mobile \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --quiet \
+            --form-factor=mobile --screenEmulation.mobile=true
+
+      - name: Print score summary
+        run: |
+          node -e "
+          const d = JSON.parse(require('fs').readFileSync('audit/lighthouse.report.json'));
+          const m = JSON.parse(require('fs').readFileSync('audit/lighthouse-mobile.report.json'));
+          const f = (r,k) => Math.round(r.categories[k].score*100);
+          const keys = ['performance','accessibility','best-practices','seo'];
+          let out = '| Category | Desktop | Mobile |\n|---|---|---|\n';
+          keys.forEach(k => out += \`| \${k} | \${f(d,k)} | \${f(m,k)} |\n\`);
+          console.log(out);
+          " >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: audit/*.report.html
+          retention-days: 90
