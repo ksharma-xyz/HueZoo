@@ -48,6 +48,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
 <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+<link rel="preload" as="style" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap">
 <link rel="stylesheet" media="print" onload="this.media='all'" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap">
 <noscript>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
@@ -303,6 +304,16 @@
 @media(max-width:640px){
   .hero{padding-top:110px;padding-bottom:60px}
   .section,.section--alt{padding:72px 0}
+}
+
+/* ── REDUCED MOTION ─────────────────────────────────────────── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
 }
 </style>
 {% endblock %}
@@ -571,7 +582,7 @@
             <span class="store-badge__name">App Store</span>
           </div>
         </a>
-        <a href="http://play.google.com/store/apps/details?id=xyz.ksharma.huezoo" class="store-badge store-badge--android">
+        <a href="https://play.google.com/store/apps/details?id=xyz.ksharma.huezoo" class="store-badge store-badge--android">
           <span class="store-badge__icon">
             <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.36.6 1.24 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8zM17.5 12L5 4.8v14.4L17.5 12z"/>
@@ -604,6 +615,8 @@
 (function(){
 'use strict';
 
+const noMotion=matchMedia('(prefers-reduced-motion:reduce)').matches;
+
 /* ── UTIL ──────────────────────────────────────────────────── */
 function hsl(h,s,l){
   s/=100;l/=100;
@@ -613,6 +626,7 @@ function hsl(h,s,l){
 }
 
 /* ── 1. FLOATING PARTICLES ────────────────────────────────── */
+if(!noMotion){
 const bgC=document.createElement('canvas');
 Object.assign(bgC.style,{position:'fixed',top:'0',left:'0',width:'100%',height:'100%',pointerEvents:'none',zIndex:'0'});
 document.body.prepend(bgC);
@@ -623,6 +637,7 @@ function mkP(y){return{x:Math.random()*(BW||1400),y:y!==undefined?y:(BH||900)+16
 function initBg(){BW=bgC.width=window.innerWidth;BH=bgC.height=window.innerHeight;pts=[];for(let i=0;i<72;i++)pts.push(mkP(Math.random()*BH));}
 function drawBg(){bgX.clearRect(0,0,BW,BH);for(let i=pts.length-1;i>=0;i--){const p=pts[i];p.y-=p.vy;p.x+=p.vx;p.rot+=p.vr;if(p.y<-20){pts.splice(i,1);pts.push(mkP());continue;}bgX.save();bgX.globalAlpha=p.a;bgX.translate(p.x,p.y);bgX.rotate(p.rot);bgX.fillStyle=p.col;bgX.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz);bgX.restore();}requestAnimationFrame(drawBg);}
 initBg();drawBg();window.addEventListener('resize',initBg);
+}
 
 /* ── 2. SCANNER ILLUSTRATION ──────────────────────────────── */
 const sc=document.getElementById('scanner-canvas');
@@ -631,6 +646,7 @@ if(sc){
   let SW,SH,arm=0;
   function rsz(){SW=sc.width=sc.offsetWidth||window.innerWidth;SH=sc.height=sc.offsetHeight||window.innerHeight;}
   rsz();window.addEventListener('resize',rsz);
+  if(noMotion)return;
   function drawSc(){
     sx.clearRect(0,0,SW,SH);
     const cx=SW*.80,cy=SH*.50;
@@ -670,7 +686,7 @@ const grid   = document.getElementById('swatch-grid');
 const hint   = document.getElementById('demo-hint');
 const deVal  = document.getElementById('sw-de-val');
 const deTier = document.getElementById('sw-de-tier');
-if(grid && hint){
+if(grid && hint && !noMotion){
   /*
    * 5 game levels — calibrated dh values:
    * For HSL(h, 88%, 52%), chroma C*≈38 in Lab.
@@ -748,6 +764,7 @@ if(grid && hint){
 
 /* ── 4. ΔE SECTION BADGE — 5 game levels ─────────────────── */
 (function startDeBadge(){
+  if(noMotion) return;
   const badge=document.getElementById('de-badge');
   const name =document.getElementById('de-name');
   const sub  =document.getElementById('de-sub');
