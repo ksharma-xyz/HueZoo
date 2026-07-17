@@ -15,7 +15,7 @@ class DefaultColorMemoryGameEngine(
     override val totalRounds: Int = TOTAL_ROUNDS
 
     override val deltaECurve: List<Float> =
-        listOf(5.0f, 4.0f, 3.0f, 2.5f, 2.0f, 1.5f, 1.2f, 1.0f, 0.7f, 0.5f)
+        listOf(5.0f, 3.5f, 2.0f, 1.0f, 0.5f)
 
     override fun generateRound(round: Int): ColorPair {
         require(round in 1..totalRounds) { "round $round out of range 1..$totalRounds" }
@@ -27,6 +27,6 @@ class DefaultColorMemoryGameEngine(
     }
 
     private companion object {
-        const val TOTAL_ROUNDS = 10
+        const val TOTAL_ROUNDS = 5
     }
 }

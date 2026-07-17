@@ -16,11 +16,11 @@ class DefaultColorMemoryGameEngineTest {
     )
 
     @Test
-    fun `has ten rounds with the handoff deltaE curve`() {
+    fun `has five rounds with a tightening deltaE curve`() {
         val e = engine()
-        assertEquals(10, e.totalRounds)
+        assertEquals(5, e.totalRounds)
         assertEquals(
-            listOf(5.0f, 4.0f, 3.0f, 2.5f, 2.0f, 1.5f, 1.2f, 1.0f, 0.7f, 0.5f),
+            listOf(5.0f, 3.5f, 2.0f, 1.0f, 0.5f),
             e.deltaECurve,
         )
         assertEquals(e.totalRounds, e.deltaECurve.size)
@@ -47,7 +47,7 @@ class DefaultColorMemoryGameEngineTest {
     fun `generateRound rejects out-of-range rounds`() {
         val e = engine()
         assertFailsWith<IllegalArgumentException> { e.generateRound(0) }
-        assertFailsWith<IllegalArgumentException> { e.generateRound(11) }
+        assertFailsWith<IllegalArgumentException> { e.generateRound(e.totalRounds + 1) }
     }
 
     @Test
@@ -66,8 +66,8 @@ class DefaultColorMemoryGameEngineTest {
 
     @Test
     fun `seeded engine is deterministic`() {
-        val rounds1 = (1..10).map { engine(seed = 7L).generateRound(it).isSame }
-        val rounds2 = (1..10).map { engine(seed = 7L).generateRound(it).isSame }
+        val rounds1 = (1..5).map { engine(seed = 7L).generateRound(it).isSame }
+        val rounds2 = (1..5).map { engine(seed = 7L).generateRound(it).isSame }
         assertEquals(rounds1, rounds2)
     }
 

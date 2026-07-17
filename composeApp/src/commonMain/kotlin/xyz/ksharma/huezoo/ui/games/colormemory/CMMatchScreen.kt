@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,7 +68,8 @@ import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchUiEvent
 import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchUiState
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
-import xyz.ksharma.huezoo.ui.theme.SquircleLarge
+import xyz.ksharma.huezoo.ui.theme.ParallelogramCard
+import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.rimLight
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
@@ -80,7 +82,8 @@ private const val DELTA_E_TIER_MID = 2f
 private const val DELTA_E_TIER_HARD = 1f
 private const val DELTA_E_COLOR_EASY = 3f
 private const val DECIMAL_SCALE = 10
-private val FeedbackShelfOffset = 6.dp
+private val FeedbackShelfOffset = 7.dp
+private val FeedbackSkewPad = 26.dp
 
 @Composable
 fun CMMatchScreen(
@@ -111,7 +114,7 @@ fun CMMatchScreen(
     if (showLeaveDialog) {
         HuezooAlertDialog(
             title = "LEAVE SESSION?",
-            message = "Progress isn't saved — a session only counts when all 10 rounds " +
+            message = "Progress isn't saved — a session only counts when all 5 rounds " +
                 "are complete.",
             confirmText = "LEAVE",
             confirmVariant = HuezooButtonVariant.GhostDanger,
@@ -384,7 +387,7 @@ private fun AnswerButtons(
     }
 }
 
-/** The per-round reveal — a squircle card on a shelf, colour-coded to the outcome. */
+/** The per-round reveal — a raised parallelogram card, colour-coded to the outcome. */
 @Composable
 private fun FeedbackRevealCard(
     correct: Boolean,
@@ -397,43 +400,52 @@ private fun FeedbackRevealCard(
         modifier = modifier
             .widthIn(max = 340.dp)
             .padding(bottom = FeedbackShelfOffset)
-            .shapedShadow(SquircleLarge, HuezooColors.SurfaceL0, FeedbackShelfOffset, FeedbackShelfOffset)
-            .background(HuezooColors.SurfaceL2, SquircleLarge)
-            .clip(SquircleLarge)
-            .rimLight(cornerRadius = 24.dp),
+            .shapedShadow(
+                ParallelogramCard,
+                HuezooColors.SurfaceL0.copy(alpha = 0.85f),
+                FeedbackShelfOffset,
+                FeedbackShelfOffset,
+            )
+            .shapedShadow(
+                ParallelogramCard,
+                accent.darken(0.45f),
+                FeedbackShelfOffset - 2.dp,
+                FeedbackShelfOffset - 2.dp,
+            )
+            .background(HuezooColors.SurfaceL2, ParallelogramCard)
+            .border(2.dp, accent, ParallelogramCard)
+            .clip(ParallelogramCard)
+            .rimLight(cornerRadius = 20.dp),
     ) {
-        Column {
-            Box(modifier = Modifier.fillMaxWidth().height(4.dp).background(accent))
-            Column(
-                modifier = Modifier.padding(HuezooSpacing.lg),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                HuezooLabelSmall(
-                    text = if (correct) "◉ MEMORY VERIFIED" else "◉ MEMORY DRIFTED",
-                    color = accent,
-                    fontWeight = FontWeight.ExtraBold,
-                )
-                Spacer(Modifier.height(HuezooSpacing.xs))
-                HuezooTitleLarge(
-                    text = "TRUTH: ${if (truthSame) "SAME" else "DIFFERENT"}",
-                    color = HuezooColors.TextPrimary,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(Modifier.height(HuezooSpacing.sm))
-                HuezooLabelSmall(
-                    text = sting,
-                    color = HuezooColors.TextSecondary,
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                )
-                Spacer(Modifier.height(HuezooSpacing.sm))
-                HuezooLabelSmall(
-                    text = if (correct) "+10 PTS" else "−5 PTS",
-                    color = accent,
-                    fontWeight = FontWeight.ExtraBold,
-                )
-            }
+        Column(
+            modifier = Modifier.padding(horizontal = FeedbackSkewPad, vertical = HuezooSpacing.lg),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            HuezooLabelSmall(
+                text = if (correct) "◉ MEMORY VERIFIED" else "◉ MEMORY DRIFTED",
+                color = accent,
+                fontWeight = FontWeight.ExtraBold,
+            )
+            Spacer(Modifier.height(HuezooSpacing.xs))
+            HuezooTitleLarge(
+                text = "TRUTH: ${if (truthSame) "SAME" else "DIFFERENT"}",
+                color = HuezooColors.TextPrimary,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(HuezooSpacing.sm))
+            HuezooLabelSmall(
+                text = sting,
+                color = HuezooColors.TextSecondary,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+            )
+            Spacer(Modifier.height(HuezooSpacing.sm))
+            HuezooLabelSmall(
+                text = if (correct) "+10 PTS" else "−5 PTS",
+                color = accent,
+                fontWeight = FontWeight.ExtraBold,
+            )
         }
     }
 }
@@ -467,15 +479,15 @@ private fun CMMatchMemoryPhasePreview() {
     xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
         CMMatchPlayingContent(
             state = CMMatchUiState.Playing(
-                round = 3,
-                totalRounds = 10,
+                round = 2,
+                totalRounds = 5,
                 phase = CMMatchPhase.Memory,
-                score = 15,
-                roundResults = listOf(CMMRoundResult.Correct, CMMRoundResult.Wrong),
+                score = 10,
+                roundResults = listOf(CMMRoundResult.Correct),
                 colorA = HuezooColors.AccentPurple,
                 colorB = HuezooColors.AccentPurple,
-                currentDeltaE = 3.0f,
-                roundDeltaE = 3.0f,
+                currentDeltaE = 3.5f,
+                roundDeltaE = 3.5f,
             ),
             onAnswer = {},
         )
@@ -488,11 +500,11 @@ private fun CMMatchRecallPhasePreview() {
     xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme {
         CMMatchPlayingContent(
             state = CMMatchUiState.Playing(
-                round = 8,
-                totalRounds = 10,
+                round = 4,
+                totalRounds = 5,
                 phase = CMMatchPhase.Recall,
-                score = 55,
-                roundResults = List(7) { CMMRoundResult.Correct },
+                score = 30,
+                roundResults = List(3) { CMMRoundResult.Correct },
                 colorA = HuezooColors.AccentCyan,
                 colorB = HuezooColors.AccentCyan,
                 currentDeltaE = 1.0f,

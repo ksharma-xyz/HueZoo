@@ -30,7 +30,10 @@ interface ColorMemoryGameEngine {
         /** Points deducted per wrong answer — score may go negative. */
         const val POINTS_WRONG = -5
 
-        /** Maximum achievable session score (10 rounds × +10). */
-        const val MAX_SCORE = 100
+        /** Number of rounds in a session. */
+        const val TOTAL_ROUNDS = 5
+
+        /** Maximum achievable session score (5 rounds × +10). */
+        const val MAX_SCORE = 50
     }
 }

@@ -32,6 +32,15 @@ object CMMatchStingCopy {
     private const val DECIMALS_1 = 10
     private const val DECIMALS_2 = 100
 
+    // Score tier cut-offs, as a percentage of the achievable max score.
+    private const val PERCENT_SCALE = 100
+    private const val PCT_PERFECT = 95
+    private const val PCT_STRONG = 80
+    private const val PCT_SOLID = 60
+    private const val PCT_ROOM = 40
+    private const val PCT_DRIFTED = 20
+    private const val PCT_MIN = 10
+
     /**
      * Picks a sting line for the just-answered round.
      *
@@ -48,28 +57,36 @@ object CMMatchStingCopy {
         return pool.random(random).replace("{de}", deltaE.formatDeltaE())
     }
 
-    /** Result-screen sting by total session score. */
-    @Suppress("MagicNumber")
-    fun resultStingByScore(score: Int): String = when {
-        score >= 95 -> "Superhuman recall. Seriously."
-        score >= 80 -> "Your memory is elite."
-        score >= 60 -> "Sharp. Very sharp."
-        score >= 40 -> "Better than most."
-        score >= 20 -> "Room to grow."
-        score > 0 -> "Keep training."
-        else -> "The eye drifted today. Come back."
+    /** Result-screen sting by score, tiered on the fraction of [maxScore] achieved. */
+    fun resultStingByScore(score: Int, maxScore: Int): String {
+        val pct = percent(score, maxScore)
+        return when {
+            pct >= PCT_PERFECT -> "Superhuman recall. Seriously."
+            pct >= PCT_STRONG -> "Your memory is elite."
+            pct >= PCT_SOLID -> "Sharp. Very sharp."
+            pct >= PCT_ROOM -> "Better than most."
+            pct >= PCT_DRIFTED -> "Room to grow."
+            score > 0 -> "Keep training."
+            else -> "The eye drifted today. Come back."
+        }
     }
 
-    /** Result-card tier label by total session score. */
-    @Suppress("MagicNumber")
-    fun tierLabelByScore(score: Int): String = when {
-        score >= 95 -> "PERFECT EYE"
-        score >= 80 -> "STRONG RECALL"
-        score >= 60 -> "SOLID"
-        score >= 40 -> "ROOM TO GROW"
-        score >= 10 -> "EYES DRIFTED"
-        else -> "FLATLINED"
+    /** Result-card tier label by score, tiered on the fraction of [maxScore] achieved. */
+    fun tierLabelByScore(score: Int, maxScore: Int): String {
+        val pct = percent(score, maxScore)
+        return when {
+            pct >= PCT_PERFECT -> "PERFECT EYE"
+            pct >= PCT_STRONG -> "STRONG RECALL"
+            pct >= PCT_SOLID -> "SOLID"
+            pct >= PCT_ROOM -> "ROOM TO GROW"
+            pct >= PCT_MIN -> "EYES DRIFTED"
+            else -> "FLATLINED"
+        }
     }
+
+    /** Score as a percentage of the achievable max (0 when [maxScore] ≤ 0). */
+    private fun percent(score: Int, maxScore: Int): Int =
+        if (maxScore <= 0) 0 else (score * PERCENT_SCALE) / maxScore
 
     /** 1 decimal for ΔE ≥ 1.0, 2 decimals below. */
     private fun Float.formatDeltaE(): String {

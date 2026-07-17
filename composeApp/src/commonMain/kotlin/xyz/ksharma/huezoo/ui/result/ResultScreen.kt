@@ -117,8 +117,11 @@ private val CardShelfHeight = 4.dp
 // ΔE below which the rotating neon border is shown — elite perception territory (UX.13.3)
 private const val NEON_BORDER_DELTA_E_THRESHOLD = 1.0f
 
-// Color Memory Match: confetti fires only from this score up (GAME_DESIGN.md §Confetti Rules)
-private const val CM_MATCH_CONFETTI_MIN_SCORE = 40
+// Color Memory Match scoring — sourced from the engine so UI and rules never drift.
+private const val CM_MATCH_MAX_SCORE = xyz.ksharma.huezoo.domain.game.ColorMemoryGameEngine.MAX_SCORE
+
+// Confetti fires only from 40% of max score up (GAME_DESIGN.md §Confetti Rules).
+private const val CM_MATCH_CONFETTI_MIN_SCORE = CM_MATCH_MAX_SCORE * 40 / 100
 
 @Composable
 fun ResultScreen(
@@ -214,8 +217,8 @@ private fun shouldShowConfetti(gameId: String, state: ResultUiState.Ready): Bool
 
 private fun stingData(gameId: String, deltaE: Float, roundsSurvived: Int, score: Int = 0): StingData = when {
     gameId == GameId.COLOR_MEMORY -> StingData(
-        badge = xyz.ksharma.huezoo.ui.copy.CMMatchStingCopy.tierLabelByScore(score),
-        copy = xyz.ksharma.huezoo.ui.copy.CMMatchStingCopy.resultStingByScore(score),
+        badge = xyz.ksharma.huezoo.ui.copy.CMMatchStingCopy.tierLabelByScore(score, CM_MATCH_MAX_SCORE),
+        copy = xyz.ksharma.huezoo.ui.copy.CMMatchStingCopy.resultStingByScore(score, CM_MATCH_MAX_SCORE),
     )
     gameId == GameId.DAILY -> when {
         roundsSurvived == 6 -> StingData("PERFECT RUN", "Perfect run. You see what others miss.")
@@ -294,7 +297,7 @@ private fun ReadyContent(
 
     val shareText = if (isColorMemory) {
         buildString {
-            append("I scored ${state.score}/100 on Huezoo's Color Memory Match\n")
+            append("I scored ${state.score}/$CM_MATCH_MAX_SCORE on Huezoo's Color Memory Match\n")
             append(sting.copy)
             append("\nCan you beat it? https://ksharma-xyz.github.io/HueZoo/")
         }
@@ -395,7 +398,7 @@ private fun ReadyContent(
 
         // ── 3. Sting readout — ΔE hero, or SCORE hero for Color Memory ────────
         StingReadout(
-            valueText = if (isColorMemory) "${state.score} / 100" else "ΔE ${state.deltaE.fmt()}",
+            valueText = if (isColorMemory) "${state.score} / $CM_MATCH_MAX_SCORE" else "ΔE ${state.deltaE.fmt()}",
             badgeText = sting.badge,
             stingCopy = sting.copy,
             accentColor = accentColor,

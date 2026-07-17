@@ -153,12 +153,12 @@ private val colorMemoryHelpSections = listOf(
             "Are they the same — or different?",
     ),
     HelpSection(
-        heading = "10 ROUNDS",
-        body = "Each round the ΔE shrinks. Round 1 is obvious. Round 10 is sub-perceptual.",
+        heading = "5 ROUNDS",
+        body = "Each round the ΔE shrinks. Round 1 is obvious. Round 5 is sub-perceptual.",
     ),
     HelpSection(
         heading = "SCORING",
-        body = "+10 per correct round. −5 per wrong. Max score 100.",
+        body = "+10 per correct round. −5 per wrong. Max score 50.",
     ),
     HelpSection(
         heading = "MEMORY",
