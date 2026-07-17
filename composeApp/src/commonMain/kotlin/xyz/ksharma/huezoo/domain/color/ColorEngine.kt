@@ -53,6 +53,19 @@ interface ColorEngine {
     fun generateOddSwatch(base: Color, targetDeltaE: Float): Color
 
     /**
+     * Generates a color pair for Color Memory Match.
+     *
+     * - When [isSame] is true, both colors are identical (ΔE = 0).
+     * - When false, the second color is perceptually [targetDeltaE] away from the first,
+     *   measured with CIEDE2000 (not approximated). The offset is distributed roughly
+     *   60% in L* and 40% in a* and b* so the difference is felt in both lightness and hue.
+     *
+     * @param targetDeltaE The desired CIEDE2000 distance when the pair differs.
+     * @param isSame       Whether the pair should be identical.
+     */
+    fun generateMemoryPair(targetDeltaE: Float, isSame: Boolean): ColorPair
+
+    /**
      * Returns a deterministic vivid color for [date] and [roundIndex].
      *
      * Every player on the same calendar day and round gets the same base color,

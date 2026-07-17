@@ -18,6 +18,7 @@ import xyz.ksharma.huezoo.data.repository.impl.DefaultDailyRepository
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.SessionResult
 import xyz.ksharma.huezoo.testutil.FakeDailyRepository
+import xyz.ksharma.huezoo.testutil.FakeColorMemoryRepository
 import xyz.ksharma.huezoo.testutil.FakeBillingClient
 import xyz.ksharma.huezoo.testutil.FakeSettingsRepository
 import xyz.ksharma.huezoo.testutil.FakeThresholdRepository
@@ -171,6 +172,7 @@ class DailyStreakAndPersonalBestTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(),
                 dailyRepository = FakeDailyRepository(initialBestRounds = 3),
+                colorMemoryRepository = FakeColorMemoryRepository(),
                 settingsRepository = FakeSettingsRepository(),
                 billingClient = FakeBillingClient(),
             )
@@ -188,6 +190,7 @@ class DailyStreakAndPersonalBestTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(),
                 dailyRepository = FakeDailyRepository(), // no stored best
+                colorMemoryRepository = FakeColorMemoryRepository(),
                 settingsRepository = FakeSettingsRepository(),
                 billingClient = FakeBillingClient(),
             )
@@ -205,6 +208,7 @@ class DailyStreakAndPersonalBestTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(),
                 dailyRepository = FakeDailyRepository(initialBestRounds = 5),
+                colorMemoryRepository = FakeColorMemoryRepository(),
                 settingsRepository = FakeSettingsRepository(),
                 billingClient = FakeBillingClient(),
             )
@@ -232,6 +236,7 @@ class DailyStreakAndPersonalBestTest {
             val vm = HomeViewModel(
                 thresholdRepository = FakeThresholdRepository(),
                 dailyRepository = dailyRepo,
+                colorMemoryRepository = FakeColorMemoryRepository(),
                 settingsRepository = FakeSettingsRepository(),
             )
             advanceUntilIdle()

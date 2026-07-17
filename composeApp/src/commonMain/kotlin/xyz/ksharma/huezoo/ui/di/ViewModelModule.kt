@@ -3,6 +3,7 @@ package xyz.ksharma.huezoo.ui.di
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import xyz.ksharma.huezoo.ui.eyestrain.EyeStrainViewModel
+import xyz.ksharma.huezoo.ui.games.colormemory.CMMatchViewModel
 import xyz.ksharma.huezoo.ui.games.daily.DailyViewModel
 import xyz.ksharma.huezoo.ui.games.threshold.ThresholdViewModel
 import xyz.ksharma.huezoo.ui.home.HomeViewModel
@@ -19,6 +20,7 @@ val viewModelModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::ThresholdViewModel)
     viewModelOf(::DailyViewModel)
+    viewModelOf(::CMMatchViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::LeaderboardViewModel)
     viewModelOf(::ResultViewModel)

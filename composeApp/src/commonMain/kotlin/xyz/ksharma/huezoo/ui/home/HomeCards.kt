@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package xyz.ksharma.huezoo.ui.home
 
 import androidx.compose.animation.AnimatedContent
@@ -69,6 +71,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooHeadlineSmall
 import xyz.ksharma.huezoo.ui.components.HuezooLabelSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTitleLarge
 import xyz.ksharma.huezoo.ui.components.HuezooTitleSmall
+import xyz.ksharma.huezoo.ui.home.state.ColorMemoryCardData
 import xyz.ksharma.huezoo.ui.home.state.DailyCardData
 import xyz.ksharma.huezoo.ui.home.state.ThresholdCardData
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
@@ -456,6 +459,29 @@ internal fun DailyCompactCard(
         } else {
             null
         },
+        modifier = modifier,
+    )
+}
+
+/**
+ * Color Memory Match compact card — always playable (free play, no daily gate).
+ * Shows the all-time best score once the player has completed a session.
+ */
+@Composable
+internal fun ColorMemoryCompactCard(
+    data: ColorMemoryCardData,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    CompactCard(
+        label = "MEMORY MATCH",
+        title = "COLOR MEMORY",
+        subtitle = data.bestScore?.let { "Best score: $it / 100" }
+            ?: "NEW — same color, or different?",
+        accentColor = HuezooColors.AccentPurple,
+        enabled = true,
+        onClick = onClick,
+        iconDraw = { color -> drawMemoryChambers(color) },
         modifier = modifier,
     )
 }

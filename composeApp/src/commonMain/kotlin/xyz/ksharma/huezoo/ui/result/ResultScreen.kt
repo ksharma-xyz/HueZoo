@@ -117,6 +117,9 @@ private val CardShelfHeight = 4.dp
 // ΔE below which the rotating neon border is shown — elite perception territory (UX.13.3)
 private const val NEON_BORDER_DELTA_E_THRESHOLD = 1.0f
 
+// Color Memory Match: confetti fires only from this score up (GAME_DESIGN.md §Confetti Rules)
+private const val CM_MATCH_CONFETTI_MIN_SCORE = 40
+
 @Composable
 fun ResultScreen(
     gameId: String,
@@ -128,9 +131,8 @@ fun ResultScreen(
 ) {
     val platformOps: PlatformOps = koinInject()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isDaily = gameId == GameId.DAILY
-    val identityColor = if (isDaily) HuezooColors.GameDaily else HuezooColors.GameThreshold
-    val glowColor = if (isDaily) identityColor else HuezooColors.AccentMagenta
+    val identityColor = identityColorFor(gameId)
+    val glowColor = glowColorFor(gameId, identityColor)
 
     Box(modifier = modifier) {
         AmbientGlowBackground(
@@ -156,9 +158,10 @@ fun ResultScreen(
             }
         }
 
-        // Confetti overlay — gems earned OR new personal best
+        // Confetti overlay — gems earned OR new personal best.
+        // Color Memory: only from score 40 up (GAME_DESIGN.md §Confetti Rules).
         val readyState = uiState as? ResultUiState.Ready
-        if (readyState != null && (readyState.gemsEarned > 0 || readyState.isNewPersonalBest)) {
+        if (readyState != null && shouldShowConfetti(gameId, readyState)) {
             ConfettiEffect(
                 identityColor = identityColor,
                 modifier = Modifier.fillMaxSize(),
@@ -187,7 +190,33 @@ fun ResultScreen(
 
 private data class StingData(val badge: String, val copy: String)
 
-private fun stingData(gameId: String, deltaE: Float, roundsSurvived: Int): StingData = when {
+/** Identity color per game — keep in sync with each game screen's accent. */
+private fun identityColorFor(gameId: String): Color = when (gameId) {
+    GameId.DAILY -> HuezooColors.GameDaily
+    GameId.COLOR_MEMORY -> HuezooColors.AccentPurple
+    else -> HuezooColors.GameThreshold
+}
+
+/** Ambient-glow primary color per game. */
+private fun glowColorFor(gameId: String, identityColor: Color): Color = when (gameId) {
+    GameId.DAILY -> identityColor
+    GameId.COLOR_MEMORY -> HuezooColors.AccentCyan
+    else -> HuezooColors.AccentMagenta
+}
+
+/** Whether confetti fires — score-gated for Color Memory, gems/PB for the rest. */
+private fun shouldShowConfetti(gameId: String, state: ResultUiState.Ready): Boolean =
+    if (gameId == GameId.COLOR_MEMORY) {
+        state.score >= CM_MATCH_CONFETTI_MIN_SCORE
+    } else {
+        state.gemsEarned > 0 || state.isNewPersonalBest
+    }
+
+private fun stingData(gameId: String, deltaE: Float, roundsSurvived: Int, score: Int = 0): StingData = when {
+    gameId == GameId.COLOR_MEMORY -> StingData(
+        badge = xyz.ksharma.huezoo.ui.copy.CMMatchStingCopy.tierLabelByScore(score),
+        copy = xyz.ksharma.huezoo.ui.copy.CMMatchStingCopy.resultStingByScore(score),
+    )
     gameId == GameId.DAILY -> when {
         roundsSurvived == 6 -> StingData("PERFECT RUN", "Perfect run. You see what others miss.")
         roundsSurvived >= 4 -> StingData("STRONG SIGNAL", "Strong calibration. Above average perception.")
@@ -230,9 +259,13 @@ private fun ReadyContent(
     modifier: Modifier = Modifier,
 ) {
     val isDaily = state.gameId == GameId.DAILY
-    val identityColor = if (isDaily) HuezooColors.GameDaily else HuezooColors.GameThreshold
-    val accentColor = if (isDaily) identityColor else HuezooColors.AccentMagenta
-    val sting = stingData(state.gameId, state.deltaE, state.roundsSurvived)
+    val isColorMemory = state.gameId == GameId.COLOR_MEMORY
+    val identityColor = identityColorFor(state.gameId)
+    val accentColor = when {
+        isDaily || isColorMemory -> identityColor
+        else -> HuezooColors.AccentMagenta
+    }
+    val sting = stingData(state.gameId, state.deltaE, state.roundsSurvived, state.score)
     val shareIcon = painterResource(shareIconRes())
 
     var showDeltaESheet by remember { mutableStateOf(false) }
@@ -259,10 +292,18 @@ private fun ReadyContent(
         )
     }
 
-    val shareText = buildString {
-        append("I detected ΔE ${state.deltaE.fmt()} on Huezoo\n")
-        append(sting.copy)
-        append("\nCan you beat it? https://ksharma-xyz.github.io/HueZoo/")
+    val shareText = if (isColorMemory) {
+        buildString {
+            append("I scored ${state.score}/100 on Huezoo's Color Memory Match\n")
+            append(sting.copy)
+            append("\nCan you beat it? https://ksharma-xyz.github.io/HueZoo/")
+        }
+    } else {
+        buildString {
+            append("I detected ΔE ${state.deltaE.fmt()} on Huezoo\n")
+            append(sting.copy)
+            append("\nCan you beat it? https://ksharma-xyz.github.io/HueZoo/")
+        }
     }
 
     Column(
@@ -281,13 +322,17 @@ private fun ReadyContent(
 
         // ── 1. Outcome banner — full-width, colored shelf ──────────────────────
         val bannerText = when {
+            isColorMemory && state.score <= 0 -> "MISSION OUTCOME: FLATLINED"
+            isColorMemory && state.isLegendaryResult -> "MISSION OUTCOME: LEGENDARY"
+            isColorMemory -> "MISSION OUTCOME: COMPLETE"
             state.roundsSurvived == 0 -> "MISSION OUTCOME: FLATLINED"
             isDaily -> "MISSION OUTCOME: COMPLETE"
             state.isLegendaryResult -> "MISSION OUTCOME: LEGENDARY"
             else -> "MISSION OUTCOME: FAILURE"
         }
         val bannerColor = when {
-            state.roundsSurvived == 0 -> HuezooColors.AccentMagenta
+            isColorMemory && state.score <= 0 -> HuezooColors.AccentMagenta
+            !isColorMemory && state.roundsSurvived == 0 -> HuezooColors.AccentMagenta
             state.isLegendaryResult -> HuezooColors.AccentYellow
             else -> accentColor
         }
@@ -348,9 +393,9 @@ private fun ReadyContent(
             Spacer(Modifier.height(HuezooSpacing.sm))
         }
 
-        // ── 3. ΔE sting readout ───────────────────────────────────────────────
+        // ── 3. Sting readout — ΔE hero, or SCORE hero for Color Memory ────────
         StingReadout(
-            deltaE = state.deltaE,
+            valueText = if (isColorMemory) "${state.score} / 100" else "ΔE ${state.deltaE.fmt()}",
             badgeText = sting.badge,
             stingCopy = sting.copy,
             accentColor = accentColor,
@@ -406,8 +451,29 @@ private fun ReadyContent(
                 )
             }
 
+            // Color Memory: session tightest ΔE + longest streak
+            if (isColorMemory) {
+                StatBreakdownCard(
+                    label = "TIGHTEST ΔE",
+                    value = "ΔE ${state.deltaE.fmt()}",
+                    progress = (1f - (state.deltaE / 5f)).coerceIn(0f, 1f),
+                    accentColor = HuezooColors.AccentYellow,
+                    icon = { LightningIcon(color = HuezooColors.AccentYellow) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                StatBreakdownCard(
+                    label = "LONGEST STREAK",
+                    value = "${state.longestStreak} IN A ROW",
+                    progress = (state.longestStreak.toFloat() / state.totalRounds.coerceAtLeast(1))
+                        .coerceIn(0f, 1f),
+                    accentColor = HuezooColors.AccentCyan,
+                    icon = { WaveIcon(color = HuezooColors.AccentCyan) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
             // Threshold-only: all-time best ΔE (session ΔE already shown in StingReadout)
-            if (!isDaily) {
+            if (!isDaily && !isColorMemory) {
                 val lifetimeBest = state.personalBestDeltaE
                 StatBreakdownCard(
                     label = "ALL-TIME BEST ΔE",
@@ -601,7 +667,7 @@ private fun HeroGems(
 
 @Composable
 private fun StingReadout(
-    deltaE: Float,
+    valueText: String,
     badgeText: String,
     stingCopy: String,
     accentColor: Color,
@@ -640,7 +706,7 @@ private fun StingReadout(
                     horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
                 ) {
                     androidx.compose.material3.Text(
-                        text = "ΔE ${deltaE.fmt()}",
+                        text = valueText,
                         style = MaterialTheme.typography.displayLarge.copy(
                             fontSize = 56.sp,
                             lineHeight = 56.sp,

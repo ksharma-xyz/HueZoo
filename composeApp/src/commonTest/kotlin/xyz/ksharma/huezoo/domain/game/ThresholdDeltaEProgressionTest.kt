@@ -17,6 +17,7 @@ import xyz.ksharma.huezoo.domain.color.FakeColorEngine
 import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
 import xyz.ksharma.huezoo.testutil.FakeBillingClient
 import xyz.ksharma.huezoo.testutil.FakeDailyRepository
+import xyz.ksharma.huezoo.testutil.FakeColorMemoryRepository
 import xyz.ksharma.huezoo.testutil.FakeHapticEngine
 import xyz.ksharma.huezoo.testutil.FakePlatformOps
 import xyz.ksharma.huezoo.testutil.FakeSettingsRepository
@@ -221,6 +222,7 @@ class ThresholdDeltaEProgressionTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(initialBestDeltaE = storedBest),
                 dailyRepository = FakeDailyRepository(),
+                colorMemoryRepository = FakeColorMemoryRepository(),
                 settingsRepository = FakeSettingsRepository(),
                 billingClient = FakeBillingClient(),
             )
@@ -238,6 +240,7 @@ class ThresholdDeltaEProgressionTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(initialBestDeltaE = 2.0f),
                 dailyRepository = FakeDailyRepository(),
+                colorMemoryRepository = FakeColorMemoryRepository(),
                 settingsRepository = FakeSettingsRepository(),
                 billingClient = FakeBillingClient(),
             )
@@ -255,6 +258,7 @@ class ThresholdDeltaEProgressionTest {
                 sessionResultCache = cache,
                 thresholdRepository = FakeThresholdRepository(), // no stored best
                 dailyRepository = FakeDailyRepository(),
+                colorMemoryRepository = FakeColorMemoryRepository(),
                 settingsRepository = FakeSettingsRepository(),
                 billingClient = FakeBillingClient(),
             )

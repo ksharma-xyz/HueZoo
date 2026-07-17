@@ -11,6 +11,7 @@ sealed interface HomeUiState {
     data class Ready(
         val threshold: ThresholdCardData,
         val daily: DailyCardData,
+        val colorMemory: ColorMemoryCardData = ColorMemoryCardData(),
         val isPaid: Boolean,
         val totalGems: Int,
         val playerLevel: PlayerLevel,
@@ -31,6 +32,11 @@ data class ThresholdCardData(
     val isBlocked: Boolean,
     /** Non-null when blocked — the Instant at which attempts reset. */
     val nextResetAt: Instant? = null,
+)
+
+data class ColorMemoryCardData(
+    /** All-time best session score (−50..100). Null until the first completed session. */
+    val bestScore: Int? = null,
 )
 
 @OptIn(ExperimentalTime::class)

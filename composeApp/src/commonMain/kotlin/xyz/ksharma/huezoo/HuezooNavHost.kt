@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import org.koin.compose.koinInject
+import xyz.ksharma.huezoo.navigation.ColorMemoryGame
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.EyeStrainNotice
 import xyz.ksharma.huezoo.navigation.GameId
@@ -26,6 +27,7 @@ import xyz.ksharma.huezoo.navigation.rememberNavigationState
 import xyz.ksharma.huezoo.navigation.toEntries
 import xyz.ksharma.huezoo.platform.PlatformOps
 import xyz.ksharma.huezoo.ui.eyestrain.EyeStrainNoticeScreen
+import xyz.ksharma.huezoo.ui.games.colormemory.CMMatchScreen
 import xyz.ksharma.huezoo.ui.games.daily.DailyScreen
 import xyz.ksharma.huezoo.ui.games.threshold.ThresholdScreen
 import xyz.ksharma.huezoo.ui.home.HomeScreen
@@ -130,6 +132,13 @@ private fun huezooEntryProvider(navigator: HuezooNavigator): (NavKey) -> NavEntr
             )
         }
 
+        entry<ColorMemoryGame> {
+            CMMatchScreen(
+                onResult = { navigator.navigateToResult(GameId.COLOR_MEMORY) },
+                onBack = { navigator.pop() },
+            )
+        }
+
         entry<Result> { key ->
             ResultScreen(
                 gameId = key.gameId,
@@ -138,8 +147,10 @@ private fun huezooEntryProvider(navigator: HuezooNavigator): (NavKey) -> NavEntr
                     // Daily is once-per-day — go Home instead of replaying.
                     // Threshold: canPlayAgain gate is checked in ResultScreen;
                     // this lambda is only called when attempts are available.
-                    if (key.gameId == GameId.THRESHOLD) {
-                        navigator.goTo(ThresholdGame)
+                    // Color Memory is free play — always replayable.
+                    when (key.gameId) {
+                        GameId.THRESHOLD -> navigator.goTo(ThresholdGame)
+                        GameId.COLOR_MEMORY -> navigator.goTo(ColorMemoryGame)
                     }
                 },
                 onBack = { navigator.pop() },
