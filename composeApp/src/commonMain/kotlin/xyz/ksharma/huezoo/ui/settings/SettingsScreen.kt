@@ -231,6 +231,26 @@ fun SettingsScreen(
 
                     SettingsPanel {
                         SettingsRow(
+                            label = "Color Memory Match (Game 6)",
+                            description = if (state.colorMemoryEnabled) {
+                                "ON — shown on Home. Still in development."
+                            } else {
+                                "OFF — hidden. Turn on to preview the new game."
+                            },
+                        )
+                        Spacer(Modifier.height(HuezooSpacing.sm))
+                        HuezooButton(
+                            text = if (state.colorMemoryEnabled) "TURN OFF" else "TURN ON",
+                            onClick = { viewModel.onUiEvent(SettingsUiEvent.ToggleColorMemory) },
+                            variant = HuezooButtonVariant.Ghost,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
+                    Spacer(Modifier.height(HuezooSpacing.md))
+
+                    SettingsPanel {
+                        SettingsRow(
                             label = "Reset All Data",
                             description = "Wipes sessions, daily records, personal bests, and settings.",
                         )

@@ -21,6 +21,8 @@ sealed interface HomeUiState {
         val streak: Int = 0,
         /** Debug only — forces streak celebration animation regardless of real streak state. */
         val forceStreakCelebration: Boolean = false,
+        /** Debug flag — when true, the in-development Color Memory Match card is shown. */
+        val colorMemoryEnabled: Boolean = false,
     ) : HomeUiState
 }
 

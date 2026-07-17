@@ -48,6 +48,11 @@ class CMMatchViewModel(
     private val _isPaid = MutableStateFlow(false)
     val isPaid: StateFlow<Boolean> = _isPaid.asStateFlow()
 
+    private val _showInterstitial = MutableStateFlow(false)
+
+    /** True while the replay interstitial should be presented (free tier only). See [onResume]. */
+    val showInterstitial: StateFlow<Boolean> = _showInterstitial.asStateFlow()
+
     // ── Per-session state ─────────────────────────────────────────────────────
 
     private var round = 1
@@ -57,10 +62,33 @@ class CMMatchViewModel(
     private var tightestCorrectDeltaE: Float? = null
     private var roundGeneration = 0
     private var totalGems = 0
+    private var sessionCompleted = false
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init {
+        startSession()
+    }
+
+    /**
+     * Called on every screen RESUME. On the first entry — and on config changes mid-game —
+     * this is a no-op (the active session's coroutines survive on their own). After a
+     * completed session, returning here (Play Again) starts a new session: paid users
+     * restart immediately; free users see an interstitial first (see [onInterstitialDone]).
+     */
+    fun onResume() {
+        if (!sessionCompleted) return
+        sessionCompleted = false
+        if (_isPaid.value) {
+            startSession()
+        } else {
+            _showInterstitial.value = true
+        }
+    }
+
+    /** Called after the replay interstitial is dismissed (or fails/loads-too-late). */
+    fun onInterstitialDone() {
+        _showInterstitial.value = false
         startSession()
     }
 
@@ -79,6 +107,7 @@ class CMMatchViewModel(
         roundResults.clear()
         tightestCorrectDeltaE = null
         roundGeneration = 0
+        sessionCompleted = false
 
         safeLaunch {
             _isPaid.value = settingsRepository.isPaid()
@@ -212,6 +241,7 @@ class CMMatchViewModel(
                 levelUpTo = levelUpTo,
             ),
         )
+        sessionCompleted = true
         _navEvent.emit(CMMatchNavEvent.NavigateToResult)
     }
 

@@ -102,6 +102,7 @@ class HomeViewModel(
                 userName = userName,
                 streak = streak,
                 forceStreakCelebration = DebugFlags.forceStreakCelebration,
+                colorMemoryEnabled = DebugFlags.colorMemoryEnabled,
             )
         }
     }

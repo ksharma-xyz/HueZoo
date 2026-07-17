@@ -279,14 +279,17 @@ private fun ReadyContent(
                 )
             }
 
-            Spacer(Modifier.height(HuezooSpacing.md))
+            // Color Memory Match (Game 6) — in development, gated behind a debug flag.
+            if (state.colorMemoryEnabled) {
+                Spacer(Modifier.height(HuezooSpacing.md))
 
-            StaggeredCard(index = 5) {
-                ColorMemoryCompactCard(
-                    data = state.colorMemory,
-                    onClick = onColorMemoryTap,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                StaggeredCard(index = 5) {
+                    ColorMemoryCompactCard(
+                        data = state.colorMemory,
+                        onClick = onColorMemoryTap,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
 
             Spacer(Modifier.height(HuezooSpacing.md))
