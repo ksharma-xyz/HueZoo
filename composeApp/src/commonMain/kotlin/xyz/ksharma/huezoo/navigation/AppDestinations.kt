@@ -18,6 +18,9 @@ data object ThresholdGame : NavKey
 @Serializable
 data object DailyGame : NavKey
 
+@Serializable
+data object ColorMemoryGame : NavKey
+
 /** Nav destination for the result screen — carries only the game type for identity/color setup. */
 @Serializable
 data class Result(val gameId: String) : NavKey
@@ -38,5 +41,6 @@ sealed interface GameId {
     companion object {
         const val THRESHOLD = "threshold"
         const val DAILY = "daily"
+        const val COLOR_MEMORY = "color_memory"
     }
 }

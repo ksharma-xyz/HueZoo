@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import xyz.ksharma.huezoo.data.repository.ColorMemoryRepository
 import xyz.ksharma.huezoo.data.repository.DailyRepository
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
@@ -24,6 +25,7 @@ class ResultViewModel(
     private val sessionResultCache: SessionResultCache,
     private val thresholdRepository: ThresholdRepository,
     private val dailyRepository: DailyRepository,
+    private val colorMemoryRepository: ColorMemoryRepository,
     private val settingsRepository: SettingsRepository,
     private val billingClient: BillingClient,
 ) : ViewModel() {
@@ -45,16 +47,18 @@ class ResultViewModel(
         val best = when (sessionResult.gameId) {
             GameId.THRESHOLD -> thresholdRepository.getPersonalBest()
             GameId.DAILY -> dailyRepository.getPersonalBest()
+            GameId.COLOR_MEMORY -> colorMemoryRepository.getPersonalBest()
             else -> null
         }
 
-        val canPlayAgain = if (sessionResult.gameId == GameId.THRESHOLD) {
-            when (val status = thresholdRepository.getAttemptStatus(Clock.System.now())) {
+        val canPlayAgain = when (sessionResult.gameId) {
+            GameId.THRESHOLD -> when (val status = thresholdRepository.getAttemptStatus(Clock.System.now())) {
                 is AttemptStatus.Available -> status.maxAttempts - status.attemptsUsed > 0
                 is AttemptStatus.Exhausted -> false
             }
-        } else {
-            false
+            // Color Memory is free play — always replayable.
+            GameId.COLOR_MEMORY -> true
+            else -> false
         }
         val isPaid = settingsRepository.isPaid()
         val priceLabel = if (!isPaid) {
@@ -68,6 +72,8 @@ class ResultViewModel(
                 kotlin.math.abs(it - sessionResult.deltaE) < 0.005f
             } ?: true
             GameId.DAILY -> best?.bestRounds?.let { sessionResult.roundsSurvived >= it } ?: true
+            // best_rounds carries the best score; this session was already saved, so equality = new best.
+            GameId.COLOR_MEMORY -> best?.bestRounds?.let { sessionResult.score >= it } ?: true
             else -> false
         }
 
@@ -77,6 +83,8 @@ class ResultViewModel(
             roundsSurvived = sessionResult.roundsSurvived,
             correctRounds = sessionResult.correctRounds,
             totalRounds = sessionResult.totalRounds,
+            score = sessionResult.score,
+            longestStreak = sessionResult.longestStreak,
             isNewPersonalBest = isNewPersonalBest,
             personalBestDeltaE = best?.bestDeltaE,
             gemsEarned = sessionResult.gemsEarned,

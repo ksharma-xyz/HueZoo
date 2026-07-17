@@ -31,6 +31,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.debug.DebugFlags
+import xyz.ksharma.huezoo.navigation.ColorMemoryGame
 import xyz.ksharma.huezoo.navigation.DailyGame
 import xyz.ksharma.huezoo.navigation.ThresholdGame
 import xyz.ksharma.huezoo.platform.ads.AdIds
@@ -88,6 +89,7 @@ fun HomeScreen(
                     state = state,
                     onThresholdTap = { onNavigate(ThresholdGame) },
                     onDailyTap = { onNavigate(DailyGame) },
+                    onColorMemoryTap = { onNavigate(ColorMemoryGame) },
                     onSettingsTap = onSettingsTap,
                     onUpgradeTap = onUpgradeTap,
                     onLeaderboardTap = onLeaderboardTap,
@@ -120,6 +122,7 @@ private fun ReadyContent(
     state: HomeUiState.Ready,
     onThresholdTap: () -> Unit,
     onDailyTap: () -> Unit,
+    onColorMemoryTap: () -> Unit,
     onSettingsTap: () -> Unit,
     onUpgradeTap: () -> Unit,
     onLeaderboardTap: () -> Unit,
@@ -276,9 +279,22 @@ private fun ReadyContent(
                 )
             }
 
+            // Color Memory Match (Game 6) — in development, gated behind a debug flag.
+            if (state.colorMemoryEnabled) {
+                Spacer(Modifier.height(HuezooSpacing.md))
+
+                StaggeredCard(index = 5) {
+                    ColorMemoryCompactCard(
+                        data = state.colorMemory,
+                        onClick = onColorMemoryTap,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+
             Spacer(Modifier.height(HuezooSpacing.md))
 
-            StaggeredCard(index = 5) {
+            StaggeredCard(index = 6) {
                 LeaderboardCompactCard(
                     personalBestDeltaE = state.threshold.personalBestDeltaE,
                     onClick = {
@@ -366,6 +382,7 @@ private fun HomeReadyPreview() {
             ),
             onThresholdTap = {},
             onDailyTap = {},
+            onColorMemoryTap = {},
             onSettingsTap = {},
             onUpgradeTap = {},
             onLeaderboardTap = {},
@@ -394,6 +411,7 @@ private fun HomeBlockedPreview() {
             ),
             onThresholdTap = {},
             onDailyTap = {},
+            onColorMemoryTap = {},
             onSettingsTap = {},
             onUpgradeTap = {},
             onLeaderboardTap = {},

@@ -40,4 +40,17 @@ object GameRewardRates {
     const val DAILY_CORRECT_ROUND = 5
     const val DAILY_PARTICIPATION = 3
     const val DAILY_PERFECT_BONUS = 20
+
+    // ── Color Memory Match ────────────────────────────────────────────────────
+    // Per-round amount is lower than Daily's because Memory Match runs are faster.
+    const val MEMORY_CORRECT_ROUND = 2
+
+    /** Awarded once per distinct streak the first time it reaches 3 correct in a row. */
+    const val MEMORY_STREAK_3_BONUS = 5
+
+    /** Awarded once per distinct streak the first time it reaches 5 correct in a row. */
+    const val MEMORY_STREAK_5_BONUS = 10
+
+    /** Awarded for a perfect run — all 10 rounds correct. */
+    const val MEMORY_PERFECT_BONUS = 25
 }

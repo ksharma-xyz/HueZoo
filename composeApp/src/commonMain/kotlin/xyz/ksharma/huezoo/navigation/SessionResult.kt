@@ -14,6 +14,10 @@ data class SessionResult(
     val totalRounds: Int = 0,
     val gemsEarned: Int = 0,
     val gemBreakdown: List<GemAward> = emptyList(),
+    /** Color Memory Match only — total session score (−50..100). 0 for other games. */
+    val score: Int = 0,
+    /** Color Memory Match only — longest run of consecutive correct answers. */
+    val longestStreak: Int = 0,
     /** Non-null when the player levelled up during this session. */
     val levelUpTo: PlayerLevel? = null,
     /** True when the player correctly identified at MIN_DELTA_E (the perception wall). */

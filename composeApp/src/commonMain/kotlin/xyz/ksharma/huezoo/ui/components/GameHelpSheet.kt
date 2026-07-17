@@ -25,6 +25,9 @@ import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 
+private const val HEADING_GOAL = "THE GOAL"
+private const val HEADING_GEMS = "GEMS"
+
 // ── Threshold ─────────────────────────────────────────────────────────────────
 
 /**
@@ -45,7 +48,7 @@ fun ThresholdHelpSheet(onDismiss: () -> Unit) {
 
 private val thresholdHelpSections = listOf(
     HelpSection(
-        heading = "THE GOAL",
+        heading = HEADING_GOAL,
         body = "Six swatches appear — one has a slightly different hue. Tap the outlier.",
     ),
     HelpSection(
@@ -68,7 +71,7 @@ private val thresholdHelpSections = listOf(
             "ΔE 0.5: Near human limits",
     ),
     HelpSection(
-        heading = "GEMS",
+        heading = HEADING_GEMS,
         body = "+2 gems per correct tap. Bonus gems for milestones:\n\n" +
             "ΔE < 2.0: +5 SHARP bonus\n" +
             "ΔE < 1.0: +10 EXPERT bonus\n" +
@@ -96,7 +99,7 @@ fun DailyHelpSheet(onDismiss: () -> Unit) {
 
 private val dailyHelpSections = listOf(
     HelpSection(
-        heading = "THE GOAL",
+        heading = HEADING_GOAL,
         body = "Six swatches appear — one has a slightly different hue. Tap the outlier.",
     ),
     HelpSection(
@@ -119,10 +122,51 @@ private val dailyHelpSections = listOf(
             "One attempt per day — come back tomorrow for a new challenge.",
     ),
     HelpSection(
-        heading = "GEMS",
+        heading = HEADING_GEMS,
         body = "+5 gems per correct round.\n" +
             "+3 participation gems for finishing all 6 rounds.\n" +
             "+20 bonus gems for a perfect run (all 6 correct).",
+    ),
+)
+
+// ── Color Memory Match ────────────────────────────────────────────────────────
+
+/**
+ * Bottom sheet explaining the Color Memory Match rules.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ColorMemoryHelpSheet(onDismiss: () -> Unit) {
+    HuezooBottomSheet(onDismissRequest = onDismiss) {
+        HelpSheetBody(
+            title = "HOW MEMORY MATCH WORKS",
+            accentColor = HuezooColors.AccentPurple,
+            sections = colorMemoryHelpSections,
+        )
+    }
+}
+
+private val colorMemoryHelpSections = listOf(
+    HelpSection(
+        heading = HEADING_GOAL,
+        body = "A color appears for 3 seconds. The chamber seals. A second color appears. " +
+            "Are they the same — or different?",
+    ),
+    HelpSection(
+        heading = "5 ROUNDS",
+        body = "Each round the ΔE shrinks. Round 1 is obvious. Round 5 is sub-perceptual.",
+    ),
+    HelpSection(
+        heading = "SCORING",
+        body = "+10 per correct round. −5 per wrong. Max score 50.",
+    ),
+    HelpSection(
+        heading = "MEMORY",
+        body = "The first color disappears after 3 seconds. No second look.",
+    ),
+    HelpSection(
+        heading = HEADING_GEMS,
+        body = "+2 per correct round. Streak bonuses. +25 perfect-run bonus.",
     ),
 )
 

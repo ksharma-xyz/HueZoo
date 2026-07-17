@@ -137,6 +137,12 @@ class ParallelogramShape(private val skewFraction: Float = 0.25f) : Shape {
 val ParallelogramBack = ParallelogramShape(skewFraction = 0.25f)
 
 /**
+ * Gentle parallelogram for large surfaces (dialogs, reveal cards). A small skew keeps the
+ * kinetic lean without shearing text — pair with horizontal content padding ≥ the skew.
+ */
+val ParallelogramCard = ParallelogramShape(skewFraction = 0.08f)
+
+/**
  * Petal shape — a symmetric teardrop / leaf with the pointed tip at the TOP of the bounding box
  * and the widest, rounded part at the BOTTOM.
  *

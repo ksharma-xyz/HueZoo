@@ -19,6 +19,7 @@ val huezooNavSerializationConfig = SavedStateConfiguration {
             subclass(Home::class, Home.serializer())
             subclass(ThresholdGame::class, ThresholdGame.serializer())
             subclass(DailyGame::class, DailyGame.serializer())
+            subclass(ColorMemoryGame::class, ColorMemoryGame.serializer())
             subclass(Result::class, Result.serializer())
             subclass(Leaderboard::class, Leaderboard.serializer())
             subclass(Settings::class, Settings.serializer())

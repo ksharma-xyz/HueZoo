@@ -10,6 +10,8 @@ data class SettingsUiState(
     val forceStreakCelebration: Boolean = false,
     /** Debug only — when true, all ad composables are hidden (for screenshots). */
     val hideAds: Boolean = false,
+    /** Debug only — when true, the in-development Color Memory Match game is shown on Home. */
+    val colorMemoryEnabled: Boolean = false,
     /** Current saved display name, null if not yet set. */
     val userName: String? = null,
     /** Draft value in the name text field while editing. */

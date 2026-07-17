@@ -70,6 +70,30 @@ internal fun DrawScope.drawMedalStar(color: Color) {
     drawPath(path, color = color)
 }
 
+/** Two memory chambers side by side — one sealed (filled), one open (outlined). */
+@Suppress("MagicNumber")
+internal fun DrawScope.drawMemoryChambers(color: Color) {
+    val chamberW = size.width * 0.40f
+    val chamberH = size.height * 0.82f
+    val gap = size.width * 0.12f
+    val top = (size.height - chamberH) / 2f
+    val startX = (size.width - (chamberW * 2 + gap)) / 2f
+
+    // Chamber A — sealed (solid fill)
+    drawRect(
+        color = color,
+        topLeft = Offset(startX, top),
+        size = Size(chamberW, chamberH),
+    )
+    // Chamber B — open (outline only)
+    drawRect(
+        color = color,
+        topLeft = Offset(startX + chamberW + gap, top),
+        size = Size(chamberW, chamberH),
+        style = androidx.compose.ui.graphics.drawscope.Stroke(width = size.width * 0.06f),
+    )
+}
+
 @Suppress("MagicNumber")
 internal fun DrawScope.drawLeaderboardBars(color: Color) {
     val barW = size.width * 0.24f

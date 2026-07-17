@@ -9,11 +9,13 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import xyz.ksharma.huezoo.data.repository.ColorMemoryRepository
 import xyz.ksharma.huezoo.data.repository.DailyRepository
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.data.repository.ThresholdRepository
 import xyz.ksharma.huezoo.debug.DebugFlags
 import xyz.ksharma.huezoo.domain.game.model.AttemptStatus
+import xyz.ksharma.huezoo.ui.home.state.ColorMemoryCardData
 import xyz.ksharma.huezoo.ui.home.state.DailyCardData
 import xyz.ksharma.huezoo.ui.home.state.HomeUiEvent
 import xyz.ksharma.huezoo.ui.home.state.HomeUiState
@@ -27,6 +29,7 @@ import kotlin.time.ExperimentalTime
 class HomeViewModel(
     private val thresholdRepository: ThresholdRepository,
     private val dailyRepository: DailyRepository,
+    private val colorMemoryRepository: ColorMemoryRepository,
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
@@ -53,6 +56,7 @@ class HomeViewModel(
             val thresholdBest = thresholdRepository.getPersonalBest()
             val dailyChallenge = dailyRepository.getChallenge(today)
             val dailyPersonalBest = dailyRepository.getPersonalBest()
+            val colorMemoryBest = colorMemoryRepository.getPersonalBest()
             val streak = dailyRepository.getStreak(today)
             val isPaid = settingsRepository.isPaid()
             val totalGems = settingsRepository.getGems()
@@ -91,12 +95,14 @@ class HomeViewModel(
             _uiState.value = HomeUiState.Ready(
                 threshold = thresholdCard,
                 daily = dailyCard,
+                colorMemory = ColorMemoryCardData(bestScore = colorMemoryBest?.bestRounds),
                 isPaid = isPaid,
                 totalGems = totalGems,
                 playerLevel = PlayerLevel.fromGems(totalGems),
                 userName = userName,
                 streak = streak,
                 forceStreakCelebration = DebugFlags.forceStreakCelebration,
+                colorMemoryEnabled = DebugFlags.colorMemoryEnabled,
             )
         }
     }

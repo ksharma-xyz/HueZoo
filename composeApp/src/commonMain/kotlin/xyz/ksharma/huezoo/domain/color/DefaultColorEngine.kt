@@ -116,6 +116,44 @@ class DefaultColorEngine(private val random: Random = Random.Default) : ColorEng
         return Lab(baseLab.l, baseLab.a + da * step, baseLab.b + db * step).toColor()
     }
 
+    // ─── Memory Pair Generation ───────────────────────────────────────────────
+
+    override fun generateMemoryPair(targetDeltaE: Float, isSame: Boolean): ColorPair {
+        val base = randomVividColor()
+        if (isSame) return ColorPair(a = base, b = base, deltaE = 0f, isSame = true)
+        val offset = offsetByDeltaE(base, targetDeltaE)
+        return ColorPair(a = base, b = offset, deltaE = targetDeltaE, isSame = false)
+    }
+
+    /**
+     * Produces a color at [targetDeltaE] (CIEDE2000) from [base], perturbing Lab space
+     * with the offset distributed ~60% in L* and ~40% in a* and b* (random direction
+     * and random lightness sign). Magnitude found by binary search against the real
+     * CIEDE2000 — never approximated.
+     */
+    private fun offsetByDeltaE(base: Color, targetDeltaE: Float): Color {
+        val baseLab = base.toLab()
+
+        // Random unit direction: 60% weight on L*, 40% split across a*/b*.
+        val angle = random.nextFloat() * 2f * kotlin.math.PI.toFloat()
+        val lSign = if (random.nextBoolean()) 1f else -1f
+        val dl = MEMORY_L_WEIGHT * lSign
+        val da = MEMORY_AB_WEIGHT * cos(angle)
+        val db = MEMORY_AB_WEIGHT * sin(angle)
+
+        var low = 0f
+        var high = ODD_SWATCH_SEARCH_HIGH
+        repeat(ODD_SWATCH_BINARY_SEARCH_ITERATIONS) {
+            val mid = (low + high) / 2f
+            val candidate = Lab(baseLab.l + dl * mid, baseLab.a + da * mid, baseLab.b + db * mid)
+            val de = deltaE(baseLab, candidate)
+            if (de < targetDeltaE) low = mid else high = mid
+        }
+
+        val step = (low + high) / 2f
+        return Lab(baseLab.l + dl * step, baseLab.a + da * step, baseLab.b + db * step).toColor()
+    }
+
     // ─── Deterministic Daily Color ────────────────────────────────────────────
 
     override fun seededColorForDate(date: LocalDate, roundIndex: Int): Color {
@@ -150,6 +188,10 @@ class DefaultColorEngine(private val random: Random = Random.Default) : ColorEng
 
         // 22 iterations → precision ~(160 / 2^22) ≈ 0.00004 Lab units
         internal const val ODD_SWATCH_BINARY_SEARCH_ITERATIONS = 22
+
+        // Memory-pair offset direction weights: ~60% lightness, ~40% chroma (a*/b*)
+        internal const val MEMORY_L_WEIGHT = 0.6f
+        internal const val MEMORY_AB_WEIGHT = 0.4f
 
         // LCG constants for daily seeded color (three independent streams)
         private const val LCG_MULT_HUE = 1_664_525L

@@ -17,6 +17,10 @@ sealed interface ResultUiState {
         val totalRounds: Int = 0,
         val isNewPersonalBest: Boolean,
         val personalBestDeltaE: Float?,
+        /** Color Memory Match only — total session score (−50..100). */
+        val score: Int = 0,
+        /** Color Memory Match only — longest run of consecutive correct answers. */
+        val longestStreak: Int = 0,
         /** Gems earned in this session — shown as "+N gems" on the result screen. */
         val gemsEarned: Int = 0,
         /** Per-line gem breakdown shown staggered on the result screen. */

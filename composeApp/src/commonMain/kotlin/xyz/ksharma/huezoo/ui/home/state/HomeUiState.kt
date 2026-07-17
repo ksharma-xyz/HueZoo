@@ -11,6 +11,7 @@ sealed interface HomeUiState {
     data class Ready(
         val threshold: ThresholdCardData,
         val daily: DailyCardData,
+        val colorMemory: ColorMemoryCardData = ColorMemoryCardData(),
         val isPaid: Boolean,
         val totalGems: Int,
         val playerLevel: PlayerLevel,
@@ -20,6 +21,8 @@ sealed interface HomeUiState {
         val streak: Int = 0,
         /** Debug only — forces streak celebration animation regardless of real streak state. */
         val forceStreakCelebration: Boolean = false,
+        /** Debug flag — when true, the in-development Color Memory Match card is shown. */
+        val colorMemoryEnabled: Boolean = false,
     ) : HomeUiState
 }
 
@@ -31,6 +34,11 @@ data class ThresholdCardData(
     val isBlocked: Boolean,
     /** Non-null when blocked — the Instant at which attempts reset. */
     val nextResetAt: Instant? = null,
+)
+
+data class ColorMemoryCardData(
+    /** All-time best session score (−50..100). Null until the first completed session. */
+    val bestScore: Int? = null,
 )
 
 @OptIn(ExperimentalTime::class)

@@ -34,6 +34,10 @@ import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
  *
  * [currentRound] is 1-based (1 = first round active).
  * Pass the game's identity color as [activeColor] to match the game theme.
+ *
+ * Pass [results] (one Boolean per completed round, `true` = correct) to color
+ * completed dots by outcome — green for correct, magenta for wrong — instead of
+ * the uniform [completedColor]. Used by Color Memory Match.
  */
 @Composable
 fun RoundIndicator(
@@ -44,6 +48,7 @@ fun RoundIndicator(
     spacing: Dp = HuezooSpacing.sm,
     activeColor: Color = HuezooColors.AccentCyan,
     completedColor: Color = HuezooColors.AccentGreen,
+    results: List<Boolean>? = null,
 ) {
     Row(
         modifier = modifier,
@@ -55,9 +60,14 @@ fun RoundIndicator(
             val isActive = roundNumber == currentRound
             val isCompleted = roundNumber < currentRound
 
+            val resolvedCompletedColor = when (results?.getOrNull(index)) {
+                true -> HuezooColors.AccentGreen
+                false -> HuezooColors.AccentMagenta
+                null -> completedColor
+            }
             val dotColor by animateColorAsState(
                 targetValue = when {
-                    isCompleted -> completedColor.copy(alpha = 0.7f)
+                    isCompleted -> resolvedCompletedColor.copy(alpha = 0.7f)
                     isActive -> activeColor
                     else -> HuezooColors.SurfaceL3
                 },
