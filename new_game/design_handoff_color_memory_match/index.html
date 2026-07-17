@@ -1,0 +1,1584 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A color-matching game for curious minds.">
+      
+      
+        <meta name="author" content="ksharma-xyz">
+      
+      
+        <link rel="canonical" href="https://ksharma-xyz.github.io/HueZoo/new_game/design_handoff_color_memory_match/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/huezoo-icon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Handoff: Color Memory Match (Game 6) - Huezoo</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Space+Grotesk:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Space Grotesk";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#handoff-color-memory-match-game-6" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Huezoo" class="md-header__button md-logo" aria-label="Huezoo" data-md-component="logo">
+      
+  <img src="../../assets/huezoo-icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Huezoo
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Handoff: Color Memory Match (Game 6)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ksharma-xyz/Huezoo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ksharma-xyz/Huezoo
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Huezoo" class="md-nav__button md-logo" aria-label="Huezoo" data-md-component="logo">
+      
+  <img src="../../assets/huezoo-icon.png" alt="logo">
+
+    </a>
+    Huezoo
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ksharma-xyz/Huezoo" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ksharma-xyz/Huezoo
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../privacy-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#about-the-design-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        About the Design Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fidelity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fidelity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pick-a-variation-before-building" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pick a Variation Before Building
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#game-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Game Rules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Game Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gem-economy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gem economy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#score-tier-label-for-resultcard-header" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Score → tier label (for ResultCard header)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State Machine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#color-math" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Color Math
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#screens-views" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Screens / Views
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Screens / Views">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#screen-cmmatchscreen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Screen: CMMatchScreen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-headline-copy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase headline copy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variation-a-layout-the-vault" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variation A Layout — The Vault
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variation-b-layout-twin-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variation B Layout — Twin Lock
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-screen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result Screen
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sting-copy-pool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sting Copy Pool
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sting Copy Pool">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#on-correct-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On correct answer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on-wrong-answer-always-inject-the-actual-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On wrong answer (always inject the actual ΔE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#result-screen-sting-by-total-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result screen sting (by total score)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#help-sheet-copy-for-gamehelpsheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Help-sheet copy (for GameHelpSheet)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interactions-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactions &amp; Behavior
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interactions &amp; Behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#animations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Animations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design Tokens
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design Tokens">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Colors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typography-existing-scale-no-new-sizes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typography (existing scale, no new sizes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spacing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spacing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#component-reuses-no-new-components-needed-besides-the-ones-flagged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Component reuses (no new components needed besides the ones flagged)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-components-to-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New components to create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State persistence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Assets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-in-this-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files in this bundle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Sequence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-for-designer-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions for Designer Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="handoff-color-memory-match-game-6">Handoff: Color Memory Match (Game 6)<a class="headerlink" href="#handoff-color-memory-match-game-6" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>A new mini-game for Huezoo. Color A flashes for ~3 seconds, a memory chamber seals, Color B is revealed. The player taps <strong>SAME</strong> or <strong>DIFFERENT</strong>. 10 rounds, ΔE tightens each round, max score 100.</p>
+</blockquote>
+<p>This is a planned Game 6 from <code>docs/VISION.md</code>. The MVP is two visual variations to choose between, plus the full state machine, scoring, and result-screen wiring.</p>
+<hr />
+<h2 id="about-the-design-files">About the Design Files<a class="headerlink" href="#about-the-design-files" title="Permanent link">&para;</a></h2>
+<p>The files in <code>prototype/</code> are <strong>design references</strong> built in HTML/React. They are not production code to copy or transpile. The task is to <strong>recreate these designs in the existing Huezoo Compose Multiplatform codebase</strong> (<code>composeApp/src/commonMain/kotlin/xyz/ksharma/huezoo/</code>) using its established Compose UI patterns, <code>HuezooColors</code> tokens, <code>HuezooText</code> type scale, and existing reusable components like <code>SkewedStatChip</code>, <code>RoundIndicator</code>, <code>HuezooButton</code>, <code>ResultCard</code>.</p>
+<p>The HTML prototype mirrors the look and behavior pixel-for-pixel at the design-system level. Open <code>Color Memory Match.html</code> to interact with it. Use the floating <strong>Tweaks</strong> panel (bottom-right) to:</p>
+<ul>
+<li>Switch between <strong>Variation A — The Vault</strong> and <strong>Variation B — Twin Lock</strong></li>
+<li>Change ΔE difficulty (<code>Easy</code>, <code>Medium</code>, <code>Hard</code>, <code>Elite</code>)</li>
+<li>Jump to any specific phase for review: Memory / Hold / Recall / Correct / Wrong / Result</li>
+<li>Force the next answer to be <code>SAME</code> or <code>DIFFERENT</code></li>
+<li>Restart the session</li>
+</ul>
+<hr />
+<h2 id="fidelity">Fidelity<a class="headerlink" href="#fidelity" title="Permanent link">&para;</a></h2>
+<p><strong>High-fidelity.</strong> Final colors, typography, spacing, copy, state transitions, scoring formula, gem rewards, and sting-copy pool are all spelled out below. Engineering should match pixel-for-pixel within the existing <code>HuezooColors</code> / <code>HuezooText</code> / <code>HuezooSpacing</code> token system.</p>
+<hr />
+<h2 id="pick-a-variation-before-building">Pick a Variation Before Building<a class="headerlink" href="#pick-a-variation-before-building" title="Permanent link">&para;</a></h2>
+<p>The proposal includes <strong>two layout directions</strong>. Pick one in design review before implementation.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>A · The Vault</strong></th>
+<th><strong>B · Twin Lock</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Memory phase</td>
+<td>Single 220dp central swatch ringed by a 24-segment countdown arc draining over 3 s</td>
+<td>Two adjacent vertical chambers; Chamber A goes LIVE with the color, Chamber B is locked + striped + shows "?"</td>
+</tr>
+<tr>
+<td>Seal phase</td>
+<td>Swatch swaps for a diagonal-stripe SEALED chamber, blinking yellow "◉ SEALED" tag</td>
+<td>A shutter (vertical scanlines, yellow rim) slides down inside Chamber A over 400 ms</td>
+</tr>
+<tr>
+<td>Recall phase</td>
+<td>Color B pops into the central position (magenta-rimmed scaffold)</td>
+<td>Chamber B unlocks: "?" dissolves, Color B fades in; SAME / DIFFERENT enable</td>
+</tr>
+<tr>
+<td>Feedback</td>
+<td>A and B render side-by-side at smaller scale with <code>=</code> or <code>≠</code> glyph + TRUTH label</td>
+<td>Chamber A shutter slides back up to reveal the original — direct A vs B comparison ("answer key" reveal)</td>
+</tr>
+<tr>
+<td>Personality</td>
+<td>Tactical / scanner — matches <code>ThresholdScannerIllustration</code> vocabulary</td>
+<td>Forensic / diagnostic — locked memory + reveal as evidence</td>
+</tr>
+</tbody>
+</table>
+<p>Recommendation: <strong>Variation A</strong> if you want maximum visual consistency with The Threshold. <strong>Variation B</strong> if you want Color Memory Match to feel like its own thing — the comparison reveal is genuinely satisfying.</p>
+<hr />
+<h2 id="game-rules">Game Rules<a class="headerlink" href="#game-rules" title="Permanent link">&para;</a></h2>
+<p>(from <code>docs/VISION.md</code> Game 6, with this proposal's refinements baked in.)</p>
+<ul>
+<li><strong>Rounds</strong>: 10 fixed</li>
+<li><strong>Memory duration</strong>: 3000 ms (Color A visible)</li>
+<li><strong>Hold interstitial</strong>: 400 ms (sealed/blank)</li>
+<li><strong>Recall</strong>: until the player taps SAME or DIFFERENT (no timeout in MVP)</li>
+<li><strong>Feedback duration</strong>: 1700 ms before auto-advance</li>
+<li><strong>Scoring</strong>: <code>+10</code> correct, <code>−5</code> wrong, score may go negative</li>
+<li><strong>Max score</strong>: 100</li>
+<li><strong>ΔE curve</strong> (round 1 → 10): <code>5.0, 4.0, 3.0, 2.5, 2.0, 1.5, 1.2, 1.0, 0.7, 0.5</code></li>
+<li><strong><code>isSame</code> probability</strong>: 50/50 per round (<code>Random.nextBoolean()</code>, daily-seedable later)</li>
+<li><strong>Identity color</strong>: <code>HuezooColors.AccentPurple</code> (<code>#9B5DE5</code>) — distinct from Threshold's <code>GameThreshold</code></li>
+</ul>
+<h3 id="gem-economy">Gem economy<a class="headerlink" href="#gem-economy" title="Permanent link">&para;</a></h3>
+<p>Slot into the existing pattern in <code>GameRewardRates.kt</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Gems</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Each correct round</td>
+<td>+2</td>
+</tr>
+<tr>
+<td>Streak of 3 correct</td>
+<td>+5 bonus (one-shot per streak)</td>
+</tr>
+<tr>
+<td>Streak of 5 correct</td>
+<td>+10 bonus (one-shot per streak)</td>
+</tr>
+<tr>
+<td>Perfect run (10/10)</td>
+<td>+25 bonus</td>
+</tr>
+</tbody>
+</table>
+<p>Adjust to taste in code review — but keep the per-round amount lower than Daily's <code>+5</code> because Memory Match runs are faster/cheaper than Daily.</p>
+<h3 id="score-tier-label-for-resultcard-header">Score → tier label (for ResultCard header)<a class="headerlink" href="#score-tier-label-for-resultcard-header" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Score</th>
+<th>Tier label</th>
+<th>Tone</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>≥ 95</td>
+<td><code>PERFECT EYE</code></td>
+<td>green identity</td>
+</tr>
+<tr>
+<td>80–94</td>
+<td><code>STRONG RECALL</code></td>
+<td>identity color</td>
+</tr>
+<tr>
+<td>60–79</td>
+<td><code>SOLID</code></td>
+<td>identity color</td>
+</tr>
+<tr>
+<td>40–59</td>
+<td><code>ROOM TO GROW</code></td>
+<td>text-secondary</td>
+</tr>
+<tr>
+<td>10–39</td>
+<td><code>EYES DRIFTED</code></td>
+<td>warm orange</td>
+</tr>
+<tr>
+<td>&lt; 10</td>
+<td><code>FLATLINED</code></td>
+<td>magenta</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="state-machine">State Machine<a class="headerlink" href="#state-machine" title="Permanent link">&para;</a></h2>
+<pre><code class="language-kotlin">enum class CMMatchPhase {
+  Memory,    // Color A visible, countdown active
+  Hold,      // Brief blank/sealed interstitial (400 ms)
+  Recall,    // Color B visible, SAME/DIFFERENT enabled
+  Feedback,  // Reveal correct answer + sting copy (1700 ms)
+  Result,    // Session complete
+}
+</code></pre>
+<p>Transitions:</p>
+<pre><code>[Memory]  --3000ms--&gt; [Hold]
+[Hold]    --400ms--&gt;  [Recall]
+[Recall]  --player tap--&gt; [Feedback]
+[Feedback] --1700ms--&gt;
+    if round &lt; 10  → [Memory] (round += 1)
+    if round == 10 → [Result]
+</code></pre>
+<p>Suggested ViewModel API:</p>
+<pre><code class="language-kotlin">sealed class CMMatchUiState {
+  object Loading : CMMatchUiState()
+  data class Playing(
+    val round: Int,           // 1..10
+    val phase: CMMatchPhase,
+    val score: Int,
+    val results: List&lt;RoundResult&gt;, // size = round-1 (completed rounds)
+    val colors: ColorPair,    // a, b
+    val currentDeltaE: Float,
+    val lastAnswer: LastAnswer?,
+  ) : CMMatchUiState()
+  data class Result(
+    val score: Int,
+    val correctCount: Int,
+    val longestStreak: Int,
+    val tightestDeltaE: Float, // minimum ΔE the player got right
+    val results: List&lt;RoundResult&gt;,
+    val gemsEarned: Int,
+  ) : CMMatchUiState()
+}
+
+sealed class CMMatchUiEvent {
+  data class Answer(val saidSame: Boolean) : CMMatchUiEvent()
+  object Replay : CMMatchUiEvent()
+  object NavigateHome : CMMatchUiEvent()
+  object Share : CMMatchUiEvent()
+}
+
+enum class RoundResult { Correct, Wrong }
+data class LastAnswer(val correct: Boolean, val truthSame: Boolean, val deltaE: Float)
+data class ColorPair(val a: Color, val b: Color, val deltaE: Float, val isSame: Boolean)
+</code></pre>
+<hr />
+<h2 id="color-math">Color Math<a class="headerlink" href="#color-math" title="Permanent link">&para;</a></h2>
+<p><strong>Use the existing <code>ColorEngine.kt</code> in <code>commonMain/domain/color/</code>. Do not re-invent.</strong></p>
+<p>Add (or reuse) a method:</p>
+<pre><code class="language-kotlin">fun ColorEngine.generateMemoryPair(round: Int, isSame: Boolean): ColorPair {
+  val base = randomVividColor()
+  if (isSame) return ColorPair(base, base, 0f, true)
+  val targetDeltaE = CM_MATCH_DELTA_E_CURVE[round - 1]  // see below
+  val offset = offsetByDeltaE(base, targetDeltaE)
+  return ColorPair(base, offset, targetDeltaE, false)
+}
+
+val CM_MATCH_DELTA_E_CURVE = listOf(5.0f, 4.0f, 3.0f, 2.5f, 2.0f, 1.5f, 1.2f, 1.0f, 0.7f, 0.5f)
+</code></pre>
+<p><code>offsetByDeltaE</code> should perturb the base in CIE Lab space until <code>CIEDE2000(base, candidate)</code> is within ±5% of <code>targetDeltaE</code>. The prototype's JS version distributes the offset roughly 60% in L* and 40% in a/b — feel free to do the same in Kotlin, but <strong>measure the real ΔE with the existing CIEDE2000 implementation</strong> and bisect/jitter until you hit the target. Don't approximate.</p>
+<hr />
+<h2 id="screens-views">Screens / Views<a class="headerlink" href="#screens-views" title="Permanent link">&para;</a></h2>
+<p>There is <strong>one new screen</strong> for the game (<code>CMMatchScreen</code>) plus reuse of <code>ResultScreen</code> with a new <code>gameType</code>.</p>
+<h3 id="screen-cmmatchscreen">Screen: CMMatchScreen<a class="headerlink" href="#screen-cmmatchscreen" title="Permanent link">&para;</a></h3>
+<p>Top-down layout inside a Box wrapped in <code>AmbientGlowBackground(primaryColor = HuezooColors.AccentPurple, secondaryColor = HuezooColors.AccentCyan)</code>:</p>
+<ol>
+<li><strong>HuezooTopBar</strong> — back button (parallelogram), wordmark <code>HUEZ</code>, info icon button on the right (opens <code>GameHelpSheet</code> for Memory Match).</li>
+<li><strong>Sub-header strip</strong> (12dp top padding, 20dp horizontal):</li>
+<li>Left: <code>HuezooLabelSmall</code> "◉ GAME 6 · MEMORY MATCH" in <code>AccentPurple</code></li>
+<li>Right: <code>DeltaEBadge</code> showing the current round's ΔE, label "ROUND ΔE", aligned end</li>
+<li><strong>Identity divider</strong>: 3dp <code>AccentPurple</code> bar, 14dp top margin, 20dp horizontal margin</li>
+<li><strong>GameHUD</strong> (14dp top padding, 20dp horizontal):</li>
+<li>Row of <code>SkewedStatChip</code>: <code>ROUND 01/10</code> (cyan accent), <code>SCORE 0</code> (yellow accent)</li>
+<li><code>RoundIndicator(total=10, current=round-1, results=results)</code> below</li>
+<li><strong>Phase headline slot</strong> (24dp horizontal, fixed min-height to prevent layout shift):</li>
+<li>Phase tag: <code>HuezooLabelSmall</code> colored by phase (cyan for memory, yellow for hold, magenta for recall, green/magenta for feedback)</li>
+<li>Title line: <code>HuezooTitleLarge</code>, white — phase-specific copy (see below)</li>
+<li><strong>Central swatch area</strong> (per variation — see "Variation A Layout" and "Variation B Layout" below)</li>
+<li><strong>ΔE meta row</strong> (24dp horizontal, baseline-aligned):</li>
+<li>Left: small <code>HuezooLabelSmall</code> "THIS ROUND" + a <code>HuezooDisplaySmall</code> "ΔE x.x" colored by <code>DeltaEBadge.deltaEColor()</code> + tier label</li>
+<li>Right (only during Feedback): <code>+10 PTS</code> (green) or <code>−5 PTS</code> (magenta)</li>
+<li><strong>Action buttons</strong> (20dp horizontal, 14dp top, 24dp bottom):</li>
+<li>Row of two equal-flex <code>HuezooButton</code>s with 12dp gap:<ul>
+<li><code>SAME</code> — <code>HuezooButton.Primary</code> when phase=Recall, <code>HuezooButton.Ghost</code> otherwise (disabled)</li>
+<li><code>DIFFERENT</code> — <code>HuezooButton.Danger</code> when phase=Recall, <code>HuezooButton.GhostDanger</code> otherwise (disabled)</li>
+</ul>
+</li>
+</ol>
+<h3 id="phase-headline-copy">Phase headline copy<a class="headerlink" href="#phase-headline-copy" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Tag</th>
+<th>Title (Vault)</th>
+<th>Title (Twin Lock)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Memory</td>
+<td><code>◉ MEMORY PHASE</code> cyan</td>
+<td>"Hold this color."</td>
+<td><code>◉ CHAMBER A LIVE</code> cyan / "Hold this color."</td>
+</tr>
+<tr>
+<td>Hold</td>
+<td>(only Vault: tag hidden, title only)</td>
+<td>"Remember…" (pulsing)</td>
+<td><code>◉ CHAMBER A SEALED</code> yellow / "Stand by…"</td>
+</tr>
+<tr>
+<td>Recall</td>
+<td><code>◉ RECALL</code> magenta</td>
+<td>"Same color — or different?"</td>
+<td><code>◉ CHAMBER B LIVE — RECALL</code> magenta / "Match the seal?"</td>
+</tr>
+<tr>
+<td>Feedback (correct)</td>
+<td><code>◉ LOCKED IN</code> green</td>
+<td>sting copy (correct pool)</td>
+<td><code>◉ MEMORY VERIFIED</code> green / sting copy</td>
+</tr>
+<tr>
+<td>Feedback (wrong)</td>
+<td><code>◉ EYE DRIFTED</code> magenta</td>
+<td>sting copy (wrong pool)</td>
+<td><code>◉ MEMORY DRIFTED</code> magenta / sting copy</td>
+</tr>
+</tbody>
+</table>
+<h3 id="variation-a-layout-the-vault">Variation A Layout — The Vault<a class="headerlink" href="#variation-a-layout-the-vault" title="Permanent link">&para;</a></h3>
+<p>Central swatch area: a 280×280 dp <code>Box</code>, centered.</p>
+<ul>
+<li><strong>Phase = Memory</strong>:</li>
+<li><code>CountdownRing(size=280dp, segments=24, durationMs=3000, color=AccentCyan)</code> drawn behind the swatch.</li>
+<li><code>SwatchSquare(color=colors.a, size=220dp, accent=AccentCyan)</code> centered inside the ring.</li>
+<li>Corner brackets in <code>AccentCyan.copy(alpha=.5)</code> at all 4 corners of the 280 box (tactical-frame feel).</li>
+<li><strong>Phase = Hold</strong>:</li>
+<li><code>SealedChamber(size=220dp)</code> in place of the swatch. Diagonal-stripe pattern (cyan strokes @ 0.18 alpha), centered SEALED tag (blinking) + "HOLD" headline.</li>
+<li><strong>Phase = Recall</strong>:</li>
+<li><code>SwatchSquare(color=colors.b, size=220dp, accent=AccentMagenta)</code> — magenta rim instead of cyan.</li>
+<li><strong>Phase = Feedback</strong>:</li>
+<li><code>FeedbackCompare(colorA=colors.a, colorB=colors.b, truthSame, playerSaidSame, wrong)</code>:<ul>
+<li>Two 156×156 dp <code>ChamberMini</code> swatches side-by-side with 18dp gap</li>
+<li>Center <code>=</code> (if truthSame) or <code>≠</code> glyph in <code>HuezooHeadlineLarge</code> size 36, colored green or magenta</li>
+<li>Below: <code>HuezooLabelSmall</code> "TRUTH: SAME/DIFFERENT" (colored to match feedback)</li>
+</ul>
+</li>
+</ul>
+<h3 id="variation-b-layout-twin-lock">Variation B Layout — Twin Lock<a class="headerlink" href="#variation-b-layout-twin-lock" title="Permanent link">&para;</a></h3>
+<p>Central area: a <code>Row</code> with two flex-1 chambers, 10dp gap, 320dp min-height, 20dp horizontal padding.</p>
+<p>Each chamber is a <code>Box</code> with:
+- Shelf offset 4×4 dp under it (<code>HuezooColors.SurfaceL4</code>)
+- Face background = the chamber's current color (or <code>SurfaceL1</code> if locked/waiting)
+- <code>rimLight()</code> modifier tinted with the accent color (<code>AccentCyan</code> for A, <code>AccentMagenta</code> for B)
+- Top tag row (8dp inset): <code>HuezooLabelSmall</code> "CHAMBER A/B" (text uses <code>mixBlendMode = Difference</code> when over a color; in Compose, derive a contrast-safe text color from <code>Color.onColor()</code> instead) + LED indicator with state label (LIVE / SEAL / WAIT / OPEN)</p>
+<p>Chamber states:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Trigger</th>
+<th>Visual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Live</code></td>
+<td>Chamber A during Memory, Chamber B during Recall</td>
+<td>Color visible, LED pulses in accent color</td>
+</tr>
+<tr>
+<td><code>Sealed</code></td>
+<td>Chamber A during Hold + Recall</td>
+<td>Shutter overlay (vertical scanlines <code>SurfaceL2</code>/<code>SurfaceL1</code> stripes, yellow rim glow, blinking yellow "◉ SEALED" + "HOLD" headline) slides down from top with <code>scaleY(0→1, transform-origin top)</code> over 400 ms</td>
+</tr>
+<tr>
+<td><code>Waiting</code></td>
+<td>Chamber B during Memory + Hold</td>
+<td>Diagonal stripe pattern in accent color @ 0.12 alpha, large "?" glyph in <code>HuezooDisplayLarge</code> size 96 in <code>accent.copy(alpha=.55)</code></td>
+</tr>
+<tr>
+<td><code>Revealed</code></td>
+<td>Both chambers during Feedback</td>
+<td>Color visible; Chamber A shows a bottom-centered "UNSEALED" pill (<code>HuezooLabelSmall</code>, white with <code>mixBlendMode = Difference</code>, dark transparent background) so players see it's the answer key</td>
+</tr>
+</tbody>
+</table>
+<p>The shutter open animation (Sealed → Revealed) is the reverse: <code>scaleY(1→0, transform-origin top)</code> over 350 ms.</p>
+<hr />
+<h2 id="result-screen">Result Screen<a class="headerlink" href="#result-screen" title="Permanent link">&para;</a></h2>
+<p>Reuse <code>ResultScreen.kt</code> / <code>ResultCard.kt</code> with a new <code>GameType.ColorMemoryMatch</code>.</p>
+<p>Inside the existing card, render:</p>
+<pre><code>MISSION OUTCOME
+{TIER_LABEL}                       ← title color depends on tier (see table above)
+
+┌─ shelf 5×5 dp · rim AccentPurple ─┐
+│  SCORE                       OF MAX │
+│  {score} (60sp, cyan if isWin,    │
+│   magenta if score&lt;40)        100  │
+│  ─────────────────────────────────  │
+│  CORRECT      TIGHTEST ΔE          │
+│  8/10  green  0.50  yellow         │
+│  STREAK       GEMS                 │
+│  3     cyan   +16  yellow          │
+│  ─────────────────────────────────  │
+│  ROUND-BY-ROUND                    │
+│  [10 segments, green/magenta]      │
+│  ─────────────────────────────────  │
+│  Sharp. Very sharp.  (sting copy)  │
+└────────────────────────────────────┘
+
+[ HOME (ghost) ]  [ PLAY AGAIN (primary) ]
+              ↗ SHARE SCORE CARD (yellow)
+</code></pre>
+<p>Confetti fires only if <code>score &gt;= 40</code> (matches existing rule in <code>GAME_DESIGN.md</code> §Confetti Rules — non-zero score). Identity color for confetti = <code>AccentPurple</code>.</p>
+<hr />
+<h2 id="sting-copy-pool">Sting Copy Pool<a class="headerlink" href="#sting-copy-pool" title="Permanent link">&para;</a></h2>
+<p>This is canonical — copy verbatim into a new <code>ui/copy/CMMatchStingCopy.kt</code>.</p>
+<h3 id="on-correct-answer">On correct answer<a class="headerlink" href="#on-correct-answer" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pool</th>
+<th>Trigger (ΔE of round)</th>
+<th>Lines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Easy</td>
+<td>≥ 3.5</td>
+<td><code>"Locked in."</code> <code>"Eyes still warm."</code> <code>"Steady."</code></td>
+</tr>
+<tr>
+<td>Mid</td>
+<td>2.0 – 3.5</td>
+<td><code>"Sharp."</code> <code>"Eye remembered."</code> <code>"Held the line."</code></td>
+</tr>
+<tr>
+<td>Hard</td>
+<td>1.0 – 2.0</td>
+<td><code>"Real recall."</code> <code>"That one was real."</code> <code>"Eyes did not blink."</code></td>
+</tr>
+<tr>
+<td>Elite</td>
+<td>&lt; 1.0</td>
+<td><code>"Beyond impressive."</code> <code>"Your retina is a recorder."</code> <code>"Eyes elite."</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="on-wrong-answer-always-inject-the-actual-e">On wrong answer (always inject the actual ΔE)<a class="headerlink" href="#on-wrong-answer-always-inject-the-actual-e" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pool</th>
+<th>Trigger</th>
+<th>Lines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Easy</td>
+<td>≥ 3.5</td>
+<td><code>"That gap was wide. Hmm."</code> <code>"Warmer than that."</code> <code>"The eye wandered."</code></td>
+</tr>
+<tr>
+<td>Mid</td>
+<td>2.0 – 3.5</td>
+<td><code>"Close, but ΔE {de} got you."</code> <code>"Memory blinked at ΔE {de}."</code> <code>"Almost. ΔE {de}."</code></td>
+</tr>
+<tr>
+<td>Hard</td>
+<td>1.0 – 2.0</td>
+<td><code>"ΔE {de}. Sub-pixel territory."</code> <code>"You were right there. ΔE {de}."</code> <code>"Memory faded at ΔE {de}."</code></td>
+</tr>
+<tr>
+<td>Elite</td>
+<td>&lt; 1.0</td>
+<td><code>"ΔE {de}. Barely real. Still missed."</code> <code>"Below human limits. So is the gap."</code> <code>"You almost out-saw your own eye."</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>{de}</code> formats to 1 decimal for ΔE ≥ 1.0, 2 decimals for ΔE &lt; 1.0.</p>
+<h3 id="result-screen-sting-by-total-score">Result screen sting (by total score)<a class="headerlink" href="#result-screen-sting-by-total-score" title="Permanent link">&para;</a></h3>
+<pre><code class="language-kotlin">fun resultStingByScore(score: Int): String = when {
+  score &gt;= 95 -&gt; &quot;Superhuman recall. Seriously.&quot;
+  score &gt;= 80 -&gt; &quot;Your memory is elite.&quot;
+  score &gt;= 60 -&gt; &quot;Sharp. Very sharp.&quot;
+  score &gt;= 40 -&gt; &quot;Better than most.&quot;
+  score &gt;= 20 -&gt; &quot;Room to grow.&quot;
+  score &gt; 0   -&gt; &quot;Keep training.&quot;
+  else        -&gt; &quot;The eye drifted today. Come back.&quot;
+}
+</code></pre>
+<h3 id="help-sheet-copy-for-gamehelpsheet">Help-sheet copy (for <code>GameHelpSheet</code>)<a class="headerlink" href="#help-sheet-copy-for-gamehelpsheet" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Copy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>THE GOAL</td>
+<td>A color appears for 3 seconds. The chamber seals. A second color appears. Are they the same — or different?</td>
+</tr>
+<tr>
+<td>10 ROUNDS</td>
+<td>Each round the ΔE shrinks. Round 1 is obvious. Round 10 is sub-perceptual.</td>
+</tr>
+<tr>
+<td>SCORING</td>
+<td>+10 per correct round. −5 per wrong. Max score 100.</td>
+</tr>
+<tr>
+<td>MEMORY</td>
+<td>The first color disappears after 3 seconds. No second look.</td>
+</tr>
+<tr>
+<td>GEMS</td>
+<td>+2 per correct round. Streak bonuses. +25 perfect-run bonus.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="interactions-behavior">Interactions &amp; Behavior<a class="headerlink" href="#interactions-behavior" title="Permanent link">&para;</a></h2>
+<h3 id="animations">Animations<a class="headerlink" href="#animations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>Where</th>
+<th>Duration</th>
+<th>Easing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Swatch appears</td>
+<td>Memory + Recall phase swatch entrance</td>
+<td>420 ms</td>
+<td><code>scale 0.85 → 1.05 → 1.0</code> (spring overshoot, <code>cubic-bezier(.34,1.56,.64,1)</code>)</td>
+</tr>
+<tr>
+<td>Countdown ring drain (Variation A)</td>
+<td>Memory phase</td>
+<td>3000 ms</td>
+<td>Linear; per-segment alpha flip from <code>color</code> to <code>color.copy(alpha=.08)</code> as time passes the segment threshold</td>
+</tr>
+<tr>
+<td>Sealed chamber stripe pulse</td>
+<td>Hold phase (Vault &amp; Twin Lock)</td>
+<td>1200 ms loop</td>
+<td><code>opacity 1 ↔ .25</code>, ease-in-out (matches existing <code>hz-blink</code> pattern)</td>
+</tr>
+<tr>
+<td>Shutter close (Variation B)</td>
+<td>Memory → Hold</td>
+<td>400 ms</td>
+<td><code>scaleY 0 → 1, transform-origin: top</code>, <code>cubic-bezier(.6,0,.4,1)</code></td>
+</tr>
+<tr>
+<td>Shutter open (Variation B)</td>
+<td>Recall → Feedback (Chamber A only)</td>
+<td>350 ms</td>
+<td><code>scaleY 1 → 0, transform-origin: top</code>, <code>cubic-bezier(.6,0,.4,1)</code></td>
+</tr>
+<tr>
+<td>Wrong-answer shake</td>
+<td>After wrong tap, on the chosen-but-wrong button</td>
+<td>450 ms</td>
+<td><code>translateX</code> shake — reuse <code>SwatchBlock</code>'s existing <code>ShakeX</code> animation</td>
+</tr>
+<tr>
+<td>Result card entrance</td>
+<td>Phase → Result</td>
+<td>550 ms</td>
+<td>Slide up 60 dp + scale 0.92 → 1, <code>cubic-bezier(.16,1,.3,1)</code> (reuse existing <code>ResultCard</code> entrance)</td>
+</tr>
+<tr>
+<td>Confetti</td>
+<td>Result if <code>score &gt;= 40</code></td>
+<td>1200 ms</td>
+<td>22 particles, radial spread 80–200 dp, rotation ±360° (reuse existing confetti)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="input-rules">Input rules<a class="headerlink" href="#input-rules" title="Permanent link">&para;</a></h3>
+<ul>
+<li>During Memory / Hold / Feedback phases, <code>SAME</code> and <code>DIFFERENT</code> buttons render as <code>Ghost</code> / <code>GhostDanger</code> (border only) and are <strong>disabled</strong> (no tap).</li>
+<li>During Recall, both buttons enable. Tap immediately transitions to Feedback.</li>
+<li>Back button during a session: prompt <code>HuezooBottomSheet</code> "Leave session?" — if confirmed, navigate back; session is <strong>not</strong> saved (a session is only counted toward leaderboard/stats if all 10 rounds complete).</li>
+<li>No timeout on Recall in MVP. (If we later add one, it lives in <code>CMMatchViewModel</code> and ticks down via a <code>CountdownRing</code> on the SAME/DIFFERENT button row.)</li>
+</ul>
+<hr />
+<h2 id="design-tokens">Design Tokens<a class="headerlink" href="#design-tokens" title="Permanent link">&para;</a></h2>
+<p>All values use existing tokens. Do <strong>not</strong> introduce new color tokens.</p>
+<h3 id="colors">Colors<a class="headerlink" href="#colors" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Hex</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HuezooColors.AccentPurple</code></td>
+<td><code>#9B5DE5</code></td>
+<td>Game 6 identity — sub-header tag, identity divider, AmbientGlowBackground primary, ResultCard rim</td>
+</tr>
+<tr>
+<td><code>HuezooColors.AccentCyan</code></td>
+<td><code>#00E5FF</code></td>
+<td>Memory-phase accent, Chamber A rim, SAME button face, Result CORRECT bar accent</td>
+</tr>
+<tr>
+<td><code>HuezooColors.AccentMagenta</code></td>
+<td><code>#FF2D78</code></td>
+<td>Recall accent, Chamber B rim, DIFFERENT button face, wrong-answer sting tag</td>
+</tr>
+<tr>
+<td><code>HuezooColors.AccentYellow</code></td>
+<td><code>#FFE600</code></td>
+<td>SEALED tag (Hold + shutter), SCORE chip, SHARE button face</td>
+</tr>
+<tr>
+<td><code>HuezooColors.AccentGreen</code></td>
+<td><code>#00F5A0</code></td>
+<td>LOCKED IN tag, +10 PTS, correct-result dots</td>
+</tr>
+<tr>
+<td><code>HuezooColors.Background</code> / <code>SurfaceL0</code> – <code>SurfaceL4</code></td>
+<td>per <code>Color.kt</code></td>
+<td>All surface treatments</td>
+</tr>
+<tr>
+<td><code>HuezooColors.TextPrimary</code> / <code>TextSecondary</code> / <code>TextDisabled</code></td>
+<td>per <code>Color.kt</code></td>
+<td>All text — never <code>MaterialTheme.colorScheme.*</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="typography-existing-scale-no-new-sizes">Typography (existing scale, no new sizes)<a class="headerlink" href="#typography-existing-scale-no-new-sizes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Slot</th>
+<th>Composable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase tag</td>
+<td><code>HuezooLabelSmall</code></td>
+</tr>
+<tr>
+<td>Phase title (Vault / Twin Lock)</td>
+<td><code>HuezooTitleLarge</code></td>
+</tr>
+<tr>
+<td>ΔE inline number</td>
+<td><code>HuezooDisplaySmall</code></td>
+</tr>
+<tr>
+<td>ΔE tier label</td>
+<td><code>HuezooLabelSmall</code></td>
+</tr>
+<tr>
+<td>HUD chip number</td>
+<td><code>HuezooDisplaySmall</code> (24sp via existing chip override)</td>
+</tr>
+<tr>
+<td>HUD chip label</td>
+<td><code>HuezooLabelSmall</code></td>
+</tr>
+<tr>
+<td>Result tier header (<code>STRONG RECALL</code> etc.)</td>
+<td><code>HuezooHeadlineMedium</code></td>
+</tr>
+<tr>
+<td>Result score (<code>70</code>)</td>
+<td><code>HuezooDisplayLarge</code> at 72sp (existing override pattern in <code>ResultCard</code>)</td>
+</tr>
+<tr>
+<td>Result sting copy</td>
+<td><code>HuezooHeadlineMedium</code></td>
+</tr>
+<tr>
+<td>Buttons</td>
+<td><code>HuezooLabelLarge</code> (built into <code>HuezooButton</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="spacing">Spacing<a class="headerlink" href="#spacing" title="Permanent link">&para;</a></h3>
+<p>Use <code>HuezooSpacing.{xs, sm, md, lg, xl}</code> everywhere. The prototype's 14 / 20 / 24 px values map to <code>sm</code>/<code>md</code>/<code>lg</code> — confirm exact mapping in <code>Dimensions.kt</code> and adjust.</p>
+<h3 id="component-reuses-no-new-components-needed-besides-the-ones-flagged">Component reuses (no new components needed besides the ones flagged)<a class="headerlink" href="#component-reuses-no-new-components-needed-besides-the-ones-flagged" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>HuezooTopBar</code> — game-screen variant (parallelogram back button + info icon)</li>
+<li><code>SkewedStatChip</code> — ROUND, SCORE (existing component, just two instances)</li>
+<li><code>RoundIndicator</code> — 10 dots, results map directly</li>
+<li><code>HuezooButton</code> — Primary, Danger, Ghost, GhostDanger variants</li>
+<li><code>DeltaEBadge</code> — existing component, used for round ΔE display</li>
+<li><code>AmbientGlowBackground</code> — wraps the whole screen</li>
+<li><code>ResultCard</code> / <code>ResultScreen</code> — extend with <code>GameType.ColorMemoryMatch</code></li>
+<li><code>HuezooBottomSheet</code> — back-confirm prompt</li>
+</ul>
+<h3 id="new-components-to-create">New components to create<a class="headerlink" href="#new-components-to-create" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Composable</th>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CMMatchScreen</code></td>
+<td><code>ui/games/colormemory/CMMatchScreen.kt</code></td>
+<td>Top-level screen</td>
+</tr>
+<tr>
+<td><code>CMMatchViewModel</code></td>
+<td><code>ui/games/colormemory/CMMatchViewModel.kt</code></td>
+<td>State machine + timers + scoring</td>
+</tr>
+<tr>
+<td><code>CMMatchUiState</code> / <code>CMMatchUiEvent</code> / <code>CMMatchNavEvent</code></td>
+<td><code>ui/games/colormemory/state/</code></td>
+<td>State + event sealed classes</td>
+</tr>
+<tr>
+<td><code>CountdownRing</code></td>
+<td><code>ui/components/CountdownRing.kt</code></td>
+<td>Segmented arc that drains over a duration. Variation A only. Composable signature <code>(modifier, size, segments, durationMs, color, active)</code>.</td>
+</tr>
+<tr>
+<td><code>MemoryChamber</code></td>
+<td><code>ui/components/MemoryChamber.kt</code></td>
+<td>Twin Lock chamber. States: <code>Live</code>, <code>Sealed</code>, <code>Waiting</code>, <code>Revealed</code>. Variation B only.</td>
+</tr>
+<tr>
+<td><code>ChamberShutter</code></td>
+<td><code>ui/components/ChamberShutter.kt</code></td>
+<td>Animated vertical-stripe shutter overlay. Variation B only.</td>
+</tr>
+<tr>
+<td><code>SealedChamberPanel</code></td>
+<td><code>ui/components/SealedChamberPanel.kt</code></td>
+<td>The Vault's Hold-phase replacement panel. Variation A only.</td>
+</tr>
+<tr>
+<td><code>FeedbackCompare</code></td>
+<td><code>ui/components/FeedbackCompare.kt</code></td>
+<td>Side-by-side A/B mini-chambers with <code>=</code> / <code>≠</code> glyph. Variation A only.</td>
+</tr>
+<tr>
+<td><code>CMMatchStingCopy</code></td>
+<td><code>ui/copy/CMMatchStingCopy.kt</code></td>
+<td>Sting copy pools + pickers (deterministic seed by round, OR random)</td>
+</tr>
+</tbody>
+</table>
+<p>Only build the components for the variation you pick. If you pick A, skip <code>MemoryChamber</code> + <code>ChamberShutter</code>. If you pick B, skip <code>CountdownRing</code> + <code>SealedChamberPanel</code> + <code>FeedbackCompare</code> (the in-place chamber reveal replaces the side-by-side comparison).</p>
+<h3 id="navigation">Navigation<a class="headerlink" href="#navigation" title="Permanent link">&para;</a></h3>
+<p>Add to <code>navigation/</code>:</p>
+<pre><code class="language-kotlin">@Serializable object ColorMemoryMatchGame
+</code></pre>
+<p>Wire in <code>App.kt</code>:</p>
+<pre><code class="language-kotlin">composable&lt;ColorMemoryMatchGame&gt; {
+  CMMatchScreen(
+    onNavigate = { navEvent -&gt; /* same pattern as Threshold/Daily */ }
+  )
+}
+</code></pre>
+<p>Add the home-screen card. The post-MVP Home layout already mentions a Color Memory tile (see <code>docs/VISION.md</code> "Full Home Screen (post-MVP)"). Match the existing <code>Daily</code> / <code>Leaderboard</code> card style — full-width Row, identity color accent (<code>AccentPurple</code>), best-score subtitle.</p>
+<hr />
+<h2 id="state-persistence">State persistence<a class="headerlink" href="#state-persistence" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Personal best</strong>: best total score across all 10-round sessions. Store via <code>SettingsRepository</code> (or a new <code>ColorMemoryRepository</code> modeled on <code>ThresholdRepository</code>). Update on every completed session if <code>score &gt; current.best</code>.</li>
+<li><strong>Tightest ΔE</strong>: minimum ΔE the player got <em>correct</em> (not the round's target ΔE if they missed it). Used in ResultCard "TIGHTEST ΔE" stat.</li>
+<li><strong>Leaderboard</strong>: out of scope for MVP. Per <code>VISION.md</code> Firebase data model, this game ships its own <code>/leaderboard/color_memory</code> board in Phase 8.</li>
+</ul>
+<p>Do <strong>not</strong> persist mid-session state (a session is atomic — leaving aborts). This matches Daily's behavior.</p>
+<hr />
+<h2 id="assets">Assets<a class="headerlink" href="#assets" title="Permanent link">&para;</a></h2>
+<p>No new image assets. All visuals are Canvas-drawn (countdown ring, shutter stripes, corner brackets) or composed of existing tokens.</p>
+<p>The Threshold game's <code>ThresholdScannerIllustration</code> is a useful reference for the canvas-drawing style — see <code>docs/DESIGN_SYSTEM.md</code> §9 "Illustration System".</p>
+<hr />
+<h2 id="files-in-this-bundle">Files in this bundle<a class="headerlink" href="#files-in-this-bundle" title="Permanent link">&para;</a></h2>
+<pre><code>design_handoff_color_memory_match/
+├── README.md                         ← you are here
+└── prototype/
+    ├── Color Memory Match.html       ← open this in a browser
+    ├── color-memory-match.jsx        ← main app + variation flows
+    ├── huezoo-ui.jsx                 ← web port of Huezoo tokens + components
+    └── tweaks-panel.jsx              ← live design-tweak panel (engineering doesn't need this)
+</code></pre>
+<hr />
+<h2 id="implementation-sequence">Implementation Sequence<a class="headerlink" href="#implementation-sequence" title="Permanent link">&para;</a></h2>
+<p>Recommended order:</p>
+<ol>
+<li><strong>Pick a variation</strong> with the designer in code review (this is the single biggest decision and changes which files you create).</li>
+<li>Add <code>CM_MATCH_DELTA_E_CURVE</code> and <code>generateMemoryPair</code> to <code>ColorEngine.kt</code>. Write unit tests using the existing CIEDE2000 — verify the produced pair has the requested ΔE within tolerance.</li>
+<li>Scaffold <code>CMMatchViewModel</code> with the phase state machine. Drive it with fake colors first; unit-test phase transitions and scoring (correct/wrong/streak bonuses).</li>
+<li>Build the chosen variation's component (<code>CountdownRing</code> for A, <code>MemoryChamber</code> + <code>ChamberShutter</code> for B). Style-pass against the HTML prototype.</li>
+<li>Wire <code>CMMatchScreen</code> to the ViewModel. Snapshot-test each phase.</li>
+<li>Extend <code>ResultCard</code> for <code>GameType.ColorMemoryMatch</code> — confirm the sting copy + score gating works.</li>
+<li>Add the home-screen card.</li>
+<li>Add the <code>GameHelpSheet</code> copy.</li>
+<li>Wire <code>PlatformOps.shareText</code> for the share button (same call site as the other games).</li>
+<li>Add Firebase Analytics events: <code>cm_match_session_start</code>, <code>cm_match_round_completed</code>, <code>cm_match_session_completed</code> with <code>score</code>, <code>correctCount</code>, <code>longestStreak</code>.</li>
+</ol>
+<hr />
+<h2 id="open-questions-for-designer-review">Open Questions for Designer Review<a class="headerlink" href="#open-questions-for-designer-review" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Variation A vs B</strong> — final pick.</li>
+<li><strong>Memory time</strong> — 3.0 s feels right at default ΔE but late-game (round 9–10, ΔE 0.5) the player may want longer. Consider a tuning per-round or accessibility setting. MVP: 3.0 s flat.</li>
+<li><strong>Recall timeout</strong> — none in MVP. If we add one, suggest 5 s with a thin countdown bar above the SAME/DIFFERENT row. Timing out counts as wrong.</li>
+<li><strong>Streak bonus thresholds</strong> — proposed +5 at 3 streak and +10 at 5 streak. Confirm before code.</li>
+<li><strong>Daily seeding</strong> — the Daily Challenge is date-seeded; should Color Memory Match also have a daily seeded mode? Or is this purely a free-play game? VISION.md treats it as free-play; assumed unless told otherwise.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 ksharma-xyz
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/ksharma-xyz" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
