@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      SITE_URL: https://ksharma-xyz.github.io/Huezoo/
+      SITE_URL: https://ksharma-xyz.github.io/HueZoo/
     steps:
       - uses: actions/setup-node@v4
         with:
