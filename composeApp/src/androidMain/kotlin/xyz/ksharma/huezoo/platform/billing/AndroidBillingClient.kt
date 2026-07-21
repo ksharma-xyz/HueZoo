@@ -36,6 +36,9 @@ class AndroidBillingClient(
         .enablePendingPurchases(
             PendingPurchasesParams.newBuilder().enableOneTimeProducts().build(),
         )
+        // Billing Library 8+ manages transient disconnections itself; the library
+        // reconnects automatically instead of relying on manual retry logic.
+        .enableAutoServiceReconnection()
         .setListener(purchasesUpdatedListener())
         .build()
 
