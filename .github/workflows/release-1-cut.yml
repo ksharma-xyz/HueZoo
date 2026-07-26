@@ -55,6 +55,19 @@ jobs:
           echo "name=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "::notice::Detected version: ${VERSION} — will create prod/${VERSION}"
 
+      # Android and iOS must agree before we cut, or the release ships two
+      # different version numbers to the two stores.
+      - name: Verify iOS marketing version matches Android
+        run: |
+          set -e
+          IOS=$(grep -oP '(?<=^MARKETING_VERSION=).*' iosApp/Configuration/Config.xcconfig | tr -d '[:space:]')
+          ANDROID="${{ steps.version.outputs.name }}"
+          if [ "$IOS" != "$ANDROID" ]; then
+            echo "::error::Version mismatch — Android is ${ANDROID}, iOS MARKETING_VERSION is ${IOS:-<unset>}. Fix iosApp/Configuration/Config.xcconfig before cutting."
+            exit 1
+          fi
+          echo "::notice::Both platforms at ${ANDROID}"
+
       - name: Check branch does not already exist
         run: |
           if git ls-remote --exit-code --heads origin "prod/${{ steps.version.outputs.name }}" > /dev/null 2>&1; then
@@ -104,31 +117,28 @@ jobs:
           sed -i 's/versionName = "[^"]*"/versionName = "${{ steps.next.outputs.next }}"/' androidApp/build.gradle.kts
           grep "versionName" androidApp/build.gradle.kts
 
-      - name: Bump CFBundleShortVersionString in Info.plist
+      # MARKETING_VERSION in Config.xcconfig is the ONLY iOS version that ships.
+      # Fastfile#build_release reads it from here and passes it via xcargs, and the
+      # project sets GENERATE_INFOPLIST_FILE = YES — so Info.plist is regenerated
+      # from build settings at archive time and its on-disk value is never used.
+      # Info.plist holds $(MARKETING_VERSION) and needs no bump.
+      #
+      # Hard-fail rather than warn: a silent skip here is exactly how iOS sat at
+      # 1.2.0 through the 1.3.0 and 1.4.0 releases.
+      - name: Bump MARKETING_VERSION in Config.xcconfig
         run: |
-          python3 - << 'EOF'
-          import re
-          version = "${{ steps.next.outputs.next }}"
-          path = "iosApp/iosApp/Info.plist"
-          with open(path, "r") as f:
-              content = f.read()
-          updated = re.sub(
-              r'(<key>CFBundleShortVersionString</key>\s*<string>)[^<]*(</string>)',
-              rf'\g<1>{version}\g<2>',
-              content,
-          )
-          if updated == content:
-              print("WARNING: CFBundleShortVersionString not found in Info.plist — skipping iOS version bump")
-              print("Add CFBundleShortVersionString to iosApp/iosApp/Info.plist to enable automatic iOS version bumps.")
-          else:
-              with open(path, "w") as f:
-                  f.write(updated)
-              print(f"Updated CFBundleShortVersionString to {version}")
-          EOF
+          set -e
+          FILE="iosApp/Configuration/Config.xcconfig"
+          if ! grep -q '^MARKETING_VERSION=' "$FILE"; then
+            echo "::error::MARKETING_VERSION not found in ${FILE}. iOS releases would ship the wrong version — aborting."
+            exit 1
+          fi
+          sed -i 's/^MARKETING_VERSION=.*/MARKETING_VERSION=${{ steps.next.outputs.next }}/' "$FILE"
+          grep '^MARKETING_VERSION=' "$FILE"
 
       - name: Commit and push version bump to main
         run: |
-          git add androidApp/build.gradle.kts iosApp/iosApp/Info.plist
+          git add androidApp/build.gradle.kts iosApp/Configuration/Config.xcconfig
           if git diff --staged --quiet; then
             echo "No changes to commit — main may already be at ${{ steps.next.outputs.next }}"
           else
