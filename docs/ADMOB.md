@@ -166,6 +166,11 @@ by Apple review. The UMP consent form has the same constraint.
 
 ```xml
 <manifest>
+
+    <!-- Permitted because the Play Console target audience is 13+. See the
+         Families Policy section below before changing this. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+
     <application>
         <!-- Your AdMob App ID from AdMob Console → App Settings -->
         <meta-data
@@ -177,16 +182,106 @@ by Apple review. The UMP consent form has the same constraint.
 
 ### SDK initialisation
 
-Called once in `Application.onCreate()` via `AdsInitializer.kt`:
+Called once in `Application.onCreate()` via `AdsInitializer.kt`. The request configuration
+must be applied **before** `MobileAds.initialize` so the first ad request already carries the
+restrictions.
 
-```kotlin
-// composeApp/src/androidMain/.../platform/ads/AdsInitializer.kt
-fun initMobileAds(context: Context) {
-    MobileAds.initialize(context)
-}
-```
+`BasicAds.Initialize()` in `App()` calls `MobileAds.initialize` a second time. That is
+harmless: it does not reset the request configuration set here.
 
 No ATT equivalent on Android — the SDK handles consent via UMP (see below).
+
+---
+
+## Families Policy — why Huezoo targets 13+
+
+Version code 115 was rejected under *"Families Policy Requirements: Ad Content — the ad
+content in your app is not consistent with the app's content rating"*.
+
+Two independent causes, both **console-side** — neither was in the app code:
+
+**1. The Android AdMob app entry had Ad content rating set to `MA` (Mature Audiences).**
+MA inventory includes alcohol, weapons and sexual content, against a Play content rating of
+Everyone. This was the direct cause. Fixed by setting it to **G / General Audiences**.
+
+> The code already passed `setMaxAdContentRating(G)` on every request and that did **not**
+> prevent the rejection. Play's review reads the **AdMob console** setting, not the SDK
+> request parameter. Never rely on the SDK value alone to prove compliance.
+>
+> Blocking controls are **per-app**: the iOS entry was already at G while the Android entry
+> sat at MA. See the app-ID table below.
+
+**2. Play Console Target audience included an under-13 bracket**, which pulls the app into the
+[Families Policy Requirements](https://support.google.com/googleplay/android-developer/answer/9893335)
+— hence the "Families Policy Requirements" header on the rejection. Under that policy, `G`
+inventory alone is not sufficient; `TFCD`/`TFUA` and AAID removal are also required.
+
+Sumi ships a near-identical AdMob integration — same publisher account, same three ad formats,
+same `maxAdContentRating = G` — and has never been flagged. It declares
+**Target audience: Adults** (`Sumi/docs/SUBMISSION.md`) and its AdMob entry was never set to MA.
+
+**Fix: set the Android AdMob entry to G, and set Play Console → App content → Target audience
+to 13+ / Adults**, matching Sumi. Both are console changes — no new binary is required to
+resubmit a rejected version.
+
+### This does not stop children installing Huezoo
+
+Family Link and Play parental controls filter on the **content rating** (Everyone / PEGI 3),
+not on the target-audience declaration. An under-13 bracket buys exactly one thing — Play
+Store Kids-tab / Teacher Approved eligibility — and costs non-personalized ads for every
+user, which is a real eCPM hit. Not worth it unless Kids-tab placement is a deliberate goal.
+
+### Current settings (13+ audience)
+
+| Setting | Where | Value |
+|---|---|---|
+| Ad content rating | AdMob console, **per app entry** | `G` — the one Play actually reads |
+| `setMaxAdContentRating` | `AdsInitializer.kt` | `G` |
+| `setTagForChildDirectedTreatment` | not set | UNSPECIFIED — correct for a 13+ audience |
+| `setTagForUnderAgeOfConsent` | not set | UNSPECIFIED — correct for a 13+ audience |
+| `AD_ID` permission | `AndroidManifest.xml` | declared — allowed for a 13+ audience |
+
+The two `setTag…` calls are deliberately absent. They only matter under the Families Policy,
+and setting them to `FALSE` for a 13+ app is equivalent to leaving them unspecified. Sumi ships
+the same way. Do **not** add them thinking they will prevent a content-rating rejection — they
+will not; the AdMob console rating is what governs.
+
+### If Huezoo ever moves to a children audience
+
+Do all of the following, or the build ships out of compliance:
+
+1. **`AdsInitializer.kt`** — add `setTagForChildDirectedTreatment(TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE)`
+   and `setTagForUnderAgeOfConsent(TAG_FOR_UNDER_AGE_OF_CONSENT_TRUE)` to the
+   `RequestConfiguration.Builder` chain. This forces non-personalized, Families-compliant
+   inventory.
+2. **`AndroidManifest.xml`** — the `AD_ID` permission must become `tools:node="remove"`,
+   with `xmlns:tools` added to the `<manifest>` tag. Deleting the line is not enough: Firebase
+   Analytics and play-services-ads both declare it and the merger re-adds it. Verify with:
+   ```bash
+   ./gradlew :androidApp:processReleaseMainManifest
+   grep -c "gms.permission.AD_ID" \
+     androidApp/build/intermediates/merged_manifest/release/processReleaseMainManifest/AndroidManifest.xml
+   # must print 0
+   ```
+3. **Play Console → Data safety** — drop the advertising-ID collection declaration.
+4. Only Families **self-certified ad SDKs** may serve to children. Google AdMob is certified;
+   check any mediation network against Google's list before adding it.
+
+Child-directed treatment is **not** an AdMob console setting — current AdMob "App settings"
+exposes only Frequency capping and High-engagement ads. It is declared SDK-side only.
+
+### AdMob blocking controls are per-app, not per-account
+
+Huezoo has **two** AdMob app entries and they are configured independently:
+
+| Platform | AdMob App ID | Declared in |
+|---|---|---|
+| Android | `ca-app-pub-1771675816656791~1632380205` | `androidApp/src/main/AndroidManifest.xml` |
+| iOS | `ca-app-pub-1771675816656791~2990794956` | `iosApp/iosApp/Info.plist` |
+
+Blocking controls (Sensitive categories, Restricted categories, Ad content rating) applied to
+one entry do **not** carry to the other — only account-level blocks propagate to both. After
+changing blocking controls, confirm which app entry was selected.
 
 ---
 
