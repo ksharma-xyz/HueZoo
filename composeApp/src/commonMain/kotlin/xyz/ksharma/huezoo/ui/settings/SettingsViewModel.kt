@@ -32,7 +32,6 @@ class SettingsViewModel(
             SettingsUiEvent.TogglePaid -> togglePaid()
             SettingsUiEvent.ToggleForceStreakCelebration -> toggleForceStreakCelebration()
             SettingsUiEvent.ToggleHideAds -> toggleHideAds()
-            SettingsUiEvent.ToggleColorMemory -> toggleColorMemory()
             SettingsUiEvent.ResetAllTapped -> _uiState.update { it.copy(showResetConfirm = true) }
             SettingsUiEvent.ResetAllDismissed -> _uiState.update { it.copy(showResetConfirm = false) }
             SettingsUiEvent.ResetAllConfirmed -> resetAll()
@@ -58,7 +57,6 @@ class SettingsViewModel(
                     nameInput = userName ?: "",
                     forceStreakCelebration = DebugFlags.forceStreakCelebration,
                     hideAds = DebugFlags.hideAds,
-                    colorMemoryEnabled = DebugFlags.colorMemoryEnabled,
                     appVersion = appVersion,
                 )
             }
@@ -92,12 +90,6 @@ class SettingsViewModel(
         val newValue = !DebugFlags.hideAds
         DebugFlags.hideAds = newValue
         _uiState.update { it.copy(hideAds = newValue) }
-    }
-
-    private fun toggleColorMemory() {
-        val newValue = !DebugFlags.colorMemoryEnabled
-        DebugFlags.colorMemoryEnabled = newValue
-        _uiState.update { it.copy(colorMemoryEnabled = newValue) }
     }
 
     private fun restorePurchases() {

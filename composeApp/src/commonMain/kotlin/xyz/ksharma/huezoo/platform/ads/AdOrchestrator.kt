@@ -3,12 +3,16 @@ package xyz.ksharma.huezoo.platform.ads
 import kotlinx.datetime.LocalDate
 
 /**
- * In-memory singleton that gates interstitial ad display for Threshold sessions.
+ * In-memory singleton that gates interstitial ad display across **all** games.
  *
  * Rules (from MONETIZATION_DESIGN.md):
- * - Show at most once every 2 Threshold sessions.
+ * - Show at most once every 2 sessions.
  * - Never after a new all-time personal best.
  * - Never more than [MAX_PER_DAY] times per calendar day.
+ *
+ * Shared by Threshold and Color Memory Match, so the counter and the daily cap are
+ * app-wide rather than per-game — a player bouncing between games still sees at most
+ * [MAX_PER_DAY] interstitials.
  *
  * All state is in-memory and resets with the process (daily cap resets on date change).
  * Call [shouldShowInterstitial] *after* the session result is known, then [onInterstitialShown]

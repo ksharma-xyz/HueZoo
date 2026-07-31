@@ -11,6 +11,11 @@ interface ColorMemoryRepository {
      */
     suspend fun getPersonalBest(): PersonalBest?
 
-    /** Saves personal best if [score] exceeds the stored best score. */
-    suspend fun savePersonalBest(score: Int, tightestDeltaE: Float)
+    /**
+     * Saves personal best if [score] exceeds the stored best score.
+     *
+     * @return true if this session set a new best — callers use it to suppress the
+     *   replay interstitial so a personal best isn't followed by an ad.
+     */
+    suspend fun savePersonalBest(score: Int, tightestDeltaE: Float): Boolean
 }

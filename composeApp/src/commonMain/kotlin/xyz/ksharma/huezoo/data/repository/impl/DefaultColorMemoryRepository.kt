@@ -21,13 +21,14 @@ class DefaultColorMemoryRepository(
         }
     }
 
-    override suspend fun savePersonalBest(score: Int, tightestDeltaE: Float) = withContext(Dispatchers.Default) {
-        val q = db.huezooDatabaseQueries
-        val current = q.getPersonalBest(GameId.COLOR_MEMORY).executeAsOneOrNull()
-        val isNewBest = current?.best_rounds == null || score > current.best_rounds
-        if (isNewBest) {
-            q.upsertPersonalBest(GameId.COLOR_MEMORY, tightestDeltaE.toDouble(), score.toLong(), null)
+    override suspend fun savePersonalBest(score: Int, tightestDeltaE: Float): Boolean =
+        withContext(Dispatchers.Default) {
+            val q = db.huezooDatabaseQueries
+            val current = q.getPersonalBest(GameId.COLOR_MEMORY).executeAsOneOrNull()
+            val isNewBest = current?.best_rounds == null || score > current.best_rounds
+            if (isNewBest) {
+                q.upsertPersonalBest(GameId.COLOR_MEMORY, tightestDeltaE.toDouble(), score.toLong(), null)
+            }
+            isNewBest
         }
-        Unit
-    }
 }

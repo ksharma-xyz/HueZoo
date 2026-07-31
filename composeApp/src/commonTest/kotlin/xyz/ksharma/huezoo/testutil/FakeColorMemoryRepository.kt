@@ -26,11 +26,13 @@ class FakeColorMemoryRepository(
             )
         }
 
-    override suspend fun savePersonalBest(score: Int, tightestDeltaE: Float) {
+    override suspend fun savePersonalBest(score: Int, tightestDeltaE: Float): Boolean {
         val current = bestScore
-        if (current == null || score > current) {
+        val isNewBest = current == null || score > current
+        if (isNewBest) {
             bestScore = score
             this.tightestDeltaE = tightestDeltaE
         }
+        return isNewBest
     }
 }

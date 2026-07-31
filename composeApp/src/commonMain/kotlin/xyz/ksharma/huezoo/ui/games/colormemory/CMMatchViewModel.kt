@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import xyz.ksharma.huezoo.data.repository.ColorMemoryRepository
 import xyz.ksharma.huezoo.data.repository.SettingsRepository
 import xyz.ksharma.huezoo.domain.color.ColorPair
@@ -17,6 +19,7 @@ import xyz.ksharma.huezoo.domain.game.SessionResultCache
 import xyz.ksharma.huezoo.navigation.GameId
 import xyz.ksharma.huezoo.navigation.GemAward
 import xyz.ksharma.huezoo.navigation.SessionResult
+import xyz.ksharma.huezoo.platform.ads.AdOrchestrator
 import xyz.ksharma.huezoo.platform.haptics.HapticEngine
 import xyz.ksharma.huezoo.platform.haptics.HapticType
 import xyz.ksharma.huezoo.ui.copy.CMMatchStingCopy
@@ -29,7 +32,11 @@ import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchUiState
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.model.PlayerState
 import xyz.ksharma.huezoo.ui.util.safeLaunch
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
+@Suppress("LongParameterList")
 class CMMatchViewModel(
     private val gameEngine: ColorMemoryGameEngine,
     private val colorMemoryRepository: ColorMemoryRepository,
@@ -37,6 +44,7 @@ class CMMatchViewModel(
     private val playerState: PlayerState,
     private val hapticEngine: HapticEngine,
     private val sessionResultCache: SessionResultCache,
+    private val adOrchestrator: AdOrchestrator,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<CMMatchUiState>(CMMatchUiState.Loading)
@@ -64,6 +72,8 @@ class CMMatchViewModel(
     private var totalGems = 0
     private var sessionCompleted = false
 
+    private var isSessionNewPersonalBest = false
+
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     init {
@@ -74,15 +84,22 @@ class CMMatchViewModel(
      * Called on every screen RESUME. On the first entry — and on config changes mid-game —
      * this is a no-op (the active session's coroutines survive on their own). After a
      * completed session, returning here (Play Again) starts a new session: paid users
-     * restart immediately; free users see an interstitial first (see [onInterstitialDone]).
+     * restart immediately; free users may see an interstitial first, subject to
+     * [AdOrchestrator]'s app-wide frequency rules (see [onInterstitialDone]).
      */
     fun onResume() {
         if (!sessionCompleted) return
         sessionCompleted = false
         if (_isPaid.value) {
             startSession()
-        } else {
+            return
+        }
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        if (adOrchestrator.shouldShowInterstitial(isSessionNewPersonalBest, today)) {
+            adOrchestrator.onInterstitialShown()
             _showInterstitial.value = true
+        } else {
+            startSession()
         }
     }
 
@@ -108,6 +125,7 @@ class CMMatchViewModel(
         tightestCorrectDeltaE = null
         roundGeneration = 0
         sessionCompleted = false
+        isSessionNewPersonalBest = false
 
         safeLaunch {
             _isPaid.value = settingsRepository.isPaid()
@@ -217,7 +235,10 @@ class CMMatchViewModel(
         playerState.updateGems(totalGems)
 
         val tightest = tightestCorrectDeltaE ?: gameEngine.deltaECurve.first()
-        colorMemoryRepository.savePersonalBest(score = score, tightestDeltaE = tightest)
+        isSessionNewPersonalBest = colorMemoryRepository.savePersonalBest(
+            score = score,
+            tightestDeltaE = tightest,
+        )
 
         val breakdown = buildList {
             if (payout.correctGems > 0) add(GemAward("Correct rounds ×$correctCount", payout.correctGems))
