@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package xyz.ksharma.huezoo.ui.games.colormemory
 
 import androidx.compose.animation.AnimatedVisibility
@@ -81,7 +83,6 @@ import xyz.ksharma.huezoo.ui.theme.shapedShadow
 private val ChamberGap = 10.dp
 
 private val CompactHeightThreshold = 560.dp
-private val CompactChamberHeight = 180.dp
 private val PhaseHeadlineMinHeight = 56.dp
 private const val WRONG_SHAKE_MS = 450
 private const val WRONG_SHAKE_AMPLITUDE = 12f
@@ -197,113 +198,80 @@ private fun CMMatchPlayingContent(
     onAnswer: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Layout follows window height: tall windows flex the chambers to fill the space; short windows
-    // (phone held sideways, resized windows) give the chambers a fixed height and scroll instead
-    // of squashing them to nothing.
+    // Layout follows window height. Tall windows stack everything with flexing chambers. Short
+    // windows (phone held sideways, resized windows) put the chambers beside the HUD and answer
+    // buttons instead of squashing them, so the colours and the buttons are both on screen.
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val compactHeight = maxHeight < CompactHeightThreshold
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .then(if (compactHeight) Modifier.verticalScroll(rememberScrollState()) else Modifier)
-                .navigationBarsPadding()
-                .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
-        ) {
-            // ── HUD: round + score chips, round dots ──────────────────────────
-            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
-                SkewedStatChip(
-                    label = "ROUND",
-                    value = "${state.round}/${state.totalRounds}",
-                    accentColor = HuezooColors.AccentCyan,
-                )
-                SkewedStatChip(
-                    label = "SCORE",
-                    value = "${state.score}",
-                    accentColor = HuezooColors.AccentYellow,
-                )
-            }
-            Spacer(Modifier.height(HuezooSpacing.sm))
-            RoundIndicator(
-                totalRounds = state.totalRounds,
-                currentRound = state.round,
-                activeColor = HuezooColors.AccentPurple,
-                results = state.roundResults.map { it == CMMRoundResult.Correct },
-            )
-
-            // ── Phase headline (short) — fixed min-height so nothing shifts ────
-            PhaseHeadline(
-                phase = state.phase,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = HuezooSpacing.md)
-                    .defaultMinSize(minHeight = PhaseHeadlineMinHeight),
-            )
-
-            // ── Twin chambers — flex to fill remaining space (no scroll) ──────
+        if (compactHeight) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .then(if (compactHeight) Modifier.height(CompactChamberHeight) else Modifier.weight(1f))
-                    .padding(vertical = HuezooSpacing.sm),
-                horizontalArrangement = Arrangement.spacedBy(ChamberGap),
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
             ) {
-                MemoryChamber(
-                    label = "A",
-                    state = when (state.phase) {
-                        CMMatchPhase.Memory -> MemoryChamberState.Live
-                        CMMatchPhase.Hold, CMMatchPhase.Recall -> MemoryChamberState.Sealed
-                        CMMatchPhase.Feedback -> MemoryChamberState.Revealed
-                    },
-                    color = state.colorA,
-                    accent = HuezooColors.AccentCyan,
-                    entranceKey = state.roundGeneration,
-                    showUnsealedPill = true,
-                    modifier = Modifier.weight(1f).fillMaxSize(),
-                )
-                MemoryChamber(
-                    label = "B",
-                    state = when (state.phase) {
-                        CMMatchPhase.Memory, CMMatchPhase.Hold -> MemoryChamberState.Waiting
-                        CMMatchPhase.Recall -> MemoryChamberState.Live
-                        CMMatchPhase.Feedback -> MemoryChamberState.Revealed
-                    },
-                    color = state.colorB,
-                    accent = HuezooColors.AccentMagenta,
-                    entranceKey = state.roundGeneration,
-                    modifier = Modifier.weight(1f).fillMaxSize(),
+                Column(modifier = Modifier.weight(1.5f).fillMaxHeight()) {
+                    Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                        CMHud(state)
+                        PhaseHeadline(
+                            phase = state.phase,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = HuezooSpacing.sm)
+                                .defaultMinSize(minHeight = PhaseHeadlineMinHeight),
+                        )
+                        CMReadout(state)
+                    }
+                    AnswerButtons(
+                        state = state,
+                        onAnswer = onAnswer,
+                        modifier = Modifier.fillMaxWidth().padding(top = HuezooSpacing.sm),
+                    )
+                }
+                CMChambers(
+                    state = state,
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
                 )
             }
-
-            // ── ΔE readout (compact, single line) ─────────────────────────────
-            Row(verticalAlignment = Alignment.Bottom) {
-                HuezooLabelSmall(
-                    text = "THIS ROUND",
-                    color = HuezooColors.TextSecondary,
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.padding(bottom = 3.dp),
-                )
-                Spacer(Modifier.width(HuezooSpacing.sm))
-                HuezooDisplaySmall(
-                    text = "ΔE ${state.roundDeltaE.fmt()}",
-                    color = deltaEColor(state.roundDeltaE),
-                )
-                Spacer(Modifier.width(HuezooSpacing.sm))
-                HuezooLabelSmall(
-                    text = deltaETierLabel(state.roundDeltaE),
-                    color = deltaEColor(state.roundDeltaE).copy(alpha = 0.8f),
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.padding(bottom = 3.dp),
-                )
-            }
-
-            // ── SAME / DIFFERENT — always visible, pinned above nav bar ────────
-            AnswerButtons(
-                state = state,
-                onAnswer = onAnswer,
+        } else {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = HuezooSpacing.sm),
-            )
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+            ) {
+                CMHud(state)
+
+                // ── Phase headline (short) — fixed min-height so nothing shifts ────
+                PhaseHeadline(
+                    phase = state.phase,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = HuezooSpacing.md)
+                        .defaultMinSize(minHeight = PhaseHeadlineMinHeight),
+                )
+
+                // ── Twin chambers — flex to fill remaining space (no scroll) ──────
+                CMChambers(
+                    state = state,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(vertical = HuezooSpacing.sm),
+                )
+
+                CMReadout(state)
+
+                // ── SAME / DIFFERENT — always visible, pinned above nav bar ────────
+                AnswerButtons(
+                    state = state,
+                    onAnswer = onAnswer,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = HuezooSpacing.sm),
+                )
+            }
         }
 
         // ── Feedback reveal card — cool overlay, auto-dismisses on advance ────
@@ -323,6 +291,95 @@ private fun CMMatchPlayingContent(
                 )
             }
         }
+    }
+}
+
+// ── HUD: round + score chips, round dots ─────────────────────────────────────
+
+@Composable
+private fun CMHud(state: CMMatchUiState.Playing) {
+    Column {
+        Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
+            SkewedStatChip(
+                label = "ROUND",
+                value = "${state.round}/${state.totalRounds}",
+                accentColor = HuezooColors.AccentCyan,
+            )
+            SkewedStatChip(
+                label = "SCORE",
+                value = "${state.score}",
+                accentColor = HuezooColors.AccentYellow,
+            )
+        }
+        Spacer(Modifier.height(HuezooSpacing.sm))
+        RoundIndicator(
+            totalRounds = state.totalRounds,
+            currentRound = state.round,
+            activeColor = HuezooColors.AccentPurple,
+            results = state.roundResults.map { it == CMMRoundResult.Correct },
+        )
+    }
+}
+
+// ── Twin chambers ─────────────────────────────────────────────────────────────
+
+@Composable
+private fun CMChambers(state: CMMatchUiState.Playing, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(ChamberGap),
+    ) {
+        MemoryChamber(
+            label = "A",
+            state = when (state.phase) {
+                CMMatchPhase.Memory -> MemoryChamberState.Live
+                CMMatchPhase.Hold, CMMatchPhase.Recall -> MemoryChamberState.Sealed
+                CMMatchPhase.Feedback -> MemoryChamberState.Revealed
+            },
+            color = state.colorA,
+            accent = HuezooColors.AccentCyan,
+            entranceKey = state.roundGeneration,
+            showUnsealedPill = true,
+            modifier = Modifier.weight(1f).fillMaxSize(),
+        )
+        MemoryChamber(
+            label = "B",
+            state = when (state.phase) {
+                CMMatchPhase.Memory, CMMatchPhase.Hold -> MemoryChamberState.Waiting
+                CMMatchPhase.Recall -> MemoryChamberState.Live
+                CMMatchPhase.Feedback -> MemoryChamberState.Revealed
+            },
+            color = state.colorB,
+            accent = HuezooColors.AccentMagenta,
+            entranceKey = state.roundGeneration,
+            modifier = Modifier.weight(1f).fillMaxSize(),
+        )
+    }
+}
+
+// ── ΔE readout (compact, single line) ─────────────────────────────────────────
+
+@Composable
+private fun CMReadout(state: CMMatchUiState.Playing) {
+    Row(verticalAlignment = Alignment.Bottom) {
+        HuezooLabelSmall(
+            text = "THIS ROUND",
+            color = HuezooColors.TextSecondary,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(bottom = 3.dp),
+        )
+        Spacer(Modifier.width(HuezooSpacing.sm))
+        HuezooDisplaySmall(
+            text = "ΔE ${state.roundDeltaE.fmt()}",
+            color = deltaEColor(state.roundDeltaE),
+        )
+        Spacer(Modifier.width(HuezooSpacing.sm))
+        HuezooLabelSmall(
+            text = deltaETierLabel(state.roundDeltaE),
+            color = deltaEColor(state.roundDeltaE).copy(alpha = 0.8f),
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(bottom = 3.dp),
+        )
     }
 }
 
