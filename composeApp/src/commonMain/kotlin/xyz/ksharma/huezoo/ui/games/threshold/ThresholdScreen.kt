@@ -94,6 +94,7 @@ import xyz.ksharma.huezoo.ui.theme.HeartLife
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.MinPaneSwatchSize
 import xyz.ksharma.huezoo.ui.theme.PageColumn
 import xyz.ksharma.huezoo.ui.theme.PaneGap
 import xyz.ksharma.huezoo.ui.theme.SupportingPaneWidth
@@ -272,7 +273,7 @@ private fun PlayingContent(
             ExpandedSwatchMaxSize,
         )
         val supportingPane = windowClass == WindowClass.Expanded &&
-            maxWidth > maxHeight && paneSwatch >= DefaultSwatchLayoutSize
+            maxWidth > maxHeight && paneSwatch >= MinPaneSwatchSize
 
         if (supportingPane) {
             Box(
@@ -290,15 +291,28 @@ private fun PlayingContent(
                         modifier = Modifier.width(SupportingPaneWidth).fillMaxHeight(),
                         verticalArrangement = Arrangement.SpaceBetween,
                     ) {
+                        // Title and lives, under one left edge.
                         Column {
-                            ThresholdHeader(state, accent)
-                            Spacer(Modifier.height(HuezooSpacing.xl))
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                            HuezooTitleMedium(
+                                text = "IDENTIFY  THE  OUTLIER",
+                                color = accent,
+                                fontWeight = FontWeight.ExtraBold,
+                            )
+                            Spacer(Modifier.height(HuezooSpacing.sm))
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                ThresholdDeltaEHero(state)
+                                ThresholdLives(state, accent)
+                                HuezooLabelSmall(
+                                    text = "${state.attemptsRemaining}/${state.maxAttempts} TRIES",
+                                    color = HuezooColors.TextSecondary,
+                                )
                             }
+                        }
+                        // ΔE badge, its caption and the session best, left-aligned.
+                        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                            ThresholdDeltaEHero(state)
                         }
                         ThresholdFeedbackSlot(state)
                     }
@@ -375,25 +389,31 @@ private fun ThresholdHeader(
             color = accent,
             fontWeight = FontWeight.ExtraBold,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
-            repeat(state.maxAttempts) { index ->
-                val isRemaining = index < state.attemptsRemaining
-                val fillColor by animateColorAsState(
-                    targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
-                    animationSpec = tween(300),
-                    label = "lifeHeart_$index",
-                )
-                Box(
-                    modifier = Modifier
-                        .size(HEART_SIZE)
-                        .border(
-                            width = 1.5.dp,
-                            color = accent.copy(alpha = 0.4f),
-                            shape = HeartLife,
-                        )
-                        .background(fillColor, HeartLife),
-                )
-            }
+        ThresholdLives(state, accent)
+    }
+}
+
+/** Lives hearts. */
+@Composable
+private fun ThresholdLives(state: ThresholdUiState.Playing, accent: Color) {
+    Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
+        repeat(state.maxAttempts) { index ->
+            val isRemaining = index < state.attemptsRemaining
+            val fillColor by animateColorAsState(
+                targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
+                animationSpec = tween(300),
+                label = "lifeHeart_$index",
+            )
+            Box(
+                modifier = Modifier
+                    .size(HEART_SIZE)
+                    .border(
+                        width = 1.5.dp,
+                        color = accent.copy(alpha = 0.4f),
+                        shape = HeartLife,
+                    )
+                    .background(fillColor, HeartLife),
+            )
         }
     }
 }

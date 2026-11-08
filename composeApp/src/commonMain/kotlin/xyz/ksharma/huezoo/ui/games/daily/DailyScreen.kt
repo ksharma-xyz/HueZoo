@@ -56,6 +56,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
+import xyz.ksharma.huezoo.ui.components.RoundIndicator
 import xyz.ksharma.huezoo.ui.components.SkewedStatChip
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiEvent
@@ -69,6 +70,7 @@ import xyz.ksharma.huezoo.ui.theme.GamePageWidth
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.MinPaneSwatchSize
 import xyz.ksharma.huezoo.ui.theme.PageColumn
 import xyz.ksharma.huezoo.ui.theme.PaneGap
 import xyz.ksharma.huezoo.ui.theme.SupportingPaneWidth
@@ -181,7 +183,7 @@ private fun DailyPlayingContent(
             ExpandedSwatchMaxSize,
         )
         val supportingPane = windowClass == WindowClass.Expanded &&
-            maxWidth > maxHeight && paneSwatch >= DefaultSwatchLayoutSize
+            maxWidth > maxHeight && paneSwatch >= MinPaneSwatchSize
 
         if (supportingPane) {
             Box(
@@ -199,14 +201,20 @@ private fun DailyPlayingContent(
                         modifier = Modifier.width(SupportingPaneWidth).fillMaxHeight(),
                         verticalArrangement = Arrangement.SpaceBetween,
                     ) {
+                        DailyTitle(state, dateSubtitle, TextAlign.Start)
+                        // Round chip with its progress dots, one group.
                         Column {
                             SkewedStatChip(
                                 label = "ROUND",
                                 value = "${state.round}/${state.totalRounds}",
                                 accentColor = HuezooColors.GameDaily,
                             )
-                            Spacer(Modifier.height(HuezooSpacing.lg))
-                            DailyTitle(state, dateSubtitle, TextAlign.Start)
+                            Spacer(Modifier.height(HuezooSpacing.sm))
+                            RoundIndicator(
+                                totalRounds = state.totalRounds,
+                                currentRound = state.round,
+                                activeColor = HuezooColors.GameDaily,
+                            )
                         }
                         DailyFeedbackSlot(state)
                     }

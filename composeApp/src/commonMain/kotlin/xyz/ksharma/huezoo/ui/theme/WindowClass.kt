@@ -35,6 +35,12 @@ private val EXPANDED_MIN_WIDTH = 840.dp
 /** Widest the page gets on [WindowClass.Expanded]. Panes sit inside it, centred. */
 val ExpandedMaxWidth = 1200.dp
 
+/**
+ * Smallest swatch the supporting-pane layout will use. Shorter windows (phone held sideways)
+ * still get the side-by-side layout with a smaller swatch; below this the layout stacks.
+ */
+val MinPaneSwatchSize = 200.dp
+
 /** Width of the HUD / controls pane next to the game on Expanded windows. */
 val SupportingPaneWidth = 360.dp
 
