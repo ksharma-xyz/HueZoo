@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,9 +37,11 @@ import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.ParallelogramCard
 import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.rimLight
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val DialogShelfOffset = 7.dp
+private val DialogMaxWidth = 440.dp
 private const val ENTRANCE_SCALE_FROM = 0.82f
 private const val SHADOW_ALPHA = 0.85f
 private val SkewPad = 26.dp
@@ -85,7 +88,9 @@ fun HuezooAlertDialog(
 
         Box(
             modifier = modifier
+                .safeHorizontalPadding()
                 .padding(horizontal = HuezooSpacing.lg)
+                .widthIn(max = DialogMaxWidth)
                 .graphicsLayer {
                     scaleX = scale.value
                     scaleY = scale.value

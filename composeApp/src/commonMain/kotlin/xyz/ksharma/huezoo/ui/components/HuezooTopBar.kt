@@ -55,6 +55,8 @@ import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
 import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
+import xyz.ksharma.huezoo.ui.theme.cornerClearanceTop
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val TopBarContentHeight = 64.dp
@@ -118,10 +120,15 @@ fun HuezooTopBar(
             },
     ) {
         Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+        // Zero on phones; lifts the bar out of the rounded corner on iPhone Duo's outer display.
+        Spacer(modifier = Modifier.height(cornerClearanceTop()))
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                // Keeps the trailing buttons clear of the camera/status column (right edge on Duo
+                // outer display) and landscape notch. No-op if a parent already applied it.
+                .safeHorizontalPadding()
                 .height(TopBarContentHeight)
                 .padding(horizontal = HuezooSpacing.md),
             verticalAlignment = Alignment.CenterVertically,

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
 
 /**
  * Game-styled [ModalBottomSheet] wrapper.
@@ -51,7 +52,9 @@ fun HuezooBottomSheet(
         containerColor = HuezooColors.SurfaceL2,
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
         dragHandle = { HuezooSheetHandle() },
-        content = content,
+        // Sheet chrome stays full-width; content keeps out of side system areas (iPhone Duo outer
+        // display's right-edge column, landscape notch). Material caps the sheet width on wide windows.
+        content = { Column(modifier = Modifier.safeHorizontalPadding(), content = content) },
     )
 }
 
