@@ -46,16 +46,64 @@ All helpers live in `ui/theme/CornerSafeInsets.kt`.
 
 ## Window size rules
 
+Window classes come from the window **width** in dp (`windowClassFor`, read through
+`BoxWithConstraints`), never from the device. Helpers live in `ui/theme/WindowClass.kt`.
+
+| Class | Width | Layout |
+|---|---|---|
+| Compact | below 600dp | The phone layout, unchanged. Swatches are 300dp. |
+| Medium | 600 to 840dp | One column capped at `MaxContentWidth` (640dp). Game swatches scale. |
+| Expanded | 840dp and wider | Multi-pane layouts. |
+
 - `contentMaxWidth()` caps a screen's main column at `MaxContentWidth` (640dp) and fills
   narrower windows. Place it with `Alignment.TopCenter` so it centres on wide windows.
+- `PageColumn` is the page column for game screens: 640dp on Compact and Medium, and on Expanded
+  `ExpandedMaxWidth` (1200dp) or the `expandedWidth` the screen passes. Threshold, Daily and
+  Color Memory pass `GamePageWidth` (976dp = 360dp HUD pane + 24dp gap + 560dp swatch + 16dp
+  insets), so the top bar's edges are the panes' outer edges with no leftover side space.
 - Dialog cards are capped at 440dp.
-- Color Memory switches on window **height**: below 560dp the HUD, headline, readout and answer
-  buttons sit on the left and the chambers on the right (side by side, nothing scrolls away
-  during the timed phases); above it they stack and the chambers flex to fill the space.
+- Panes are inset 16dp on the sides, the same inset as the top bar's buttons, and sit 24dp apart
+  (`PaneGap`). Panes in a row start on the same line; the game panes also end on the same line.
+- Secondary elements are sized from the primary one (swatch size, card unit) and never stretched
+  to fill leftover space: extra space becomes margin.
+
+### Home
+
+- Compact and Medium: one scrolling column, as before.
+- Expanded: top bar across the page, then two top-aligned panes. "You" (width 5/12 of the page,
+  clamped 320 to 440dp): callsign, gems, streak, personal best, rank progress, leaderboard.
+  "Play": the Threshold hero, then Daily and Color Memory side by side with equal heights, then
+  "What is ΔE?". When the Play pane is narrower than 600dp (windows around 950dp) Daily and
+  Color Memory stack instead so their text is not cut. The page scrolls when the window is short.
+
+### Threshold and Daily
+
+- `RadialSwatchLayout(size = ...)` scales the whole geometry (tiles, gap, container) from the
+  300dp design size. Compact keeps 300dp.
+- Medium, and Expanded portrait: stacked column, swatches scale to
+  `min(width - 48dp, height - header, 520dp)` (never below 300dp), and the group is centred
+  vertically.
+- Expanded landscape (width greater than height, room for at least a 300dp swatch): a
+  supporting pane. The left pane (360dp: title, lives, ΔE badge, feedback) and the swatch
+  (up to 560dp, `min(pane width, window height - banner)`) sit in a row exactly as tall as the
+  swatch, so the pane's top and bottom are the swatch's top and bottom. Feedback sits at the
+  pane's bottom edge.
+
+### Color Memory
+
+- Switches on window **height** below 560dp, and on Expanded width: the HUD, headline, readout
+  and answer buttons sit on the left and the chambers on the right (nothing scrolls away during
+  the timed phases). On Expanded the left pane is a fixed 360dp and the chambers share the rest;
+  the HUD is at the pane's top and the answer buttons at its bottom, lining up with the chambers'
+  top and bottom edges.
+- Otherwise they stack and the chambers flex to fill the space.
+
+### Other screens
+
 - Every other screen scrolls vertically, so short windows (phone held sideways) scroll rather
   than clip. Threshold and Daily add `BannerReserve` bottom padding so the swatches can scroll
   clear of the pinned banner.
-- Swatch layouts are a fixed 300dp square, which fits every width from 375dp up.
+- Settings, Leaderboard and the other reading screens keep a single 640dp column.
 
 ## Testing on the Duo simulator
 
