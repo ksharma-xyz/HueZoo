@@ -72,7 +72,6 @@ import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchNavEvent
 import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchPhase
 import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchUiEvent
 import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchUiState
-import xyz.ksharma.huezoo.ui.theme.GamePageWidth
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.PageColumn
@@ -88,6 +87,8 @@ import xyz.ksharma.huezoo.ui.theme.windowClassFor
 private val ChamberGap = 10.dp
 
 private val CompactHeightThreshold = 560.dp
+private const val CHAMBER_MAX_ASPECT = 1.4f
+private val MinPaneHeight = 320.dp
 private val PhaseHeadlineMinHeight = 56.dp
 private const val WRONG_SHAKE_MS = 450
 private const val WRONG_SHAKE_AMPLITUDE = 12f
@@ -159,7 +160,7 @@ fun CMMatchScreen(
             primaryColor = HuezooColors.AccentPurple,
             secondaryColor = HuezooColors.AccentCyan,
         ) {
-            PageColumn(expandedWidth = GamePageWidth) {
+            PageColumn {
                 HuezooTopBar(
                     // Mid-session back → confirm; a session only counts when completed.
                     onBackClick = { showLeaveDialog = true },
@@ -206,47 +207,53 @@ private fun CMMatchPlayingContent(
     // Layout follows window height. Tall windows stack everything with flexing chambers. Short
     // windows (phone held sideways, resized windows) put the chambers beside the HUD and answer
     // buttons instead of squashing them, so the colours and the buttons are both on screen.
-    // Expanded windows (840dp and wider) use the same side-by-side arrangement with a wider pane
-    // gap: HUD at the top and answer buttons at the bottom of the left pane line up with the
-    // top and bottom edges of the chambers.
+    // Expanded windows (840dp and wider) use a fixed-width controls pane beside chambers that
+    // are capped at 1.4:1 (height:width), centred vertically. The pane is exactly as tall as the
+    // chambers. If that does not fit (phone held sideways), the short-height layout is used.
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val expanded = windowClassFor(maxWidth) == WindowClass.Expanded
         val compactHeight = maxHeight < CompactHeightThreshold
-        if (compactHeight || expanded) {
+        // Expanded: the chambers keep a height of at most 1.4 x their width (shrink, never
+        // stretch) and the controls pane is exactly as tall, so tops and bottoms coincide.
+        val chamberWidth = (maxWidth - HuezooSpacing.md * 2 - PaneGap - SupportingPaneWidth - ChamberGap) / 2
+        val paneHeight = minOf(maxHeight - HuezooSpacing.md * 2, chamberWidth * CHAMBER_MAX_ASPECT)
+        val sideBySide = expanded && paneHeight >= MinPaneHeight
+        if (sideBySide) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .padding(HuezooSpacing.md),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(paneHeight),
+                    horizontalArrangement = Arrangement.spacedBy(PaneGap),
+                ) {
+                    CMControlsPane(
+                        state = state,
+                        onAnswer = onAnswer,
+                        modifier = Modifier.width(SupportingPaneWidth).fillMaxHeight(),
+                    )
+                    CMChambers(
+                        state = state,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                }
+            }
+        } else if (compactHeight) {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
                     .navigationBarsPadding()
-                    .padding(
-                        horizontal = HuezooSpacing.md,
-                        vertical = if (expanded) HuezooSpacing.md else HuezooSpacing.sm,
-                    ),
-                horizontalArrangement = Arrangement.spacedBy(if (expanded) PaneGap else HuezooSpacing.md),
+                    .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
             ) {
-                Column(
-                    modifier = if (expanded) {
-                        Modifier.width(SupportingPaneWidth).fillMaxHeight()
-                    } else {
-                        Modifier.weight(1.5f).fillMaxHeight()
-                    },
-                ) {
-                    Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                        CMHud(state)
-                        PhaseHeadline(
-                            phase = state.phase,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = HuezooSpacing.sm)
-                                .defaultMinSize(minHeight = PhaseHeadlineMinHeight),
-                        )
-                        CMReadout(state)
-                    }
-                    AnswerButtons(
-                        state = state,
-                        onAnswer = onAnswer,
-                        modifier = Modifier.fillMaxWidth().padding(top = HuezooSpacing.sm),
-                    )
-                }
+                CMControlsPane(
+                    state = state,
+                    onAnswer = onAnswer,
+                    modifier = Modifier.weight(1.5f).fillMaxHeight(),
+                )
                 CMChambers(
                     state = state,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
@@ -309,6 +316,33 @@ private fun CMMatchPlayingContent(
                 )
             }
         }
+    }
+}
+
+/** HUD, headline and readout on top, answer buttons pinned to the bottom edge. */
+@Composable
+private fun CMControlsPane(
+    state: CMMatchUiState.Playing,
+    onAnswer: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+            CMHud(state)
+            PhaseHeadline(
+                phase = state.phase,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = HuezooSpacing.sm)
+                    .defaultMinSize(minHeight = PhaseHeadlineMinHeight),
+            )
+            CMReadout(state)
+        }
+        AnswerButtons(
+            state = state,
+            onAnswer = onAnswer,
+            modifier = Modifier.fillMaxWidth().padding(top = HuezooSpacing.sm),
+        )
     }
 }
 
