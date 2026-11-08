@@ -72,13 +72,18 @@ import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchNavEvent
 import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchPhase
 import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchUiEvent
 import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchUiState
+import xyz.ksharma.huezoo.ui.theme.GamePageWidth
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.PageColumn
+import xyz.ksharma.huezoo.ui.theme.PaneGap
 import xyz.ksharma.huezoo.ui.theme.ParallelogramCard
-import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
+import xyz.ksharma.huezoo.ui.theme.SupportingPaneWidth
+import xyz.ksharma.huezoo.ui.theme.WindowClass
 import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.rimLight
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
+import xyz.ksharma.huezoo.ui.theme.windowClassFor
 
 private val ChamberGap = 10.dp
 
@@ -154,7 +159,7 @@ fun CMMatchScreen(
             primaryColor = HuezooColors.AccentPurple,
             secondaryColor = HuezooColors.AccentCyan,
         ) {
-            Column(modifier = Modifier.align(Alignment.TopCenter).fillMaxHeight().contentMaxWidth()) {
+            PageColumn(expandedWidth = GamePageWidth) {
                 HuezooTopBar(
                     // Mid-session back → confirm; a session only counts when completed.
                     onBackClick = { showLeaveDialog = true },
@@ -201,17 +206,30 @@ private fun CMMatchPlayingContent(
     // Layout follows window height. Tall windows stack everything with flexing chambers. Short
     // windows (phone held sideways, resized windows) put the chambers beside the HUD and answer
     // buttons instead of squashing them, so the colours and the buttons are both on screen.
+    // Expanded windows (840dp and wider) use the same side-by-side arrangement with a wider pane
+    // gap: HUD at the top and answer buttons at the bottom of the left pane line up with the
+    // top and bottom edges of the chambers.
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val expanded = windowClassFor(maxWidth) == WindowClass.Expanded
         val compactHeight = maxHeight < CompactHeightThreshold
-        if (compactHeight) {
+        if (compactHeight || expanded) {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
                     .navigationBarsPadding()
-                    .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
-                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
+                    .padding(
+                        horizontal = HuezooSpacing.md,
+                        vertical = if (expanded) HuezooSpacing.md else HuezooSpacing.sm,
+                    ),
+                horizontalArrangement = Arrangement.spacedBy(if (expanded) PaneGap else HuezooSpacing.md),
             ) {
-                Column(modifier = Modifier.weight(1.5f).fillMaxHeight()) {
+                Column(
+                    modifier = if (expanded) {
+                        Modifier.width(SupportingPaneWidth).fillMaxHeight()
+                    } else {
+                        Modifier.weight(1.5f).fillMaxHeight()
+                    },
+                ) {
                     Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                         CMHud(state)
                         PhaseHeadline(
