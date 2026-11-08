@@ -58,9 +58,10 @@ Window classes come from the window **width** in dp (`windowClassFor`, read thro
 - `contentMaxWidth()` caps a screen's main column at `MaxContentWidth` (640dp) and fills
   narrower windows. Place it with `Alignment.TopCenter` so it centres on wide windows.
 - `PageColumn` is the page column for game screens: 640dp on Compact and Medium, and on Expanded
-  `ExpandedMaxWidth` (1200dp) or the `expandedWidth` the screen passes. Threshold, Daily and
-  Color Memory pass `GamePageWidth` (976dp = 360dp HUD pane + 24dp gap + 560dp swatch + 16dp
-  insets), so the top bar's edges are the panes' outer edges with no leftover side space.
+  `ExpandedMaxWidth` (1200dp) or the `expandedWidth` the screen passes. Threshold and Daily pass
+  `GamePageWidth` (976dp = 360dp HUD pane + 24dp gap + 560dp swatch + 16dp insets), so the top
+  bar's edges are the panes' outer edges with no leftover side space. Color Memory uses the full
+  1200dp.
 - Dialog cards are capped at 440dp.
 - Panes are inset 16dp on the sides, the same inset as the top bar's buttons, and sit 24dp apart
   (`PaneGap`). Panes in a row start on the same line; the game panes also end on the same line.
@@ -83,19 +84,24 @@ Window classes come from the window **width** in dp (`windowClassFor`, read thro
 - Medium, and Expanded portrait: stacked column, swatches scale to
   `min(width - 48dp, height - header, 520dp)` (never below 300dp), and the group is centred
   vertically.
-- Expanded landscape (width greater than height, room for at least a 300dp swatch): a
-  supporting pane. The left pane (360dp: title, lives, ΔE badge, feedback) and the swatch
-  (up to 560dp, `min(pane width, window height - banner)`) sit in a row exactly as tall as the
-  swatch, so the pane's top and bottom are the swatch's top and bottom. Feedback sits at the
-  pane's bottom edge.
+- Expanded landscape (width greater than height, room for at least a `MinPaneSwatchSize`
+  200dp swatch): a supporting pane. The left pane (360dp) has one left edge. Threshold: title
+  with lives and tries directly under it at the top, the ΔE badge, caption and session best in the
+  middle, feedback at the bottom. Daily: title and date, round chip with its dots, feedback. The
+  swatch (up to 560dp, `min(pane width, window height - banner)`) sits in a row exactly as
+  tall as the swatch, so the pane's top and bottom are the swatch's top and bottom.
+- Phone held sideways (about 914x411dp) is Expanded by width: Threshold and Daily use this
+  layout with a small swatch; Home scrolls its two columns.
 
 ### Color Memory
 
-- Switches on window **height** below 560dp, and on Expanded width: the HUD, headline, readout
-  and answer buttons sit on the left and the chambers on the right (nothing scrolls away during
-  the timed phases). On Expanded the left pane is a fixed 360dp and the chambers share the rest;
-  the HUD is at the pane's top and the answer buttons at its bottom, lining up with the chambers'
-  top and bottom edges.
+- Expanded (and tall enough): a fixed 360dp controls pane (HUD at the top, headline and readout,
+  SAME/DIFFERENT pinned to the bottom) beside the two chambers. Chamber height is capped at 1.4
+  times their width (it shrinks, never stretches), the row is centred vertically, and the
+  controls pane is exactly as tall as the chambers so tops and bottoms coincide.
+- Below 560dp window height, or when the Expanded row would be under 320dp tall (phone held
+  sideways): HUD, headline, readout and buttons on the left, chambers on the right (nothing
+  scrolls away during the timed phases).
 - Otherwise they stack and the chambers flex to fill the space.
 
 ### Other screens
