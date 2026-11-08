@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -81,10 +82,13 @@ import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
 import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
+import xyz.ksharma.huezoo.ui.theme.BannerReserve
 import xyz.ksharma.huezoo.ui.theme.HeartLife
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -149,7 +153,7 @@ fun ThresholdScreen(
             // Canvas is a Spacer internally so it never consumes touch events.
             ThresholdLightLines(modifier = Modifier.fillMaxSize())
 
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.align(Alignment.TopCenter).fillMaxHeight().contentMaxWidth()) {
                 HuezooTopBar(
                     onBackClick = onBack,
                     currencyAmount = (uiState as? ThresholdUiState.Playing)?.totalGems,
@@ -178,7 +182,8 @@ fun ThresholdScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .navigationBarsPadding(),
+                    .navigationBarsPadding()
+                    .safeHorizontalPadding(),
                 contentAlignment = Alignment.Center,
             ) {
                 BannerAd(adUnitId = AdIds.banner)
@@ -243,7 +248,9 @@ private fun PlayingContent(
         modifier = modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .padding(HuezooSpacing.md),
+            .padding(HuezooSpacing.md)
+            // Scroll the swatches clear of the pinned banner on windows too short to fit everything.
+            .padding(bottom = BannerReserve),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(HuezooSpacing.sm))

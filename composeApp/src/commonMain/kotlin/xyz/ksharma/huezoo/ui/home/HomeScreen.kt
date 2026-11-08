@@ -3,6 +3,7 @@ package xyz.ksharma.huezoo.ui.home
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -50,6 +51,8 @@ import xyz.ksharma.huezoo.ui.paywall.PaywallSheet
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -87,6 +90,7 @@ fun HomeScreen(
                 HomeUiState.Loading -> Unit
                 is HomeUiState.Ready -> ReadyContent(
                     state = state,
+                    modifier = Modifier.align(Alignment.TopCenter),
                     onThresholdTap = { onNavigate(ThresholdGame) },
                     onDailyTap = { onNavigate(DailyGame) },
                     onColorMemoryTap = { onNavigate(ColorMemoryGame) },
@@ -107,7 +111,8 @@ fun HomeScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .navigationBarsPadding(),
+                    .navigationBarsPadding()
+                    .safeHorizontalPadding(),
                 contentAlignment = Alignment.Center,
             ) {
                 BannerAd(adUnitId = AdIds.banner)
@@ -194,7 +199,8 @@ private fun ReadyContent(
 
     Column(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxHeight()
+            .contentMaxWidth()
             .verticalScroll(rememberScrollState()),
     ) {
         HuezooTopBar(onSettingsClick = onSettingsTap)

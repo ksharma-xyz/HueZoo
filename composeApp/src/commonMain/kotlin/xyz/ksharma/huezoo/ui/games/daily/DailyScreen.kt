@@ -5,11 +5,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,9 +56,12 @@ import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
+import xyz.ksharma.huezoo.ui.theme.BannerReserve
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -98,7 +104,7 @@ fun DailyScreen(
             primaryColor = HuezooColors.GameDaily,
             secondaryColor = LocalPlayerAccentColor.current,
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.align(Alignment.TopCenter).fillMaxHeight().contentMaxWidth()) {
                 HuezooTopBar(
                     onBackClick = onBack,
                     currencyAmount = null,
@@ -125,7 +131,8 @@ fun DailyScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .navigationBarsPadding(),
+                    .navigationBarsPadding()
+                    .safeHorizontalPadding(),
                 contentAlignment = Alignment.Center,
             ) {
                 BannerAd(adUnitId = AdIds.banner)
@@ -154,7 +161,10 @@ private fun DailyPlayingContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(HuezooSpacing.md),
+            .verticalScroll(rememberScrollState())
+            .padding(HuezooSpacing.md)
+            // Scroll the swatches clear of the pinned banner on windows too short to fit everything.
+            .padding(bottom = BannerReserve),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         SkewedStatChip(

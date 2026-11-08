@@ -3,6 +3,7 @@ package xyz.ksharma.huezoo.ui.licenses
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +25,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooTitleSmall
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
 
 private data class LicenseEntry(
     val name: String,
@@ -100,7 +103,7 @@ fun LicensesScreen(
         primaryColor = HuezooColors.AccentPurple,
         secondaryColor = HuezooColors.AccentCyan,
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.align(Alignment.TopCenter).fillMaxHeight().contentMaxWidth()) {
             HuezooTopBar(onBackClick = onBack)
 
             Column(

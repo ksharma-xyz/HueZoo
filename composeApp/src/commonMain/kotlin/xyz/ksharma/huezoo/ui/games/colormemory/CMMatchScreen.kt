@@ -13,10 +13,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +26,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,11 +73,15 @@ import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchUiState
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.ParallelogramCard
+import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
 import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.rimLight
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val ChamberGap = 10.dp
+
+private val CompactHeightThreshold = 560.dp
+private val CompactChamberHeight = 180.dp
 private val PhaseHeadlineMinHeight = 56.dp
 private const val WRONG_SHAKE_MS = 450
 private const val WRONG_SHAKE_AMPLITUDE = 12f
@@ -145,7 +153,7 @@ fun CMMatchScreen(
             primaryColor = HuezooColors.AccentPurple,
             secondaryColor = HuezooColors.AccentCyan,
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.align(Alignment.TopCenter).fillMaxHeight().contentMaxWidth()) {
                 HuezooTopBar(
                     // Mid-session back → confirm; a session only counts when completed.
                     onBackClick = { showLeaveDialog = true },
@@ -189,10 +197,15 @@ private fun CMMatchPlayingContent(
     onAnswer: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
+    // Layout follows window height: tall windows flex the chambers to fill the space; short windows
+    // (phone held sideways, resized windows) give the chambers a fixed height and scroll instead
+    // of squashing them to nothing.
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val compactHeight = maxHeight < CompactHeightThreshold
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .then(if (compactHeight) Modifier.verticalScroll(rememberScrollState()) else Modifier)
                 .navigationBarsPadding()
                 .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
         ) {
@@ -230,7 +243,7 @@ private fun CMMatchPlayingContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .then(if (compactHeight) Modifier.height(CompactChamberHeight) else Modifier.weight(1f))
                     .padding(vertical = HuezooSpacing.sm),
                 horizontalArrangement = Arrangement.spacedBy(ChamberGap),
             ) {

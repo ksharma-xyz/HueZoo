@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -53,8 +54,10 @@ import xyz.ksharma.huezoo.ui.model.estimatedPerceptionTier
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSize
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
 import xyz.ksharma.huezoo.ui.theme.neonStrike
 import xyz.ksharma.huezoo.ui.theme.organicGlow
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -96,92 +99,99 @@ private fun LeaderboardContent(
 ) {
     val tier = personalBestDeltaE?.let { estimatedPerceptionTier(it) }
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(HuezooColors.Background)
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState()),
+    // Background on the outer box stays full-bleed; the column inside centres at a capped width.
+    Box(
+        modifier = modifier.fillMaxSize().background(HuezooColors.Background),
+        contentAlignment = Alignment.TopCenter,
     ) {
-        // Top bar
-        HuezooTopBar(onBackClick = onBack)
-
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = HuezooSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
+                .fillMaxHeight()
+                .contentMaxWidth()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .safeHorizontalPadding()
+                .verticalScroll(rememberScrollState()),
         ) {
-            Spacer(Modifier.height(HuezooSpacing.sm))
+            // Top bar
+            HuezooTopBar(onBackClick = onBack)
 
-            // Signal offline pulsing indicator
-            SignalOfflineRow()
-
-            // Sonar animation
-            SonarCanvas(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp),
-            )
-
-            // Agent Classification card
-            AgentClassificationCard(
-                personalBestDeltaE = personalBestDeltaE,
-                tier = tier,
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            Spacer(Modifier.height(HuezooSpacing.xs))
-
-            // Activation Protocol section label
-            HuezooLabelSmall(
-                text = "ACTIVATION PROTOCOL",
-                color = HuezooColors.TextDisabled,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
-            )
-
-            // Share text — used inside the ActivationProtocolCard's broadcast button
-            val shareText = if (personalBestDeltaE != null && tier != null) {
-                "I'm classified as ${tier.rankLabel} in color perception on Huezoo — " +
-                    "my ΔE score is ${personalBestDeltaE.fmt()}. Can your eyes beat mine? " +
-                    "Download Huezoo and find out."
-            } else {
-                "I just discovered Huezoo — a game that tests how precisely you can see color. " +
-                    "My eyes are being calibrated. Join me. Download Huezoo."
-            }
-
-            // Activation protocol box (includes BROADCAST SIGNAL button)
-            ActivationProtocolCard(
-                onShare = { onShare(shareText) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            Spacer(Modifier.height(HuezooSpacing.xs))
-
-            // Perception Tiers section label
-            HuezooLabelSmall(
-                text = "PERCEPTION TIERS",
-                color = HuezooColors.TextDisabled,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
-            )
-
-            // Tier rows
-            Column(
-                verticalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
+                    .padding(horizontal = HuezooSpacing.md),
+                verticalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
             ) {
-                PERCEPTION_TIERS.forEach { rankTier ->
-                    TierRow(
-                        rankTier = rankTier,
-                        isCurrentTier = rankTier == tier,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            }
+                Spacer(Modifier.height(HuezooSpacing.sm))
 
-            Spacer(Modifier.height(HuezooSpacing.lg))
+                // Signal offline pulsing indicator
+                SignalOfflineRow()
+
+                // Sonar animation
+                SonarCanvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                )
+
+                // Agent Classification card
+                AgentClassificationCard(
+                    personalBestDeltaE = personalBestDeltaE,
+                    tier = tier,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Spacer(Modifier.height(HuezooSpacing.xs))
+
+                // Activation Protocol section label
+                HuezooLabelSmall(
+                    text = "ACTIVATION PROTOCOL",
+                    color = HuezooColors.TextDisabled,
+                    fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
+                )
+
+                // Share text — used inside the ActivationProtocolCard's broadcast button
+                val shareText = if (personalBestDeltaE != null && tier != null) {
+                    "I'm classified as ${tier.rankLabel} in color perception on Huezoo — " +
+                        "my ΔE score is ${personalBestDeltaE.fmt()}. Can your eyes beat mine? " +
+                        "Download Huezoo and find out."
+                } else {
+                    "I just discovered Huezoo — a game that tests how precisely you can see color. " +
+                        "My eyes are being calibrated. Join me. Download Huezoo."
+                }
+
+                // Activation protocol box (includes BROADCAST SIGNAL button)
+                ActivationProtocolCard(
+                    onShare = { onShare(shareText) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Spacer(Modifier.height(HuezooSpacing.xs))
+
+                // Perception Tiers section label
+                HuezooLabelSmall(
+                    text = "PERCEPTION TIERS",
+                    color = HuezooColors.TextDisabled,
+                    fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
+                )
+
+                // Tier rows
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
+                ) {
+                    PERCEPTION_TIERS.forEach { rankTier ->
+                        TierRow(
+                            rankTier = rankTier,
+                            isCurrentTier = rankTier == tier,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(HuezooSpacing.lg))
+            }
         }
     }
 }
