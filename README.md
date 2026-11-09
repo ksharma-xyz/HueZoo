@@ -83,7 +83,7 @@ Separation of concerns is enforced through **package structure and naming conven
 
 - JDK 21+
 - Android Studio (latest stable) or IntelliJ IDEA
-- Xcode 16+ (for iOS)
+- Xcode 27.1+ (for iOS; needed for iPhone Duo support)
 - Firebase project — drop config files in:
   - `androidApp/src/debug/google-services.json`
   - `androidApp/src/release/google-services.json`

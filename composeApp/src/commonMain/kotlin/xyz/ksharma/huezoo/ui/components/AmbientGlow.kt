@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import xyz.ksharma.huezoo.ui.preview.HuezooPreviewTheme
 import xyz.ksharma.huezoo.ui.preview.PreviewComponent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
 
 private const val GLOW_ALPHA = 0.10f
 private const val GLOW_RADIUS_FRACTION = 0.70f
@@ -87,8 +88,11 @@ fun AmbientGlowBackground(
                     center = Offset(size.width, size.height),
                 )
             },
-        content = content,
-    )
+    ) {
+        // Glows stay full-bleed above; only the content keeps out of the side system areas
+        // (landscape notch, iPhone Duo's right-edge status/camera column).
+        Box(modifier = Modifier.fillMaxSize().safeHorizontalPadding(), content = content)
+    }
 }
 
 // ── Previews ─────────────────────────────────────────────────────────────────

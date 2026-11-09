@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +19,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
@@ -35,6 +37,7 @@ import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.settings.state.SettingsUiEvent
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
 
 @Suppress("CyclomaticComplexMethod")
 @Composable
@@ -53,7 +56,7 @@ fun SettingsScreen(
         primaryColor = HuezooColors.AccentCyan,
         secondaryColor = HuezooColors.AccentPurple,
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.align(Alignment.TopCenter).fillMaxHeight().contentMaxWidth()) {
             HuezooTopBar(onBackClick = onBack)
 
             Column(

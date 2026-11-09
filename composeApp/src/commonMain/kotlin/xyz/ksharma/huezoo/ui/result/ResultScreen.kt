@@ -95,9 +95,11 @@ import xyz.ksharma.huezoo.ui.result.state.ResultUiState
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
 import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.onColor
 import xyz.ksharma.huezoo.ui.theme.rimLight
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 import kotlin.math.PI
 import kotlin.math.cos
@@ -143,7 +145,7 @@ fun ResultScreen(
             primaryColor = glowColor,
             secondaryColor = identityColor,
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.align(Alignment.TopCenter).fillMaxHeight().contentMaxWidth()) {
                 HuezooTopBar(
                     onBackClick = onBack,
                     currencyAmount = null,
@@ -174,7 +176,7 @@ fun ResultScreen(
         // Banner ad — pinned at bottom for free users
         @OptIn(DependsOnGoogleMobileAds::class)
         if (readyState != null && !readyState.isPaid && !DebugFlags.hideAds) {
-            Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+            Box(modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().safeHorizontalPadding()) {
                 BannerAd(adUnitId = AdIds.banner)
             }
         }

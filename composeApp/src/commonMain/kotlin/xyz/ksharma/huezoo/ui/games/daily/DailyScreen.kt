@@ -1,15 +1,25 @@
+@file:Suppress("TooManyFunctions")
+
 package xyz.ksharma.huezoo.ui.games.daily
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,10 +51,12 @@ import xyz.ksharma.huezoo.debug.DebugFlags
 import xyz.ksharma.huezoo.platform.ads.AdIds
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
 import xyz.ksharma.huezoo.ui.components.DailyHelpSheet
+import xyz.ksharma.huezoo.ui.components.DefaultSwatchLayoutSize
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
 import xyz.ksharma.huezoo.ui.components.HuezooTopBar
 import xyz.ksharma.huezoo.ui.components.RadialSwatchLayout
+import xyz.ksharma.huezoo.ui.components.RoundIndicator
 import xyz.ksharma.huezoo.ui.components.SkewedStatChip
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyNavEvent
 import xyz.ksharma.huezoo.ui.games.daily.state.DailyUiEvent
@@ -53,9 +65,18 @@ import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
 import xyz.ksharma.huezoo.ui.model.SwatchLayoutStyle
 import xyz.ksharma.huezoo.ui.model.SwatchUiModel
+import xyz.ksharma.huezoo.ui.theme.BannerReserve
+import xyz.ksharma.huezoo.ui.theme.GamePageWidth
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.MinPaneSwatchSize
+import xyz.ksharma.huezoo.ui.theme.PageColumn
+import xyz.ksharma.huezoo.ui.theme.PaneGap
+import xyz.ksharma.huezoo.ui.theme.SupportingPaneWidth
+import xyz.ksharma.huezoo.ui.theme.WindowClass
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
+import xyz.ksharma.huezoo.ui.theme.windowClassFor
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -98,7 +119,7 @@ fun DailyScreen(
             primaryColor = HuezooColors.GameDaily,
             secondaryColor = LocalPlayerAccentColor.current,
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            PageColumn(expandedWidth = GamePageWidth) {
                 HuezooTopBar(
                     onBackClick = onBack,
                     currencyAmount = null,
@@ -125,7 +146,8 @@ fun DailyScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .navigationBarsPadding(),
+                    .navigationBarsPadding()
+                    .safeHorizontalPadding(),
                 contentAlignment = Alignment.Center,
             ) {
                 BannerAd(adUnitId = AdIds.banner)
@@ -151,32 +173,134 @@ private fun DailyPlayingContent(
         "$monthName ${date.day} · Same for everyone"
     }
 
+    // Same window rules as Threshold: supporting pane on Expanded landscape, stacked with scaled
+    // swatches on Medium and portrait tablets, today's fixed 300 dp swatches on Compact.
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val windowClass = windowClassFor(maxWidth)
+        val paneSwatch = minOf(
+            maxWidth - HuezooSpacing.md * 2 - SupportingPaneWidth - PaneGap,
+            maxHeight - BannerReserve - HuezooSpacing.md * 2,
+            ExpandedSwatchMaxSize,
+        )
+        val supportingPane = windowClass == WindowClass.Expanded &&
+            maxWidth > maxHeight && paneSwatch >= MinPaneSwatchSize
+
+        if (supportingPane) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = HuezooSpacing.md)
+                    .padding(bottom = BannerReserve),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(
+                    modifier = Modifier.height(paneSwatch),
+                    horizontalArrangement = Arrangement.spacedBy(PaneGap),
+                ) {
+                    Column(
+                        modifier = Modifier.width(SupportingPaneWidth).fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        DailyTitle(state, dateSubtitle, TextAlign.Start)
+                        // Round chip with its progress dots, one group.
+                        Column {
+                            SkewedStatChip(
+                                label = "ROUND",
+                                value = "${state.round}/${state.totalRounds}",
+                                accentColor = HuezooColors.GameDaily,
+                            )
+                            Spacer(Modifier.height(HuezooSpacing.sm))
+                            RoundIndicator(
+                                totalRounds = state.totalRounds,
+                                currentRound = state.round,
+                                activeColor = HuezooColors.GameDaily,
+                            )
+                        }
+                        DailyFeedbackSlot(state)
+                    }
+                    Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                        RadialSwatchLayout(
+                            swatches = state.swatches,
+                            roundPhase = state.roundPhase,
+                            roundKey = state.roundGeneration,
+                            layoutStyle = state.layoutStyle,
+                            onSwatchTap = onSwatchTap,
+                            size = paneSwatch,
+                        )
+                    }
+                }
+            }
+        } else {
+            val swatchSize = if (windowClass == WindowClass.Compact) {
+                DefaultSwatchLayoutSize
+            } else {
+                minOf(
+                    maxWidth - SwatchHorizontalMargin,
+                    maxHeight - StackedChromeHeight,
+                    MediumSwatchMaxSize,
+                ).coerceAtLeast(DefaultSwatchLayoutSize)
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    // Wider windows centre the group vertically instead of hugging the top bar.
+                    .heightIn(min = if (windowClass == WindowClass.Compact) 0.dp else maxHeight)
+                    .padding(HuezooSpacing.md)
+                    // Scroll the swatches clear of the pinned banner on windows too short to fit everything.
+                    .padding(bottom = BannerReserve),
+                verticalArrangement = if (windowClass == WindowClass.Compact) Arrangement.Top else Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                SkewedStatChip(
+                    label = "ROUND",
+                    value = "${state.round}/${state.totalRounds}",
+                    accentColor = HuezooColors.GameDaily,
+                )
+
+                Spacer(Modifier.height(HuezooSpacing.xxl))
+                DailyTitle(state, dateSubtitle, TextAlign.Center)
+                Spacer(Modifier.height(HuezooSpacing.lg))
+                DailyFeedbackSlot(state)
+                Spacer(Modifier.height(HuezooSpacing.md))
+
+                // ── Radial swatch layout — same component as Threshold ────────
+                RadialSwatchLayout(
+                    swatches = state.swatches,
+                    roundPhase = state.roundPhase,
+                    roundKey = state.roundGeneration,
+                    layoutStyle = state.layoutStyle,
+                    onSwatchTap = onSwatchTap,
+                    size = swatchSize,
+                )
+            }
+        }
+    }
+}
+
+/** Title and date. Fades out during fold so layout stays stable (same technique as Threshold). */
+@Composable
+private fun DailyTitle(
+    state: DailyUiState.Playing,
+    dateSubtitle: String,
+    textAlign: TextAlign,
+    modifier: Modifier = Modifier,
+) {
+    val titleAlpha by animateFloatAsState(
+        targetValue = if (state.roundPhase == RoundPhase.FoldingOut) 0f else 1f,
+        animationSpec = tween(durationMillis = 150),
+        label = "titleAlpha",
+    )
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(HuezooSpacing.md),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier,
+        horizontalAlignment = if (textAlign == TextAlign.Start) Alignment.Start else Alignment.CenterHorizontally,
     ) {
-        SkewedStatChip(
-            label = "ROUND",
-            value = "${state.round}/${state.totalRounds}",
-            accentColor = HuezooColors.GameDaily,
-        )
-
-        Spacer(Modifier.height(HuezooSpacing.xxl))
-
-        // Title — fades out during fold so layout stays stable (same technique as Threshold)
-        val titleAlpha by animateFloatAsState(
-            targetValue = if (state.roundPhase == RoundPhase.FoldingOut) 0f else 1f,
-            animationSpec = tween(durationMillis = 150),
-            label = "titleAlpha",
-        )
         Text(
             text = "DAILY CHALLENGE",
             style = MaterialTheme.typography.titleLarge,
             color = LocalPlayerAccentColor.current,
             fontWeight = FontWeight.ExtraBold,
-            textAlign = TextAlign.Center,
+            textAlign = textAlign,
             modifier = Modifier.graphicsLayer { alpha = titleAlpha },
         )
         Spacer(Modifier.height(HuezooSpacing.xs))
@@ -184,62 +308,53 @@ private fun DailyPlayingContent(
             text = dateSubtitle,
             style = MaterialTheme.typography.labelMedium,
             color = HuezooColors.TextSecondary,
-            textAlign = TextAlign.Center,
+            textAlign = textAlign,
             modifier = Modifier.graphicsLayer { alpha = titleAlpha },
         )
+    }
+}
 
-        Spacer(Modifier.height(HuezooSpacing.lg))
+/**
+ * Fixed-height feedback slot (same technique as Threshold). Both Text nodes are always in the
+ * tree; visibility via graphicsLayer alpha. The fixed height means nothing below ever shifts.
+ */
+@Composable
+private fun DailyFeedbackSlot(state: DailyUiState.Playing) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(FEEDBACK_SLOT_HEIGHT),
+        contentAlignment = Alignment.Center,
+    ) {
+        // Correct feedback (green)
+        val correctAlpha by animateFloatAsState(
+            targetValue = if (state.roundPhase == RoundPhase.Correct) 1f else 0f,
+            animationSpec = tween(durationMillis = 160),
+            label = "feedbackCorrectAlpha",
+        )
+        Text(
+            text = "↓ ΔE ${state.deltaE.fmt()} — SHARPER",
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+            color = HuezooColors.AccentGreen,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            modifier = Modifier.graphicsLayer { alpha = correctAlpha },
+        )
 
-        // ── Fixed-height feedback slot (same technique as Threshold) ──────────
-        // Both Text nodes are always in the tree; visibility via graphicsLayer alpha.
-        // The fixed height means nothing below ever shifts.
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(FEEDBACK_SLOT_HEIGHT),
-            contentAlignment = Alignment.Center,
-        ) {
-            // Correct feedback (green)
-            val correctAlpha by animateFloatAsState(
-                targetValue = if (state.roundPhase == RoundPhase.Correct) 1f else 0f,
-                animationSpec = tween(durationMillis = 160),
-                label = "feedbackCorrectAlpha",
-            )
-            Text(
-                text = "↓ ΔE ${state.deltaE.fmt()} — SHARPER",
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = HuezooColors.AccentGreen,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                modifier = Modifier.graphicsLayer { alpha = correctAlpha },
-            )
-
-            // Wrong feedback (magenta) — UX.4.3 last-round copy
-            val wrongAlpha by animateFloatAsState(
-                targetValue = if (state.roundPhase == RoundPhase.Wrong) 1f else 0f,
-                animationSpec = tween(durationMillis = 160),
-                label = "feedbackWrongAlpha",
-            )
-            Text(
-                text = if (state.round == state.totalRounds) "Last one — make it count" else "Wrong one!",
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = HuezooColors.AccentMagenta,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.graphicsLayer { alpha = wrongAlpha },
-            )
-        }
-
-        Spacer(Modifier.height(HuezooSpacing.md))
-
-        // ── Radial swatch layout — same component as Threshold ────────────────
-        RadialSwatchLayout(
-            swatches = state.swatches,
-            roundPhase = state.roundPhase,
-            roundKey = state.roundGeneration,
-            layoutStyle = state.layoutStyle,
-            onSwatchTap = onSwatchTap,
+        // Wrong feedback (magenta) — UX.4.3 last-round copy
+        val wrongAlpha by animateFloatAsState(
+            targetValue = if (state.roundPhase == RoundPhase.Wrong) 1f else 0f,
+            animationSpec = tween(durationMillis = 160),
+            label = "feedbackWrongAlpha",
+        )
+        Text(
+            text = if (state.round == state.totalRounds) "Last one — make it count" else "Wrong one!",
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+            color = HuezooColors.AccentMagenta,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.graphicsLayer { alpha = wrongAlpha },
         )
     }
 }
@@ -398,3 +513,8 @@ private fun DailyAlreadyPlayedPreview() {
         )
     }
 }
+
+private val StackedChromeHeight = 300.dp
+private val MediumSwatchMaxSize = 520.dp
+private val ExpandedSwatchMaxSize = 560.dp
+private val SwatchHorizontalMargin = 48.dp

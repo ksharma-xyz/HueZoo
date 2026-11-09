@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,13 +38,17 @@ import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.ParallelogramCard
 import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.rimLight
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val DialogShelfOffset = 7.dp
+private val DialogMaxWidth = 440.dp
 private const val ENTRANCE_SCALE_FROM = 0.82f
 private const val SHADOW_ALPHA = 0.85f
 private val SkewPad = 26.dp
 private val BorderWidth = 2.dp
+
+private val StackButtonsBelow = 300.dp
 
 /**
  * The Huezoo take on an alert dialog — a raised parallelogram card on a neo-brutalist shelf
@@ -85,7 +91,9 @@ fun HuezooAlertDialog(
 
         Box(
             modifier = modifier
+                .safeHorizontalPadding()
                 .padding(horizontal = HuezooSpacing.lg)
+                .widthIn(max = DialogMaxWidth)
                 .graphicsLayer {
                     scaleX = scale.value
                     scaleY = scale.value
@@ -124,27 +132,50 @@ fun HuezooAlertDialog(
                     color = HuezooColors.TextSecondary,
                 )
                 Spacer(Modifier.height(HuezooSpacing.lg))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
-                ) {
-                    if (dismissText != null) {
-                        HuezooButton(
-                            text = dismissText,
-                            onClick = onDismissRequest,
-                            variant = HuezooButtonVariant.Ghost,
-                            modifier = Modifier.weight(1f),
-                        )
+                val onConfirmClick = {
+                    if (dismissOnConfirm) onDismissRequest()
+                    onConfirm()
+                }
+                // Two buttons side by side truncate their labels on narrow windows (iPhone Duo
+                // outer display, split view), so stack them, confirm first, below StackButtonsBelow
+                // (a two-button row at that width cuts labels such as "KEEP PLAYING").
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    if (dismissText != null && maxWidth < StackButtonsBelow) {
+                        Column(verticalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
+                            HuezooButton(
+                                text = confirmText,
+                                onClick = onConfirmClick,
+                                variant = confirmVariant,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            HuezooButton(
+                                text = dismissText,
+                                onClick = onDismissRequest,
+                                variant = HuezooButtonVariant.Ghost,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                        ) {
+                            if (dismissText != null) {
+                                HuezooButton(
+                                    text = dismissText,
+                                    onClick = onDismissRequest,
+                                    variant = HuezooButtonVariant.Ghost,
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                            HuezooButton(
+                                text = confirmText,
+                                onClick = onConfirmClick,
+                                variant = confirmVariant,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
-                    HuezooButton(
-                        text = confirmText,
-                        onClick = {
-                            if (dismissOnConfirm) onDismissRequest()
-                            onConfirm()
-                        },
-                        variant = confirmVariant,
-                        modifier = Modifier.weight(1f),
-                    )
                 }
             }
         }

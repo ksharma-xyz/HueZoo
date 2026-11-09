@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -57,6 +58,7 @@ import xyz.ksharma.huezoo.ui.preview.PreviewScreen
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.ParallelogramBack
+import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
 
 private val HeroSize = 200.dp
@@ -119,7 +121,9 @@ fun UpgradeScreen(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .align(Alignment.TopCenter)
+                .fillMaxHeight()
+                .contentMaxWidth()
                 .navigationBarsPadding(),
         ) {
             HuezooTopBar(onBackClick = onBack, currencyAmount = null)

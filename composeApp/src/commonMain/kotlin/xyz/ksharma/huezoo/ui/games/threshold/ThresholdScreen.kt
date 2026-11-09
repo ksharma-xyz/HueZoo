@@ -22,16 +22,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +59,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -68,6 +74,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import xyz.ksharma.huezoo.debug.DebugFlags
 import xyz.ksharma.huezoo.platform.ads.AdIds
 import xyz.ksharma.huezoo.ui.components.AmbientGlowBackground
+import xyz.ksharma.huezoo.ui.components.DefaultSwatchLayoutSize
 import xyz.ksharma.huezoo.ui.components.DeltaEBadge
 import xyz.ksharma.huezoo.ui.components.HuezooButton
 import xyz.ksharma.huezoo.ui.components.HuezooButtonVariant
@@ -81,10 +88,19 @@ import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiEvent
 import xyz.ksharma.huezoo.ui.games.threshold.state.ThresholdUiState
 import xyz.ksharma.huezoo.ui.model.RoundPhase
 import xyz.ksharma.huezoo.ui.model.SwatchDisplayState
+import xyz.ksharma.huezoo.ui.theme.BannerReserve
+import xyz.ksharma.huezoo.ui.theme.GamePageWidth
 import xyz.ksharma.huezoo.ui.theme.HeartLife
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.MinPaneSwatchSize
+import xyz.ksharma.huezoo.ui.theme.PageColumn
+import xyz.ksharma.huezoo.ui.theme.PaneGap
+import xyz.ksharma.huezoo.ui.theme.SupportingPaneWidth
+import xyz.ksharma.huezoo.ui.theme.WindowClass
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
+import xyz.ksharma.huezoo.ui.theme.windowClassFor
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -149,7 +165,7 @@ fun ThresholdScreen(
             // Canvas is a Spacer internally so it never consumes touch events.
             ThresholdLightLines(modifier = Modifier.fillMaxSize())
 
-            Column(modifier = Modifier.fillMaxSize()) {
+            PageColumn(expandedWidth = GamePageWidth) {
                 HuezooTopBar(
                     onBackClick = onBack,
                     currencyAmount = (uiState as? ThresholdUiState.Playing)?.totalGems,
@@ -178,7 +194,8 @@ fun ThresholdScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .navigationBarsPadding(),
+                    .navigationBarsPadding()
+                    .safeHorizontalPadding(),
                 contentAlignment = Alignment.Center,
             ) {
                 BannerAd(adUnitId = AdIds.banner)
@@ -217,6 +234,11 @@ fun ThresholdScreen(
     }
 }
 
+private val StackedChromeHeight = 340.dp
+private val MediumSwatchMaxSize = 520.dp
+private val ExpandedSwatchMaxSize = 560.dp
+private val SwatchHorizontalMargin = 48.dp
+
 @Suppress("LongMethod")
 @Composable
 private fun PlayingContent(
@@ -239,146 +261,268 @@ private fun PlayingContent(
 
     val accent = LocalPlayerAccentColor.current
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(HuezooSpacing.md),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Spacer(Modifier.height(HuezooSpacing.sm))
+    // Layout follows the window. Expanded landscape: supporting pane (HUD) beside a scaled swatch
+    // layout, both exactly the swatch's height. Medium and portrait tablets: stacked, swatches
+    // scale up. Compact: today's phone layout with the fixed 300 dp swatches.
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val windowClass = windowClassFor(maxWidth)
+        val horizontalPad = HuezooSpacing.md * 2
+        val paneSwatch = minOf(
+            maxWidth - horizontalPad - SupportingPaneWidth - PaneGap,
+            maxHeight - BannerReserve - HuezooSpacing.md * 2,
+            ExpandedSwatchMaxSize,
+        )
+        val supportingPane = windowClass == WindowClass.Expanded &&
+            maxWidth > maxHeight && paneSwatch >= MinPaneSwatchSize
 
-        // ── Header row: title left, lives hearts right ────────────────────────
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            HuezooTitleMedium(
-                text = "IDENTIFY  THE  OUTLIER",
-                color = accent,
-                fontWeight = FontWeight.ExtraBold,
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
-                repeat(state.maxAttempts) { index ->
-                    val isRemaining = index < state.attemptsRemaining
-                    val fillColor by animateColorAsState(
-                        targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
-                        animationSpec = tween(300),
-                        label = "lifeHeart_$index",
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(HEART_SIZE)
-                            .border(
-                                width = 1.5.dp,
-                                color = accent.copy(alpha = 0.4f),
-                                shape = HeartLife,
+        if (supportingPane) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = HuezooSpacing.md)
+                    .padding(bottom = BannerReserve),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(
+                    modifier = Modifier.height(paneSwatch),
+                    horizontalArrangement = Arrangement.spacedBy(PaneGap),
+                ) {
+                    Column(
+                        modifier = Modifier.width(SupportingPaneWidth).fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        // Title and lives, under one left edge.
+                        Column {
+                            HuezooTitleMedium(
+                                text = "IDENTIFY  THE  OUTLIER",
+                                color = accent,
+                                fontWeight = FontWeight.ExtraBold,
                             )
-                            .background(fillColor, HeartLife),
+                            Spacer(Modifier.height(HuezooSpacing.sm))
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                ThresholdLives(state, accent)
+                                HuezooLabelSmall(
+                                    text = "${state.attemptsRemaining}/${state.maxAttempts} TRIES",
+                                    color = HuezooColors.TextSecondary,
+                                )
+                            }
+                        }
+                        // ΔE badge, its caption and the session best, left-aligned.
+                        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                            ThresholdDeltaEHero(state)
+                        }
+                        ThresholdFeedbackSlot(state)
+                    }
+                    ThresholdSwatchArea(
+                        state = state,
+                        size = paneSwatch,
+                        onSwatchTap = onSwatchTap,
+                        burstMilestone = burstMilestone,
+                        showStreakBurst = showStreakBurst,
+                        accent = accent,
+                        modifier = Modifier.fillMaxHeight(),
                     )
                 }
             }
+        } else {
+            val swatchSize = if (windowClass == WindowClass.Compact) {
+                DefaultSwatchLayoutSize
+            } else {
+                minOf(
+                    maxWidth - SwatchHorizontalMargin,
+                    maxHeight - StackedChromeHeight,
+                    MediumSwatchMaxSize,
+                ).coerceAtLeast(DefaultSwatchLayoutSize)
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    // Wider windows centre the group vertically instead of hugging the top bar.
+                    .heightIn(min = if (windowClass == WindowClass.Compact) 0.dp else maxHeight)
+                    .padding(HuezooSpacing.md)
+                    // Scroll the swatches clear of the pinned banner on windows too short to fit everything.
+                    .padding(bottom = BannerReserve),
+                verticalArrangement = if (windowClass == WindowClass.Compact) Arrangement.Top else Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(Modifier.height(HuezooSpacing.sm))
+                ThresholdHeader(state, accent)
+
+                // ── ΔE hero ───────────────────────────────────────────────────
+                Spacer(Modifier.height(HuezooSpacing.xl))
+                ThresholdDeltaEHero(state)
+                Spacer(Modifier.height(HuezooSpacing.md))
+                ThresholdFeedbackSlot(state)
+                Spacer(Modifier.height(HuezooSpacing.md))
+                ThresholdSwatchArea(
+                    state = state,
+                    size = swatchSize,
+                    onSwatchTap = onSwatchTap,
+                    burstMilestone = burstMilestone,
+                    showStreakBurst = showStreakBurst,
+                    accent = accent,
+                )
+                Spacer(Modifier.height(HuezooSpacing.md))
+            }
         }
+    }
+}
 
-        // ── ΔE hero ───────────────────────────────────────────────────────────
-        Spacer(Modifier.height(HuezooSpacing.xl))
-
-        DeltaEBadge(deltaE = state.deltaE)
-
-        // UX.7.4: First-round tooltip — fades out after first correct tap
-        val tooltipAlpha by animateFloatAsState(
-            targetValue = if (state.tap == 1 && state.roundPhase == RoundPhase.Idle) 1f else 0f,
-            animationSpec = tween(500),
-            label = "tooltipAlpha",
+/** Header row: title left, lives hearts right. */
+@Composable
+private fun ThresholdHeader(
+    state: ThresholdUiState.Playing,
+    accent: Color,
+    modifier: Modifier = Modifier,
+) {
+    FlowRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        HuezooTitleMedium(
+            text = "IDENTIFY  THE  OUTLIER",
+            color = accent,
+            fontWeight = FontWeight.ExtraBold,
         )
+        ThresholdLives(state, accent)
+    }
+}
+
+/** Lives hearts. */
+@Composable
+private fun ThresholdLives(state: ThresholdUiState.Playing, accent: Color) {
+    Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs)) {
+        repeat(state.maxAttempts) { index ->
+            val isRemaining = index < state.attemptsRemaining
+            val fillColor by animateColorAsState(
+                targetValue = if (isRemaining) accent else accent.copy(alpha = 0f),
+                animationSpec = tween(300),
+                label = "lifeHeart_$index",
+            )
+            Box(
+                modifier = Modifier
+                    .size(HEART_SIZE)
+                    .border(
+                        width = 1.5.dp,
+                        color = accent.copy(alpha = 0.4f),
+                        shape = HeartLife,
+                    )
+                    .background(fillColor, HeartLife),
+            )
+        }
+    }
+}
+
+/** ΔE badge, first-round tooltip and the session best row. */
+@Composable
+private fun ColumnScope.ThresholdDeltaEHero(state: ThresholdUiState.Playing) {
+    DeltaEBadge(deltaE = state.deltaE)
+
+    // UX.7.4: First-round tooltip — fades out after first correct tap
+    val tooltipAlpha by animateFloatAsState(
+        targetValue = if (state.tap == 1 && state.roundPhase == RoundPhase.Idle) 1f else 0f,
+        animationSpec = tween(500),
+        label = "tooltipAlpha",
+    )
+    HuezooLabelSmall(
+        text = "Lower ΔE = harder to spot",
+        color = HuezooColors.TextSecondary.copy(alpha = 0.55f),
+        modifier = Modifier.graphicsLayer { alpha = tooltipAlpha },
+    )
+
+    Spacer(Modifier.height(HuezooSpacing.sm))
+
+    // SESSION BEST — fades in after first correct tap, stays for the session
+    val bestAlpha by animateFloatAsState(
+        targetValue = if (state.sessionBestDeltaE != null) 1f else 0f,
+        animationSpec = tween(durationMillis = 400),
+        label = "bestDeltaEAlpha",
+    )
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.graphicsLayer { alpha = bestAlpha },
+    ) {
+        HuezooLabelSmall(text = "SESSION BEST", color = HuezooColors.TextSecondary)
         HuezooLabelSmall(
-            text = "Lower ΔE = harder to spot",
-            color = HuezooColors.TextSecondary.copy(alpha = 0.55f),
-            modifier = Modifier.graphicsLayer { alpha = tooltipAlpha },
+            text = state.sessionBestDeltaE?.fmt() ?: "--",
+            color = HuezooColors.AccentGreen,
+        )
+    }
+}
+
+/** Fixed-height feedback slot. */
+@Composable
+private fun ThresholdFeedbackSlot(state: ThresholdUiState.Playing) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(FEEDBACK_SLOT_HEIGHT),
+        contentAlignment = Alignment.Center,
+    ) {
+        val correctAlpha by animateFloatAsState(
+            targetValue = if (state.roundPhase == RoundPhase.Correct) 1f else 0f,
+            animationSpec = tween(durationMillis = 160),
+            label = "feedbackCorrectAlpha",
+        )
+        Text(
+            text = "↓ ΔE ${state.deltaE.fmt()} — SHARPER",
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+            color = HuezooColors.AccentGreen,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            modifier = Modifier.graphicsLayer { alpha = correctAlpha },
         )
 
-        Spacer(Modifier.height(HuezooSpacing.sm))
-
-        // SESSION BEST — fades in after first correct tap, stays for the session
-        val bestAlpha by animateFloatAsState(
-            targetValue = if (state.sessionBestDeltaE != null) 1f else 0f,
-            animationSpec = tween(durationMillis = 400),
-            label = "bestDeltaEAlpha",
+        val wrongAlpha by animateFloatAsState(
+            targetValue = if (state.roundPhase == RoundPhase.Wrong) 1f else 0f,
+            animationSpec = tween(durationMillis = 160),
+            label = "feedbackWrongAlpha",
         )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.xs),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.graphicsLayer { alpha = bestAlpha },
-        ) {
-            HuezooLabelSmall(text = "SESSION BEST", color = HuezooColors.TextSecondary)
-            HuezooLabelSmall(
-                text = state.sessionBestDeltaE?.fmt() ?: "--",
-                color = HuezooColors.AccentGreen,
-            )
-        }
+        Text(
+            text = state.stingCopy.orEmpty(),
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+            color = HuezooColors.AccentMagenta,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.graphicsLayer { alpha = wrongAlpha },
+        )
+    }
+}
 
-        Spacer(Modifier.height(HuezooSpacing.md))
-
-        // ── Fixed-height feedback slot ────────────────────────────────────────
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(FEEDBACK_SLOT_HEIGHT),
-            contentAlignment = Alignment.Center,
-        ) {
-            val correctAlpha by animateFloatAsState(
-                targetValue = if (state.roundPhase == RoundPhase.Correct) 1f else 0f,
-                animationSpec = tween(durationMillis = 160),
-                label = "feedbackCorrectAlpha",
-            )
-            Text(
-                text = "↓ ΔE ${state.deltaE.fmt()} — SHARPER",
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = HuezooColors.AccentGreen,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                modifier = Modifier.graphicsLayer { alpha = correctAlpha },
-            )
-
-            val wrongAlpha by animateFloatAsState(
-                targetValue = if (state.roundPhase == RoundPhase.Wrong) 1f else 0f,
-                animationSpec = tween(durationMillis = 160),
-                label = "feedbackWrongAlpha",
-            )
-            Text(
-                text = state.stingCopy.orEmpty(),
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = HuezooColors.AccentMagenta,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.graphicsLayer { alpha = wrongAlpha },
-            )
-        }
-
-        Spacer(Modifier.height(HuezooSpacing.md))
-
-        // ── UX.12: Swatch layout + streak particle burst ──────────────────────
-        // StreakBurstOverlay is a transparent Canvas — doesn't consume touches.
-        Box(contentAlignment = Alignment.Center) {
-            RadialSwatchLayout(
-                swatches = state.swatches,
-                roundPhase = state.roundPhase,
-                roundKey = state.roundGeneration,
-                layoutStyle = state.layoutStyle,
-                onSwatchTap = onSwatchTap,
-            )
-            // Floating particles rise up and fade — no background, no touch blocking
-            StreakBurstOverlay(
-                milestone = burstMilestone,
-                active = showStreakBurst,
-                accentColor = accent,
-                modifier = Modifier.matchParentSize(),
-            )
-        }
-
-        Spacer(Modifier.height(HuezooSpacing.md))
+/** Swatch layout + streak particle burst. The burst is a transparent Canvas: no touch blocking. */
+@Composable
+private fun ThresholdSwatchArea(
+    state: ThresholdUiState.Playing,
+    size: Dp,
+    onSwatchTap: (Int) -> Unit,
+    burstMilestone: Int,
+    showStreakBurst: Boolean,
+    accent: Color,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        RadialSwatchLayout(
+            swatches = state.swatches,
+            roundPhase = state.roundPhase,
+            roundKey = state.roundGeneration,
+            layoutStyle = state.layoutStyle,
+            onSwatchTap = onSwatchTap,
+            size = size,
+        )
+        // Floating particles rise up and fade — no background, no touch blocking
+        StreakBurstOverlay(
+            milestone = burstMilestone,
+            active = showStreakBurst,
+            accentColor = accent,
+            modifier = Modifier.matchParentSize(),
+        )
     }
 }
 

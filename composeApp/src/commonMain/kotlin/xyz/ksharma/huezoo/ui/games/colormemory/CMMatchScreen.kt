@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package xyz.ksharma.huezoo.ui.games.colormemory
 
 import androidx.compose.animation.AnimatedVisibility
@@ -13,10 +15,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +28,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,12 +74,21 @@ import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchUiEvent
 import xyz.ksharma.huezoo.ui.games.colormemory.state.CMMatchUiState
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
+import xyz.ksharma.huezoo.ui.theme.PageColumn
+import xyz.ksharma.huezoo.ui.theme.PaneGap
 import xyz.ksharma.huezoo.ui.theme.ParallelogramCard
+import xyz.ksharma.huezoo.ui.theme.SupportingPaneWidth
+import xyz.ksharma.huezoo.ui.theme.WindowClass
 import xyz.ksharma.huezoo.ui.theme.darken
 import xyz.ksharma.huezoo.ui.theme.rimLight
 import xyz.ksharma.huezoo.ui.theme.shapedShadow
+import xyz.ksharma.huezoo.ui.theme.windowClassFor
 
 private val ChamberGap = 10.dp
+
+private val CompactHeightThreshold = 560.dp
+private const val CHAMBER_MAX_ASPECT = 1.4f
+private val MinPaneHeight = 320.dp
 private val PhaseHeadlineMinHeight = 56.dp
 private const val WRONG_SHAKE_MS = 450
 private const val WRONG_SHAKE_AMPLITUDE = 12f
@@ -145,7 +160,7 @@ fun CMMatchScreen(
             primaryColor = HuezooColors.AccentPurple,
             secondaryColor = HuezooColors.AccentCyan,
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            PageColumn {
                 HuezooTopBar(
                     // Mid-session back → confirm; a session only counts when completed.
                     onBackClick = { showLeaveDialog = true },
@@ -189,108 +204,99 @@ private fun CMMatchPlayingContent(
     onAnswer: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .navigationBarsPadding()
-                .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
-        ) {
-            // ── HUD: round + score chips, round dots ──────────────────────────
-            Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
-                SkewedStatChip(
-                    label = "ROUND",
-                    value = "${state.round}/${state.totalRounds}",
-                    accentColor = HuezooColors.AccentCyan,
-                )
-                SkewedStatChip(
-                    label = "SCORE",
-                    value = "${state.score}",
-                    accentColor = HuezooColors.AccentYellow,
-                )
-            }
-            Spacer(Modifier.height(HuezooSpacing.sm))
-            RoundIndicator(
-                totalRounds = state.totalRounds,
-                currentRound = state.round,
-                activeColor = HuezooColors.AccentPurple,
-                results = state.roundResults.map { it == CMMRoundResult.Correct },
-            )
-
-            // ── Phase headline (short) — fixed min-height so nothing shifts ────
-            PhaseHeadline(
-                phase = state.phase,
+    // Layout follows window height. Tall windows stack everything with flexing chambers. Short
+    // windows (phone held sideways, resized windows) put the chambers beside the HUD and answer
+    // buttons instead of squashing them, so the colours and the buttons are both on screen.
+    // Expanded windows (840dp and wider) use a fixed-width controls pane beside chambers that
+    // are capped at 1.4:1 (height:width), centred vertically. The pane is exactly as tall as the
+    // chambers. If that does not fit (phone held sideways), the short-height layout is used.
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val expanded = windowClassFor(maxWidth) == WindowClass.Expanded
+        val compactHeight = maxHeight < CompactHeightThreshold
+        // Expanded: the chambers keep a height of at most 1.4 x their width (shrink, never
+        // stretch) and the controls pane is exactly as tall, so tops and bottoms coincide.
+        val chamberWidth = (maxWidth - HuezooSpacing.md * 2 - PaneGap - SupportingPaneWidth - ChamberGap) / 2
+        val paneHeight = minOf(maxHeight - HuezooSpacing.md * 2, chamberWidth * CHAMBER_MAX_ASPECT)
+        val sideBySide = expanded && paneHeight >= MinPaneHeight
+        if (sideBySide) {
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = HuezooSpacing.md)
-                    .defaultMinSize(minHeight = PhaseHeadlineMinHeight),
-            )
-
-            // ── Twin chambers — flex to fill remaining space (no scroll) ──────
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .padding(HuezooSpacing.md),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(paneHeight),
+                    horizontalArrangement = Arrangement.spacedBy(PaneGap),
+                ) {
+                    CMControlsPane(
+                        state = state,
+                        onAnswer = onAnswer,
+                        modifier = Modifier.width(SupportingPaneWidth).fillMaxHeight(),
+                    )
+                    CMChambers(
+                        state = state,
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                    )
+                }
+            }
+        } else if (compactHeight) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(vertical = HuezooSpacing.sm),
-                horizontalArrangement = Arrangement.spacedBy(ChamberGap),
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
             ) {
-                MemoryChamber(
-                    label = "A",
-                    state = when (state.phase) {
-                        CMMatchPhase.Memory -> MemoryChamberState.Live
-                        CMMatchPhase.Hold, CMMatchPhase.Recall -> MemoryChamberState.Sealed
-                        CMMatchPhase.Feedback -> MemoryChamberState.Revealed
-                    },
-                    color = state.colorA,
-                    accent = HuezooColors.AccentCyan,
-                    entranceKey = state.roundGeneration,
-                    showUnsealedPill = true,
-                    modifier = Modifier.weight(1f).fillMaxSize(),
+                CMControlsPane(
+                    state = state,
+                    onAnswer = onAnswer,
+                    modifier = Modifier.weight(1.5f).fillMaxHeight(),
                 )
-                MemoryChamber(
-                    label = "B",
-                    state = when (state.phase) {
-                        CMMatchPhase.Memory, CMMatchPhase.Hold -> MemoryChamberState.Waiting
-                        CMMatchPhase.Recall -> MemoryChamberState.Live
-                        CMMatchPhase.Feedback -> MemoryChamberState.Revealed
-                    },
-                    color = state.colorB,
-                    accent = HuezooColors.AccentMagenta,
-                    entranceKey = state.roundGeneration,
-                    modifier = Modifier.weight(1f).fillMaxSize(),
+                CMChambers(
+                    state = state,
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
                 )
             }
-
-            // ── ΔE readout (compact, single line) ─────────────────────────────
-            Row(verticalAlignment = Alignment.Bottom) {
-                HuezooLabelSmall(
-                    text = "THIS ROUND",
-                    color = HuezooColors.TextSecondary,
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.padding(bottom = 3.dp),
-                )
-                Spacer(Modifier.width(HuezooSpacing.sm))
-                HuezooDisplaySmall(
-                    text = "ΔE ${state.roundDeltaE.fmt()}",
-                    color = deltaEColor(state.roundDeltaE),
-                )
-                Spacer(Modifier.width(HuezooSpacing.sm))
-                HuezooLabelSmall(
-                    text = deltaETierLabel(state.roundDeltaE),
-                    color = deltaEColor(state.roundDeltaE).copy(alpha = 0.8f),
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.padding(bottom = 3.dp),
-                )
-            }
-
-            // ── SAME / DIFFERENT — always visible, pinned above nav bar ────────
-            AnswerButtons(
-                state = state,
-                onAnswer = onAnswer,
+        } else {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = HuezooSpacing.sm),
-            )
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .padding(horizontal = HuezooSpacing.md, vertical = HuezooSpacing.sm),
+            ) {
+                CMHud(state)
+
+                // ── Phase headline (short) — fixed min-height so nothing shifts ────
+                PhaseHeadline(
+                    phase = state.phase,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = HuezooSpacing.md)
+                        .defaultMinSize(minHeight = PhaseHeadlineMinHeight),
+                )
+
+                // ── Twin chambers — flex to fill remaining space (no scroll) ──────
+                CMChambers(
+                    state = state,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(vertical = HuezooSpacing.sm),
+                )
+
+                CMReadout(state)
+
+                // ── SAME / DIFFERENT — always visible, pinned above nav bar ────────
+                AnswerButtons(
+                    state = state,
+                    onAnswer = onAnswer,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = HuezooSpacing.sm),
+                )
+            }
         }
 
         // ── Feedback reveal card — cool overlay, auto-dismisses on advance ────
@@ -310,6 +316,122 @@ private fun CMMatchPlayingContent(
                 )
             }
         }
+    }
+}
+
+/** HUD, headline and readout on top, answer buttons pinned to the bottom edge. */
+@Composable
+private fun CMControlsPane(
+    state: CMMatchUiState.Playing,
+    onAnswer: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+            CMHud(state)
+            PhaseHeadline(
+                phase = state.phase,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = HuezooSpacing.sm)
+                    .defaultMinSize(minHeight = PhaseHeadlineMinHeight),
+            )
+            CMReadout(state)
+        }
+        AnswerButtons(
+            state = state,
+            onAnswer = onAnswer,
+            modifier = Modifier.fillMaxWidth().padding(top = HuezooSpacing.sm),
+        )
+    }
+}
+
+// ── HUD: round + score chips, round dots ─────────────────────────────────────
+
+@Composable
+private fun CMHud(state: CMMatchUiState.Playing) {
+    Column {
+        Row(horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.sm)) {
+            SkewedStatChip(
+                label = "ROUND",
+                value = "${state.round}/${state.totalRounds}",
+                accentColor = HuezooColors.AccentCyan,
+            )
+            SkewedStatChip(
+                label = "SCORE",
+                value = "${state.score}",
+                accentColor = HuezooColors.AccentYellow,
+            )
+        }
+        Spacer(Modifier.height(HuezooSpacing.sm))
+        RoundIndicator(
+            totalRounds = state.totalRounds,
+            currentRound = state.round,
+            activeColor = HuezooColors.AccentPurple,
+            results = state.roundResults.map { it == CMMRoundResult.Correct },
+        )
+    }
+}
+
+// ── Twin chambers ─────────────────────────────────────────────────────────────
+
+@Composable
+private fun CMChambers(state: CMMatchUiState.Playing, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(ChamberGap),
+    ) {
+        MemoryChamber(
+            label = "A",
+            state = when (state.phase) {
+                CMMatchPhase.Memory -> MemoryChamberState.Live
+                CMMatchPhase.Hold, CMMatchPhase.Recall -> MemoryChamberState.Sealed
+                CMMatchPhase.Feedback -> MemoryChamberState.Revealed
+            },
+            color = state.colorA,
+            accent = HuezooColors.AccentCyan,
+            entranceKey = state.roundGeneration,
+            showUnsealedPill = true,
+            modifier = Modifier.weight(1f).fillMaxSize(),
+        )
+        MemoryChamber(
+            label = "B",
+            state = when (state.phase) {
+                CMMatchPhase.Memory, CMMatchPhase.Hold -> MemoryChamberState.Waiting
+                CMMatchPhase.Recall -> MemoryChamberState.Live
+                CMMatchPhase.Feedback -> MemoryChamberState.Revealed
+            },
+            color = state.colorB,
+            accent = HuezooColors.AccentMagenta,
+            entranceKey = state.roundGeneration,
+            modifier = Modifier.weight(1f).fillMaxSize(),
+        )
+    }
+}
+
+// ── ΔE readout (compact, single line) ─────────────────────────────────────────
+
+@Composable
+private fun CMReadout(state: CMMatchUiState.Playing) {
+    Row(verticalAlignment = Alignment.Bottom) {
+        HuezooLabelSmall(
+            text = "THIS ROUND",
+            color = HuezooColors.TextSecondary,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(bottom = 3.dp),
+        )
+        Spacer(Modifier.width(HuezooSpacing.sm))
+        HuezooDisplaySmall(
+            text = "ΔE ${state.roundDeltaE.fmt()}",
+            color = deltaEColor(state.roundDeltaE),
+        )
+        Spacer(Modifier.width(HuezooSpacing.sm))
+        HuezooLabelSmall(
+            text = deltaETierLabel(state.roundDeltaE),
+            color = deltaEColor(state.roundDeltaE).copy(alpha = 0.8f),
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(bottom = 3.dp),
+        )
     }
 }
 

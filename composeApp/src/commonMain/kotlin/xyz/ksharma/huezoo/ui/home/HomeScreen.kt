@@ -1,13 +1,20 @@
 package xyz.ksharma.huezoo.ui.home
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,9 +55,17 @@ import xyz.ksharma.huezoo.ui.home.state.HomeUiState
 import xyz.ksharma.huezoo.ui.home.state.ThresholdCardData
 import xyz.ksharma.huezoo.ui.model.PlayerLevel
 import xyz.ksharma.huezoo.ui.paywall.PaywallSheet
+import xyz.ksharma.huezoo.ui.theme.BannerReserve
+import xyz.ksharma.huezoo.ui.theme.ExpandedMaxWidth
 import xyz.ksharma.huezoo.ui.theme.HuezooColors
 import xyz.ksharma.huezoo.ui.theme.HuezooSpacing
 import xyz.ksharma.huezoo.ui.theme.LocalPlayerAccentColor
+import xyz.ksharma.huezoo.ui.theme.PaneGap
+import xyz.ksharma.huezoo.ui.theme.WindowClass
+import xyz.ksharma.huezoo.ui.theme.contentMaxWidth
+import xyz.ksharma.huezoo.ui.theme.expandedMaxWidth
+import xyz.ksharma.huezoo.ui.theme.safeHorizontalPadding
+import xyz.ksharma.huezoo.ui.theme.windowClassFor
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -87,6 +103,7 @@ fun HomeScreen(
                 HomeUiState.Loading -> Unit
                 is HomeUiState.Ready -> ReadyContent(
                     state = state,
+                    modifier = Modifier.align(Alignment.TopCenter),
                     onThresholdTap = { onNavigate(ThresholdGame) },
                     onDailyTap = { onNavigate(DailyGame) },
                     onColorMemoryTap = { onNavigate(ColorMemoryGame) },
@@ -107,7 +124,8 @@ fun HomeScreen(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .navigationBarsPadding(),
+                    .navigationBarsPadding()
+                    .safeHorizontalPadding(),
                 contentAlignment = Alignment.Center,
             ) {
                 BannerAd(adUnitId = AdIds.banner)
@@ -192,125 +210,246 @@ private fun ReadyContent(
         }
     }
 
+    // ── Cards shared by the phone column and the two-pane dashboard ───────────
+    val greeting = @Composable {
+        HuezooLabelSmall(
+            text = displayedWelcome,
+            color = HuezooColors.TextSecondary,
+            fontWeight = FontWeight.SemiBold,
+        )
+        AnimatedCallsign(
+            text = if (state.userName != null) state.userName.uppercase() else "AGENT",
+            color = LocalPlayerAccentColor.current,
+            animate = !alreadyPlayed,
+            startDelay = CALLSIGN_DELAY_MS,
+            onClick = onSettingsTap,
+        )
+    }
+    val stats = @Composable {
+        StaggeredCard(index = 0) {
+            StatsSection(
+                totalGems = state.totalGems,
+                streak = state.streak,
+                isStreakCelebrating = isStreakCelebrating,
+                onGemsClick = { showLevelsSheet = true },
+            )
+        }
+    }
+    val bestDeltaE = @Composable {
+        StaggeredCard(index = 1) {
+            PlayerDeltaECard(
+                bestDeltaE = state.threshold.personalBestDeltaE,
+                onClick = { showDeltaESheet = true },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+    val levelProgress = @Composable {
+        StaggeredCard(index = 2) {
+            LevelProgressBar(
+                fraction = levelProgressFraction(state.playerLevel, state.totalGems),
+                currentLevel = state.playerLevel,
+                totalGems = state.totalGems,
+                accentColor = state.playerLevel.levelColor,
+                onClick = { showLevelsSheet = true },
+                alreadyPlayed = alreadyPlayed,
+                modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
+            )
+        }
+    }
+    val thresholdHero = @Composable {
+        StaggeredCard(index = 3) {
+            ThresholdHeroCard(
+                data = state.threshold,
+                isPaid = state.isPaid,
+                onEnterGame = onThresholdTap,
+                onWatchAd = { showPaywallSheet = true },
+            )
+        }
+    }
+    val upgradeCta = @Composable {
+        if (state.threshold.isBlocked && !state.isPaid) {
+            Spacer(Modifier.height(HuezooSpacing.md))
+            UpgradeCta(onClick = onUpgradeTap)
+            Spacer(Modifier.height(HuezooSpacing.xs))
+        }
+    }
+    val dailyCard = @Composable { cardModifier: Modifier ->
+        StaggeredCard(index = 4, modifier = cardModifier) {
+            DailyCompactCard(
+                data = state.daily,
+                challengeName = challengeName,
+                streak = state.streak,
+                onClick = onDailyTap,
+                modifier = cardModifier.fillMaxWidth(),
+            )
+        }
+    }
+    val colorMemoryCard = @Composable { cardModifier: Modifier ->
+        StaggeredCard(index = 5, modifier = cardModifier) {
+            ColorMemoryCompactCard(
+                data = state.colorMemory,
+                onClick = onColorMemoryTap,
+                modifier = cardModifier.fillMaxWidth(),
+            )
+        }
+    }
+    val leaderboardCard = @Composable {
+        StaggeredCard(index = 6) {
+            LeaderboardCompactCard(
+                personalBestDeltaE = state.threshold.personalBestDeltaE,
+                onClick = {
+                    if (state.isPaid) onLeaderboardTap() else onUpgradeTap()
+                },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+    // Extra 56 dp when free-tier banner is visible so cards scroll clear of the overlay.
+    val bannerReserve = if (state.isPaid) 0.dp else BannerReserve
+
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        if (windowClassFor(maxWidth) == WindowClass.Expanded) {
+            ExpandedDashboard(
+                maxWidth = maxWidth,
+                onSettingsTap = onSettingsTap,
+                bannerReserve = bannerReserve,
+                greeting = greeting,
+                stats = stats,
+                bestDeltaE = bestDeltaE,
+                levelProgress = levelProgress,
+                thresholdHero = thresholdHero,
+                upgradeCta = upgradeCta,
+                dailyCard = dailyCard,
+                colorMemoryCard = colorMemoryCard,
+                leaderboardCard = leaderboardCard,
+            )
+        } else {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxHeight()
+                    .contentMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                HuezooTopBar(onSettingsClick = onSettingsTap)
+
+                Column(modifier = Modifier.padding(horizontal = HuezooSpacing.md)) {
+                    Spacer(Modifier.height(HuezooSpacing.md))
+                    greeting()
+                    Spacer(Modifier.height(HuezooSpacing.md))
+                    stats()
+                    Spacer(Modifier.height(HuezooSpacing.lg))
+                    bestDeltaE()
+                    Spacer(Modifier.height(HuezooSpacing.lg))
+                    levelProgress()
+                    Spacer(Modifier.height(HuezooSpacing.sm))
+                    thresholdHero()
+                    upgradeCta()
+                    Spacer(Modifier.height(HuezooSpacing.lg))
+                    dailyCard(Modifier)
+                    Spacer(Modifier.height(HuezooSpacing.md))
+                    colorMemoryCard(Modifier)
+                    Spacer(Modifier.height(HuezooSpacing.md))
+                    leaderboardCard()
+                    Spacer(Modifier.height(HuezooSpacing.lg))
+                    DeltaEInfoCard()
+                    Spacer(Modifier.height(HuezooSpacing.xxl + bannerReserve).navigationBarsPadding())
+                }
+            }
+        }
+    }
+}
+
+private val TwoUpMinWidth = 600.dp
+private val YouPaneMinWidth = 320.dp
+private val YouPaneMaxWidth = 440.dp
+
+/**
+ * Expanded windows (840dp and wider): a two-column dashboard inside [ExpandedMaxWidth].
+ * The top bar spans the page; below it the "You" pane (status and progress) and the "Play" pane
+ * (games) start on the same line. Panes use the same 16dp side inset as the top bar's buttons so
+ * their outer edges line up with them. The whole page scrolls when the window is short.
+ */
+@Suppress("ContentSlotReused")
+@Composable
+private fun BoxScope.ExpandedDashboard(
+    maxWidth: Dp,
+    onSettingsTap: () -> Unit,
+    bannerReserve: Dp,
+    greeting: @Composable () -> Unit,
+    stats: @Composable () -> Unit,
+    bestDeltaE: @Composable () -> Unit,
+    levelProgress: @Composable () -> Unit,
+    thresholdHero: @Composable () -> Unit,
+    upgradeCta: @Composable () -> Unit,
+    dailyCard: @Composable (Modifier) -> Unit,
+    colorMemoryCard: @Composable (Modifier) -> Unit,
+    leaderboardCard: @Composable () -> Unit,
+) {
+    val pageWidth = minOf(maxWidth, ExpandedMaxWidth)
+    val paneSpace = pageWidth - HuezooSpacing.md * 2 - PaneGap
+    val youWidth = (paneSpace * YOU_PANE_SHARE).coerceIn(YouPaneMinWidth, YouPaneMaxWidth)
+
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .fillMaxHeight()
+            .expandedMaxWidth()
             .verticalScroll(rememberScrollState()),
     ) {
         HuezooTopBar(onSettingsClick = onSettingsTap)
 
-        Column(modifier = Modifier.padding(horizontal = HuezooSpacing.md)) {
-            Spacer(Modifier.height(HuezooSpacing.md))
-
-            HuezooLabelSmall(
-                text = displayedWelcome,
-                color = HuezooColors.TextSecondary,
-                fontWeight = FontWeight.SemiBold,
-            )
-            AnimatedCallsign(
-                text = if (state.userName != null) state.userName.uppercase() else "AGENT",
-                color = LocalPlayerAccentColor.current,
-                animate = !alreadyPlayed,
-                startDelay = CALLSIGN_DELAY_MS,
-                onClick = onSettingsTap,
-            )
-
-            Spacer(Modifier.height(HuezooSpacing.md))
-
-            StaggeredCard(index = 0) {
-                StatsSection(
-                    totalGems = state.totalGems,
-                    streak = state.streak,
-                    isStreakCelebrating = isStreakCelebrating,
-                    onGemsClick = { showLevelsSheet = true },
-                )
-            }
-
-            Spacer(Modifier.height(HuezooSpacing.lg))
-
-            StaggeredCard(index = 1) {
-                PlayerDeltaECard(
-                    bestDeltaE = state.threshold.personalBestDeltaE,
-                    onClick = { showDeltaESheet = true },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            Spacer(Modifier.height(HuezooSpacing.lg))
-
-            StaggeredCard(index = 2) {
-                LevelProgressBar(
-                    fraction = levelProgressFraction(state.playerLevel, state.totalGems),
-                    currentLevel = state.playerLevel,
-                    totalGems = state.totalGems,
-                    accentColor = state.playerLevel.levelColor,
-                    onClick = { showLevelsSheet = true },
-                    alreadyPlayed = alreadyPlayed,
-                    modifier = Modifier.padding(horizontal = HuezooSpacing.xs),
-                )
-            }
-
-            Spacer(Modifier.height(HuezooSpacing.sm))
-
-            StaggeredCard(index = 3) {
-                ThresholdHeroCard(
-                    data = state.threshold,
-                    isPaid = state.isPaid,
-                    onEnterGame = onThresholdTap,
-                    onWatchAd = { showPaywallSheet = true },
-                )
-            }
-
-            if (state.threshold.isBlocked && !state.isPaid) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = HuezooSpacing.md)
+                .padding(top = HuezooSpacing.md),
+            horizontalArrangement = Arrangement.spacedBy(PaneGap),
+        ) {
+            // ── "You" pane ────────────────────────────────────────────────────
+            Column(modifier = Modifier.width(youWidth)) {
+                greeting()
                 Spacer(Modifier.height(HuezooSpacing.md))
-                UpgradeCta(onClick = onUpgradeTap)
-                Spacer(Modifier.height(HuezooSpacing.xs))
+                stats()
+                Spacer(Modifier.height(HuezooSpacing.md))
+                bestDeltaE()
+                Spacer(Modifier.height(HuezooSpacing.md))
+                levelProgress()
+                Spacer(Modifier.height(HuezooSpacing.md))
+                leaderboardCard()
             }
 
-            Spacer(Modifier.height(HuezooSpacing.lg))
-
-            StaggeredCard(index = 4) {
-                DailyCompactCard(
-                    data = state.daily,
-                    challengeName = challengeName,
-                    streak = state.streak,
-                    onClick = onDailyTap,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+            // ── "Play" pane ───────────────────────────────────────────────────
+            Column(modifier = Modifier.weight(1f)) {
+                thresholdHero()
+                upgradeCta()
+                Spacer(Modifier.height(HuezooSpacing.md))
+                if (paneSpace - youWidth >= TwoUpMinWidth) {
+                    // Wide enough for two cards side by side with equal heights.
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.spacedBy(HuezooSpacing.md),
+                    ) {
+                        dailyCard(Modifier.weight(1f).fillMaxHeight())
+                        colorMemoryCard(Modifier.weight(1f).fillMaxHeight())
+                    }
+                } else {
+                    // Narrower play pane (about 950dp windows): stack them so text is not cut.
+                    dailyCard(Modifier)
+                    Spacer(Modifier.height(HuezooSpacing.md))
+                    colorMemoryCard(Modifier)
+                }
+                Spacer(Modifier.height(HuezooSpacing.md))
+                DeltaEInfoCard()
             }
-
-            Spacer(Modifier.height(HuezooSpacing.md))
-
-            StaggeredCard(index = 5) {
-                ColorMemoryCompactCard(
-                    data = state.colorMemory,
-                    onClick = onColorMemoryTap,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            Spacer(Modifier.height(HuezooSpacing.md))
-
-            StaggeredCard(index = 6) {
-                LeaderboardCompactCard(
-                    personalBestDeltaE = state.threshold.personalBestDeltaE,
-                    onClick = {
-                        if (state.isPaid) onLeaderboardTap() else onUpgradeTap()
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-
-            Spacer(Modifier.height(HuezooSpacing.lg))
-
-            DeltaEInfoCard()
-
-            // Extra 56 dp when free-tier banner is visible so cards scroll clear of the overlay.
-            val bannerReserve = if (state.isPaid) 0.dp else 56.dp
-            Spacer(Modifier.height(HuezooSpacing.xxl + bannerReserve).navigationBarsPadding())
         }
+
+        Spacer(Modifier.height(HuezooSpacing.xxl + bannerReserve).navigationBarsPadding())
     }
 }
+
+private const val YOU_PANE_SHARE = 5f / 12f
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

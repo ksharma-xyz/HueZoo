@@ -114,6 +114,22 @@ private data class RadialConfig(
 
 private val SHARED_CONTAINER = 300.dp
 
+/** Default side length of the swatch layout: the phone size. */
+val DefaultSwatchLayoutSize = SHARED_CONTAINER
+
+/** Scales every dimension of the geometry by [factor], keeping all proportions. */
+private fun RadialConfig.scaled(factor: Float): RadialConfig =
+    if (factor == 1f) {
+        this
+    } else {
+        copy(
+            tileWidth = tileWidth * factor,
+            tileHeight = tileHeight * factor,
+            containerSize = containerSize * factor,
+            centerGap = centerGap * factor,
+        )
+    }
+
 /**
  * Returns the layout geometry for [style] at the given [size].
  *
@@ -293,6 +309,8 @@ private const val DEBUG_LABEL_ALPHA = 0.6f
  * @param roundKey        Changes every time a new round starts.  Triggers the reset + unfold.
  * @param layoutStyle     Which of the built-in shapes and geometries to use.
  * @param onSwatchTap     Called with the 0-based index of the tapped tile.
+ * @param size            Side length of the square layout. Every dimension scales from the 300 dp
+ *                        design size, so tiles and tap targets grow with it.
  */
 @Composable
 fun RadialSwatchLayout(
@@ -302,8 +320,11 @@ fun RadialSwatchLayout(
     layoutStyle: SwatchLayoutStyle,
     onSwatchTap: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    size: Dp = DefaultSwatchLayoutSize,
 ) {
-    val config = remember(layoutStyle) { configFor(layoutStyle, ACTIVE_SWATCH_SIZE) }
+    val config = remember(layoutStyle, size) {
+        configFor(layoutStyle, ACTIVE_SWATCH_SIZE).scaled(size / SHARED_CONTAINER)
+    }
     val shape = remember(layoutStyle) { shapeFor(layoutStyle) }
 
     // One Animatable (0 → 1) per tile, shared across layout-style changes.
@@ -351,7 +372,10 @@ fun RadialSwatchLayout(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (showDebugLabel) {
+        // Scaled layouts overlay the label instead so it never changes the layout's height
+        // (panes next to it rely on that for aligned edges).
+        val inlineLabel = size == DefaultSwatchLayoutSize
+        if (showDebugLabel && inlineLabel) {
             Text(
                 text = layoutStyle.name,
                 style = MaterialTheme.typography.labelSmall,
@@ -361,6 +385,15 @@ fun RadialSwatchLayout(
             )
         }
         Box(modifier = Modifier.size(config.containerSize)) {
+            if (showDebugLabel && !inlineLabel) {
+                Text(
+                    text = layoutStyle.name,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = HuezooColors.TextSecondary.copy(alpha = DEBUG_LABEL_ALPHA),
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                )
+            }
             swatches.take(TILE_COUNT).forEachIndexed { idx, swatch ->
                 val angleDeg = idx * (360f / TILE_COUNT)
                 RadialTile(
