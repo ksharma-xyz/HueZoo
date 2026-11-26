@@ -1,0 +1,10 @@
+# Home -> Daily Challenge, round 1, before any tap. Used for 05-daily.png.
+appId: xyz.ksharma.huezoo
+---
+- scrollUntilVisible:
+    element: "DAILY CHALLENGE"
+- tapOn: "DAILY CHALLENGE"
+- extendedWaitUntil:
+    visible: ".*Same for everyone.*"
+    timeout: 15000
+- waitForAnimationToEnd

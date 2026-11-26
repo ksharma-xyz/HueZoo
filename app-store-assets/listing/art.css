@@ -1,0 +1,30 @@
+/* Huezoo type and frame, from HuezooTheme: Bebas Neue wordmark, Clash Display
+   headings, Space Grotesk body. --u is 1% of the panel's short side. */
+/* The top bar's wordmark: Bebas Neue, italic, tight. */
+.seal { flex: 0 0 auto; margin-bottom: calc(var(--u) * 2.6); }
+.seal b {
+  display: block; font-family: "Bebas"; font-weight: 400; font-style: italic;
+  font-size: calc(var(--u) * 8.6); line-height: 1; letter-spacing: -.01em; color: var(--seal);
+  text-shadow: 0 0 .5em rgba(var(--shadow), .55);
+}
+.copy h1 {
+  font-family: "Clash"; font-weight: 700; line-height: 1.06; text-transform: uppercase;
+  letter-spacing: -.004em; word-spacing: .08em; color: var(--ink);
+}
+.copy h1 .l2 { color: var(--accent); }
+.copy p {
+  margin-top: calc(var(--u) * 2.9); font-family: "Grotesk"; font-weight: 500;
+  font-size: calc(var(--u) * 3.9); line-height: 1.3; letter-spacing: .006em; color: var(--sub);
+}
+.device {
+  background: linear-gradient(145deg, #9A9CB0 0%, #34354A 17%, #14141F 50%, #34354A 83%, #84869C 100%);
+  box-shadow: 0 0 calc(var(--u) * 9) rgba(var(--shadow), .26),
+              0 calc(var(--u) * 2.6) calc(var(--u) * 4.5) rgba(0, 0, 0, .50),
+              0 calc(var(--u) * 7.5) calc(var(--u) * 13) rgba(0, 0, 0, .56);
+}
+.squat .seal { margin-bottom: calc(var(--u) * 1.4); }
+.squat .seal b { font-size: calc(var(--u) * 6); }
+.squat .copy p { margin-top: calc(var(--u) * 1.7); font-size: calc(var(--u) * 3.1); }
+.landscape .seal { margin-bottom: calc(var(--u) * 3.4); }
+.landscape .seal b { font-size: calc(var(--u) * 9); }
+.landscape .copy p { font-size: calc(var(--u) * 3.9); }

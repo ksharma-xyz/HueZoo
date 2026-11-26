@@ -1,0 +1,19 @@
+# Huezoo Android tablet, 02-threshold: Threshold game, first round, before any tap. RELEASE build only
+# (package xyz.ksharma.huezoo, no ".debug" suffix): the debug build draws a "TridentSpoke" layout label and outlines the odd swatch.
+# Release is the free tier (no debug toggles): Home shows "5 / 5 TRIES REMAINING". Run with wifi/data off so no ad request is made.
+# First launch shows the Quick Note screen: GOT IT dismisses it.
+appId: xyz.ksharma.huezoo
+---
+- runFlow:
+    when:
+      visible: "GOT IT.*"
+    commands:
+      - tapOn: "GOT IT.*"
+      - waitForAnimationToEnd:
+          timeout: 3000
+- tapOn: "ENTER SIMULATION"
+- extendedWaitUntil:
+    visible: "IDENTIFY.*OUTLIER"
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 3000

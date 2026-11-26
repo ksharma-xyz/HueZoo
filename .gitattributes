@@ -1,0 +1,2 @@
+# Store listing captures and panels.
+app-store-assets/**/*.png filter=lfs diff=lfs merge=lfs -text

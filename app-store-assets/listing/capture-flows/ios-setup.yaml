@@ -1,0 +1,27 @@
+# Canonical state, run ONCE per fresh install of the DEBUG build (cold start, first launch).
+# Dismisses the first-run eye-strain notice, then in Settings > DEBUG switches the app to PAID
+# and hides ads. HIDE ADS lives in memory only (DebugFlags.hideAds), so it is lost on every
+# relaunch of the app: never relaunch the Debug build between captures, or run this flow again
+# (paid persists, so the second run only needs the HIDE ADS half; see ios-hide-ads.yaml).
+# env: BACK_POINT  e.g. 11%,7%  (top-bar back button, integer percents only)
+appId: xyz.ksharma.huezoo
+---
+- launchApp:
+    clearState: false
+- scrollUntilVisible:
+    element: "GOT IT — LET'S PLAY"
+- tapOn: "GOT IT — LET'S PLAY"
+- extendedWaitUntil:
+    visible: "CURRENT INVENTORY"
+    timeout: 15000
+- tapOn: "⚙"
+- scrollUntilVisible:
+    element: "SWITCH TO PAID"
+- tapOn: "SWITCH TO PAID"
+- assertVisible: "SWITCH TO FREE"
+- runFlow: ios-hide-ads-from-settings.yaml
+- tapOn:
+    point: ${BACK_POINT}
+- extendedWaitUntil:
+    visible: "CURRENT INVENTORY"
+    timeout: 10000

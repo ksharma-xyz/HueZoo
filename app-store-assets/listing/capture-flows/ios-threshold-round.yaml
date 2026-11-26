@@ -1,0 +1,12 @@
+# Home -> The Threshold, first round, before any tap (ΔE badge, hearts, radial swatches).
+# Used for 02-threshold.png. Capture it with the RELEASE build (Debug draws a layout-name label
+# above the swatches and outlines the odd swatch).
+appId: xyz.ksharma.huezoo
+---
+- scrollUntilVisible:
+    element: "ENTER SIMULATION"
+- tapOn: "ENTER SIMULATION"
+- extendedWaitUntil:
+    visible: "Lower ΔE = harder to spot"
+    timeout: 15000
+- waitForAnimationToEnd

@@ -1,0 +1,142 @@
+{
+ "app": "Huezoo",
+ "fonts": [
+  {
+   "family": "Clash",
+   "file": "../../composeApp/src/commonMain/composeResources/font/clash_display_bold.ttf",
+   "weight": 700
+  },
+  {
+   "family": "Bebas",
+   "file": "../../composeApp/src/commonMain/composeResources/font/bebas_neue_regular.ttf",
+   "weight": 400
+  },
+  {
+   "family": "Grotesk",
+   "file": "../../composeApp/src/commonMain/composeResources/font/space_grotesk_medium.ttf",
+   "weight": 500
+  }
+ ],
+ "max_font": {
+  "portrait": 9.6,
+  "landscape": 8.4
+ },
+ "raw_dirs": {
+  "iphone-6.9": "../screenshots/iphone-6.9in-1320x2868",
+  "ipad-13": "../screenshots/ipad-13in-2064x2752",
+  "iphone-duo-outer": "../screenshots/iphone-duo-outer-1398x2034",
+  "iphone-duo-inner-landscape": "../screenshots/iphone-duo-inner-2853x2007",
+  "iphone-duo-inner-portrait": "../screenshots/iphone-duo-inner-2007x2853",
+  "android-phone": "../screenshots/android-phone",
+  "android-tablet": "../screenshots/android-tablet",
+  "iphone-6.5": "../screenshots/iphone-6.9in-1320x2868",
+  "iphone-6.3": "../screenshots/iphone-6.9in-1320x2868"
+ },
+ "panels": [
+  {
+   "slug": "home",
+   "raw": "01-home.png",
+   "seal": "HUEZ",
+   "lines": [
+    "Train your eye",
+    "for color"
+   ],
+   "sub": "Three ways to test your sight",
+   "colors": {
+    "primary": "#00E5FF",
+    "secondary": "#FF2D78",
+    "flower": "#00E5FF",
+    "flowerOdd": "#6FF0FF",
+    "ink": "#FFFFFF",
+    "accent": "#00E5FF",
+    "sub": "#B9B9D6",
+    "seal": "#00E5FF",
+    "shadow": "0, 229, 255"
+   }
+  },
+  {
+   "slug": "threshold",
+   "raw": "02-threshold.png",
+   "seal": "HUEZ",
+   "lines": [
+    "Spot the odd",
+    "color out"
+   ],
+   "sub": "Find the one petal that is off",
+   "colors": {
+    "primary": "#7B6FF0",
+    "secondary": "#00E5FF",
+    "flower": "#7B6FF0",
+    "flowerOdd": "#A49BFF",
+    "ink": "#FFFFFF",
+    "accent": "#A79DFF",
+    "sub": "#B9B9D6",
+    "seal": "#00E5FF",
+    "shadow": "123, 111, 240"
+   }
+  },
+  {
+   "slug": "color-memory",
+   "raw": "03-color-memory.png",
+   "seal": "HUEZ",
+   "lines": [
+    "Same or",
+    "different?"
+   ],
+   "sub": "Trust your memory of a shade",
+   "colors": {
+    "primary": "#00C9A7",
+    "secondary": "#9B5DE5",
+    "flower": "#00C9A7",
+    "flowerOdd": "#3FE8C8",
+    "ink": "#FFFFFF",
+    "accent": "#2FE0C0",
+    "sub": "#B9B9D6",
+    "seal": "#00E5FF",
+    "shadow": "0, 201, 167"
+   }
+  },
+  {
+   "slug": "result",
+   "raw": "04-result.png",
+   "seal": "HUEZ",
+   "lines": [
+    "Beat your",
+    "personal best"
+   ],
+   "sub": "Gems, streaks and your tightest ΔE",
+   "colors": {
+    "primary": "#9B5DE5",
+    "secondary": "#FFE600",
+    "flower": "#9B5DE5",
+    "flowerOdd": "#BC8CF5",
+    "ink": "#FFFFFF",
+    "accent": "#FFE600",
+    "sub": "#B9B9D6",
+    "seal": "#00E5FF",
+    "shadow": "155, 93, 229"
+   }
+  },
+  {
+   "slug": "daily",
+   "raw": "05-daily.png",
+   "seal": "HUEZ",
+   "lines": [
+    "Daily challenge",
+    "for everyone"
+   ],
+   "sub": "Same colors for everyone, each day",
+   "colors": {
+    "primary": "#FF8A50",
+    "secondary": "#FF2D78",
+    "flower": "#FF8A50",
+    "flowerOdd": "#FFAD85",
+    "ink": "#FFFFFF",
+    "accent": "#FF8A50",
+    "sub": "#B9B9D6",
+    "seal": "#00E5FF",
+    "shadow": "255, 138, 80"
+   }
+  }
+ ]
+}

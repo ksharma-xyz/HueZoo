@@ -1,0 +1,11 @@
+# Home -> Color Memory, round 1, waits for the "Same — or different?" decision phase
+# (chamber A sealed, chamber B live). Used for 03-color-memory.png.
+appId: xyz.ksharma.huezoo
+---
+- scrollUntilVisible:
+    element: "COLOR MEMORY"
+- tapOn: "COLOR MEMORY"
+- extendedWaitUntil:
+    visible: "Same — or different?"
+    timeout: 20000
+- waitForAnimationToEnd

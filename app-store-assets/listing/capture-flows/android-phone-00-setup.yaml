@@ -1,0 +1,37 @@
+# Huezoo Android phone (1080x2400), one-off debug state on a FRESH debug install.
+# Fresh install: first launch shows the "Quick Note" screen, then Home.
+# Sets SWITCH TO PAID and HIDE ADS (each a one-way flip from the fresh state; do not run twice).
+appId: xyz.ksharma.huezoo.debug
+---
+# Start the app first with adb (Maestro's launchApp hung under heavy host load):
+#   adb -s $S shell am start -n xyz.ksharma.huezoo.debug/xyz.ksharma.huezoo.MainActivity
+- waitForAnimationToEnd:
+    timeout: 4000
+- runFlow:
+    when:
+      visible: "GOT IT.*"
+    commands:
+      - tapOn: "GOT IT.*"
+      - waitForAnimationToEnd:
+          timeout: 3000
+- tapOn:
+    point: "91%,8%"          # settings gear, top right of Home
+- waitForAnimationToEnd
+- scrollUntilVisible:
+    element: "SWITCH TO PAID"
+    direction: DOWN
+    timeout: 30000
+- tapOn: "SWITCH TO PAID"
+- scrollUntilVisible:
+    element: "HIDE ADS"
+    direction: DOWN
+    timeout: 30000
+- waitForAnimationToEnd      # let the scroll fling settle, a tap during the fling is dropped
+- tapOn: "HIDE ADS"
+- waitForAnimationToEnd
+- assertVisible: "ON — ads hidden.*"
+# Hide Ads lives in memory (DebugFlags), not in storage: do not kill the app after this, or tap HIDE ADS again.
+- tapOn:
+    point: "10%,8%"          # back arrow
+- waitForAnimationToEnd:
+    timeout: 3000

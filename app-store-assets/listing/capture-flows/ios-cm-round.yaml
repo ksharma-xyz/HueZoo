@@ -1,0 +1,11 @@
+# One Color Memory round: wait for the decision phase, answer, wait for it to leave.
+# env: ANSWER = SAME | DIFFERENT
+appId: xyz.ksharma.huezoo
+---
+- extendedWaitUntil:
+    visible: "Same — or different?"
+    timeout: 25000
+- tapOn: ${ANSWER}
+- extendedWaitUntil:
+    notVisible: "Same — or different?"
+    timeout: 8000
