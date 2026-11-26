@@ -1,0 +1,15 @@
+# Huezoo Android tablet, 04-result: Color Memory, play 5 rounds -> result "MISSION OUTCOME: COMPLETE" + NEW PERSONAL BEST.
+# On Threshold the COMPLETE banner is not reachable (it shows FLATLINED / FAILURE / LEGENDARY); COMPLETE is Color Memory or Daily.
+# Rounds 1-3 are answered correctly, rounds 4-5 wrong on purpose: a correct round at DeltaE <= 1.0 turns the banner to LEGENDARY.
+# Maestro cannot see chamber A's colour, so the answers come from android-cm_play.py (pixel-compares A while shown against B):
+#   1. start the player:  python3 android-cm_play.py <serial> 5 4 &
+#   2. immediately run this flow (it taps the card) and capture the PNG after the banner appears.
+appId: xyz.ksharma.huezoo.debug
+---
+- scrollUntilVisible:
+    element: "COLOR MEMORY"
+- tapOn: "COLOR MEMORY"
+- extendedWaitUntil:
+    visible: "MISSION OUTCOME.*"
+    timeout: 170000
+- waitForAnimationToEnd

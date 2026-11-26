@@ -1,0 +1,4 @@
+# Huezoo Android phone and tablet, 01-home: Home at the top of the scroll after android-*-00-setup.yaml (paid, ads hidden).
+appId: xyz.ksharma.huezoo.debug
+---
+- assertVisible: "ENTER SIMULATION"

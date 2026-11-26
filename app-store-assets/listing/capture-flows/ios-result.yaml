@@ -1,0 +1,40 @@
+# Home -> Color Memory -> answer the 5 rounds -> result screen
+# ("MISSION OUTCOME: COMPLETE", gems earned, new personal best). Used for 04-result.png.
+# Whether a pair is same or different is a coin flip (DefaultColorMemoryGameEngine) and the
+# answer is not readable from the UI, so the score varies run to run: a score of 0 or below shows
+# "FLATLINED" and the flow fails on its COMPLETE assertion. result-retry.sh re-runs it with random
+# answers until the result reads "COMPLETE" with a new personal best.
+# Debug build, ads hidden (a free/ad state would show an interstitial before round 1).
+# env: A1..A5 = SAME | DIFFERENT
+appId: xyz.ksharma.huezoo
+---
+- runFlow: ios-color-memory-decision.yaml
+- runFlow:
+    file: ios-cm-round.yaml
+    env:
+      ANSWER: ${A1}
+- runFlow:
+    file: ios-cm-round.yaml
+    env:
+      ANSWER: ${A2}
+- runFlow:
+    file: ios-cm-round.yaml
+    env:
+      ANSWER: ${A3}
+- runFlow:
+    file: ios-cm-round.yaml
+    env:
+      ANSWER: ${A4}
+- runFlow:
+    file: ios-cm-round.yaml
+    env:
+      ANSWER: ${A5}
+- extendedWaitUntil:
+    visible: "MISSION OUTCOME.*"
+    timeout: 25000
+# Fail (so the retry script runs it again) unless the banner is COMPLETE (LEGENDARY adds a rainbow
+# frame and is not what the existing example shows) and a new
+# personal best is shown.
+- assertVisible: "MISSION OUTCOME: COMPLETE"
+- assertVisible: ".*NEW PERSONAL BEST.*"
+- waitForAnimationToEnd

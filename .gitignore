@@ -30,3 +30,6 @@ GoogleService-Info.plist
 
 # MkDocs build output
 site/
+
+# Store listing art is tracked, pictures through Git LFS. Rejected and old drafts stay local.
+app-store-assets/_*/

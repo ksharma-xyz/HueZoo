@@ -1,0 +1,15 @@
+# Re-apply HIDE ADS after the Debug build was relaunched or reinstalled over a Release build
+# (paid status persists in the app database, HIDE ADS does not).
+# env: BACK_POINT
+appId: xyz.ksharma.huezoo
+---
+- extendedWaitUntil:
+    visible: "CURRENT INVENTORY"
+    timeout: 20000
+- tapOn: "⚙"
+- runFlow: ios-hide-ads-from-settings.yaml
+- tapOn:
+    point: ${BACK_POINT}
+- extendedWaitUntil:
+    visible: "CURRENT INVENTORY"
+    timeout: 10000

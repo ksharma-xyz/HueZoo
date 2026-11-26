@@ -1,0 +1,10 @@
+# Huezoo Android tablet, 05-daily: Home -> Daily Challenge, round 1, before any tap.
+appId: xyz.ksharma.huezoo.debug
+---
+- scrollUntilVisible:
+    element: "DAILY CHALLENGE"
+- tapOn: "DAILY CHALLENGE"
+- extendedWaitUntil:
+    visible: ".*Same for everyone.*"
+    timeout: 15000
+- waitForAnimationToEnd

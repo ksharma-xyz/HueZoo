@@ -1,0 +1,13 @@
+# Sub-flow: assumes Settings is open (Debug build). Taps HIDE ADS.
+# The row label "Hide Ads" also matches "HIDE ADS" (Maestro text match ignores case), so the
+# selector is anchored below the row description to hit the button.
+appId: xyz.ksharma.huezoo
+---
+- scrollUntilVisible:
+    element:
+      text: "HIDE ADS"
+      below: "OFF — ads shown as normal."
+- tapOn:
+    text: "HIDE ADS"
+    below: "OFF — ads shown as normal."
+- assertVisible: "SHOW ADS"

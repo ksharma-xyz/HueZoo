@@ -1,0 +1,52 @@
+# Return to Home from any game or result screen (the back button is only reachable by point).
+# Mid-game back shows a "LEAVE SESSION?" dialog; it is confirmed with LEAVE.
+# Home counts as reached when any Home-only text is on screen (Home may be scrolled).
+# env: BACK_POINT (required), BACK_POINT_2, BACK_POINT_3 (optional extra points tried in the same
+# iteration). iPhones need one point. On iPad the top bar sits at a different x per screen
+# (Settings/Result, Color Memory, Threshold/Daily), and the top-left strip holds nothing else,
+# so tapping all of them is safe.
+appId: xyz.ksharma.huezoo
+---
+- repeat:
+    while:
+      notVisible: "CURRENT INVENTORY|ENTER SIMULATION|COLOR MEMORY|GLOBAL LEADERBOARD|WHAT IS ΔE\\?"
+    times: 4
+    commands:
+      - tapOn:
+          point: ${BACK_POINT}
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: "LEAVE SESSION?"
+          commands:
+            - tapOn: "LEAVE"
+            - waitForAnimationToEnd
+      - runFlow:
+          when:
+            notVisible: "CURRENT INVENTORY|ENTER SIMULATION|COLOR MEMORY|GLOBAL LEADERBOARD|WHAT IS ΔE\\?"
+            true: ${typeof BACK_POINT_2 !== 'undefined'}
+          commands:
+            - tapOn:
+                point: ${BACK_POINT_2}
+            - waitForAnimationToEnd
+            - runFlow:
+                when:
+                  visible: "LEAVE SESSION?"
+                commands:
+                  - tapOn: "LEAVE"
+                  - waitForAnimationToEnd
+      - runFlow:
+          when:
+            notVisible: "CURRENT INVENTORY|ENTER SIMULATION|COLOR MEMORY|GLOBAL LEADERBOARD|WHAT IS ΔE\\?"
+            true: ${typeof BACK_POINT_3 !== 'undefined'}
+          commands:
+            - tapOn:
+                point: ${BACK_POINT_3}
+            - waitForAnimationToEnd
+            - runFlow:
+                when:
+                  visible: "LEAVE SESSION?"
+                commands:
+                  - tapOn: "LEAVE"
+                  - waitForAnimationToEnd
+- assertVisible: "CURRENT INVENTORY|ENTER SIMULATION|COLOR MEMORY|GLOBAL LEADERBOARD|WHAT IS ΔE\\?"

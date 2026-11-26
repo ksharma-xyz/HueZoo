@@ -1,0 +1,10 @@
+# Huezoo Android phone, 03-color-memory: Home -> Color Memory, round 1, "Same — or different?" decision phase.
+appId: xyz.ksharma.huezoo.debug
+---
+- scrollUntilVisible:
+    element: "COLOR MEMORY"
+- tapOn: "COLOR MEMORY"
+- extendedWaitUntil:
+    visible: "Same — or different?"
+    timeout: 20000
+- waitForAnimationToEnd
